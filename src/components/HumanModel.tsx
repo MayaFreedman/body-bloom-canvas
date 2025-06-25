@@ -1,4 +1,3 @@
-
 import React, { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
@@ -10,7 +9,7 @@ interface HumanModelProps {
 
 export const HumanModel = ({ bodyPartColors = {} }: HumanModelProps) => {
   const groupRef = useRef<Group>(null);
-  const { scene } = useGLTF('/src/Assets/body.glb');
+  const { scene } = useGLTF('/src/assets/body.glb');
 
   // Subtle breathing animation
   useFrame((state) => {
@@ -109,4 +108,4 @@ export const HumanModel = ({ bodyPartColors = {} }: HumanModelProps) => {
 };
 
 // Preload the GLB model
-useGLTF.preload('/src/Assets/body.glb');
+useGLTF.preload('/src/assets/body.glb');
