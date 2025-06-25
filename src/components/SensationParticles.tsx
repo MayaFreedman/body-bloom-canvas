@@ -1,4 +1,3 @@
-
 import React, { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
@@ -33,7 +32,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
         const particles: SensationParticle[] = [];
         
         // Create particles based on icon type
-        const particleCount = mark.icon === 'Activity' ? 12 : 8; // More particles for nerves
+        const particleCount = mark.icon === 'butterfly' ? 12 : 8; // More particles for nerves (butterfly)
         
         for (let i = 0; i < particleCount; i++) {
           particles.push({
@@ -49,7 +48,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             ),
             life: Math.random() * 100,
             maxLife: 100 + Math.random() * 50,
-            size: 0.02 + Math.random() * 0.03
+            size: (0.02 + Math.random() * 0.03) * 1.5 // 50% larger particles
           });
         }
         
@@ -90,7 +89,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
           ));
           
           // Different movement patterns based on icon type
-          if (mark.icon === 'Activity') {
+          if (mark.icon === 'butterfly') {
             // Nerves: erratic, jittery movement
             particle.velocity.set(
               (Math.random() - 0.5) * 0.02,
@@ -108,7 +107,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
         }
         
         // Update position based on icon type
-        if (mark.icon === 'Activity') {
+        if (mark.icon === 'butterfly') {
           // Nerves: add jitter to simulate electrical activity
           const jitter = Math.sin(state.clock.elapsedTime * 10 + particle.life) * 0.005;
           particle.position.add(particle.velocity);
@@ -129,7 +128,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       const opacity = 1 - (particle.life / particle.maxLife);
       
       // Different shapes based on icon type
-      if (mark.icon === 'Activity') {
+      if (mark.icon === 'butterfly') {
         // Nerves: small cubes to represent electrical signals
         return (
           <mesh key={`${mark.id}-${index}`} position={particle.position}>
