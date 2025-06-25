@@ -38,39 +38,71 @@ interface BodyPartColors {
   [key: string]: string;
 }
 
-// Simple click handler for body part filling
-const ClickHandler = ({ mode, selectedColor, onBodyPartClick }: {
+// Raycaster component to handle clicks on 3D model
+const ClickHandler = ({ mode, selectedColor, onBodyPartClick, onScreenClick, onModelHover }: {
   mode: 'draw' | 'fill' | 'effects';
   selectedColor: string;
   onBodyPartClick: (partName: string, color: string) => void;
+  onScreenClick: (x: number, y: number) => void;
+  onModelHover: (isOverModel: boolean, screenX?: number, screenY?: number) => void;
 }) => {
   const { camera, gl, raycaster, mouse, scene } = useThree();
 
-  const handleClick = useCallback((event: MouseEvent) => {
-    if (mode !== 'fill') return;
-    
+  const checkModelIntersection = useCallback((clientX: number, clientY: number) => {
     const rect = gl.domElement.getBoundingClientRect();
-    mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-    mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+    mouse.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+    mouse.y = -((clientY - rect.top) / rect.height) * 2 + 1;
 
     raycaster.setFromCamera(mouse, camera);
     const intersects = raycaster.intersectObjects(scene.children, true);
     
+    // Check if any intersected object is part of the human model
     const modelIntersection = intersects.find(intersect => 
-      intersect.object.userData.bodyPart
+      intersect.object.userData.bodyPart || 
+      intersect.object.parent?.userData.isHumanModel
     );
     
-    if (modelIntersection?.object.userData.bodyPart) {
-      onBodyPartClick(modelIntersection.object.userData.bodyPart, selectedColor);
+    return {
+      isOverModel: !!modelIntersection,
+      screenX: clientX - rect.left,
+      screenY: clientY - rect.top,
+      bodyPart: modelIntersection?.object.userData.bodyPart
+    };
+  }, [camera, gl, raycaster, mouse, scene]);
+
+  const handleClick = useCallback((event: MouseEvent) => {
+    const intersection = checkModelIntersection(event.clientX, event.clientY);
+    
+    if (mode === 'fill' && intersection.bodyPart) {
+      onBodyPartClick(intersection.bodyPart, selectedColor);
+      return;
     }
-  }, [mode, selectedColor, onBodyPartClick, camera, gl, raycaster, mouse, scene]);
+
+    if (mode === 'effects') {
+      onScreenClick(intersection.screenX!, intersection.screenY!);
+    }
+  }, [mode, selectedColor, onBodyPartClick, onScreenClick, checkModelIntersection]);
+
+  const handleMouseMove = useCallback((event: MouseEvent) => {
+    if (mode === 'draw') {
+      const intersection = checkModelIntersection(event.clientX, event.clientY);
+      onModelHover(intersection.isOverModel, intersection.screenX, intersection.screenY);
+    }
+  }, [mode, checkModelIntersection, onModelHover]);
 
   React.useEffect(() => {
-    if (mode === 'fill') {
+    if (mode !== 'draw') {
       gl.domElement.addEventListener('click', handleClick);
       return () => gl.domElement.removeEventListener('click', handleClick);
     }
   }, [handleClick, gl, mode]);
+
+  React.useEffect(() => {
+    if (mode === 'draw') {
+      gl.domElement.addEventListener('mousemove', handleMouseMove);
+      return () => gl.domElement.removeEventListener('mousemove', handleMouseMove);
+    }
+  }, [handleMouseMove, gl, mode]);
 
   return null;
 };
@@ -86,31 +118,59 @@ const EmotionalBodyMapper = () => {
   const [isDrawing, setIsDrawing] = useState(false);
   const [currentStroke, setCurrentStroke] = useState<DrawingPoint[]>([]);
   const [rotation, setRotation] = useState(0);
+  const [isOverModel, setIsOverModel] = useState(false);
+  const [currentMousePos, setCurrentMousePos] = useState({ x: 0, y: 0 });
   const canvasRef = useRef<HTMLDivElement>(null);
   const drawingCanvasRef = useRef<HTMLCanvasElement>(null);
-  const threeCanvasRef = useRef<HTMLCanvasElement>(null);
 
-  // Get reference to Three.js canvas for drawing bounds detection
-  useEffect(() => {
-    const canvas = canvasRef.current?.querySelector('canvas');
-    if (canvas) {
-      threeCanvasRef.current = canvas;
-    }
-  }, []);
+  const emotionalColors = [
+    { color: '#FFD700', name: 'Joy', emotion: 'joy' },
+    { color: '#4169E1', name: 'Sadness', emotion: 'sadness' },
+    { color: '#FF0000', name: 'Anger', emotion: 'anger' },
+    { color: '#32CD32', name: 'Disgust', emotion: 'disgust' },
+    { color: '#800080', name: 'Fear', emotion: 'fear' },
+    { color: '#FFA500', name: 'Surprise', emotion: 'surprise' },
+    { color: '#FF69B4', name: 'Love', emotion: 'love' },
+    { color: '#87CEEB', name: 'Peace', emotion: 'peace' },
+    { color: '#98FB98', name: 'Hope', emotion: 'hope' },
+    { color: '#DDA0DD', name: 'Anxiety', emotion: 'anxiety' },
+    { color: '#F0E68C', name: 'Excitement', emotion: 'excitement' },
+    { color: '#CD853F', name: 'Shame', emotion: 'shame' }
+  ];
 
-  // Simple drawing - works anywhere on the canvas overlay
+  const bodySensations = [
+    { icon: Activity, name: 'Nerves', color: '#9966CC' },
+    { icon: Zap, name: 'Pain', color: '#FFD700' },
+    { icon: Wind, name: 'Nausea', color: '#32CD32' },
+    { icon: Droplet, name: 'Tears', color: '#4169E1' },
+    { icon: Snowflake, name: 'Decreased Temperature', color: '#87CEEB' },
+    { icon: Thermometer, name: 'Increased Temperature', color: '#FF4500' },
+    { icon: Heart, name: 'Increased Heart Rate', color: '#FF1493' },
+    { icon: Heart, name: 'Decreased Heart Rate', color: '#800080' },
+    { icon: Wind, name: 'Tired', color: '#696969' },
+    { icon: Activity, name: 'Change in Breathing', color: '#20B2AA' },
+    { icon: Star, name: 'Tingling', color: '#FFD700' },
+    { icon: Activity, name: 'Shaky', color: '#FF6347' },
+    { icon: Droplet, name: 'Pacing', color: '#4682B4' },
+    { icon: Activity, name: 'Stomping', color: '#8B4513' },
+    { icon: Wind, name: 'Tight', color: '#2F4F4F' },
+    { icon: Sparkles, name: 'Lump in Throat', color: '#9ACD32' },
+    { icon: Activity, name: 'Change in Appetite', color: '#FF8C00' },
+    { icon: Wind, name: 'Heaviness', color: '#708090' },
+    { icon: Activity, name: 'Fidgety', color: '#DC143C' },
+    { icon: Snowflake, name: 'Frozen/Stiff', color: '#B0C4DE' }
+  ];
+
+  // Drawing functionality - only works when over the model
   const startDrawing = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (mode !== 'draw') return;
+    if (mode !== 'draw' || !isOverModel) return;
     
-    console.log('Starting drawing...');
     setIsDrawing(true);
     const rect = drawingCanvasRef.current?.getBoundingClientRect();
     if (!rect) return;
     
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    
-    console.log('Draw start point:', { x, y });
     
     setCurrentStroke([{
       x,
@@ -119,10 +179,10 @@ const EmotionalBodyMapper = () => {
       size: brushSize[0],
       timestamp: Date.now()
     }]);
-  }, [mode, selectedColor, brushSize]);
+  }, [mode, selectedColor, brushSize, isOverModel]);
 
   const draw = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!isDrawing || mode !== 'draw') return;
+    if (!isDrawing || mode !== 'draw' || !isOverModel) return;
     
     const rect = drawingCanvasRef.current?.getBoundingClientRect();
     if (!rect) return;
@@ -139,12 +199,11 @@ const EmotionalBodyMapper = () => {
     };
     
     setCurrentStroke(prev => [...prev, newPoint]);
-  }, [isDrawing, mode, selectedColor, brushSize]);
+  }, [isDrawing, mode, selectedColor, brushSize, isOverModel]);
 
   const stopDrawing = useCallback(() => {
     if (!isDrawing || mode !== 'draw') return;
     
-    console.log('Stopping drawing, stroke length:', currentStroke.length);
     setIsDrawing(false);
     if (currentStroke.length > 0) {
       const newStroke: DrawingStroke = {
@@ -154,7 +213,6 @@ const EmotionalBodyMapper = () => {
         size: brushSize[0]
       };
       setDrawingStrokes(prev => [...prev, newStroke]);
-      console.log('Added new stroke:', newStroke);
     }
     setCurrentStroke([]);
   }, [isDrawing, mode, currentStroke, selectedColor, brushSize]);
@@ -227,6 +285,13 @@ const EmotionalBodyMapper = () => {
       setEffects(prev => [...prev, newEffect]);
     }
   }, [mode, selectedEffect, selectedColor, brushSize]);
+
+  const handleModelHover = useCallback((overModel: boolean, screenX?: number, screenY?: number) => {
+    setIsOverModel(overModel);
+    if (screenX !== undefined && screenY !== undefined) {
+      setCurrentMousePos({ x: screenX, y: screenY });
+    }
+  }, []);
 
   const rotateLeft = () => {
     setRotation(prev => prev - Math.PI / 2);
@@ -312,6 +377,8 @@ const EmotionalBodyMapper = () => {
                   mode={mode}
                   selectedColor={selectedColor}
                   onBodyPartClick={handleBodyPartClick}
+                  onScreenClick={handleScreenClick}
+                  onModelHover={handleModelHover}
                 />
                 
                 <OrbitControls 
@@ -332,7 +399,7 @@ const EmotionalBodyMapper = () => {
                 width={600}
                 height={600}
                 style={{ 
-                  cursor: mode === 'draw' ? 'crosshair' : 'default',
+                  cursor: mode === 'draw' ? (isOverModel ? 'crosshair' : 'default') : 'default',
                   pointerEvents: mode === 'draw' ? 'auto' : 'none'
                 }}
                 onMouseDown={startDrawing}
@@ -345,7 +412,7 @@ const EmotionalBodyMapper = () => {
             <div className="mt-4 text-center text-gray-600">
               <p className="text-sm">
                 {mode === 'draw' 
-                  ? 'Click and drag to draw on the canvas • Use rotation buttons to rotate the model • Scroll to zoom'
+                  ? 'Click and drag on the body model to draw • Use rotation buttons to rotate the model • Scroll to zoom'
                   : mode === 'fill'
                   ? 'Click on body parts to fill them with color • Use rotation buttons to rotate • Scroll to zoom'
                   : 'Use rotation buttons to rotate • Scroll to zoom • Click to add effects'
