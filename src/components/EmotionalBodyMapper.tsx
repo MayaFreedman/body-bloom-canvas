@@ -408,14 +408,6 @@ const EmotionalBodyMapper = () => {
                         <Palette className="w-4 h-4 mr-2" />
                         Fill Mode
                       </Button>
-                      <Button
-                        variant={mode === 'effects' ? 'default' : 'outline'}
-                        className="bg-green-500 text-white hover:bg-green-600"
-                        onClick={() => setMode('effects')}
-                      >
-                        <Sparkles className="w-4 h-4 mr-2" />
-                        Effects Mode
-                      </Button>
                     </div>
                   </div>
 
