@@ -9,7 +9,7 @@ interface HumanModelProps {
 
 export const HumanModel = ({ bodyPartColors = {} }: HumanModelProps) => {
   const groupRef = useRef<Group>(null);
-  const { scene } = useGLTF('/src/assets/body.glb');
+  const { scene } = useGLTF('/body.glb');
 
   // Subtle breathing animation
   useFrame((state) => {
@@ -108,4 +108,4 @@ export const HumanModel = ({ bodyPartColors = {} }: HumanModelProps) => {
 };
 
 // Preload the GLB model
-useGLTF.preload('/src/assets/body.glb');
+useGLTF.preload('/body.glb');
