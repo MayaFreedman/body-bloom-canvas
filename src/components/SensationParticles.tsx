@@ -1,4 +1,3 @@
-
 import React, { useRef, useMemo } from 'react';
 import { useFrame, useLoader } from '@react-three/fiber';
 import { TextureLoader } from 'three';
@@ -264,14 +263,13 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             key={`${mark.id}-${index}`}
             ref={(ref) => { if (ref) meshes[index] = ref; }}
             position={particle.position} 
-            scale={[particle.size * 1.75, particle.size * 1.75, 1]} // Reduced from 3.5 to 1.75 (50% reduction)
+            scale={[particle.size * 0.875, particle.size * 0.875, 1]}
             rotation={[0, 0, particle.rotation]}
           >
             <spriteMaterial 
               map={butterflyTexture} 
               transparent 
               opacity={opacity * 0.7}
-              color={mark.color}
             />
           </sprite>
         );
