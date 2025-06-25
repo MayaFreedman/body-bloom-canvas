@@ -50,18 +50,18 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
         for (let i = 0; i < particleCount; i++) {
           const baseParticle = {
             position: new THREE.Vector3(
-              mark.position.x + (Math.random() - 0.5) * 0.006, // Reduced from 0.012 to 0.006
-              mark.position.y + (Math.random() - 0.5) * 0.006, // Reduced from 0.012 to 0.006
-              mark.position.z + (Math.random() - 0.5) * 0.006  // Reduced from 0.012 to 0.006
+              mark.position.x + (Math.random() - 0.5) * 0.0015, // Reduced from 0.003 by 50%
+              mark.position.y + (Math.random() - 0.5) * 0.0015, // Reduced from 0.003 by 50%
+              mark.position.z + (Math.random() - 0.5) * 0.0015  // Reduced from 0.003 by 50%
             ),
             velocity: new THREE.Vector3(
-              (Math.random() - 0.5) * 0.0005, // Reduced from 0.001 to 0.0005
-              (Math.random() - 0.5) * 0.0005, // Reduced from 0.001 to 0.0005
-              (Math.random() - 0.5) * 0.0005  // Reduced from 0.001 to 0.0005
+              (Math.random() - 0.5) * 0.00025, // Reduced from 0.0005 by 50%
+              (Math.random() - 0.5) * 0.00025, // Reduced from 0.0005 by 50%
+              (Math.random() - 0.5) * 0.00025  // Reduced from 0.0005 by 50%
             ),
             life: Math.random() * 100,
             maxLife: 80 + Math.random() * 40,
-            size: (0.015 + Math.random() * 0.025) * 1.8,
+            size: (0.015 + Math.random() * 0.025) * 0.9, // Reduced from 1.8 to 0.9 (50% reduction)
             rotation: Math.random() * Math.PI * 2,
             rotationSpeed: (Math.random() - 0.5) * 0.15,
             oscillationPhase: Math.random() * Math.PI * 2,
@@ -76,9 +76,9 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
               flickerPhase: Math.random() * Math.PI * 2,
               electricalPulse: Math.random() * Math.PI * 2,
               velocity: new THREE.Vector3(
-                (Math.random() - 0.5) * 0.001, // Reduced from 0.002 to 0.001
-                (Math.random() - 0.5) * 0.001, // Reduced from 0.002 to 0.001
-                (Math.random() - 0.5) * 0.001  // Reduced from 0.002 to 0.001
+                (Math.random() - 0.5) * 0.0005, // Reduced from 0.001 by 50%
+                (Math.random() - 0.5) * 0.0005, // Reduced from 0.001 by 50%
+                (Math.random() - 0.5) * 0.0005  // Reduced from 0.001 by 50%
               ),
               rotationSpeed: (Math.random() - 0.5) * 0.4,
               oscillationSpeed: 3 + Math.random() * 6
@@ -134,9 +134,9 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
           particle.life = 0;
           particle.position.copy(mark.position);
           particle.position.add(new THREE.Vector3(
-            (Math.random() - 0.5) * 0.005, // Reduced from 0.01 to 0.005
-            (Math.random() - 0.5) * 0.005, // Reduced from 0.01 to 0.005
-            (Math.random() - 0.5) * 0.005  // Reduced from 0.01 to 0.005
+            (Math.random() - 0.5) * 0.0025, // Reduced from 0.005 by 50%
+            (Math.random() - 0.5) * 0.0025, // Reduced from 0.005 by 50%
+            (Math.random() - 0.5) * 0.0025  // Reduced from 0.005 by 50%
           ));
           
           // Reset animation properties
@@ -150,23 +150,23 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             
             // Reset velocity for nerves
             particle.velocity.set(
-              (Math.random() - 0.5) * 0.001, // Reduced from 0.002 to 0.001
-              (Math.random() - 0.5) * 0.001, // Reduced from 0.002 to 0.001
-              (Math.random() - 0.5) * 0.001  // Reduced from 0.002 to 0.001
+              (Math.random() - 0.5) * 0.0005, // Reduced from 0.001 by 50%
+              (Math.random() - 0.5) * 0.0005, // Reduced from 0.001 by 50%
+              (Math.random() - 0.5) * 0.0005  // Reduced from 0.001 by 50%
             );
           } else if (mark.icon === 'butterfly') {
             // Reset butterfly velocity
             particle.velocity.set(
-              (Math.random() - 0.5) * 0.0008, // Reduced from 0.0015 to 0.0008
-              (Math.random() - 0.5) * 0.0008, // Reduced from 0.0015 to 0.0008
-              (Math.random() - 0.5) * 0.0008  // Reduced from 0.0015 to 0.0008
+              (Math.random() - 0.5) * 0.0004, // Reduced from 0.0008 by 50%
+              (Math.random() - 0.5) * 0.0004, // Reduced from 0.0008 by 50%
+              (Math.random() - 0.5) * 0.0004  // Reduced from 0.0008 by 50%
             );
           } else {
             // Default reset
             particle.velocity.set(
-              (Math.random() - 0.5) * 0.0005, // Reduced from 0.001 to 0.0005
-              Math.random() * 0.001, // Reduced from 0.002 to 0.001
-              (Math.random() - 0.5) * 0.0005  // Reduced from 0.001 to 0.0005
+              (Math.random() - 0.5) * 0.00025, // Reduced from 0.0005 by 50%
+              Math.random() * 0.0005, // Reduced from 0.001 by 50%
+              (Math.random() - 0.5) * 0.00025  // Reduced from 0.0005 by 50%
             );
           }
         }
@@ -174,37 +174,37 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
         // Update position based on icon type with reduced movement range
         if (mark.icon === 'Activity') {
           // Nerves: electrical sparking with reduced movement range
-          const electricalJitter = Math.sin(particle.electricalPulse! * 4) * 0.0004; // Reduced from 0.0008 to 0.0004
-          const sparkJump = Math.sin(time * 25 + particle.life * 0.8) * 0.0003; // Reduced from 0.0005 to 0.0003
-          const rapidOscillation = Math.sin(particle.oscillationPhase * 4) * 0.0004; // Reduced from 0.0008 to 0.0004
+          const electricalJitter = Math.sin(particle.electricalPulse! * 4) * 0.0002; // Reduced from 0.0004 by 50%
+          const sparkJump = Math.sin(time * 25 + particle.life * 0.8) * 0.00015; // Reduced from 0.0003 by 50%
+          const rapidOscillation = Math.sin(particle.oscillationPhase * 4) * 0.0002; // Reduced from 0.0004 by 50%
           
           // More frequent sudden direction changes for electrical effect
           if (Math.random() < 0.08) { // 8% chance per frame
             particle.velocity.multiplyScalar(0.2);
             particle.velocity.add(new THREE.Vector3(
-              (Math.random() - 0.5) * 0.0008, // Reduced from 0.0015 to 0.0008
-              (Math.random() - 0.5) * 0.0008, // Reduced from 0.0015 to 0.0008
-              (Math.random() - 0.5) * 0.0008  // Reduced from 0.0015 to 0.0008
+              (Math.random() - 0.5) * 0.0004, // Reduced from 0.0008 by 50%
+              (Math.random() - 0.5) * 0.0004, // Reduced from 0.0008 by 50%
+              (Math.random() - 0.5) * 0.0004  // Reduced from 0.0008 by 50%
             ));
           }
           
           // Apply velocity and electrical effects
           particle.position.add(particle.velocity);
           particle.position.x += electricalJitter + sparkJump + rapidOscillation;
-          particle.position.y += electricalJitter * 1.2 + Math.cos(particle.oscillationPhase * 3) * 0.0003; // Reduced from 0.0005 to 0.0003
+          particle.position.y += electricalJitter * 1.2 + Math.cos(particle.oscillationPhase * 3) * 0.00015; // Reduced from 0.0003 by 50%
           particle.position.z += rapidOscillation + sparkJump * 0.8;
           
           // Less damping for more active movement
           particle.velocity.multiplyScalar(0.95);
         } else if (mark.icon === 'butterfly') {
           // Butterfly: enhanced fluttering with wing-beat simulation
-          const wingBeat = Math.sin(time * 15 + particle.life) * 0.0005; // Reduced from 0.001 to 0.0005
-          const flutter = Math.sin(particle.oscillationPhase * 2) * 0.0004; // Reduced from 0.0008 to 0.0004
-          const drift = Math.cos(time * 3 + particle.life * 0.1) * 0.0003; // Reduced from 0.0005 to 0.0003
+          const wingBeat = Math.sin(time * 15 + particle.life) * 0.00025; // Reduced from 0.0005 by 50%
+          const flutter = Math.sin(particle.oscillationPhase * 2) * 0.0002; // Reduced from 0.0004 by 50%
+          const drift = Math.cos(time * 3 + particle.life * 0.1) * 0.00015; // Reduced from 0.0003 by 50%
           
           particle.position.add(particle.velocity);
           particle.position.x += wingBeat * (Math.random() - 0.5) + flutter + drift;
-          particle.position.y += wingBeat * 0.8 + Math.cos(particle.oscillationPhase * 1.5) * 0.0004; // Reduced from 0.0008 to 0.0004
+          particle.position.y += wingBeat * 0.8 + Math.cos(particle.oscillationPhase * 1.5) * 0.0002; // Reduced from 0.0004 by 50%
           particle.position.z += flutter * 0.6 + drift * 0.5;
         } else {
           // Default: gentle floating
@@ -233,7 +233,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             }
           } else if (mark.icon === 'butterfly') {
             const wingScale = 1 + Math.sin(particle.oscillationPhase * 3) * 0.4;
-            mesh.scale.setScalar(particle.size * 3.5 * wingScale);
+            mesh.scale.setScalar(particle.size * 1.75 * wingScale); // Reduced from 3.5 to 1.75 (50% reduction)
             
             // Update sprite material opacity
             const material = (mesh as any).material;
@@ -264,7 +264,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             key={`${mark.id}-${index}`}
             ref={(ref) => { if (ref) meshes[index] = ref; }}
             position={particle.position} 
-            scale={[particle.size * 3.5, particle.size * 3.5, 1]}
+            scale={[particle.size * 1.75, particle.size * 1.75, 1]} // Reduced from 3.5 to 1.75 (50% reduction)
             rotation={[0, 0, particle.rotation]}
           >
             <spriteMaterial 
