@@ -24,7 +24,7 @@ export const HumanModel = ({ bodyPartColors = {} }: HumanModelProps) => {
   });
 
   const getPartColor = (partName: string) => {
-    return bodyPartColors[partName] || '#fdbcb4';
+    return bodyPartColors[partName] || '#d1d5db'; // Light gray color
   };
 
   return (
@@ -36,7 +36,7 @@ export const HumanModel = ({ bodyPartColors = {} }: HumanModelProps) => {
         userData={{ bodyPart: 'head' }}
       >
         <sphereGeometry args={[0.3, 16, 16]} />
-        <meshPhongMaterial color={getPartColor('head')} transparent opacity={0.9} />
+        <meshPhongMaterial color={getPartColor('head')} />
       </mesh>
       
       {/* Torso */}
@@ -46,7 +46,7 @@ export const HumanModel = ({ bodyPartColors = {} }: HumanModelProps) => {
         userData={{ bodyPart: 'torso' }}
       >
         <boxGeometry args={[0.8, 1.2, 0.4]} />
-        <meshPhongMaterial color={getPartColor('torso')} transparent opacity={0.9} />
+        <meshPhongMaterial color={getPartColor('torso')} />
       </mesh>
       
       {/* Left Arm */}
@@ -57,7 +57,7 @@ export const HumanModel = ({ bodyPartColors = {} }: HumanModelProps) => {
         userData={{ bodyPart: 'leftArm' }}
       >
         <boxGeometry args={[0.2, 0.8, 0.2]} />
-        <meshPhongMaterial color={getPartColor('leftArm')} transparent opacity={0.9} />
+        <meshPhongMaterial color={getPartColor('leftArm')} />
       </mesh>
       
       {/* Right Arm */}
@@ -68,7 +68,7 @@ export const HumanModel = ({ bodyPartColors = {} }: HumanModelProps) => {
         userData={{ bodyPart: 'rightArm' }}
       >
         <boxGeometry args={[0.2, 0.8, 0.2]} />
-        <meshPhongMaterial color={getPartColor('rightArm')} transparent opacity={0.9} />
+        <meshPhongMaterial color={getPartColor('rightArm')} />
       </mesh>
       
       {/* Left Leg */}
@@ -78,7 +78,7 @@ export const HumanModel = ({ bodyPartColors = {} }: HumanModelProps) => {
         userData={{ bodyPart: 'leftLeg' }}
       >
         <boxGeometry args={[0.25, 1.2, 0.25]} />
-        <meshPhongMaterial color={getPartColor('leftLeg')} transparent opacity={0.9} />
+        <meshPhongMaterial color={getPartColor('leftLeg')} />
       </mesh>
       
       {/* Right Leg */}
@@ -88,7 +88,7 @@ export const HumanModel = ({ bodyPartColors = {} }: HumanModelProps) => {
         userData={{ bodyPart: 'rightLeg' }}
       >
         <boxGeometry args={[0.25, 1.2, 0.25]} />
-        <meshPhongMaterial color={getPartColor('rightLeg')} transparent opacity={0.9} />
+        <meshPhongMaterial color={getPartColor('rightLeg')} />
       </mesh>
       
       {/* Wireframe outline for better definition */}
