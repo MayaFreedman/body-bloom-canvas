@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { Canvas, useThree } from '@react-three/fiber';
 import { OrbitControls, Text } from '@react-three/drei';
@@ -8,9 +9,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { HumanModel } from './HumanModel';
 import { EffectsRenderer } from './EffectsRenderer';
 import { ModelDrawing } from './ModelDrawing';
-import { SensationParticles } from './SensationParticles';
 import html2canvas from 'html2canvas';
-import * THREE from 'three';
+import * as THREE from 'three';
 
 interface DrawingMark {
   id: string;
@@ -257,8 +257,13 @@ const EmotionalBodyMapper = () => {
                     </mesh>
                   ))}
 
-                  {/* Render sensation particles as children of the model group */}
-                  <SensationParticles sensationMarks={sensationMarks} />
+                  {/* Render sensation marks as children of the model group */}
+                  {sensationMarks.map((mark) => (
+                    <mesh key={mark.id} position={mark.position}>
+                      <sphereGeometry args={[mark.size, 8, 8]} />
+                      <meshBasicMaterial color={mark.color} />
+                    </mesh>
+                  ))}
                 </group>
                 
                 <ModelDrawing
