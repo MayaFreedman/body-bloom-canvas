@@ -1,6 +1,5 @@
-
 import React, { useState, useRef, useCallback } from 'react';
-import { Canvas } from '@react-three/fiber';
+import { Canvas, useThree } from '@react-three/fiber';
 import { OrbitControls, Text } from '@react-three/drei';
 import { Brush, Palette, Sparkles, RotateCcw, Download, Zap, Droplet, Heart, Thermometer, Star, Wind, Activity, Snowflake } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -9,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { HumanModel } from './HumanModel';
 import { EffectsRenderer } from './EffectsRenderer';
 import html2canvas from 'html2canvas';
+import * as THREE from 'three';
 
 interface DrawingPoint {
   x: number;
@@ -27,6 +27,47 @@ interface Effect {
   intensity: number;
 }
 
+interface BodyPartColors {
+  [key: string]: string;
+}
+
+// Raycaster component to handle clicks on 3D model
+const ClickHandler = ({ mode, selectedColor, onBodyPartClick, onScreenClick }: {
+  mode: 'draw' | 'effects';
+  selectedColor: string;
+  onBodyPartClick: (partName: string, color: string) => void;
+  onScreenClick: (x: number, y: number) => void;
+}) => {
+  const { camera, gl, raycaster, mouse, scene } = useThree();
+
+  const handleClick = useCallback((event: MouseEvent) => {
+    const rect = gl.domElement.getBoundingClientRect();
+    mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+    raycaster.setFromCamera(mouse, camera);
+    const intersects = raycaster.intersectObjects(scene.children, true);
+
+    if (mode === 'draw' && intersects.length > 0) {
+      const intersectedObject = intersects[0].object;
+      if (intersectedObject.userData.bodyPart) {
+        onBodyPartClick(intersectedObject.userData.bodyPart, selectedColor);
+        return;
+      }
+    }
+
+    // For effects mode or when no body part is hit, use screen coordinates
+    onScreenClick(event.clientX - rect.left, event.clientY - rect.top);
+  }, [mode, selectedColor, onBodyPartClick, onScreenClick, camera, gl, raycaster, mouse, scene]);
+
+  React.useEffect(() => {
+    gl.domElement.addEventListener('click', handleClick);
+    return () => gl.domElement.removeEventListener('click', handleClick);
+  }, [handleClick, gl]);
+
+  return null;
+};
+
 const EmotionalBodyMapper = () => {
   const [mode, setMode] = useState<'draw' | 'effects'>('draw');
   const [selectedColor, setSelectedColor] = useState('#ff6b6b');
@@ -34,6 +75,7 @@ const EmotionalBodyMapper = () => {
   const [selectedEffect, setSelectedEffect] = useState<'sparkle' | 'pulse' | 'flow'>('sparkle');
   const [drawingPoints, setDrawingPoints] = useState<DrawingPoint[]>([]);
   const [effects, setEffects] = useState<Effect[]>([]);
+  const [bodyPartColors, setBodyPartColors] = useState<BodyPartColors>({});
   const canvasRef = useRef<HTMLDivElement>(null);
 
   const emotionalColors = [
@@ -74,23 +116,15 @@ const EmotionalBodyMapper = () => {
     { icon: Snowflake, name: 'Frozen/Stiff', color: '#B0C4DE' }
   ];
 
-  const handleCanvasClick = useCallback((event: React.MouseEvent) => {
-    if (!canvasRef.current) return;
-    
-    const rect = canvasRef.current.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
+  const handleBodyPartClick = useCallback((partName: string, color: string) => {
+    setBodyPartColors(prev => ({
+      ...prev,
+      [partName]: color
+    }));
+  }, []);
 
-    if (mode === 'draw') {
-      const newPoint: DrawingPoint = {
-        x,
-        y,
-        color: selectedColor,
-        size: brushSize[0],
-        timestamp: Date.now()
-      };
-      setDrawingPoints(prev => [...prev, newPoint]);
-    } else if (mode === 'effects') {
+  const handleScreenClick = useCallback((x: number, y: number) => {
+    if (mode === 'effects') {
       const newEffect: Effect = {
         id: `effect-${Date.now()}`,
         type: selectedEffect,
@@ -101,11 +135,12 @@ const EmotionalBodyMapper = () => {
       };
       setEffects(prev => [...prev, newEffect]);
     }
-  }, [mode, selectedColor, brushSize, selectedEffect]);
+  }, [mode, selectedEffect, selectedColor, brushSize]);
 
   const clearAll = () => {
     setDrawingPoints([]);
     setEffects([]);
+    setBodyPartColors({});
   };
 
   const captureScreenshot = async () => {
@@ -141,17 +176,22 @@ const EmotionalBodyMapper = () => {
           <div className="lg:col-span-2 lg:order-1">
             <div 
               ref={canvasRef}
-              className="bg-white rounded-lg shadow-lg overflow-hidden cursor-crosshair relative"
+              className="bg-white rounded-lg shadow-lg overflow-hidden relative"
               style={{ height: '600px' }}
-              onClick={handleCanvasClick}
             >
               <Canvas camera={{ position: [0, 0, 5], fov: 50 }}>
                 <ambientLight intensity={0.6} />
                 <directionalLight position={[10, 10, 5]} intensity={0.8} />
                 <directionalLight position={[-10, -10, -5]} intensity={0.3} />
                 
-                <HumanModel />
+                <HumanModel bodyPartColors={bodyPartColors} />
                 <EffectsRenderer effects={effects} />
+                <ClickHandler 
+                  mode={mode}
+                  selectedColor={selectedColor}
+                  onBodyPartClick={handleBodyPartClick}
+                  onScreenClick={handleScreenClick}
+                />
                 
                 <OrbitControls 
                   enablePan={false}
@@ -162,26 +202,28 @@ const EmotionalBodyMapper = () => {
                 />
               </Canvas>
               
-              {/* Drawing Layer */}
-              <div className="absolute inset-0 pointer-events-none">
-                <svg className="w-full h-full">
-                  {drawingPoints.map((point, index) => (
-                    <circle
-                      key={index}
-                      cx={point.x}
-                      cy={point.y}
-                      r={point.size / 2}
-                      fill={point.color}
-                      opacity={0.7}
-                      className="animate-fade-in"
-                    />
-                  ))}
-                </svg>
-              </div>
+              {/* Drawing Layer for effects mode */}
+              {mode === 'effects' && (
+                <div className="absolute inset-0 pointer-events-none">
+                  <svg className="w-full h-full">
+                    {drawingPoints.map((point, index) => (
+                      <circle
+                        key={index}
+                        cx={point.x}
+                        cy={point.y}
+                        r={point.size / 2}
+                        fill={point.color}
+                        opacity={0.7}
+                        className="animate-fade-in"
+                      />
+                    ))}
+                  </svg>
+                </div>
+              )}
             </div>
             
             <div className="mt-4 text-center text-gray-600">
-              <p className="text-sm">Click and drag to rotate • Scroll to zoom • Click to {mode === 'draw' ? 'paint' : 'add effects'}</p>
+              <p className="text-sm">Click and drag to rotate • Scroll to zoom • Click to {mode === 'draw' ? 'fill body parts' : 'add effects'}</p>
             </div>
 
             {/* Bottom Controls */}
