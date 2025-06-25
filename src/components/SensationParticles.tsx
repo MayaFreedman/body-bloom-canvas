@@ -10,6 +10,10 @@ interface SensationParticle {
   life: number;
   maxLife: number;
   size: number;
+  rotation: number;
+  rotationSpeed: number;
+  oscillationPhase: number;
+  oscillationSpeed: number;
 }
 
 interface SensationParticlesProps {
@@ -53,7 +57,11 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             ),
             life: Math.random() * 100,
             maxLife: 100 + Math.random() * 50,
-            size: (0.02 + Math.random() * 0.03) * 1.5 // 50% larger size
+            size: (0.02 + Math.random() * 0.03) * 1.5, // 50% larger size
+            rotation: Math.random() * Math.PI * 2,
+            rotationSpeed: (Math.random() - 0.5) * 0.1,
+            oscillationPhase: Math.random() * Math.PI * 2,
+            oscillationSpeed: 0.5 + Math.random() * 1.5
           });
         }
         
@@ -83,6 +91,10 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
         // Update particle life
         particle.life += delta * 30;
         
+        // Update animation properties
+        particle.rotation += particle.rotationSpeed * delta * 10;
+        particle.oscillationPhase += particle.oscillationSpeed * delta;
+        
         // Reset particle if it's dead
         if (particle.life >= particle.maxLife) {
           particle.life = 0;
@@ -92,6 +104,11 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             (Math.random() - 0.5) * 0.15,
             (Math.random() - 0.5) * 0.15
           ));
+          
+          // Reset animation properties
+          particle.rotation = Math.random() * Math.PI * 2;
+          particle.rotationSpeed = (Math.random() - 0.5) * 0.1;
+          particle.oscillationPhase = Math.random() * Math.PI * 2;
           
           // Different movement patterns based on icon type
           if (mark.icon === 'butterfly' || mark.icon === 'Activity') {
@@ -115,9 +132,12 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
         if (mark.icon === 'butterfly' || mark.icon === 'Activity') {
           // Butterfly/Nerves: add jitter to simulate fluttering/electrical activity
           const jitter = Math.sin(state.clock.elapsedTime * 10 + particle.life) * 0.0075; // 50% larger jitter
+          const oscillation = Math.sin(particle.oscillationPhase) * 0.01;
+          
           particle.position.add(particle.velocity);
-          particle.position.x += jitter * (Math.random() - 0.5);
-          particle.position.y += jitter * (Math.random() - 0.5);
+          particle.position.x += jitter * (Math.random() - 0.5) + oscillation;
+          particle.position.y += jitter * (Math.random() - 0.5) + Math.cos(particle.oscillationPhase) * 0.008;
+          particle.position.z += oscillation * 0.5;
         } else {
           particle.position.add(particle.velocity);
         }
@@ -134,21 +154,33 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       
       // Different shapes based on icon type
       if (mark.icon === 'butterfly') {
-        // Butterfly: use butterfly texture on sprite
+        // Butterfly: use butterfly texture on sprite with animation
+        const scale = particle.size * 3 * (1 + Math.sin(particle.oscillationPhase * 2) * 0.2);
+        const animatedOpacity = opacity * (0.6 + Math.sin(particle.oscillationPhase * 3) * 0.2);
+        
         return (
-          <sprite key={`${mark.id}-${index}`} position={particle.position} scale={[particle.size * 3, particle.size * 3, 1]}>
+          <sprite 
+            key={`${mark.id}-${index}`} 
+            position={particle.position} 
+            scale={[scale, scale, 1]}
+            rotation={[0, 0, particle.rotation]}
+          >
             <spriteMaterial 
               map={butterflyTexture} 
               transparent 
-              opacity={opacity * 0.8}
+              opacity={animatedOpacity}
               color={mark.color}
             />
           </sprite>
         );
       } else if (mark.icon === 'Activity') {
-        // Nerves: small cubes to represent electrical signals
+        // Nerves: small cubes to represent electrical signals with rotation
         return (
-          <mesh key={`${mark.id}-${index}`} position={particle.position}>
+          <mesh 
+            key={`${mark.id}-${index}`} 
+            position={particle.position}
+            rotation={[particle.rotation, particle.rotation * 0.7, particle.rotation * 0.5]}
+          >
             <boxGeometry args={[particle.size, particle.size, particle.size]} />
             <meshBasicMaterial 
               color={mark.color} 
