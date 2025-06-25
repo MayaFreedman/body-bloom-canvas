@@ -32,24 +32,24 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       if (!particleSystemsRef.current.has(mark.id)) {
         const particles: SensationParticle[] = [];
         
-        // Create particles based on icon type
-        const particleCount = mark.icon === 'Activity' ? 12 : 8; // More particles for nerves
+        // Create particles based on icon type - increased particle count for butterfly/nerves
+        const particleCount = (mark.icon === 'butterfly' || mark.icon === 'Activity') ? 12 : 8;
         
         for (let i = 0; i < particleCount; i++) {
           particles.push({
             position: new THREE.Vector3(
-              mark.position.x + (Math.random() - 0.5) * 0.2,
-              mark.position.y + (Math.random() - 0.5) * 0.2,
-              mark.position.z + (Math.random() - 0.5) * 0.2
+              mark.position.x + (Math.random() - 0.5) * 0.3, // 50% larger spread
+              mark.position.y + (Math.random() - 0.5) * 0.3,
+              mark.position.z + (Math.random() - 0.5) * 0.3
             ),
             velocity: new THREE.Vector3(
-              (Math.random() - 0.5) * 0.01,
-              (Math.random() - 0.5) * 0.01,
-              (Math.random() - 0.5) * 0.01
+              (Math.random() - 0.5) * 0.015, // 50% larger velocity
+              (Math.random() - 0.5) * 0.015,
+              (Math.random() - 0.5) * 0.015
             ),
             life: Math.random() * 100,
             maxLife: 100 + Math.random() * 50,
-            size: 0.02 + Math.random() * 0.03
+            size: (0.02 + Math.random() * 0.03) * 1.5 // 50% larger size
           });
         }
         
@@ -84,33 +84,33 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
           particle.life = 0;
           particle.position.copy(mark.position);
           particle.position.add(new THREE.Vector3(
-            (Math.random() - 0.5) * 0.1,
-            (Math.random() - 0.5) * 0.1,
-            (Math.random() - 0.5) * 0.1
+            (Math.random() - 0.5) * 0.15, // 50% larger reset area
+            (Math.random() - 0.5) * 0.15,
+            (Math.random() - 0.5) * 0.15
           ));
           
           // Different movement patterns based on icon type
-          if (mark.icon === 'Activity') {
-            // Nerves: erratic, jittery movement
+          if (mark.icon === 'butterfly' || mark.icon === 'Activity') {
+            // Butterfly/Nerves: erratic, jittery movement
             particle.velocity.set(
-              (Math.random() - 0.5) * 0.02,
-              (Math.random() - 0.5) * 0.02,
-              (Math.random() - 0.5) * 0.02
+              (Math.random() - 0.5) * 0.03, // 50% larger velocity
+              (Math.random() - 0.5) * 0.03,
+              (Math.random() - 0.5) * 0.03
             );
           } else {
             // Default: gentle floating
             particle.velocity.set(
-              (Math.random() - 0.5) * 0.005,
-              Math.random() * 0.01,
-              (Math.random() - 0.5) * 0.005
+              (Math.random() - 0.5) * 0.0075, // 50% larger velocity
+              Math.random() * 0.015,
+              (Math.random() - 0.5) * 0.0075
             );
           }
         }
         
         // Update position based on icon type
-        if (mark.icon === 'Activity') {
-          // Nerves: add jitter to simulate electrical activity
-          const jitter = Math.sin(state.clock.elapsedTime * 10 + particle.life) * 0.005;
+        if (mark.icon === 'butterfly' || mark.icon === 'Activity') {
+          // Butterfly/Nerves: add jitter to simulate fluttering/electrical activity
+          const jitter = Math.sin(state.clock.elapsedTime * 10 + particle.life) * 0.0075; // 50% larger jitter
           particle.position.add(particle.velocity);
           particle.position.x += jitter * (Math.random() - 0.5);
           particle.position.y += jitter * (Math.random() - 0.5);
@@ -129,7 +129,19 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       const opacity = 1 - (particle.life / particle.maxLife);
       
       // Different shapes based on icon type
-      if (mark.icon === 'Activity') {
+      if (mark.icon === 'butterfly') {
+        // Butterfly: small cubes to represent fluttering motion
+        return (
+          <mesh key={`${mark.id}-${index}`} position={particle.position}>
+            <boxGeometry args={[particle.size, particle.size, particle.size]} />
+            <meshBasicMaterial 
+              color={mark.color} 
+              transparent 
+              opacity={opacity * 0.8}
+            />
+          </mesh>
+        );
+      } else if (mark.icon === 'Activity') {
         // Nerves: small cubes to represent electrical signals
         return (
           <mesh key={`${mark.id}-${index}`} position={particle.position}>

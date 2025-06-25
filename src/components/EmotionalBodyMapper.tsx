@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { Canvas, useThree } from '@react-three/fiber';
 import { OrbitControls, Text } from '@react-three/drei';
@@ -122,7 +123,7 @@ const EmotionalBodyMapper = () => {
   ];
 
   const bodySensations = [
-    { icon: 'Activity', name: 'Nerves', color: '#9966CC' },
+    { icon: 'butterfly', name: 'Nerves', color: '#9966CC' },
     { icon: 'Zap', name: 'Pain', color: '#FFD700' },
     { icon: 'Wind', name: 'Nausea', color: '#32CD32' },
     { icon: 'Droplet', name: 'Tears', color: '#4169E1' },
@@ -454,7 +455,6 @@ const EmotionalBodyMapper = () => {
 
                   <div className="grid grid-cols-2 gap-3">
                     {bodySensations.map((sensation, index) => {
-                      const IconComponent = iconComponents[sensation.icon as keyof typeof iconComponents];
                       const isSelected = selectedSensation?.name === sensation.name;
                       
                       return (
@@ -474,11 +474,22 @@ const EmotionalBodyMapper = () => {
                             setMode('sensations');
                           }}
                         >
-                          {IconComponent && (
-                            <IconComponent 
-                              className={`w-6 h-6 mb-2 ${isSelected ? 'text-blue-600' : ''}`} 
-                              style={{ color: isSelected ? '#2563eb' : sensation.color }} 
+                          {sensation.icon === 'butterfly' ? (
+                            <img 
+                              src="/lovable-uploads/b0a2add0-f14a-40a7-add9-b5efdb14a891.png" 
+                              alt="Butterfly"
+                              className={`w-6 h-6 mb-2 ${isSelected ? 'opacity-100' : 'opacity-80'}`}
                             />
+                          ) : (
+                            (() => {
+                              const IconComponent = iconComponents[sensation.icon as keyof typeof iconComponents];
+                              return IconComponent ? (
+                                <IconComponent 
+                                  className={`w-6 h-6 mb-2 ${isSelected ? 'text-blue-600' : ''}`} 
+                                  style={{ color: isSelected ? '#2563eb' : sensation.color }} 
+                                />
+                              ) : null;
+                            })()
                           )}
                           <span className={`text-xs text-center ${isSelected ? 'text-blue-600 font-medium' : 'text-gray-600'}`}>
                             {sensation.name}
