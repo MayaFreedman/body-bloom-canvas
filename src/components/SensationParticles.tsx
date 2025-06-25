@@ -31,6 +31,7 @@ interface SensationParticlesProps {
 
 const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks }) => {
   const particleSystemsRef = useRef<Map<string, SensationParticle[]>>(new Map());
+  const meshRefsRef = useRef<Map<string, THREE.Object3D[]>>(new Map());
   
   // Load butterfly texture
   const butterflyTexture = useLoader(TextureLoader, '/lovable-uploads/b0a2add0-f14a-40a7-add9-b5efdb14a891.png');
@@ -75,12 +76,12 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
               flickerPhase: Math.random() * Math.PI * 2,
               electricalPulse: Math.random() * Math.PI * 2,
               velocity: new THREE.Vector3(
-                (Math.random() - 0.5) * 0.04,
-                (Math.random() - 0.5) * 0.04,
-                (Math.random() - 0.5) * 0.04
+                (Math.random() - 0.5) * 0.08,
+                (Math.random() - 0.5) * 0.08,
+                (Math.random() - 0.5) * 0.08
               ),
-              rotationSpeed: (Math.random() - 0.5) * 0.25,
-              oscillationSpeed: 2 + Math.random() * 4
+              rotationSpeed: (Math.random() - 0.5) * 0.4,
+              oscillationSpeed: 3 + Math.random() * 6
             });
           } else {
             particles.push(baseParticle);
@@ -88,6 +89,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
         }
         
         particleSystemsRef.current.set(mark.id, particles);
+        meshRefsRef.current.set(mark.id, []);
       }
       
       systems[mark.id] = particleSystemsRef.current.get(mark.id)!;
@@ -98,6 +100,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
     for (const id of particleSystemsRef.current.keys()) {
       if (!currentIds.has(id)) {
         particleSystemsRef.current.delete(id);
+        meshRefsRef.current.delete(id);
       }
     }
     
@@ -109,20 +112,21 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
 
     sensationMarks.forEach((mark) => {
       const particles = particleSystems[mark.id];
-      if (!particles) return;
+      const meshes = meshRefsRef.current.get(mark.id);
+      if (!particles || !meshes) return;
 
-      particles.forEach((particle) => {
+      particles.forEach((particle, index) => {
         // Update particle life
         particle.life += delta * 35;
         
         // Update animation properties
-        particle.rotation += particle.rotationSpeed * delta * 12;
+        particle.rotation += particle.rotationSpeed * delta * 15;
         particle.oscillationPhase += particle.oscillationSpeed * delta;
         
         // Update electrical properties for nerves
         if (mark.icon === 'Activity' && particle.electricalPulse !== undefined) {
-          particle.electricalPulse += delta * 8;
-          particle.flickerPhase! += delta * 15;
+          particle.electricalPulse += delta * 12;
+          particle.flickerPhase! += delta * 20;
         }
         
         // Reset particle if it's dead
@@ -130,9 +134,9 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
           particle.life = 0;
           particle.position.copy(mark.position);
           particle.position.add(new THREE.Vector3(
-            (Math.random() - 0.5) * 0.2,
-            (Math.random() - 0.5) * 0.2,
-            (Math.random() - 0.5) * 0.2
+            (Math.random() - 0.5) * 0.3,
+            (Math.random() - 0.5) * 0.3,
+            (Math.random() - 0.5) * 0.3
           ));
           
           // Reset animation properties
@@ -143,19 +147,22 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             particle.flickerPhase = Math.random() * Math.PI * 2;
             particle.electricalPulse = Math.random() * Math.PI * 2;
             particle.sparkIntensity = Math.random();
-          }
-          
-          // Different movement patterns based on icon type
-          if (mark.icon === 'butterfly' || mark.icon === 'Activity') {
-            // More erratic movement
+            
+            // Reset velocity for nerves
             particle.velocity.set(
-              (Math.random() - 0.5) * 0.05,
-              (Math.random() - 0.5) * 0.05,
-              (Math.random() - 0.5) * 0.05
+              (Math.random() - 0.5) * 0.08,
+              (Math.random() - 0.5) * 0.08,
+              (Math.random() - 0.5) * 0.08
             );
-            particle.rotationSpeed = (Math.random() - 0.5) * 0.2;
+          } else if (mark.icon === 'butterfly') {
+            // Reset butterfly velocity
+            particle.velocity.set(
+              (Math.random() - 0.5) * 0.03,
+              (Math.random() - 0.5) * 0.03,
+              (Math.random() - 0.5) * 0.03
+            );
           } else {
-            // Default: gentle floating
+            // Default reset
             particle.velocity.set(
               (Math.random() - 0.5) * 0.01,
               Math.random() * 0.02,
@@ -164,42 +171,77 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
           }
         }
         
-        // Update position based on icon type
+        // Update position based on icon type with much more aggressive movement
         if (mark.icon === 'Activity') {
-          // Nerves: electrical sparking with rapid direction changes
-          const electricalJitter = Math.sin(particle.electricalPulse! * 3) * 0.015;
-          const sparkJump = Math.sin(time * 20 + particle.life * 0.5) * 0.008;
-          const rapidOscillation = Math.sin(particle.oscillationPhase * 3) * 0.012;
+          // Nerves: electrical sparking with rapid, erratic movement
+          const electricalJitter = Math.sin(particle.electricalPulse! * 4) * 0.03;
+          const sparkJump = Math.sin(time * 25 + particle.life * 0.8) * 0.015;
+          const rapidOscillation = Math.sin(particle.oscillationPhase * 4) * 0.025;
           
-          // Add sudden direction changes to simulate electrical impulses
-          if (Math.random() < 0.05) { // 5% chance per frame for direction change
-            particle.velocity.multiplyScalar(0.3);
+          // More frequent sudden direction changes for electrical effect
+          if (Math.random() < 0.08) { // 8% chance per frame
+            particle.velocity.multiplyScalar(0.2);
             particle.velocity.add(new THREE.Vector3(
-              (Math.random() - 0.5) * 0.03,
-              (Math.random() - 0.5) * 0.03,
-              (Math.random() - 0.5) * 0.03
+              (Math.random() - 0.5) * 0.06,
+              (Math.random() - 0.5) * 0.06,
+              (Math.random() - 0.5) * 0.06
             ));
           }
           
+          // Apply velocity and electrical effects
           particle.position.add(particle.velocity);
           particle.position.x += electricalJitter + sparkJump + rapidOscillation;
-          particle.position.y += electricalJitter * 0.8 + Math.cos(particle.oscillationPhase * 2) * 0.01;
-          particle.position.z += rapidOscillation * 0.6 + sparkJump;
+          particle.position.y += electricalJitter * 1.2 + Math.cos(particle.oscillationPhase * 3) * 0.02;
+          particle.position.z += rapidOscillation + sparkJump * 0.8;
           
-          // Damping to prevent particles from flying away
-          particle.velocity.multiplyScalar(0.98);
+          // Less damping for more active movement
+          particle.velocity.multiplyScalar(0.95);
           
         } else if (mark.icon === 'butterfly') {
-          // Butterfly: add jitter to simulate fluttering
-          const jitter = Math.sin(time * 12 + particle.life) * 0.01;
-          const oscillation = Math.sin(particle.oscillationPhase) * 0.012;
+          // Butterfly: enhanced fluttering with wing-beat simulation
+          const wingBeat = Math.sin(time * 15 + particle.life) * 0.02;
+          const flutter = Math.sin(particle.oscillationPhase * 2) * 0.018;
+          const drift = Math.cos(time * 3 + particle.life * 0.1) * 0.008;
           
           particle.position.add(particle.velocity);
-          particle.position.x += jitter * (Math.random() - 0.5) + oscillation;
-          particle.position.y += jitter * (Math.random() - 0.5) + Math.cos(particle.oscillationPhase) * 0.01;
-          particle.position.z += oscillation * 0.5;
+          particle.position.x += wingBeat * (Math.random() - 0.5) + flutter + drift;
+          particle.position.y += wingBeat * 0.8 + Math.cos(particle.oscillationPhase * 1.5) * 0.015;
+          particle.position.z += flutter * 0.6 + drift * 0.5;
         } else {
+          // Default: gentle floating
           particle.position.add(particle.velocity);
+        }
+
+        // Update the corresponding mesh position and properties
+        const mesh = meshes[index];
+        if (mesh) {
+          mesh.position.copy(particle.position);
+          mesh.rotation.set(particle.rotation, particle.rotation * 1.3, particle.rotation * 0.8);
+          
+          // Update scale and opacity based on particle properties
+          const opacity = 1 - (particle.life / particle.maxLife);
+          
+          if (mark.icon === 'Activity') {
+            const flickerIntensity = 0.4 + Math.sin(particle.flickerPhase!) * 0.5;
+            const pulseScale = 1 + Math.sin(particle.electricalPulse!) * 0.8;
+            mesh.scale.setScalar(pulseScale);
+            
+            // Update material properties for electrical effect
+            const material = (mesh as THREE.Mesh).material as THREE.MeshStandardMaterial;
+            if (material) {
+              material.opacity = Math.max(0.1, opacity * flickerIntensity);
+              material.emissiveIntensity = flickerIntensity * 0.4;
+            }
+          } else if (mark.icon === 'butterfly') {
+            const wingScale = 1 + Math.sin(particle.oscillationPhase * 3) * 0.4;
+            mesh.scale.setScalar(particle.size * 3.5 * wingScale);
+            
+            // Update sprite material opacity
+            const material = (mesh as any).material;
+            if (material) {
+              material.opacity = opacity * (0.7 + Math.sin(particle.oscillationPhase * 3) * 0.2);
+            }
+          }
         }
       });
     });
@@ -209,57 +251,56 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
     const particles = particleSystems[mark.id];
     if (!particles) return null;
 
+    // Store mesh refs for this mark
+    const meshes: THREE.Object3D[] = [];
+    meshRefsRef.current.set(mark.id, meshes);
+
     return particles.map((particle, index) => {
       const opacity = 1 - (particle.life / particle.maxLife);
       
       // Different shapes based on icon type
       if (mark.icon === 'butterfly') {
-        // Butterfly: use butterfly texture on sprite with animation
-        const scale = particle.size * 3.5 * (1 + Math.sin(particle.oscillationPhase * 2) * 0.3);
-        const animatedOpacity = opacity * (0.7 + Math.sin(particle.oscillationPhase * 3) * 0.2);
-        
         return (
           <sprite 
-            key={`${mark.id}-${index}`} 
+            key={`${mark.id}-${index}`}
+            ref={(ref) => { if (ref) meshes[index] = ref; }}
             position={particle.position} 
-            scale={[scale, scale, 1]}
+            scale={[particle.size * 3.5, particle.size * 3.5, 1]}
             rotation={[0, 0, particle.rotation]}
           >
             <spriteMaterial 
               map={butterflyTexture} 
               transparent 
-              opacity={animatedOpacity}
+              opacity={opacity * 0.7}
               color={mark.color}
             />
           </sprite>
         );
       } else if (mark.icon === 'Activity') {
-        // Nerves: electrical sparks with flickering and pulsing
-        const flickerIntensity = 0.5 + Math.sin(particle.flickerPhase!) * 0.4;
-        const pulseScale = 1 + Math.sin(particle.electricalPulse!) * 0.6;
-        const electricalOpacity = opacity * flickerIntensity * (0.8 + Math.sin(particle.electricalPulse! * 2) * 0.2);
-        
         return (
           <mesh 
-            key={`${mark.id}-${index}`} 
+            key={`${mark.id}-${index}`}
+            ref={(ref) => { if (ref) meshes[index] = ref; }}
             position={particle.position}
             rotation={[particle.rotation, particle.rotation * 1.3, particle.rotation * 0.8]}
-            scale={[pulseScale, pulseScale, pulseScale]}
           >
-            <boxGeometry args={[particle.size * 0.8, particle.size * 2, particle.size * 0.8]} />
+            <boxGeometry args={[particle.size, particle.size * 2.5, particle.size]} />
             <meshStandardMaterial 
               color={mark.color} 
               transparent 
-              opacity={Math.max(0.1, electricalOpacity)}
+              opacity={Math.max(0.1, opacity)}
               emissive={mark.color}
-              emissiveIntensity={flickerIntensity * 0.3}
+              emissiveIntensity={0.3}
             />
           </mesh>
         );
       } else {
-        // Default: spheres
         return (
-          <mesh key={`${mark.id}-${index}`} position={particle.position}>
+          <mesh 
+            key={`${mark.id}-${index}`}
+            ref={(ref) => { if (ref) meshes[index] = ref; }}
+            position={particle.position}
+          >
             <sphereGeometry args={[particle.size, 8, 8]} />
             <meshBasicMaterial 
               color={mark.color} 
