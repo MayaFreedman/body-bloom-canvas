@@ -1,3 +1,4 @@
+
 import React, { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
@@ -10,6 +11,7 @@ interface HumanModelProps {
 export const HumanModel = ({ bodyPartColors = {} }: HumanModelProps) => {
   const groupRef = useRef<Group>(null);
   const { scene } = useGLTF('/body.glb');
+  const originalColors = useRef<{ [key: string]: string }>({});
 
   // Subtle breathing animation
   useFrame((state) => {
@@ -52,6 +54,17 @@ export const HumanModel = ({ bodyPartColors = {} }: HumanModelProps) => {
 
       scene.traverse((child) => {
         if (child instanceof Mesh) {
+          // Store original colors if not already stored
+          if (!originalColors.current[child.uuid] && child.material) {
+            if (Array.isArray(child.material)) {
+              if (child.material[0] && 'color' in child.material[0]) {
+                originalColors.current[child.uuid] = `#${child.material[0].color.getHexString()}`;
+              }
+            } else if ('color' in child.material) {
+              originalColors.current[child.uuid] = `#${child.material.color.getHexString()}`;
+            }
+          }
+
           // Set userData.bodyPart for all meshes
           const meshName = child.name.toLowerCase();
           let bodyPart = null;
@@ -90,16 +103,20 @@ export const HumanModel = ({ bodyPartColors = {} }: HumanModelProps) => {
           
           console.log(`Mesh: ${child.name}, assigned bodyPart: ${child.userData.bodyPart}`);
           
-          // Apply colors if specified
-          if (bodyPartColors[child.userData.bodyPart] && child.material) {
-            if (Array.isArray(child.material)) {
-              child.material.forEach(mat => {
-                if ('color' in mat) {
-                  mat.color.set(bodyPartColors[child.userData.bodyPart]);
-                }
-              });
-            } else if ('color' in child.material) {
-              child.material.color.set(bodyPartColors[child.userData.bodyPart]);
+          // Apply colors if specified, otherwise reset to original
+          if (child.material) {
+            const targetColor = bodyPartColors[child.userData.bodyPart] || originalColors.current[child.uuid];
+            
+            if (targetColor) {
+              if (Array.isArray(child.material)) {
+                child.material.forEach(mat => {
+                  if ('color' in mat) {
+                    mat.color.set(targetColor);
+                  }
+                });
+              } else if ('color' in child.material) {
+                child.material.color.set(targetColor);
+              }
             }
           }
         }
