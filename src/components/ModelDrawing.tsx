@@ -47,10 +47,7 @@ export const ModelDrawing = ({
     return meshes;
   }, [modelRef]);
 
-  const handlePointerDown = useCallback((event: PointerEvent) => {
-    if (!isDrawing) return;
-    isMouseDown.current = true;
-    
+  const addMarkAtPoint = useCallback((event: PointerEvent) => {
     const rect = gl.domElement.getBoundingClientRect();
     mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
     mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
@@ -80,44 +77,23 @@ export const ModelDrawing = ({
         lastMarkTime.current = Date.now();
       }
     }
-  }, [isDrawing, selectedColor, brushSize, onAddMark, camera, gl, raycaster, mouse, getIntersectedObjects, modelRef]);
+  }, [selectedColor, brushSize, onAddMark, camera, gl, raycaster, mouse, getIntersectedObjects, modelRef]);
+
+  const handlePointerDown = useCallback((event: PointerEvent) => {
+    if (!isDrawing) return;
+    isMouseDown.current = true;
+    addMarkAtPoint(event);
+  }, [isDrawing, addMarkAtPoint]);
 
   const handlePointerMove = useCallback((event: PointerEvent) => {
     if (!isDrawing || !isMouseDown.current) return;
     
-    // Throttle drawing to avoid too many marks
+    // Reduce throttle delay for smoother strokes (from 50ms to 16ms for ~60fps)
     const now = Date.now();
-    if (now - lastMarkTime.current < 50) return;
+    if (now - lastMarkTime.current < 16) return;
 
-    const rect = gl.domElement.getBoundingClientRect();
-    mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-    mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-
-    raycaster.setFromCamera(mouse, camera);
-    
-    const meshes = getIntersectedObjects();
-    const intersects = raycaster.intersectObjects(meshes, false);
-
-    if (intersects.length > 0) {
-      const intersect = intersects[0];
-      const modelGroup = modelRef?.current;
-      
-      if (modelGroup && intersect.object.userData.bodyPart) {
-        // Convert world position to local position relative to the model
-        const localPosition = new THREE.Vector3();
-        modelGroup.worldToLocal(localPosition.copy(intersect.point));
-        
-        const mark: DrawingMark = {
-          id: `mark-${Date.now()}-${Math.random()}`,
-          position: localPosition,
-          color: selectedColor,
-          size: brushSize / 100
-        };
-        onAddMark(mark);
-        lastMarkTime.current = now;
-      }
-    }
-  }, [isDrawing, selectedColor, brushSize, onAddMark, camera, gl, raycaster, mouse, getIntersectedObjects, modelRef]);
+    addMarkAtPoint(event);
+  }, [isDrawing, addMarkAtPoint]);
 
   const handlePointerUp = useCallback(() => {
     isMouseDown.current = false;
