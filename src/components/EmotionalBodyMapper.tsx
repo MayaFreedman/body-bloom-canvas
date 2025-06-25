@@ -76,7 +76,7 @@ const ClickHandler = ({ mode, selectedColor, onBodyPartClick, onScreenClick }: {
 const EmotionalBodyMapper = () => {
   const [mode, setMode] = useState<'draw' | 'fill' | 'effects'>('draw');
   const [selectedColor, setSelectedColor] = useState('#ff6b6b');
-  const [brushSize, setBrushSize] = useState([15]);
+  const [brushSize, setBrushSize] = useState([10]); // Reduced default size
   const [selectedEffect, setSelectedEffect] = useState<'sparkle' | 'pulse' | 'flow'>('sparkle');
   const [drawingMarks, setDrawingMarks] = useState<DrawingMark[]>([]);
   const [effects, setEffects] = useState<Effect[]>([]);
@@ -281,7 +281,7 @@ const EmotionalBodyMapper = () => {
             </div>
           </div>
 
-          {/* Right Sidebar - keep existing code (tabs and controls) */}
+          {/* Right Sidebar */}
           <div className="lg:col-span-2 lg:order-2">
             <Tabs defaultValue="feelings" className="w-full">
               <TabsList className="grid w-full grid-cols-2">
@@ -328,7 +328,7 @@ const EmotionalBodyMapper = () => {
                   </div>
 
                   {/* Colors & Emotions */}
-                  <div>
+                  <div className="mb-6">
                     <h4 className="font-semibold text-gray-800 mb-3">Colors & Emotions</h4>
                     <div className="space-y-2">
                       {emotionalColors.map((item) => (
@@ -346,18 +346,49 @@ const EmotionalBodyMapper = () => {
                     </div>
                   </div>
 
-                  {/* Brush Size */}
-                  <div className="mt-6">
+                  {/* Brush Size - Enhanced */}
+                  <div>
                     <h4 className="font-semibold text-gray-800 mb-3">Brush Size</h4>
-                    <Slider
-                      value={brushSize}
-                      onValueChange={setBrushSize}
-                      max={50}
-                      min={5}
-                      step={1}
-                      className="mb-2"
-                    />
-                    <div className="text-sm text-gray-600 text-center">{brushSize[0]}px</div>
+                    <div className="space-y-3">
+                      <Slider
+                        value={brushSize}
+                        onValueChange={setBrushSize}
+                        max={30}
+                        min={3}
+                        step={1}
+                        className="mb-2"
+                      />
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Size: {brushSize[0]}px</span>
+                        <div className="flex space-x-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setBrushSize([Math.max(3, brushSize[0] - 2)])}
+                          >
+                            -
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setBrushSize([Math.min(30, brushSize[0] + 2)])}
+                          >
+                            +
+                          </Button>
+                        </div>
+                      </div>
+                      {/* Visual size indicator */}
+                      <div className="flex justify-center">
+                        <div 
+                          className="rounded-full border-2 border-gray-300"
+                          style={{ 
+                            width: `${brushSize[0]}px`, 
+                            height: `${brushSize[0]}px`,
+                            backgroundColor: selectedColor + '50'
+                          }}
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
               </TabsContent>

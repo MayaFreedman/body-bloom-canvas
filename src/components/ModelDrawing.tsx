@@ -52,7 +52,7 @@ export const ModelDrawing = ({
           id: `mark-${Date.now()}-${Math.random()}`,
           position: intersect.point.clone(),
           color: selectedColor,
-          size: brushSize / 20
+          size: brushSize / 100 // Made much smaller
         };
         onAddMark(mark);
         lastMarkTime.current = Date.now();
@@ -83,7 +83,7 @@ export const ModelDrawing = ({
           id: `mark-${Date.now()}-${Math.random()}`,
           position: intersect.point.clone(),
           color: selectedColor,
-          size: brushSize / 20
+          size: brushSize / 100 // Made much smaller
         };
         onAddMark(mark);
         lastMarkTime.current = now;
