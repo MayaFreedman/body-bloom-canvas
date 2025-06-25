@@ -2,9 +2,10 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Text } from '@react-three/drei';
-import { Brush, Palette, Sparkles, RotateCcw, Download, Zap, Droplet } from 'lucide-react';
+import { Brush, Palette, Sparkles, RotateCcw, Download, Zap, Droplet, Heart, Thermometer, Star, Wind, Activity, Snowflake } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { HumanModel } from './HumanModel';
 import { EffectsRenderer } from './EffectsRenderer';
 import html2canvas from 'html2canvas';
@@ -36,14 +37,41 @@ const EmotionalBodyMapper = () => {
   const canvasRef = useRef<HTMLDivElement>(null);
 
   const emotionalColors = [
-    { color: '#ff6b6b', name: 'Passion/Anger', emotion: 'anger' },
-    { color: '#4ecdc4', name: 'Calm/Peace', emotion: 'calm' },
-    { color: '#45b7d1', name: 'Sadness/Flow', emotion: 'sadness' },
-    { color: '#96ceb4', name: 'Growth/Hope', emotion: 'hope' },
-    { color: '#feca57', name: 'Joy/Energy', emotion: 'joy' },
-    { color: '#ff9ff3', name: 'Love/Warmth', emotion: 'love' },
-    { color: '#a8e6cf', name: 'Healing/Recovery', emotion: 'healing' },
-    { color: '#dda0dd', name: 'Creativity/Spirit', emotion: 'creativity' }
+    { color: '#FFD700', name: 'Joy', emotion: 'joy' },
+    { color: '#4169E1', name: 'Sadness', emotion: 'sadness' },
+    { color: '#FF0000', name: 'Anger', emotion: 'anger' },
+    { color: '#32CD32', name: 'Disgust', emotion: 'disgust' },
+    { color: '#800080', name: 'Fear', emotion: 'fear' },
+    { color: '#FFA500', name: 'Surprise', emotion: 'surprise' },
+    { color: '#FF69B4', name: 'Love', emotion: 'love' },
+    { color: '#87CEEB', name: 'Peace', emotion: 'peace' },
+    { color: '#98FB98', name: 'Hope', emotion: 'hope' },
+    { color: '#DDA0DD', name: 'Anxiety', emotion: 'anxiety' },
+    { color: '#F0E68C', name: 'Excitement', emotion: 'excitement' },
+    { color: '#CD853F', name: 'Shame', emotion: 'shame' }
+  ];
+
+  const bodySensations = [
+    { icon: Activity, name: 'Nerves', color: '#9966CC' },
+    { icon: Zap, name: 'Pain', color: '#FFD700' },
+    { icon: Wind, name: 'Nausea', color: '#32CD32' },
+    { icon: Droplet, name: 'Tears', color: '#4169E1' },
+    { icon: Snowflake, name: 'Decreased Temperature', color: '#87CEEB' },
+    { icon: Thermometer, name: 'Increased Temperature', color: '#FF4500' },
+    { icon: Heart, name: 'Increased Heart Rate', color: '#FF1493' },
+    { icon: Heart, name: 'Decreased Heart Rate', color: '#800080' },
+    { icon: Wind, name: 'Tired', color: '#696969' },
+    { icon: Activity, name: 'Change in Breathing', color: '#20B2AA' },
+    { icon: Star, name: 'Tingling', color: '#FFD700' },
+    { icon: Activity, name: 'Shaky', color: '#FF6347' },
+    { icon: Droplet, name: 'Pacing', color: '#4682B4' },
+    { icon: Activity, name: 'Stomping', color: '#8B4513' },
+    { icon: Wind, name: 'Tight', color: '#2F4F4F' },
+    { icon: Sparkles, name: 'Lump in Throat', color: '#9ACD32' },
+    { icon: Activity, name: 'Change in Appetite', color: '#FF8C00' },
+    { icon: Wind, name: 'Heaviness', color: '#708090' },
+    { icon: Activity, name: 'Fidgety', color: '#DC143C' },
+    { icon: Snowflake, name: 'Frozen/Stiff', color: '#B0C4DE' }
   ];
 
   const handleCanvasClick = useCallback((event: React.MouseEvent) => {
@@ -104,135 +132,13 @@ const EmotionalBodyMapper = () => {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-6">
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">Emotional Body Mapper</h1>
-          <p className="text-lg text-gray-600">Express your feelings by painting on the body where you experience emotions</p>
+          <h1 className="text-4xl font-bold text-gray-800 mb-2">Body Mapping Game</h1>
+          <p className="text-lg text-gray-600">This game helps us identify, express, and understand our emotions and how those emotions show up in our bodies.</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Toolbar */}
-          <div className="lg:col-span-1 space-y-6">
-            {/* Mode Selection */}
-            <div className="bg-white rounded-lg p-4 shadow-lg">
-              <h3 className="font-semibold text-gray-800 mb-3">Mode</h3>
-              <div className="space-y-2">
-                <Button
-                  variant={mode === 'draw' ? 'default' : 'outline'}
-                  className="w-full justify-start"
-                  onClick={() => setMode('draw')}
-                >
-                  <Brush className="w-4 h-4 mr-2" />
-                  Draw & Paint
-                </Button>
-                <Button
-                  variant={mode === 'effects' ? 'default' : 'outline'}
-                  className="w-full justify-start"
-                  onClick={() => setMode('effects')}
-                >
-                  <Sparkles className="w-4 h-4 mr-2" />
-                  Add Effects
-                </Button>
-              </div>
-            </div>
-
-            {/* Color Palette */}
-            <div className="bg-white rounded-lg p-4 shadow-lg">
-              <h3 className="font-semibold text-gray-800 mb-3 flex items-center">
-                <Palette className="w-4 h-4 mr-2" />
-                Emotional Colors
-              </h3>
-              <div className="grid grid-cols-2 gap-2">
-                {emotionalColors.map((item) => (
-                  <button
-                    key={item.color}
-                    className={`w-full h-12 rounded-lg border-2 transition-all hover:scale-105 ${
-                      selectedColor === item.color ? 'border-gray-800 shadow-lg' : 'border-gray-200'
-                    }`}
-                    style={{ backgroundColor: item.color }}
-                    onClick={() => setSelectedColor(item.color)}
-                    title={item.name}
-                  />
-                ))}
-              </div>
-              <div className="mt-2 text-sm text-gray-600 text-center">
-                {emotionalColors.find(c => c.color === selectedColor)?.name || 'Custom Color'}
-              </div>
-            </div>
-
-            {/* Brush/Effect Settings */}
-            <div className="bg-white rounded-lg p-4 shadow-lg">
-              <h3 className="font-semibold text-gray-800 mb-3">
-                {mode === 'draw' ? 'Brush Size' : 'Effect Intensity'}
-              </h3>
-              <Slider
-                value={brushSize}
-                onValueChange={setBrushSize}
-                max={50}
-                min={5}
-                step={1}
-                className="mb-2"
-              />
-              <div className="text-sm text-gray-600 text-center">{brushSize[0]}px</div>
-            </div>
-
-            {/* Effect Type Selection */}
-            {mode === 'effects' && (
-              <div className="bg-white rounded-lg p-4 shadow-lg">
-                <h3 className="font-semibold text-gray-800 mb-3">Effect Type</h3>
-                <div className="space-y-2">
-                  <Button
-                    variant={selectedEffect === 'sparkle' ? 'default' : 'outline'}
-                    className="w-full justify-start"
-                    onClick={() => setSelectedEffect('sparkle')}
-                  >
-                    <Sparkles className="w-4 h-4 mr-2" />
-                    Sparkles
-                  </Button>
-                  <Button
-                    variant={selectedEffect === 'pulse' ? 'default' : 'outline'}
-                    className="w-full justify-start"
-                    onClick={() => setSelectedEffect('pulse')}
-                  >
-                    <Zap className="w-4 h-4 mr-2" />
-                    Pulse
-                  </Button>
-                  <Button
-                    variant={selectedEffect === 'flow' ? 'default' : 'outline'}
-                    className="w-full justify-start"
-                    onClick={() => setSelectedEffect('flow')}
-                  >
-                    <Droplet className="w-4 h-4 mr-2" />
-                    Flow
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            {/* Actions */}
-            <div className="bg-white rounded-lg p-4 shadow-lg">
-              <h3 className="font-semibold text-gray-800 mb-3">Actions</h3>
-              <div className="space-y-2">
-                <Button
-                  variant="outline"
-                  className="w-full justify-start"
-                  onClick={clearAll}
-                >
-                  <RotateCcw className="w-4 h-4 mr-2" />
-                  Clear All
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start"
-                  onClick={captureScreenshot}
-                >
-                  <Download className="w-4 h-4 mr-2" />
-                  Save Image
-                </Button>
-              </div>
-            </div>
-          </div>
-
           {/* 3D Canvas */}
-          <div className="lg:col-span-3">
+          <div className="lg:col-span-2 lg:order-1">
             <div 
               ref={canvasRef}
               className="bg-white rounded-lg shadow-lg overflow-hidden cursor-crosshair relative"
@@ -277,6 +183,174 @@ const EmotionalBodyMapper = () => {
             <div className="mt-4 text-center text-gray-600">
               <p className="text-sm">Click and drag to rotate • Scroll to zoom • Click to {mode === 'draw' ? 'paint' : 'add effects'}</p>
             </div>
+
+            {/* Bottom Controls */}
+            <div className="mt-4 flex justify-center space-x-4">
+              <Button variant="outline" onClick={clearAll} className="bg-red-500 text-white hover:bg-red-600">
+                <RotateCcw className="w-4 h-4 mr-2" />
+                Reset All Changes
+              </Button>
+              <Button variant="outline" onClick={captureScreenshot}>
+                <Download className="w-4 h-4 mr-2" />
+                Snapshot
+              </Button>
+            </div>
+          </div>
+
+          {/* Right Sidebar */}
+          <div className="lg:col-span-2 lg:order-2">
+            <Tabs defaultValue="feelings" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="feelings" className="bg-green-500 text-white data-[state=active]:bg-green-600">
+                  Color by Feelings
+                </TabsTrigger>
+                <TabsTrigger value="sensations" className="bg-green-500 text-white data-[state=active]:bg-green-600">
+                  Body Sensations and Signals
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="feelings" className="space-y-6">
+                <div className="bg-white rounded-lg p-6 shadow-lg">
+                  <h3 className="text-xl font-semibold text-gray-800 mb-4">Color by Feelings</h3>
+                  <p className="text-gray-600 mb-4">
+                    Identify the feelings you are experiencing, then choose a color that best represents each feeling for 
+                    you. Use those colors to fill in the body outline.
+                  </p>
+                  <p className="text-sm text-gray-500 mb-6">
+                    <strong>Tip:</strong> You can use the colors to show where you feel each emotion or how big or strong that feeling is for you.
+                  </p>
+
+                  {/* Painting Mode */}
+                  <div className="mb-6">
+                    <h4 className="font-semibold text-gray-800 mb-3">Painting Mode</h4>
+                    <div className="flex space-x-2">
+                      <Button
+                        variant={mode === 'draw' ? 'default' : 'outline'}
+                        className="bg-green-500 text-white hover:bg-green-600"
+                        onClick={() => setMode('draw')}
+                      >
+                        Fill Mode
+                      </Button>
+                      <Button
+                        variant={mode === 'draw' ? 'outline' : 'default'}
+                        className="bg-green-500 text-white hover:bg-green-600"
+                        onClick={() => setMode('effects')}
+                      >
+                        Draw Mode
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Colors & Emotions */}
+                  <div>
+                    <h4 className="font-semibold text-gray-800 mb-3">Colors & Emotions</h4>
+                    <div className="space-y-2">
+                      {emotionalColors.map((item) => (
+                        <div key={item.color} className="flex items-center space-x-3">
+                          <button
+                            className={`w-8 h-8 rounded-full border-2 transition-all hover:scale-105 ${
+                              selectedColor === item.color ? 'border-gray-800 shadow-lg' : 'border-gray-200'
+                            }`}
+                            style={{ backgroundColor: item.color }}
+                            onClick={() => setSelectedColor(item.color)}
+                          />
+                          <span className="text-sm text-gray-700">{item.name}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Brush Size */}
+                  <div className="mt-6">
+                    <h4 className="font-semibold text-gray-800 mb-3">Brush Size</h4>
+                    <Slider
+                      value={brushSize}
+                      onValueChange={setBrushSize}
+                      max={50}
+                      min={5}
+                      step={1}
+                      className="mb-2"
+                    />
+                    <div className="text-sm text-gray-600 text-center">{brushSize[0]}px</div>
+                  </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="sensations" className="space-y-6">
+                <div className="bg-white rounded-lg p-6 shadow-lg">
+                  <h3 className="text-xl font-semibold text-gray-800 mb-4">Body Sensations and Signals</h3>
+                  <p className="text-gray-600 mb-4">
+                    Sometimes our bodies give us clues about how we're feeling - like a tight chest when we're worried or 
+                    butterflies in our tummy when we're nervous. Use these stamps to show what you notice in your body 
+                    when you're feeling something.
+                  </p>
+                  <p className="text-sm text-gray-500 mb-6">
+                    <strong>Tip:</strong> Think about the signals your body gives you. Where do you feel tension, energy, or change when 
+                    a big feeling shows up?
+                  </p>
+
+                  <div className="mb-4">
+                    <input
+                      type="text"
+                      placeholder="Search for effects..."
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-5 gap-4">
+                    {bodySensations.map((sensation, index) => {
+                      const IconComponent = sensation.icon;
+                      return (
+                        <button
+                          key={index}
+                          className="flex flex-col items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                          onClick={() => {
+                            setSelectedColor(sensation.color);
+                            setMode('effects');
+                          }}
+                        >
+                          <IconComponent className="w-6 h-6 mb-2" style={{ color: sensation.color }} />
+                          <span className="text-xs text-gray-600 text-center">{sensation.name}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Effect Controls */}
+                  {mode === 'effects' && (
+                    <div className="mt-6">
+                      <h4 className="font-semibold text-gray-800 mb-3">Effect Type</h4>
+                      <div className="space-y-2">
+                        <Button
+                          variant={selectedEffect === 'sparkle' ? 'default' : 'outline'}
+                          className="w-full justify-start"
+                          onClick={() => setSelectedEffect('sparkle')}
+                        >
+                          <Sparkles className="w-4 h-4 mr-2" />
+                          Sparkles
+                        </Button>
+                        <Button
+                          variant={selectedEffect === 'pulse' ? 'default' : 'outline'}
+                          className="w-full justify-start"
+                          onClick={() => setSelectedEffect('pulse')}
+                        >
+                          <Zap className="w-4 h-4 mr-2" />
+                          Pulse
+                        </Button>
+                        <Button
+                          variant={selectedEffect === 'flow' ? 'default' : 'outline'}
+                          className="w-full justify-start"
+                          onClick={() => setSelectedEffect('flow')}
+                        >
+                          <Droplet className="w-4 h-4 mr-2" />
+                          Flow
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </TabsContent>
+            </Tabs>
           </div>
         </div>
       </div>
