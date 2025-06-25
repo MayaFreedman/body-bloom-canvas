@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { Canvas, useThree } from '@react-three/fiber';
 import { OrbitControls, Text } from '@react-three/drei';
@@ -41,7 +40,7 @@ interface BodyPartColors {
 
 // Raycaster component to handle clicks on 3D model
 const ClickHandler = ({ mode, selectedColor, onBodyPartClick, onScreenClick }: {
-  mode: 'draw' | 'effects';
+  mode: 'draw' | 'fill' | 'effects';
   selectedColor: string;
   onBodyPartClick: (partName: string, color: string) => void;
   onScreenClick: (x: number, y: number) => void;
@@ -60,14 +59,16 @@ const ClickHandler = ({ mode, selectedColor, onBodyPartClick, onScreenClick }: {
 
     if (intersects.length > 0) {
       const intersectedObject = intersects[0].object;
-      if (intersectedObject.userData.bodyPart) {
+      if (intersectedObject.userData.bodyPart && mode === 'fill') {
         onBodyPartClick(intersectedObject.userData.bodyPart, selectedColor);
         return;
       }
     }
 
     // For effects mode or when no body part is hit, use screen coordinates
-    onScreenClick(event.clientX - rect.left, event.clientY - rect.top);
+    if (mode === 'effects') {
+      onScreenClick(event.clientX - rect.left, event.clientY - rect.top);
+    }
   }, [mode, selectedColor, onBodyPartClick, onScreenClick, camera, gl, raycaster, mouse, scene]);
 
   React.useEffect(() => {
@@ -81,7 +82,7 @@ const ClickHandler = ({ mode, selectedColor, onBodyPartClick, onScreenClick }: {
 };
 
 const EmotionalBodyMapper = () => {
-  const [mode, setMode] = useState<'draw' | 'effects'>('draw');
+  const [mode, setMode] = useState<'draw' | 'fill' | 'effects'>('draw');
   const [selectedColor, setSelectedColor] = useState('#ff6b6b');
   const [brushSize, setBrushSize] = useState([15]);
   const [selectedEffect, setSelectedEffect] = useState<'sparkle' | 'pulse' | 'flow'>('sparkle');
@@ -344,6 +345,8 @@ const EmotionalBodyMapper = () => {
               <p className="text-sm">
                 {mode === 'draw' 
                   ? 'Click and drag to draw • Scroll to zoom • Use orbit controls when not drawing'
+                  : mode === 'fill'
+                  ? 'Click on body parts to fill them with color • Scroll to zoom • Click and drag to rotate'
                   : 'Click and drag to rotate • Scroll to zoom • Click to add effects'
                 }
               </p>
@@ -396,6 +399,14 @@ const EmotionalBodyMapper = () => {
                       >
                         <Brush className="w-4 h-4 mr-2" />
                         Draw Mode
+                      </Button>
+                      <Button
+                        variant={mode === 'fill' ? 'default' : 'outline'}
+                        className="bg-green-500 text-white hover:bg-green-600"
+                        onClick={() => setMode('fill')}
+                      >
+                        <Palette className="w-4 h-4 mr-2" />
+                        Fill Mode
                       </Button>
                       <Button
                         variant={mode === 'effects' ? 'default' : 'outline'}
