@@ -1,4 +1,5 @@
-import React, { useState, useRef, useCallback } from 'react';
+
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { Canvas, useThree } from '@react-three/fiber';
 import { OrbitControls, Text } from '@react-three/drei';
 import { Brush, Palette, Sparkles, RotateCcw, Download, Zap, Droplet, Heart, Thermometer, Star, Wind, Activity, Snowflake } from 'lucide-react';
@@ -16,6 +17,13 @@ interface DrawingPoint {
   color: string;
   size: number;
   timestamp: number;
+}
+
+interface DrawingStroke {
+  id: string;
+  points: DrawingPoint[];
+  color: string;
+  size: number;
 }
 
 interface Effect {
@@ -41,6 +49,8 @@ const ClickHandler = ({ mode, selectedColor, onBodyPartClick, onScreenClick }: {
   const { camera, gl, raycaster, mouse, scene } = useThree();
 
   const handleClick = useCallback((event: MouseEvent) => {
+    if (mode === 'draw') return; // Don't handle clicks in draw mode
+    
     const rect = gl.domElement.getBoundingClientRect();
     mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
     mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
@@ -48,7 +58,7 @@ const ClickHandler = ({ mode, selectedColor, onBodyPartClick, onScreenClick }: {
     raycaster.setFromCamera(mouse, camera);
     const intersects = raycaster.intersectObjects(scene.children, true);
 
-    if (mode === 'draw' && intersects.length > 0) {
+    if (intersects.length > 0) {
       const intersectedObject = intersects[0].object;
       if (intersectedObject.userData.bodyPart) {
         onBodyPartClick(intersectedObject.userData.bodyPart, selectedColor);
@@ -61,9 +71,11 @@ const ClickHandler = ({ mode, selectedColor, onBodyPartClick, onScreenClick }: {
   }, [mode, selectedColor, onBodyPartClick, onScreenClick, camera, gl, raycaster, mouse, scene]);
 
   React.useEffect(() => {
-    gl.domElement.addEventListener('click', handleClick);
-    return () => gl.domElement.removeEventListener('click', handleClick);
-  }, [handleClick, gl]);
+    if (mode !== 'draw') {
+      gl.domElement.addEventListener('click', handleClick);
+      return () => gl.domElement.removeEventListener('click', handleClick);
+    }
+  }, [handleClick, gl, mode]);
 
   return null;
 };
@@ -73,10 +85,13 @@ const EmotionalBodyMapper = () => {
   const [selectedColor, setSelectedColor] = useState('#ff6b6b');
   const [brushSize, setBrushSize] = useState([15]);
   const [selectedEffect, setSelectedEffect] = useState<'sparkle' | 'pulse' | 'flow'>('sparkle');
-  const [drawingPoints, setDrawingPoints] = useState<DrawingPoint[]>([]);
+  const [drawingStrokes, setDrawingStrokes] = useState<DrawingStroke[]>([]);
   const [effects, setEffects] = useState<Effect[]>([]);
   const [bodyPartColors, setBodyPartColors] = useState<BodyPartColors>({});
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [currentStroke, setCurrentStroke] = useState<DrawingPoint[]>([]);
   const canvasRef = useRef<HTMLDivElement>(null);
+  const drawingCanvasRef = useRef<HTMLCanvasElement>(null);
 
   const emotionalColors = [
     { color: '#FFD700', name: 'Joy', emotion: 'joy' },
@@ -116,6 +131,110 @@ const EmotionalBodyMapper = () => {
     { icon: Snowflake, name: 'Frozen/Stiff', color: '#B0C4DE' }
   ];
 
+  // Drawing functionality
+  const startDrawing = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (mode !== 'draw') return;
+    
+    setIsDrawing(true);
+    const rect = drawingCanvasRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    setCurrentStroke([{
+      x,
+      y,
+      color: selectedColor,
+      size: brushSize[0],
+      timestamp: Date.now()
+    }]);
+  }, [mode, selectedColor, brushSize]);
+
+  const draw = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!isDrawing || mode !== 'draw') return;
+    
+    const rect = drawingCanvasRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    const newPoint: DrawingPoint = {
+      x,
+      y,
+      color: selectedColor,
+      size: brushSize[0],
+      timestamp: Date.now()
+    };
+    
+    setCurrentStroke(prev => [...prev, newPoint]);
+  }, [isDrawing, mode, selectedColor, brushSize]);
+
+  const stopDrawing = useCallback(() => {
+    if (!isDrawing || mode !== 'draw') return;
+    
+    setIsDrawing(false);
+    if (currentStroke.length > 0) {
+      const newStroke: DrawingStroke = {
+        id: `stroke-${Date.now()}`,
+        points: currentStroke,
+        color: selectedColor,
+        size: brushSize[0]
+      };
+      setDrawingStrokes(prev => [...prev, newStroke]);
+    }
+    setCurrentStroke([]);
+  }, [isDrawing, mode, currentStroke, selectedColor, brushSize]);
+
+  // Render drawing strokes on canvas
+  useEffect(() => {
+    const canvas = drawingCanvasRef.current;
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Draw completed strokes
+    drawingStrokes.forEach(stroke => {
+      if (stroke.points.length < 2) return;
+      
+      ctx.strokeStyle = stroke.color;
+      ctx.lineWidth = stroke.size;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      
+      ctx.beginPath();
+      ctx.moveTo(stroke.points[0].x, stroke.points[0].y);
+      
+      for (let i = 1; i < stroke.points.length; i++) {
+        ctx.lineTo(stroke.points[i].x, stroke.points[i].y);
+      }
+      
+      ctx.stroke();
+    });
+    
+    // Draw current stroke being drawn
+    if (currentStroke.length > 1) {
+      ctx.strokeStyle = selectedColor;
+      ctx.lineWidth = brushSize[0];
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      
+      ctx.beginPath();
+      ctx.moveTo(currentStroke[0].x, currentStroke[0].y);
+      
+      for (let i = 1; i < currentStroke.length; i++) {
+        ctx.lineTo(currentStroke[i].x, currentStroke[i].y);
+      }
+      
+      ctx.stroke();
+    }
+  }, [drawingStrokes, currentStroke, selectedColor, brushSize]);
+
   const handleBodyPartClick = useCallback((partName: string, color: string) => {
     setBodyPartColors(prev => ({
       ...prev,
@@ -138,9 +257,10 @@ const EmotionalBodyMapper = () => {
   }, [mode, selectedEffect, selectedColor, brushSize]);
 
   const clearAll = () => {
-    setDrawingPoints([]);
+    setDrawingStrokes([]);
     setEffects([]);
     setBodyPartColors({});
+    setCurrentStroke([]);
   };
 
   const captureScreenshot = async () => {
@@ -199,31 +319,34 @@ const EmotionalBodyMapper = () => {
                   maxDistance={8}
                   maxPolarAngle={Math.PI}
                   minPolarAngle={0}
+                  enabled={!isDrawing}
                 />
               </Canvas>
               
-              {/* Drawing Layer for effects mode */}
-              {mode === 'effects' && (
-                <div className="absolute inset-0 pointer-events-none">
-                  <svg className="w-full h-full">
-                    {drawingPoints.map((point, index) => (
-                      <circle
-                        key={index}
-                        cx={point.x}
-                        cy={point.y}
-                        r={point.size / 2}
-                        fill={point.color}
-                        opacity={0.7}
-                        className="animate-fade-in"
-                      />
-                    ))}
-                  </svg>
-                </div>
-              )}
+              {/* Drawing Canvas Overlay */}
+              <canvas
+                ref={drawingCanvasRef}
+                className="absolute inset-0 pointer-events-auto"
+                width={600}
+                height={600}
+                style={{ 
+                  cursor: mode === 'draw' ? 'crosshair' : 'default',
+                  pointerEvents: mode === 'draw' ? 'auto' : 'none'
+                }}
+                onMouseDown={startDrawing}
+                onMouseMove={draw}
+                onMouseUp={stopDrawing}
+                onMouseLeave={stopDrawing}
+              />
             </div>
             
             <div className="mt-4 text-center text-gray-600">
-              <p className="text-sm">Click and drag to rotate • Scroll to zoom • Click to {mode === 'draw' ? 'fill body parts' : 'add effects'}</p>
+              <p className="text-sm">
+                {mode === 'draw' 
+                  ? 'Click and drag to draw • Scroll to zoom • Use orbit controls when not drawing'
+                  : 'Click and drag to rotate • Scroll to zoom • Click to add effects'
+                }
+              </p>
             </div>
 
             {/* Bottom Controls */}
@@ -271,14 +394,16 @@ const EmotionalBodyMapper = () => {
                         className="bg-green-500 text-white hover:bg-green-600"
                         onClick={() => setMode('draw')}
                       >
-                        Fill Mode
+                        <Brush className="w-4 h-4 mr-2" />
+                        Draw Mode
                       </Button>
                       <Button
-                        variant={mode === 'draw' ? 'outline' : 'default'}
+                        variant={mode === 'effects' ? 'default' : 'outline'}
                         className="bg-green-500 text-white hover:bg-green-600"
                         onClick={() => setMode('effects')}
                       >
-                        Draw Mode
+                        <Sparkles className="w-4 h-4 mr-2" />
+                        Effects Mode
                       </Button>
                     </div>
                   </div>
