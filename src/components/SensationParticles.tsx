@@ -1,3 +1,4 @@
+
 import React, { useRef, useMemo } from 'react';
 import { useFrame, useLoader } from '@react-three/fiber';
 import { TextureLoader } from 'three';
@@ -263,7 +264,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             key={`${mark.id}-${index}`}
             ref={(ref) => { if (ref) meshes[index] = ref; }}
             position={particle.position} 
-            scale={[particle.size * 0.875, particle.size * 0.875, 1]}
+            scale={[particle.size * 1.18, particle.size * 1.18, 1]}
             rotation={[0, 0, particle.rotation]}
           >
             <spriteMaterial 
