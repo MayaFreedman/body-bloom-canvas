@@ -247,7 +247,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             scale={[pulseScale, pulseScale, pulseScale]}
           >
             <boxGeometry args={[particle.size * 0.8, particle.size * 2, particle.size * 0.8]} />
-            <meshBasicMaterial 
+            <meshStandardMaterial 
               color={mark.color} 
               transparent 
               opacity={Math.max(0.1, electricalOpacity)}
