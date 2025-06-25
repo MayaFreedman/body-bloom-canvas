@@ -1,6 +1,7 @@
 
 import React, { useRef, useMemo } from 'react';
-import { useFrame } from '@react-three/fiber';
+import { useFrame, useLoader } from '@react-three/fiber';
+import { TextureLoader } from 'three';
 import * as THREE from 'three';
 
 interface SensationParticle {
@@ -23,6 +24,9 @@ interface SensationParticlesProps {
 
 const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks }) => {
   const particleSystemsRef = useRef<Map<string, SensationParticle[]>>(new Map());
+  
+  // Load butterfly texture
+  const butterflyTexture = useLoader(TextureLoader, '/lovable-uploads/b0a2add0-f14a-40a7-add9-b5efdb14a891.png');
 
   // Create particle system for each sensation mark
   const particleSystems = useMemo(() => {
@@ -130,16 +134,16 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       
       // Different shapes based on icon type
       if (mark.icon === 'butterfly') {
-        // Butterfly: small cubes to represent fluttering motion
+        // Butterfly: use butterfly texture on sprite
         return (
-          <mesh key={`${mark.id}-${index}`} position={particle.position}>
-            <boxGeometry args={[particle.size, particle.size, particle.size]} />
-            <meshBasicMaterial 
-              color={mark.color} 
+          <sprite key={`${mark.id}-${index}`} position={particle.position} scale={[particle.size * 3, particle.size * 3, 1]}>
+            <spriteMaterial 
+              map={butterflyTexture} 
               transparent 
               opacity={opacity * 0.8}
+              color={mark.color}
             />
-          </mesh>
+          </sprite>
         );
       } else if (mark.icon === 'Activity') {
         // Nerves: small cubes to represent electrical signals
