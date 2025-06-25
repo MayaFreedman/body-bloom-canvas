@@ -10,6 +10,9 @@ interface SensationParticle {
   life: number;
   maxLife: number;
   size: number;
+  rotation: number;
+  rotationSpeed: number;
+  scaleAnimation: number;
 }
 
 interface SensationParticlesProps {
@@ -53,7 +56,10 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             ),
             life: Math.random() * 100,
             maxLife: 100 + Math.random() * 50,
-            size: (0.02 + Math.random() * 0.03) * 1.5 // 50% larger size
+            size: (0.02 + Math.random() * 0.03) * 1.5, // 50% larger size
+            rotation: Math.random() * Math.PI * 2,
+            rotationSpeed: (Math.random() - 0.5) * 0.1,
+            scaleAnimation: Math.random() * Math.PI * 2
           });
         }
         
@@ -83,6 +89,10 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
         // Update particle life
         particle.life += delta * 30;
         
+        // Update animation properties
+        particle.rotation += particle.rotationSpeed * delta * 5;
+        particle.scaleAnimation += delta * 3;
+        
         // Reset particle if it's dead
         if (particle.life >= particle.maxLife) {
           particle.life = 0;
@@ -92,6 +102,11 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             (Math.random() - 0.5) * 0.15,
             (Math.random() - 0.5) * 0.15
           ));
+          
+          // Reset animation properties
+          particle.rotation = Math.random() * Math.PI * 2;
+          particle.rotationSpeed = (Math.random() - 0.5) * 0.1;
+          particle.scaleAnimation = Math.random() * Math.PI * 2;
           
           // Different movement patterns based on icon type
           if (mark.icon === 'butterfly' || mark.icon === 'Activity') {
@@ -134,13 +149,21 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       
       // Different shapes based on icon type
       if (mark.icon === 'butterfly') {
-        // Butterfly: use butterfly texture on sprite
+        // Butterfly: use butterfly texture on animated sprite
+        const animatedScale = 1 + Math.sin(particle.scaleAnimation) * 0.3; // Pulsing scale effect
+        const finalScale = particle.size * 3 * animatedScale;
+        
         return (
-          <sprite key={`${mark.id}-${index}`} position={particle.position} scale={[particle.size * 3, particle.size * 3, 1]}>
+          <sprite 
+            key={`${mark.id}-${index}`} 
+            position={particle.position} 
+            scale={[finalScale, finalScale, 1]}
+            rotation={[0, 0, particle.rotation]}
+          >
             <spriteMaterial 
               map={butterflyTexture} 
               transparent 
-              opacity={opacity * 0.8}
+              opacity={opacity * 0.8 * (0.7 + 0.3 * Math.sin(particle.scaleAnimation * 2))} // Flickering opacity
               color={mark.color}
             />
           </sprite>
