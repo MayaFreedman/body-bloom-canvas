@@ -39,37 +39,56 @@ interface BodyPartColors {
 }
 
 // Raycaster component to handle clicks on 3D model
-const ClickHandler = ({ mode, selectedColor, onBodyPartClick, onScreenClick }: {
+const ClickHandler = ({ mode, selectedColor, onBodyPartClick, onScreenClick, onModelHover }: {
   mode: 'draw' | 'fill' | 'effects';
   selectedColor: string;
   onBodyPartClick: (partName: string, color: string) => void;
   onScreenClick: (x: number, y: number) => void;
+  onModelHover: (isOverModel: boolean, screenX?: number, screenY?: number) => void;
 }) => {
   const { camera, gl, raycaster, mouse, scene } = useThree();
 
-  const handleClick = useCallback((event: MouseEvent) => {
-    if (mode === 'draw') return; // Don't handle clicks in draw mode
-    
+  const checkModelIntersection = useCallback((clientX: number, clientY: number) => {
     const rect = gl.domElement.getBoundingClientRect();
-    mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-    mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+    mouse.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+    mouse.y = -((clientY - rect.top) / rect.height) * 2 + 1;
 
     raycaster.setFromCamera(mouse, camera);
     const intersects = raycaster.intersectObjects(scene.children, true);
+    
+    // Check if any intersected object is part of the human model
+    const modelIntersection = intersects.find(intersect => 
+      intersect.object.userData.bodyPart || 
+      intersect.object.parent?.userData.isHumanModel
+    );
+    
+    return {
+      isOverModel: !!modelIntersection,
+      screenX: clientX - rect.left,
+      screenY: clientY - rect.top,
+      bodyPart: modelIntersection?.object.userData.bodyPart
+    };
+  }, [camera, gl, raycaster, mouse, scene]);
 
-    if (intersects.length > 0) {
-      const intersectedObject = intersects[0].object;
-      if (intersectedObject.userData.bodyPart && mode === 'fill') {
-        onBodyPartClick(intersectedObject.userData.bodyPart, selectedColor);
-        return;
-      }
+  const handleClick = useCallback((event: MouseEvent) => {
+    const intersection = checkModelIntersection(event.clientX, event.clientY);
+    
+    if (mode === 'fill' && intersection.bodyPart) {
+      onBodyPartClick(intersection.bodyPart, selectedColor);
+      return;
     }
 
-    // For effects mode or when no body part is hit, use screen coordinates
     if (mode === 'effects') {
-      onScreenClick(event.clientX - rect.left, event.clientY - rect.top);
+      onScreenClick(intersection.screenX!, intersection.screenY!);
     }
-  }, [mode, selectedColor, onBodyPartClick, onScreenClick, camera, gl, raycaster, mouse, scene]);
+  }, [mode, selectedColor, onBodyPartClick, onScreenClick, checkModelIntersection]);
+
+  const handleMouseMove = useCallback((event: MouseEvent) => {
+    if (mode === 'draw') {
+      const intersection = checkModelIntersection(event.clientX, event.clientY);
+      onModelHover(intersection.isOverModel, intersection.screenX, intersection.screenY);
+    }
+  }, [mode, checkModelIntersection, onModelHover]);
 
   React.useEffect(() => {
     if (mode !== 'draw') {
@@ -77,6 +96,13 @@ const ClickHandler = ({ mode, selectedColor, onBodyPartClick, onScreenClick }: {
       return () => gl.domElement.removeEventListener('click', handleClick);
     }
   }, [handleClick, gl, mode]);
+
+  React.useEffect(() => {
+    if (mode === 'draw') {
+      gl.domElement.addEventListener('mousemove', handleMouseMove);
+      return () => gl.domElement.removeEventListener('mousemove', handleMouseMove);
+    }
+  }, [handleMouseMove, gl, mode]);
 
   return null;
 };
@@ -92,6 +118,8 @@ const EmotionalBodyMapper = () => {
   const [isDrawing, setIsDrawing] = useState(false);
   const [currentStroke, setCurrentStroke] = useState<DrawingPoint[]>([]);
   const [rotation, setRotation] = useState(0);
+  const [isOverModel, setIsOverModel] = useState(false);
+  const [currentMousePos, setCurrentMousePos] = useState({ x: 0, y: 0 });
   const canvasRef = useRef<HTMLDivElement>(null);
   const drawingCanvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -133,9 +161,9 @@ const EmotionalBodyMapper = () => {
     { icon: Snowflake, name: 'Frozen/Stiff', color: '#B0C4DE' }
   ];
 
-  // Drawing functionality
+  // Drawing functionality - only works when over the model
   const startDrawing = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (mode !== 'draw') return;
+    if (mode !== 'draw' || !isOverModel) return;
     
     setIsDrawing(true);
     const rect = drawingCanvasRef.current?.getBoundingClientRect();
@@ -151,10 +179,10 @@ const EmotionalBodyMapper = () => {
       size: brushSize[0],
       timestamp: Date.now()
     }]);
-  }, [mode, selectedColor, brushSize]);
+  }, [mode, selectedColor, brushSize, isOverModel]);
 
   const draw = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!isDrawing || mode !== 'draw') return;
+    if (!isDrawing || mode !== 'draw' || !isOverModel) return;
     
     const rect = drawingCanvasRef.current?.getBoundingClientRect();
     if (!rect) return;
@@ -171,7 +199,7 @@ const EmotionalBodyMapper = () => {
     };
     
     setCurrentStroke(prev => [...prev, newPoint]);
-  }, [isDrawing, mode, selectedColor, brushSize]);
+  }, [isDrawing, mode, selectedColor, brushSize, isOverModel]);
 
   const stopDrawing = useCallback(() => {
     if (!isDrawing || mode !== 'draw') return;
@@ -258,6 +286,13 @@ const EmotionalBodyMapper = () => {
     }
   }, [mode, selectedEffect, selectedColor, brushSize]);
 
+  const handleModelHover = useCallback((overModel: boolean, screenX?: number, screenY?: number) => {
+    setIsOverModel(overModel);
+    if (screenX !== undefined && screenY !== undefined) {
+      setCurrentMousePos({ x: screenX, y: screenY });
+    }
+  }, []);
+
   const rotateLeft = () => {
     setRotation(prev => prev - Math.PI / 2);
   };
@@ -334,7 +369,7 @@ const EmotionalBodyMapper = () => {
                 <directionalLight position={[10, 10, 5]} intensity={0.8} />
                 <directionalLight position={[-10, -10, -5]} intensity={0.3} />
                 
-                <group rotation={[0, rotation, 0]}>
+                <group rotation={[0, rotation, 0]} userData={{ isHumanModel: true }}>
                   <HumanModel bodyPartColors={bodyPartColors} />
                 </group>
                 <EffectsRenderer effects={effects} />
@@ -343,6 +378,7 @@ const EmotionalBodyMapper = () => {
                   selectedColor={selectedColor}
                   onBodyPartClick={handleBodyPartClick}
                   onScreenClick={handleScreenClick}
+                  onModelHover={handleModelHover}
                 />
                 
                 <OrbitControls 
@@ -363,7 +399,7 @@ const EmotionalBodyMapper = () => {
                 width={600}
                 height={600}
                 style={{ 
-                  cursor: mode === 'draw' ? 'crosshair' : 'default',
+                  cursor: mode === 'draw' ? (isOverModel ? 'crosshair' : 'default') : 'default',
                   pointerEvents: mode === 'draw' ? 'auto' : 'none'
                 }}
                 onMouseDown={startDrawing}
@@ -376,7 +412,7 @@ const EmotionalBodyMapper = () => {
             <div className="mt-4 text-center text-gray-600">
               <p className="text-sm">
                 {mode === 'draw' 
-                  ? 'Click and drag to draw • Use rotation buttons to rotate the model • Scroll to zoom'
+                  ? 'Click and drag on the body model to draw • Use rotation buttons to rotate the model • Scroll to zoom'
                   : mode === 'fill'
                   ? 'Click on body parts to fill them with color • Use rotation buttons to rotate • Scroll to zoom'
                   : 'Use rotation buttons to rotate • Scroll to zoom • Click to add effects'
