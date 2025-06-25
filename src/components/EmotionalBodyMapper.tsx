@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { Canvas, useThree } from '@react-three/fiber';
 import { OrbitControls, Text } from '@react-three/drei';
@@ -51,6 +50,16 @@ const ClickHandler = ({ mode, selectedColor, selectedSensation, onBodyPartClick,
 }) => {
   const { camera, gl, raycaster, mouse, scene } = useThree();
 
+  const getBodyMeshes = useCallback(() => {
+    const meshes: THREE.Mesh[] = [];
+    scene.traverse((child) => {
+      if (child instanceof THREE.Mesh && child.userData.bodyPart) {
+        meshes.push(child);
+      }
+    });
+    return meshes;
+  }, [scene]);
+
   const handleClick = useCallback((event: MouseEvent) => {
     if (mode === 'draw') return; // Drawing is handled by ModelDrawing component
     
@@ -59,7 +68,10 @@ const ClickHandler = ({ mode, selectedColor, selectedSensation, onBodyPartClick,
     mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
     raycaster.setFromCamera(mouse, camera);
-    const intersects = raycaster.intersectObjects(scene.children, true);
+    
+    // Get all body meshes
+    const bodyMeshes = getBodyMeshes();
+    const intersects = raycaster.intersectObjects(bodyMeshes, false);
 
     if (intersects.length > 0) {
       const intersectedObject = intersects[0].object;
@@ -67,6 +79,7 @@ const ClickHandler = ({ mode, selectedColor, selectedSensation, onBodyPartClick,
       
       if (intersectedObject.userData.bodyPart) {
         if (mode === 'fill') {
+          console.log(`Filling body part: ${intersectedObject.userData.bodyPart} with color: ${selectedColor}`);
           onBodyPartClick(intersectedObject.userData.bodyPart, selectedColor);
           return;
         }
@@ -82,7 +95,7 @@ const ClickHandler = ({ mode, selectedColor, selectedSensation, onBodyPartClick,
         }
       }
     }
-  }, [mode, selectedColor, selectedSensation, onBodyPartClick, onSensationClick, camera, gl, raycaster, mouse, scene]);
+  }, [mode, selectedColor, selectedSensation, onBodyPartClick, onSensationClick, camera, gl, raycaster, mouse, getBodyMeshes, scene]);
 
   React.useEffect(() => {
     if (mode !== 'draw') {

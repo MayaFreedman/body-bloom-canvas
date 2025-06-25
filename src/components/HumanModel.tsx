@@ -20,22 +20,87 @@ export const HumanModel = ({ bodyPartColors = {} }: HumanModelProps) => {
     }
   });
 
-  // Apply body part colors if any materials need to be modified
+  // Set up body parts with proper userData and apply colors
   React.useEffect(() => {
-    if (scene && Object.keys(bodyPartColors).length > 0) {
+    if (scene) {
+      // Define mapping of mesh names to body parts
+      const bodyPartMapping: { [key: string]: string } = {
+        'head': 'head',
+        'Head': 'head',
+        'torso': 'torso',
+        'Torso': 'torso',
+        'chest': 'torso',
+        'Chest': 'torso',
+        'body': 'torso',
+        'Body': 'torso',
+        'leftarm': 'leftArm',
+        'LeftArm': 'leftArm',
+        'left_arm': 'leftArm',
+        'Left_Arm': 'leftArm',
+        'rightarm': 'rightArm',
+        'RightArm': 'rightArm',
+        'right_arm': 'rightArm',
+        'Right_Arm': 'rightArm',
+        'leftleg': 'leftLeg',
+        'LeftLeg': 'leftLeg',
+        'left_leg': 'leftLeg',
+        'Left_Leg': 'leftLeg',
+        'rightleg': 'rightLeg',
+        'RightLeg': 'rightLeg',
+        'right_leg': 'rightLeg',
+        'Right_Leg': 'rightLeg'
+      };
+
       scene.traverse((child) => {
-        if (child instanceof Mesh && child.material) {
-          // Check if this mesh corresponds to a body part that should be colored
-          const bodyPart = child.userData?.bodyPart || child.name;
-          if (bodyPartColors[bodyPart]) {
+        if (child instanceof Mesh) {
+          // Set userData.bodyPart for all meshes
+          const meshName = child.name.toLowerCase();
+          let bodyPart = null;
+          
+          // Try to match mesh name to body part
+          for (const [key, value] of Object.entries(bodyPartMapping)) {
+            if (meshName.includes(key.toLowerCase()) || child.name === key) {
+              bodyPart = value;
+              break;
+            }
+          }
+          
+          // If no specific match, try broader matching
+          if (!bodyPart) {
+            if (meshName.includes('head') || meshName.includes('skull')) {
+              bodyPart = 'head';
+            } else if (meshName.includes('torso') || meshName.includes('chest') || meshName.includes('body')) {
+              bodyPart = 'torso';
+            } else if (meshName.includes('arm')) {
+              if (meshName.includes('left') || meshName.includes('l_')) {
+                bodyPart = 'leftArm';
+              } else if (meshName.includes('right') || meshName.includes('r_')) {
+                bodyPart = 'rightArm';
+              }
+            } else if (meshName.includes('leg')) {
+              if (meshName.includes('left') || meshName.includes('l_')) {
+                bodyPart = 'leftLeg';
+              } else if (meshName.includes('right') || meshName.includes('r_')) {
+                bodyPart = 'rightLeg';
+              }
+            }
+          }
+          
+          // Set userData.bodyPart or fallback to mesh name
+          child.userData.bodyPart = bodyPart || child.name || 'body';
+          
+          console.log(`Mesh: ${child.name}, assigned bodyPart: ${child.userData.bodyPart}`);
+          
+          // Apply colors if specified
+          if (bodyPartColors[child.userData.bodyPart] && child.material) {
             if (Array.isArray(child.material)) {
               child.material.forEach(mat => {
                 if ('color' in mat) {
-                  mat.color.set(bodyPartColors[bodyPart]);
+                  mat.color.set(bodyPartColors[child.userData.bodyPart]);
                 }
               });
             } else if ('color' in child.material) {
-              child.material.color.set(bodyPartColors[bodyPart]);
+              child.material.color.set(bodyPartColors[child.userData.bodyPart]);
             }
           }
         }

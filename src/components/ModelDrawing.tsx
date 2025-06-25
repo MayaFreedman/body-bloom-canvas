@@ -31,6 +31,22 @@ export const ModelDrawing = ({
   const isMouseDown = useRef(false);
   const lastMarkTime = useRef(0);
 
+  const getIntersectedObjects = useCallback(() => {
+    // Get all meshes from the model that have bodyPart userData
+    const meshes: THREE.Mesh[] = [];
+    const modelGroup = modelRef?.current;
+    
+    if (modelGroup) {
+      modelGroup.traverse((child) => {
+        if (child instanceof THREE.Mesh && child.userData.bodyPart) {
+          meshes.push(child);
+        }
+      });
+    }
+    
+    return meshes;
+  }, [modelRef]);
+
   const handlePointerDown = useCallback((event: PointerEvent) => {
     if (!isDrawing) return;
     isMouseDown.current = true;
@@ -41,20 +57,22 @@ export const ModelDrawing = ({
 
     raycaster.setFromCamera(mouse, camera);
     
-    // Find intersections with the model
-    const modelGroup = modelRef?.current || scene;
-    const intersects = raycaster.intersectObjects(modelGroup.children, true);
+    // Get intersections with body meshes
+    const meshes = getIntersectedObjects();
+    const intersects = raycaster.intersectObjects(meshes, false);
 
     if (intersects.length > 0) {
       const intersect = intersects[0];
-      if (intersect.object.userData.bodyPart) {
+      const modelGroup = modelRef?.current;
+      
+      if (modelGroup && intersect.object.userData.bodyPart) {
         // Convert world position to local position relative to the model
         const localPosition = new THREE.Vector3();
         modelGroup.worldToLocal(localPosition.copy(intersect.point));
         
         const mark: DrawingMark = {
           id: `mark-${Date.now()}-${Math.random()}`,
-          position: localPosition, // Use local position instead of world position
+          position: localPosition,
           color: selectedColor,
           size: brushSize / 100
         };
@@ -62,7 +80,7 @@ export const ModelDrawing = ({
         lastMarkTime.current = Date.now();
       }
     }
-  }, [isDrawing, selectedColor, brushSize, onAddMark, camera, gl, raycaster, mouse, scene, modelRef]);
+  }, [isDrawing, selectedColor, brushSize, onAddMark, camera, gl, raycaster, mouse, getIntersectedObjects, modelRef]);
 
   const handlePointerMove = useCallback((event: PointerEvent) => {
     if (!isDrawing || !isMouseDown.current) return;
@@ -77,19 +95,21 @@ export const ModelDrawing = ({
 
     raycaster.setFromCamera(mouse, camera);
     
-    const modelGroup = modelRef?.current || scene;
-    const intersects = raycaster.intersectObjects(modelGroup.children, true);
+    const meshes = getIntersectedObjects();
+    const intersects = raycaster.intersectObjects(meshes, false);
 
     if (intersects.length > 0) {
       const intersect = intersects[0];
-      if (intersect.object.userData.bodyPart) {
+      const modelGroup = modelRef?.current;
+      
+      if (modelGroup && intersect.object.userData.bodyPart) {
         // Convert world position to local position relative to the model
         const localPosition = new THREE.Vector3();
         modelGroup.worldToLocal(localPosition.copy(intersect.point));
         
         const mark: DrawingMark = {
           id: `mark-${Date.now()}-${Math.random()}`,
-          position: localPosition, // Use local position instead of world position
+          position: localPosition,
           color: selectedColor,
           size: brushSize / 100
         };
@@ -97,7 +117,7 @@ export const ModelDrawing = ({
         lastMarkTime.current = now;
       }
     }
-  }, [isDrawing, selectedColor, brushSize, onAddMark, camera, gl, raycaster, mouse, scene, modelRef]);
+  }, [isDrawing, selectedColor, brushSize, onAddMark, camera, gl, raycaster, mouse, getIntersectedObjects, modelRef]);
 
   const handlePointerUp = useCallback(() => {
     isMouseDown.current = false;
