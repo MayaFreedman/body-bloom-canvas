@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { Canvas, useThree } from '@react-three/fiber';
 import { OrbitControls, Text } from '@react-three/drei';
@@ -225,6 +226,14 @@ const EmotionalBodyMapper = () => {
                 
                 <group ref={modelRef} rotation={[0, rotation, 0]}>
                   <HumanModel bodyPartColors={bodyPartColors} />
+                  
+                  {/* Render drawing marks as children of the model group so they rotate with it */}
+                  {drawingMarks.map((mark) => (
+                    <mesh key={mark.id} position={mark.position}>
+                      <sphereGeometry args={[mark.size, 8, 8]} />
+                      <meshBasicMaterial color={mark.color} />      
+                    </mesh>
+                  ))}
                 </group>
                 
                 <ModelDrawing

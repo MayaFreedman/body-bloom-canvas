@@ -48,11 +48,15 @@ export const ModelDrawing = ({
     if (intersects.length > 0) {
       const intersect = intersects[0];
       if (intersect.object.userData.bodyPart) {
+        // Convert world position to local position relative to the model
+        const localPosition = new THREE.Vector3();
+        modelGroup.worldToLocal(localPosition.copy(intersect.point));
+        
         const mark: DrawingMark = {
           id: `mark-${Date.now()}-${Math.random()}`,
-          position: intersect.point.clone(),
+          position: localPosition, // Use local position instead of world position
           color: selectedColor,
-          size: brushSize / 100 // Made much smaller
+          size: brushSize / 100
         };
         onAddMark(mark);
         lastMarkTime.current = Date.now();
@@ -79,11 +83,15 @@ export const ModelDrawing = ({
     if (intersects.length > 0) {
       const intersect = intersects[0];
       if (intersect.object.userData.bodyPart) {
+        // Convert world position to local position relative to the model
+        const localPosition = new THREE.Vector3();
+        modelGroup.worldToLocal(localPosition.copy(intersect.point));
+        
         const mark: DrawingMark = {
           id: `mark-${Date.now()}-${Math.random()}`,
-          position: intersect.point.clone(),
+          position: localPosition, // Use local position instead of world position
           color: selectedColor,
-          size: brushSize / 100 // Made much smaller
+          size: brushSize / 100
         };
         onAddMark(mark);
         lastMarkTime.current = now;
@@ -117,14 +125,6 @@ export const ModelDrawing = ({
     }
   }, [isDrawing, handlePointerDown, handlePointerMove, handlePointerUp, gl]);
 
-  return (
-    <>
-      {drawingMarks.map((mark) => (
-        <mesh key={mark.id} position={mark.position}>
-          <sphereGeometry args={[mark.size, 8, 8]} />
-          <meshBasicMaterial color={mark.color} />
-        </mesh>
-      ))}
-    </>
-  );
+  // Return null - the marks will be rendered as children of the model group
+  return null;
 };
