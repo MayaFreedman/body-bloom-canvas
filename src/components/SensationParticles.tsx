@@ -50,14 +50,14 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
         for (let i = 0; i < particleCount; i++) {
           const baseParticle = {
             position: new THREE.Vector3(
-              mark.position.x + (Math.random() - 0.5) * 0.4,
-              mark.position.y + (Math.random() - 0.5) * 0.4,
-              mark.position.z + (Math.random() - 0.5) * 0.4
+              mark.position.x + (Math.random() - 0.5) * 0.2, // Reduced from 0.4 to 0.2
+              mark.position.y + (Math.random() - 0.5) * 0.2, // Reduced from 0.4 to 0.2
+              mark.position.z + (Math.random() - 0.5) * 0.2  // Reduced from 0.4 to 0.2
             ),
             velocity: new THREE.Vector3(
-              (Math.random() - 0.5) * 0.02,
-              (Math.random() - 0.5) * 0.02,
-              (Math.random() - 0.5) * 0.02
+              (Math.random() - 0.5) * 0.01, // Reduced from 0.02 to 0.01
+              (Math.random() - 0.5) * 0.01, // Reduced from 0.02 to 0.01
+              (Math.random() - 0.5) * 0.01  // Reduced from 0.02 to 0.01
             ),
             life: Math.random() * 100,
             maxLife: 80 + Math.random() * 40,
@@ -76,9 +76,9 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
               flickerPhase: Math.random() * Math.PI * 2,
               electricalPulse: Math.random() * Math.PI * 2,
               velocity: new THREE.Vector3(
-                (Math.random() - 0.5) * 0.08,
-                (Math.random() - 0.5) * 0.08,
-                (Math.random() - 0.5) * 0.08
+                (Math.random() - 0.5) * 0.04, // Reduced from 0.08 to 0.04
+                (Math.random() - 0.5) * 0.04, // Reduced from 0.08 to 0.04
+                (Math.random() - 0.5) * 0.04  // Reduced from 0.08 to 0.04
               ),
               rotationSpeed: (Math.random() - 0.5) * 0.4,
               oscillationSpeed: 3 + Math.random() * 6
@@ -134,9 +134,9 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
           particle.life = 0;
           particle.position.copy(mark.position);
           particle.position.add(new THREE.Vector3(
-            (Math.random() - 0.5) * 0.3,
-            (Math.random() - 0.5) * 0.3,
-            (Math.random() - 0.5) * 0.3
+            (Math.random() - 0.5) * 0.15, // Reduced from 0.3 to 0.15
+            (Math.random() - 0.5) * 0.15, // Reduced from 0.3 to 0.15
+            (Math.random() - 0.5) * 0.15  // Reduced from 0.3 to 0.15
           ));
           
           // Reset animation properties
@@ -150,9 +150,9 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             
             // Reset velocity for nerves
             particle.velocity.set(
-              (Math.random() - 0.5) * 0.08,
-              (Math.random() - 0.5) * 0.08,
-              (Math.random() - 0.5) * 0.08
+              (Math.random() - 0.5) * 0.04, // Reduced from 0.08 to 0.04
+              (Math.random() - 0.5) * 0.04, // Reduced from 0.08 to 0.04
+              (Math.random() - 0.5) * 0.04  // Reduced from 0.08 to 0.04
             );
           } else if (mark.icon === 'butterfly') {
             // Reset butterfly velocity
@@ -171,27 +171,27 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
           }
         }
         
-        // Update position based on icon type with much more aggressive movement
+        // Update position based on icon type with reduced movement range
         if (mark.icon === 'Activity') {
-          // Nerves: electrical sparking with rapid, erratic movement
-          const electricalJitter = Math.sin(particle.electricalPulse! * 4) * 0.03;
-          const sparkJump = Math.sin(time * 25 + particle.life * 0.8) * 0.015;
-          const rapidOscillation = Math.sin(particle.oscillationPhase * 4) * 0.025;
+          // Nerves: electrical sparking with reduced movement range
+          const electricalJitter = Math.sin(particle.electricalPulse! * 4) * 0.015; // Reduced from 0.03 to 0.015
+          const sparkJump = Math.sin(time * 25 + particle.life * 0.8) * 0.008; // Reduced from 0.015 to 0.008
+          const rapidOscillation = Math.sin(particle.oscillationPhase * 4) * 0.012; // Reduced from 0.025 to 0.012
           
           // More frequent sudden direction changes for electrical effect
           if (Math.random() < 0.08) { // 8% chance per frame
             particle.velocity.multiplyScalar(0.2);
             particle.velocity.add(new THREE.Vector3(
-              (Math.random() - 0.5) * 0.06,
-              (Math.random() - 0.5) * 0.06,
-              (Math.random() - 0.5) * 0.06
+              (Math.random() - 0.5) * 0.03, // Reduced from 0.06 to 0.03
+              (Math.random() - 0.5) * 0.03, // Reduced from 0.06 to 0.03
+              (Math.random() - 0.5) * 0.03  // Reduced from 0.06 to 0.03
             ));
           }
           
           // Apply velocity and electrical effects
           particle.position.add(particle.velocity);
           particle.position.x += electricalJitter + sparkJump + rapidOscillation;
-          particle.position.y += electricalJitter * 1.2 + Math.cos(particle.oscillationPhase * 3) * 0.02;
+          particle.position.y += electricalJitter * 1.2 + Math.cos(particle.oscillationPhase * 3) * 0.01; // Reduced from 0.02 to 0.01
           particle.position.z += rapidOscillation + sparkJump * 0.8;
           
           // Less damping for more active movement
@@ -212,7 +212,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
           particle.position.add(particle.velocity);
         }
 
-        // Update the corresponding mesh position and properties
+        // Update the corresponding mesh
         const mesh = meshes[index];
         if (mesh) {
           mesh.position.copy(particle.position);
