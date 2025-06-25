@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { Canvas, useThree } from '@react-three/fiber';
 import { OrbitControls, Text } from '@react-three/drei';
@@ -8,6 +7,7 @@ import { Slider } from '@/components/ui/slider';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { HumanModel } from './HumanModel';
 import { EffectsRenderer } from './EffectsRenderer';
+import { DrawingOnModel } from './DrawingOnModel';
 import html2canvas from 'html2canvas';
 import * as THREE from 'three';
 
@@ -77,71 +77,34 @@ const bodySensations = [
   { icon: Snowflake, name: 'Frozen/Stiff', color: '#B0C4DE' }
 ];
 
-// Raycaster component to handle clicks on 3D model
-const ClickHandler = ({ mode, selectedColor, onBodyPartClick, onScreenClick, onModelHover }: {
-  mode: 'draw' | 'fill' | 'effects';
+// Simplified raycaster component for fill mode only
+const FillModeHandler = ({ selectedColor, onBodyPartClick }: {
   selectedColor: string;
   onBodyPartClick: (partName: string, color: string) => void;
-  onScreenClick: (x: number, y: number) => void;
-  onModelHover: (isOverModel: boolean, screenX?: number, screenY?: number) => void;
 }) => {
   const { camera, gl, raycaster, mouse, scene } = useThree();
 
-  const checkModelIntersection = useCallback((clientX: number, clientY: number) => {
+  const handleClick = useCallback((event: MouseEvent) => {
     const rect = gl.domElement.getBoundingClientRect();
-    mouse.x = ((clientX - rect.left) / rect.width) * 2 - 1;
-    mouse.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+    mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
     raycaster.setFromCamera(mouse, camera);
     const intersects = raycaster.intersectObjects(scene.children, true);
     
-    // Check if any intersected object is part of the human model
     const modelIntersection = intersects.find(intersect => 
-      intersect.object.userData.bodyPart || 
-      intersect.object.parent?.userData.isHumanModel
+      intersect.object.userData.bodyPart
     );
     
-    return {
-      isOverModel: !!modelIntersection,
-      screenX: clientX - rect.left,
-      screenY: clientY - rect.top,
-      bodyPart: modelIntersection?.object.userData.bodyPart
-    };
-  }, [camera, gl, raycaster, mouse, scene]);
-
-  const handleClick = useCallback((event: MouseEvent) => {
-    const intersection = checkModelIntersection(event.clientX, event.clientY);
-    
-    if (mode === 'fill' && intersection.bodyPart) {
-      onBodyPartClick(intersection.bodyPart, selectedColor);
-      return;
+    if (modelIntersection?.object.userData.bodyPart) {
+      onBodyPartClick(modelIntersection.object.userData.bodyPart, selectedColor);
     }
-
-    if (mode === 'effects') {
-      onScreenClick(intersection.screenX!, intersection.screenY!);
-    }
-  }, [mode, selectedColor, onBodyPartClick, onScreenClick, checkModelIntersection]);
-
-  const handleMouseMove = useCallback((event: MouseEvent) => {
-    if (mode === 'draw') {
-      const intersection = checkModelIntersection(event.clientX, event.clientY);
-      onModelHover(intersection.isOverModel, intersection.screenX, intersection.screenY);
-    }
-  }, [mode, checkModelIntersection, onModelHover]);
+  }, [selectedColor, onBodyPartClick, camera, gl, raycaster, mouse, scene]);
 
   React.useEffect(() => {
-    if (mode !== 'draw') {
-      gl.domElement.addEventListener('click', handleClick);
-      return () => gl.domElement.removeEventListener('click', handleClick);
-    }
-  }, [handleClick, gl, mode]);
-
-  React.useEffect(() => {
-    if (mode === 'draw') {
-      gl.domElement.addEventListener('mousemove', handleMouseMove);
-      return () => gl.domElement.removeEventListener('mousemove', handleMouseMove);
-    }
-  }, [handleMouseMove, gl, mode]);
+    gl.domElement.addEventListener('click', handleClick);
+    return () => gl.domElement.removeEventListener('click', handleClick);
+  }, [handleClick, gl]);
 
   return null;
 };
@@ -151,120 +114,11 @@ const EmotionalBodyMapper = () => {
   const [selectedColor, setSelectedColor] = useState('#ff6b6b');
   const [brushSize, setBrushSize] = useState([15]);
   const [selectedEffect, setSelectedEffect] = useState<'sparkle' | 'pulse' | 'flow'>('sparkle');
-  const [drawingStrokes, setDrawingStrokes] = useState<DrawingStroke[]>([]);
   const [effects, setEffects] = useState<Effect[]>([]);
   const [bodyPartColors, setBodyPartColors] = useState<BodyPartColors>({});
-  const [isDrawing, setIsDrawing] = useState(false);
-  const [currentStroke, setCurrentStroke] = useState<DrawingPoint[]>([]);
   const [rotation, setRotation] = useState(0);
-  const [isOverModel, setIsOverModel] = useState(false);
-  const [currentMousePos, setCurrentMousePos] = useState({ x: 0, y: 0 });
   const canvasRef = useRef<HTMLDivElement>(null);
-  const drawingCanvasRef = useRef<HTMLCanvasElement>(null);
-
-  // Drawing functionality - only works when over the model
-  const startDrawing = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (mode !== 'draw' || !isOverModel) return;
-    
-    setIsDrawing(true);
-    const rect = drawingCanvasRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    
-    setCurrentStroke([{
-      x,
-      y,
-      color: selectedColor,
-      size: brushSize[0],
-      timestamp: Date.now()
-    }]);
-  }, [mode, selectedColor, brushSize, isOverModel]);
-
-  const draw = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!isDrawing || mode !== 'draw' || !isOverModel) return;
-    
-    const rect = drawingCanvasRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    
-    const newPoint: DrawingPoint = {
-      x,
-      y,
-      color: selectedColor,
-      size: brushSize[0],
-      timestamp: Date.now()
-    };
-    
-    setCurrentStroke(prev => [...prev, newPoint]);
-  }, [isDrawing, mode, selectedColor, brushSize, isOverModel]);
-
-  const stopDrawing = useCallback(() => {
-    if (!isDrawing || mode !== 'draw') return;
-    
-    setIsDrawing(false);
-    if (currentStroke.length > 0) {
-      const newStroke: DrawingStroke = {
-        id: `stroke-${Date.now()}`,
-        points: currentStroke,
-        color: selectedColor,
-        size: brushSize[0]
-      };
-      setDrawingStrokes(prev => [...prev, newStroke]);
-    }
-    setCurrentStroke([]);
-  }, [isDrawing, mode, currentStroke, selectedColor, brushSize]);
-
-  // Render drawing strokes on canvas
-  useEffect(() => {
-    const canvas = drawingCanvasRef.current;
-    if (!canvas) return;
-    
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    
-    // Clear canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    // Draw completed strokes
-    drawingStrokes.forEach(stroke => {
-      if (stroke.points.length < 2) return;
-      
-      ctx.strokeStyle = stroke.color;
-      ctx.lineWidth = stroke.size;
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-      
-      ctx.beginPath();
-      ctx.moveTo(stroke.points[0].x, stroke.points[0].y);
-      
-      for (let i = 1; i < stroke.points.length; i++) {
-        ctx.lineTo(stroke.points[i].x, stroke.points[i].y);
-      }
-      
-      ctx.stroke();
-    });
-    
-    // Draw current stroke being drawn
-    if (currentStroke.length > 1) {
-      ctx.strokeStyle = selectedColor;
-      ctx.lineWidth = brushSize[0];
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-      
-      ctx.beginPath();
-      ctx.moveTo(currentStroke[0].x, currentStroke[0].y);
-      
-      for (let i = 1; i < currentStroke.length; i++) {
-        ctx.lineTo(currentStroke[i].x, currentStroke[i].y);
-      }
-      
-      ctx.stroke();
-    }
-  }, [drawingStrokes, currentStroke, selectedColor, brushSize]);
+  const [isDrawingActive, setIsDrawingActive] = useState(false);
 
   const handleBodyPartClick = useCallback((partName: string, color: string) => {
     setBodyPartColors(prev => ({
@@ -287,13 +141,6 @@ const EmotionalBodyMapper = () => {
     }
   }, [mode, selectedEffect, selectedColor, brushSize]);
 
-  const handleModelHover = useCallback((overModel: boolean, screenX?: number, screenY?: number) => {
-    setIsOverModel(overModel);
-    if (screenX !== undefined && screenY !== undefined) {
-      setCurrentMousePos({ x: screenX, y: screenY });
-    }
-  }, []);
-
   const rotateLeft = () => {
     setRotation(prev => prev - Math.PI / 2);
   };
@@ -303,10 +150,8 @@ const EmotionalBodyMapper = () => {
   };
 
   const clearAll = () => {
-    setDrawingStrokes([]);
     setEffects([]);
     setBodyPartColors({});
-    setCurrentStroke([]);
   };
 
   const captureScreenshot = async () => {
@@ -372,15 +217,28 @@ const EmotionalBodyMapper = () => {
                 
                 <group rotation={[0, rotation, 0]} userData={{ isHumanModel: true }}>
                   <HumanModel bodyPartColors={bodyPartColors} />
+                  
+                  {/* Drawing functionality - only active in draw mode */}
+                  {mode === 'draw' && (
+                    <DrawingOnModel
+                      isDrawing={isDrawingActive}
+                      selectedColor={selectedColor}
+                      brushSize={brushSize[0]}
+                      onStartDrawing={() => setIsDrawingActive(true)}
+                      onStopDrawing={() => setIsDrawingActive(false)}
+                    />
+                  )}
                 </group>
+                
                 <EffectsRenderer effects={effects} />
-                <ClickHandler 
-                  mode={mode}
-                  selectedColor={selectedColor}
-                  onBodyPartClick={handleBodyPartClick}
-                  onScreenClick={handleScreenClick}
-                  onModelHover={handleModelHover}
-                />
+                
+                {/* Fill mode handler */}
+                {mode === 'fill' && (
+                  <FillModeHandler 
+                    selectedColor={selectedColor}
+                    onBodyPartClick={handleBodyPartClick}
+                  />
+                )}
                 
                 <OrbitControls 
                   enableRotate={false}
@@ -389,31 +247,15 @@ const EmotionalBodyMapper = () => {
                   maxDistance={8}
                   maxPolarAngle={Math.PI}
                   minPolarAngle={0}
-                  enabled={!isDrawing}
+                  enabled={!isDrawingActive}
                 />
               </Canvas>
-              
-              {/* Drawing Canvas Overlay */}
-              <canvas
-                ref={drawingCanvasRef}
-                className="absolute inset-0 pointer-events-auto"
-                width={600}
-                height={600}
-                style={{ 
-                  cursor: mode === 'draw' ? (isOverModel ? 'crosshair' : 'default') : 'default',
-                  pointerEvents: mode === 'draw' ? 'auto' : 'none'
-                }}
-                onMouseDown={startDrawing}
-                onMouseMove={draw}
-                onMouseUp={stopDrawing}
-                onMouseLeave={stopDrawing}
-              />
             </div>
             
             <div className="mt-4 text-center text-gray-600">
               <p className="text-sm">
                 {mode === 'draw' 
-                  ? 'Click and drag on the body model to draw • Use rotation buttons to rotate the model • Scroll to zoom'
+                  ? 'Click and drag on the body model to draw directly on it • Use rotation buttons to rotate • Scroll to zoom'
                   : mode === 'fill'
                   ? 'Click on body parts to fill them with color • Use rotation buttons to rotate • Scroll to zoom'
                   : 'Use rotation buttons to rotate • Scroll to zoom • Click to add effects'
