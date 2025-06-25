@@ -1,7 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { Canvas, useThree } from '@react-three/fiber';
 import { OrbitControls, Text } from '@react-three/drei';
-import { Brush, Palette, Sparkles, RotateCcw, Download, Zap, Droplet, Heart, Thermometer, Star, Wind, Activity, Snowflake } from 'lucide-react';
+import { Brush, Palette, Sparkles, RotateCcw, Download, Zap, Droplet, Heart, Thermometer, Star, Wind, Activity, Snowflake, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -91,6 +91,7 @@ const EmotionalBodyMapper = () => {
   const [bodyPartColors, setBodyPartColors] = useState<BodyPartColors>({});
   const [isDrawing, setIsDrawing] = useState(false);
   const [currentStroke, setCurrentStroke] = useState<DrawingPoint[]>([]);
+  const [rotation, setRotation] = useState(0);
   const canvasRef = useRef<HTMLDivElement>(null);
   const drawingCanvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -257,6 +258,14 @@ const EmotionalBodyMapper = () => {
     }
   }, [mode, selectedEffect, selectedColor, brushSize]);
 
+  const rotateLeft = () => {
+    setRotation(prev => prev - Math.PI / 2);
+  };
+
+  const rotateRight = () => {
+    setRotation(prev => prev + Math.PI / 2);
+  };
+
   const clearAll = () => {
     setDrawingStrokes([]);
     setEffects([]);
@@ -300,12 +309,34 @@ const EmotionalBodyMapper = () => {
               className="bg-white rounded-lg shadow-lg overflow-hidden relative"
               style={{ height: '600px' }}
             >
+              {/* Left Rotation Button */}
+              <Button
+                variant="outline"
+                size="icon"
+                className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10 bg-white/80 hover:bg-white"
+                onClick={rotateLeft}
+              >
+                <ChevronLeft className="w-6 h-6" />
+              </Button>
+
+              {/* Right Rotation Button */}
+              <Button
+                variant="outline"
+                size="icon"
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 z-10 bg-white/80 hover:bg-white"
+                onClick={rotateRight}
+              >
+                <ChevronRight className="w-6 h-6" />
+              </Button>
+
               <Canvas camera={{ position: [0, 0, 5], fov: 50 }}>
                 <ambientLight intensity={0.6} />
                 <directionalLight position={[10, 10, 5]} intensity={0.8} />
                 <directionalLight position={[-10, -10, -5]} intensity={0.3} />
                 
-                <HumanModel bodyPartColors={bodyPartColors} />
+                <group rotation={[0, rotation, 0]}>
+                  <HumanModel bodyPartColors={bodyPartColors} />
+                </group>
                 <EffectsRenderer effects={effects} />
                 <ClickHandler 
                   mode={mode}
@@ -315,6 +346,7 @@ const EmotionalBodyMapper = () => {
                 />
                 
                 <OrbitControls 
+                  enableRotate={false}
                   enablePan={false}
                   minDistance={3}
                   maxDistance={8}
@@ -344,10 +376,10 @@ const EmotionalBodyMapper = () => {
             <div className="mt-4 text-center text-gray-600">
               <p className="text-sm">
                 {mode === 'draw' 
-                  ? 'Click and drag to draw • Scroll to zoom • Use orbit controls when not drawing'
+                  ? 'Click and drag to draw • Use rotation buttons to rotate the model • Scroll to zoom'
                   : mode === 'fill'
-                  ? 'Click on body parts to fill them with color • Scroll to zoom • Click and drag to rotate'
-                  : 'Click and drag to rotate • Scroll to zoom • Click to add effects'
+                  ? 'Click on body parts to fill them with color • Use rotation buttons to rotate • Scroll to zoom'
+                  : 'Use rotation buttons to rotate • Scroll to zoom • Click to add effects'
                 }
               </p>
             </div>
