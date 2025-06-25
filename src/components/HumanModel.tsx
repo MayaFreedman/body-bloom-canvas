@@ -90,12 +90,6 @@ export const HumanModel = ({ bodyPartColors = {} }: HumanModelProps) => {
         <boxGeometry args={[0.25, 1.2, 0.25]} />
         <meshPhongMaterial color={getPartColor('rightLeg')} />
       </mesh>
-      
-      {/* Wireframe outline for better definition */}
-      <mesh position={[0, 0.8, 0]}>
-        <boxGeometry args={[0.8, 1.2, 0.4]} />
-        <meshBasicMaterial color="#e0e0e0" wireframe />
-      </mesh>
     </group>
   );
 };
