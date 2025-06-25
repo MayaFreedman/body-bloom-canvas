@@ -1,111 +1,95 @@
+
 import React, { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { useGLTF } from '@react-three/drei';
-import { Mesh, Group } from 'three';
+import { Mesh } from 'three';
 
 interface HumanModelProps {
   bodyPartColors?: { [key: string]: string };
 }
 
 export const HumanModel = ({ bodyPartColors = {} }: HumanModelProps) => {
-  const groupRef = useRef<Group>(null);
-  const { scene } = useGLTF('/body.glb');
+  const bodyRef = useRef<Mesh>(null);
+  const headRef = useRef<Mesh>(null);
+  const leftArmRef = useRef<Mesh>(null);
+  const rightArmRef = useRef<Mesh>(null);
+  const leftLegRef = useRef<Mesh>(null);
+  const rightLegRef = useRef<Mesh>(null);
 
   // Subtle breathing animation
   useFrame((state) => {
     const breathe = Math.sin(state.clock.elapsedTime * 0.5) * 0.02 + 1;
-    if (groupRef.current) {
-      groupRef.current.scale.setScalar(breathe);
+    if (bodyRef.current) {
+      bodyRef.current.scale.setScalar(breathe);
     }
   });
 
-  // Set up body part identification and apply colors
-  React.useEffect(() => {
-    if (scene) {
-      scene.traverse((child) => {
-        if (child instanceof Mesh) {
-          // Map mesh names to body parts - adjust these based on actual mesh names in your GLB
-          const nameMappings: { [key: string]: string } = {
-            'head': 'head',
-            'Head': 'head',
-            'torso': 'torso',
-            'Torso': 'torso',
-            'chest': 'torso',
-            'Chest': 'torso',
-            'body': 'torso',
-            'Body': 'torso',
-            'rightarm': 'rightArm',
-            'RightArm': 'rightArm',
-            'right_arm': 'rightArm',
-            'Right_Arm': 'rightArm',
-            'leftarm': 'leftArm',
-            'LeftArm': 'leftArm',
-            'left_arm': 'leftArm',
-            'Left_Arm': 'leftArm',
-            'rightleg': 'rightLeg',
-            'RightLeg': 'rightLeg',
-            'right_leg': 'rightLeg',
-            'Right_Leg': 'rightLeg',
-            'leftleg': 'leftLeg',
-            'LeftLeg': 'leftLeg',
-            'left_leg': 'leftLeg',
-            'Left_Leg': 'leftLeg'
-          };
-
-          // Set userData.bodyPart based on mesh name
-          const meshName = child.name.toLowerCase();
-          let bodyPart = null;
-
-          // Try exact match first
-          if (nameMappings[child.name]) {
-            bodyPart = nameMappings[child.name];
-          } else if (nameMappings[meshName]) {
-            bodyPart = nameMappings[meshName];
-          } else {
-            // Try partial matches
-            if (meshName.includes('head')) {
-              bodyPart = 'head';
-            } else if (meshName.includes('torso') || meshName.includes('chest') || meshName.includes('body')) {
-              bodyPart = 'torso';
-            } else if (meshName.includes('rightarm') || meshName.includes('right_arm')) {
-              bodyPart = 'rightArm';
-            } else if (meshName.includes('leftarm') || meshName.includes('left_arm')) {
-              bodyPart = 'leftArm';
-            } else if (meshName.includes('rightleg') || meshName.includes('right_leg')) {
-              bodyPart = 'rightLeg';
-            } else if (meshName.includes('leftleg') || meshName.includes('left_leg')) {
-              bodyPart = 'leftLeg';
-            }
-          }
-
-          if (bodyPart) {
-            child.userData.bodyPart = bodyPart;
-            console.log(`Mapped mesh "${child.name}" to body part "${bodyPart}"`);
-          }
-
-          // Apply colors if specified
-          if (bodyPart && bodyPartColors[bodyPart] && child.material) {
-            if (Array.isArray(child.material)) {
-              child.material.forEach(mat => {
-                if ('color' in mat) {
-                  mat.color.set(bodyPartColors[bodyPart]);
-                }
-              });
-            } else if ('color' in child.material) {
-              child.material.color.set(bodyPartColors[bodyPart]);
-            }
-          }
-        }
-      });
-    }
-  }, [scene, bodyPartColors]);
+  const getPartColor = (partName: string) => {
+    return bodyPartColors[partName] || '#d1d5db'; // Light gray color
+  };
 
   return (
-    <group ref={groupRef} position={[0, -1, 0]}>
-      <primitive object={scene} />
+    <group position={[0, -1, 0]}>
+      {/* Head */}
+      <mesh 
+        ref={headRef} 
+        position={[0, 1.8, 0]}
+        userData={{ bodyPart: 'head' }}
+      >
+        <sphereGeometry args={[0.3, 16, 16]} />
+        <meshPhongMaterial color={getPartColor('head')} />
+      </mesh>
+      
+      {/* Torso */}
+      <mesh 
+        ref={bodyRef} 
+        position={[0, 0.8, 0]}
+        userData={{ bodyPart: 'torso' }}
+      >
+        <boxGeometry args={[0.8, 1.2, 0.4]} />
+        <meshPhongMaterial color={getPartColor('torso')} />
+      </mesh>
+      
+      {/* Left Arm */}
+      <mesh 
+        ref={leftArmRef} 
+        position={[-0.6, 0.8, 0]} 
+        rotation={[0, 0, 0.3]}
+        userData={{ bodyPart: 'leftArm' }}
+      >
+        <boxGeometry args={[0.2, 0.8, 0.2]} />
+        <meshPhongMaterial color={getPartColor('leftArm')} />
+      </mesh>
+      
+      {/* Right Arm */}
+      <mesh 
+        ref={rightArmRef} 
+        position={[0.6, 0.8, 0]} 
+        rotation={[0, 0, -0.3]}
+        userData={{ bodyPart: 'rightArm' }}
+      >
+        <boxGeometry args={[0.2, 0.8, 0.2]} />
+        <meshPhongMaterial color={getPartColor('rightArm')} />
+      </mesh>
+      
+      {/* Left Leg */}
+      <mesh 
+        ref={leftLegRef} 
+        position={[-0.25, -0.6, 0]}
+        userData={{ bodyPart: 'leftLeg' }}
+      >
+        <boxGeometry args={[0.25, 1.2, 0.25]} />
+        <meshPhongMaterial color={getPartColor('leftLeg')} />
+      </mesh>
+      
+      {/* Right Leg */}
+      <mesh 
+        ref={rightLegRef} 
+        position={[0.25, -0.6, 0]}
+        userData={{ bodyPart: 'rightLeg' }}
+      >
+        <boxGeometry args={[0.25, 1.2, 0.25]} />
+        <meshPhongMaterial color={getPartColor('rightLeg')} />
+      </mesh>
     </group>
   );
 };
-
-// Preload the GLB model
-useGLTF.preload('/body.glb');
