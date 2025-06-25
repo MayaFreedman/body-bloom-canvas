@@ -19,6 +19,14 @@ interface DrawingMark {
   size: number;
 }
 
+interface SensationMark {
+  id: string;
+  position: THREE.Vector3;
+  icon: string;
+  color: string;
+  size: number;
+}
+
 interface Effect {
   id: string;
   type: 'sparkle' | 'pulse' | 'flow';
@@ -32,12 +40,13 @@ interface BodyPartColors {
   [key: string]: string;
 }
 
-// Raycaster component to handle clicks on 3D model for fill mode and effects
-const ClickHandler = ({ mode, selectedColor, onBodyPartClick, onScreenClick }: {
-  mode: 'draw' | 'fill' | 'effects';
+// Raycaster component to handle clicks on 3D model for fill mode and sensations
+const ClickHandler = ({ mode, selectedColor, selectedSensation, onBodyPartClick, onSensationClick }: {
+  mode: 'draw' | 'fill' | 'sensations';
   selectedColor: string;
+  selectedSensation?: { icon: string; color: string; name: string };
   onBodyPartClick: (partName: string, color: string) => void;
-  onScreenClick: (x: number, y: number) => void;
+  onSensationClick: (position: THREE.Vector3, sensation: { icon: string; color: string; name: string }) => void;
 }) => {
   const { camera, gl, raycaster, mouse, scene } = useThree();
 
@@ -53,16 +62,26 @@ const ClickHandler = ({ mode, selectedColor, onBodyPartClick, onScreenClick }: {
 
     if (intersects.length > 0) {
       const intersectedObject = intersects[0].object;
-      if (intersectedObject.userData.bodyPart && mode === 'fill') {
-        onBodyPartClick(intersectedObject.userData.bodyPart, selectedColor);
-        return;
+      const intersect = intersects[0];
+      
+      if (intersectedObject.userData.bodyPart) {
+        if (mode === 'fill') {
+          onBodyPartClick(intersectedObject.userData.bodyPart, selectedColor);
+          return;
+        }
+        
+        if (mode === 'sensations' && selectedSensation) {
+          // Convert world position to local position relative to the model
+          const modelGroup = scene.children.find(child => child.type === 'Group');
+          if (modelGroup) {
+            const localPosition = new THREE.Vector3();
+            modelGroup.worldToLocal(localPosition.copy(intersect.point));
+            onSensationClick(localPosition, selectedSensation);
+          }
+        }
       }
     }
-
-    if (mode === 'effects') {
-      onScreenClick(event.clientX - rect.left, event.clientY - rect.top);
-    }
-  }, [mode, selectedColor, onBodyPartClick, onScreenClick, camera, gl, raycaster, mouse, scene]);
+  }, [mode, selectedColor, selectedSensation, onBodyPartClick, onSensationClick, camera, gl, raycaster, mouse, scene]);
 
   React.useEffect(() => {
     if (mode !== 'draw') {
@@ -75,11 +94,12 @@ const ClickHandler = ({ mode, selectedColor, onBodyPartClick, onScreenClick }: {
 };
 
 const EmotionalBodyMapper = () => {
-  const [mode, setMode] = useState<'draw' | 'fill' | 'effects'>('draw');
+  const [mode, setMode] = useState<'draw' | 'fill' | 'sensations'>('draw');
   const [selectedColor, setSelectedColor] = useState('#ff6b6b');
   const [brushSize, setBrushSize] = useState([10]); // Reduced default size
-  const [selectedEffect, setSelectedEffect] = useState<'sparkle' | 'pulse' | 'flow'>('sparkle');
+  const [selectedSensation, setSelectedSensation] = useState<{ icon: string; color: string; name: string } | null>(null);
   const [drawingMarks, setDrawingMarks] = useState<DrawingMark[]>([]);
+  const [sensationMarks, setSensationMarks] = useState<SensationMark[]>([]);
   const [effects, setEffects] = useState<Effect[]>([]);
   const [bodyPartColors, setBodyPartColors] = useState<BodyPartColors>({});
   const [rotation, setRotation] = useState(0);
@@ -102,27 +122,31 @@ const EmotionalBodyMapper = () => {
   ];
 
   const bodySensations = [
-    { icon: Activity, name: 'Nerves', color: '#9966CC' },
-    { icon: Zap, name: 'Pain', color: '#FFD700' },
-    { icon: Wind, name: 'Nausea', color: '#32CD32' },
-    { icon: Droplet, name: 'Tears', color: '#4169E1' },
-    { icon: Snowflake, name: 'Decreased Temperature', color: '#87CEEB' },
-    { icon: Thermometer, name: 'Increased Temperature', color: '#FF4500' },
-    { icon: Heart, name: 'Increased Heart Rate', color: '#FF1493' },
-    { icon: Heart, name: 'Decreased Heart Rate', color: '#800080' },
-    { icon: Wind, name: 'Tired', color: '#696969' },
-    { icon: Activity, name: 'Change in Breathing', color: '#20B2AA' },
-    { icon: Star, name: 'Tingling', color: '#FFD700' },
-    { icon: Activity, name: 'Shaky', color: '#FF6347' },
-    { icon: Droplet, name: 'Pacing', color: '#4682B4' },
-    { icon: Activity, name: 'Stomping', color: '#8B4513' },
-    { icon: Wind, name: 'Tight', color: '#2F4F4F' },
-    { icon: Sparkles, name: 'Lump in Throat', color: '#9ACD32' },
-    { icon: Activity, name: 'Change in Appetite', color: '#FF8C00' },
-    { icon: Wind, name: 'Heaviness', color: '#708090' },
-    { icon: Activity, name: 'Fidgety', color: '#DC143C' },
-    { icon: Snowflake, name: 'Frozen/Stiff', color: '#B0C4DE' }
+    { icon: 'Activity', name: 'Nerves', color: '#9966CC' },
+    { icon: 'Zap', name: 'Pain', color: '#FFD700' },
+    { icon: 'Wind', name: 'Nausea', color: '#32CD32' },
+    { icon: 'Droplet', name: 'Tears', color: '#4169E1' },
+    { icon: 'Snowflake', name: 'Decreased Temperature', color: '#87CEEB' },
+    { icon: 'Thermometer', name: 'Increased Temperature', color: '#FF4500' },
+    { icon: 'Heart', name: 'Increased Heart Rate', color: '#FF1493' },
+    { icon: 'Heart', name: 'Decreased Heart Rate', color: '#800080' },
+    { icon: 'Wind', name: 'Tired', color: '#696969' },
+    { icon: 'Activity', name: 'Change in Breathing', color: '#20B2AA' },
+    { icon: 'Star', name: 'Tingling', color: '#FFD700' },
+    { icon: 'Activity', name: 'Shaky', color: '#FF6347' },
+    { icon: 'Droplet', name: 'Pacing', color: '#4682B4' },
+    { icon: 'Activity', name: 'Stomping', color: '#8B4513' },
+    { icon: 'Wind', name: 'Tight', color: '#2F4F4F' },
+    { icon: 'Sparkles', name: 'Lump in Throat', color: '#9ACD32' },
+    { icon: 'Activity', name: 'Change in Appetite', color: '#FF8C00' },
+    { icon: 'Wind', name: 'Heaviness', color: '#708090' },
+    { icon: 'Activity', name: 'Fidgety', color: '#DC143C' },
+    { icon: 'Snowflake', name: 'Frozen/Stiff', color: '#B0C4DE' }
   ];
+
+  const iconComponents = {
+    Activity, Zap, Wind, Droplet, Snowflake, Thermometer, Heart, Star, Sparkles
+  };
 
   const handleAddDrawingMark = useCallback((mark: DrawingMark) => {
     setDrawingMarks(prev => [...prev, mark]);
@@ -135,19 +159,16 @@ const EmotionalBodyMapper = () => {
     }));
   }, []);
 
-  const handleScreenClick = useCallback((x: number, y: number) => {
-    if (mode === 'effects') {
-      const newEffect: Effect = {
-        id: `effect-${Date.now()}`,
-        type: selectedEffect,
-        x,
-        y,
-        color: selectedColor,
-        intensity: brushSize[0] / 20
-      };
-      setEffects(prev => [...prev, newEffect]);
-    }
-  }, [mode, selectedEffect, selectedColor, brushSize]);
+  const handleSensationClick = useCallback((position: THREE.Vector3, sensation: { icon: string; color: string; name: string }) => {
+    const newSensationMark: SensationMark = {
+      id: `sensation-${Date.now()}-${Math.random()}`,
+      position,
+      icon: sensation.icon,
+      color: sensation.color,
+      size: 0.1
+    };
+    setSensationMarks(prev => [...prev, newSensationMark]);
+  }, []);
 
   const rotateLeft = () => {
     setRotation(prev => prev - Math.PI / 2);
@@ -161,6 +182,7 @@ const EmotionalBodyMapper = () => {
     setDrawingMarks([]);
     setEffects([]);
     setBodyPartColors({});
+    setSensationMarks([]);
   };
 
   const captureScreenshot = async () => {
@@ -234,6 +256,14 @@ const EmotionalBodyMapper = () => {
                       <meshBasicMaterial color={mark.color} />      
                     </mesh>
                   ))}
+
+                  {/* Render sensation marks as children of the model group */}
+                  {sensationMarks.map((mark) => (
+                    <mesh key={mark.id} position={mark.position}>
+                      <sphereGeometry args={[mark.size, 8, 8]} />
+                      <meshBasicMaterial color={mark.color} />
+                    </mesh>
+                  ))}
                 </group>
                 
                 <ModelDrawing
@@ -250,8 +280,9 @@ const EmotionalBodyMapper = () => {
                 <ClickHandler 
                   mode={mode}
                   selectedColor={selectedColor}
+                  selectedSensation={selectedSensation}
                   onBodyPartClick={handleBodyPartClick}
-                  onScreenClick={handleScreenClick}
+                  onSensationClick={handleSensationClick}
                 />
                 
                 <OrbitControls 
@@ -272,7 +303,7 @@ const EmotionalBodyMapper = () => {
                   ? 'Click and drag on the body model to draw • Use rotation buttons to rotate'
                   : mode === 'fill'
                   ? 'Click on body parts to fill them with color • Use rotation buttons to rotate • Scroll to zoom'
-                  : 'Use rotation buttons to rotate • Scroll to zoom • Click to add effects'
+                  : 'Click on body parts to place sensations • Use rotation buttons to rotate • Scroll to zoom'
                 }
               </p>
             </div>
@@ -407,71 +438,69 @@ const EmotionalBodyMapper = () => {
                   <h3 className="text-xl font-semibold text-gray-800 mb-4">Body Sensations and Signals</h3>
                   <p className="text-gray-600 mb-4">
                     Sometimes our bodies give us clues about how we're feeling - like a tight chest when we're worried or 
-                    butterflies in our tummy when we're nervous. Use these stamps to show what you notice in your body 
-                    when you're feeling something.
+                    butterflies in our tummy when we're nervous. Select a sensation below, then click on the body to place it.
                   </p>
                   <p className="text-sm text-gray-500 mb-6">
                     <strong>Tip:</strong> Think about the signals your body gives you. Where do you feel tension, energy, or change when 
                     a big feeling shows up?
                   </p>
 
-                  <div className="mb-4">
-                    <input
-                      type="text"
-                      placeholder="Search for effects..."
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                    />
+                  {/* Sensation Mode Button */}
+                  <div className="mb-6">
+                    <Button
+                      variant={mode === 'sensations' ? 'default' : 'outline'}
+                      className="w-full bg-blue-500 text-white hover:bg-blue-600"
+                      onClick={() => setMode('sensations')}
+                    >
+                      <Sparkles className="w-4 h-4 mr-2" />
+                      Sensation Mode
+                    </Button>
                   </div>
 
-                  <div className="grid grid-cols-5 gap-4">
+                  <div className="grid grid-cols-2 gap-3">
                     {bodySensations.map((sensation, index) => {
-                      const IconComponent = sensation.icon;
+                      const IconComponent = iconComponents[sensation.icon as keyof typeof iconComponents];
+                      const isSelected = selectedSensation?.name === sensation.name;
+                      
                       return (
                         <button
                           key={index}
-                          className="flex flex-col items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                          className={`flex flex-col items-center p-3 border-2 rounded-lg transition-all ${
+                            isSelected 
+                              ? 'border-blue-500 bg-blue-50 shadow-md transform scale-105' 
+                              : 'border-gray-200 hover:bg-gray-50 hover:border-gray-300'
+                          }`}
                           onClick={() => {
-                            setSelectedColor(sensation.color);
-                            setMode('effects');
+                            setSelectedSensation({
+                              icon: sensation.icon,
+                              color: sensation.color,
+                              name: sensation.name
+                            });
+                            setMode('sensations');
                           }}
                         >
-                          <IconComponent className="w-6 h-6 mb-2" style={{ color: sensation.color }} />
-                          <span className="text-xs text-gray-600 text-center">{sensation.name}</span>
+                          {IconComponent && (
+                            <IconComponent 
+                              className={`w-6 h-6 mb-2 ${isSelected ? 'text-blue-600' : ''}`} 
+                              style={{ color: isSelected ? '#2563eb' : sensation.color }} 
+                            />
+                          )}
+                          <span className={`text-xs text-center ${isSelected ? 'text-blue-600 font-medium' : 'text-gray-600'}`}>
+                            {sensation.name}
+                          </span>
                         </button>
                       );
                     })}
                   </div>
 
-                  {/* Effect Controls */}
-                  {mode === 'effects' && (
-                    <div className="mt-6">
-                      <h4 className="font-semibold text-gray-800 mb-3">Effect Type</h4>
-                      <div className="space-y-2">
-                        <Button
-                          variant={selectedEffect === 'sparkle' ? 'default' : 'outline'}
-                          className="w-full justify-start"
-                          onClick={() => setSelectedEffect('sparkle')}
-                        >
-                          <Sparkles className="w-4 h-4 mr-2" />
-                          Sparkles
-                        </Button>
-                        <Button
-                          variant={selectedEffect === 'pulse' ? 'default' : 'outline'}
-                          className="w-full justify-start"
-                          onClick={() => setSelectedEffect('pulse')}
-                        >
-                          <Zap className="w-4 h-4 mr-2" />
-                          Pulse
-                        </Button>
-                        <Button
-                          variant={selectedEffect === 'flow' ? 'default' : 'outline'}
-                          className="w-full justify-start"
-                          onClick={() => setSelectedEffect('flow')}
-                        >
-                          <Droplet className="w-4 h-4 mr-2" />
-                          Flow
-                        </Button>
-                      </div>
+                  {selectedSensation && (
+                    <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                      <p className="text-sm text-blue-800">
+                        <strong>Selected:</strong> {selectedSensation.name}
+                      </p>
+                      <p className="text-xs text-blue-600 mt-1">
+                        Click on the body model to place this sensation
+                      </p>
                     </div>
                   )}
                 </div>
