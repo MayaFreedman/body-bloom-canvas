@@ -1,4 +1,3 @@
-
 import React, { useRef, useCallback } from 'react';
 import { useThree, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
@@ -16,6 +15,8 @@ interface ModelDrawingProps {
   selectedColor: string;
   brushSize: number;
   onAddMark: (mark: DrawingMark) => void;
+  onStrokeStart?: () => void;
+  onStrokeComplete?: () => void;
   modelRef?: React.RefObject<THREE.Group>;
 }
 
@@ -25,12 +26,15 @@ export const ModelDrawing = ({
   selectedColor, 
   brushSize, 
   onAddMark,
+  onStrokeStart,
+  onStrokeComplete,
   modelRef 
 }: ModelDrawingProps) => {
   const { camera, gl, raycaster, mouse, scene } = useThree();
   const isMouseDown = useRef(false);
   const lastMarkTime = useRef(0);
   const lastPosition = useRef<THREE.Vector3 | null>(null);
+  const strokeStarted = useRef(false);
 
   const getIntersectedObjects = useCallback(() => {
     // Get all meshes from the model that have bodyPart userData
@@ -79,6 +83,7 @@ export const ModelDrawing = ({
   const handlePointerDown = useCallback((event: PointerEvent) => {
     if (!isDrawing) return;
     isMouseDown.current = true;
+    strokeStarted.current = false;
     
     const rect = gl.domElement.getBoundingClientRect();
     mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
@@ -86,7 +91,6 @@ export const ModelDrawing = ({
 
     raycaster.setFromCamera(mouse, camera);
     
-    // Get intersections with body meshes
     const meshes = getIntersectedObjects();
     const intersects = raycaster.intersectObjects(meshes, false);
 
@@ -94,17 +98,22 @@ export const ModelDrawing = ({
       const intersect = intersects[0];
       
       if (intersect.object.userData.bodyPart) {
+        // Start stroke
+        if (onStrokeStart && !strokeStarted.current) {
+          onStrokeStart();
+          strokeStarted.current = true;
+        }
+        
         addMarkAtPosition(intersect.point);
         lastPosition.current = intersect.point.clone();
         lastMarkTime.current = Date.now();
       }
     }
-  }, [isDrawing, addMarkAtPosition, camera, gl, raycaster, mouse, getIntersectedObjects]);
+  }, [isDrawing, addMarkAtPosition, onStrokeStart, camera, gl, raycaster, mouse, getIntersectedObjects]);
 
   const handlePointerMove = useCallback((event: PointerEvent) => {
     if (!isDrawing || !isMouseDown.current) return;
     
-    // Reduce throttle for smoother drawing (60fps)
     const now = Date.now();
     if (now - lastMarkTime.current < 16) return;
 
@@ -123,7 +132,6 @@ export const ModelDrawing = ({
       if (intersect.object.userData.bodyPart) {
         const currentPosition = intersect.point;
         
-        // If we have a last position, interpolate between them for smooth strokes
         if (lastPosition.current) {
           interpolateMarks(lastPosition.current, currentPosition);
         } else {
@@ -137,9 +145,17 @@ export const ModelDrawing = ({
   }, [isDrawing, addMarkAtPosition, interpolateMarks, camera, gl, raycaster, mouse, getIntersectedObjects]);
 
   const handlePointerUp = useCallback(() => {
+    if (isMouseDown.current && strokeStarted.current) {
+      // Complete stroke
+      if (onStrokeComplete) {
+        onStrokeComplete();
+      }
+    }
+    
     isMouseDown.current = false;
     lastPosition.current = null;
-  }, []);
+    strokeStarted.current = false;
+  }, [onStrokeComplete]);
 
   React.useEffect(() => {
     if (isDrawing) {

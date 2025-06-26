@@ -1,7 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { Canvas, useThree } from '@react-three/fiber';
 import { OrbitControls, Text } from '@react-three/drei';
-import { Brush, Palette, Sparkles, RotateCcw, Download, Zap, Droplet, Heart, Thermometer, Star, Wind, Activity, Snowflake, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Brush, Palette, Sparkles, RotateCcw, Download, Zap, Droplet, Heart, Thermometer, Star, Wind, Activity, Snowflake, ChevronLeft, ChevronRight, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -9,6 +9,7 @@ import { HumanModel } from './HumanModel';
 import { EffectsRenderer } from './EffectsRenderer';
 import { ModelDrawing } from './ModelDrawing';
 import SensationParticles from './SensationParticles';
+import { useMultiplayer } from '@/hooks/useMultiplayer';
 import html2canvas from 'html2canvas';
 import * as THREE from 'three';
 
@@ -38,6 +39,10 @@ interface Effect {
 
 interface BodyPartColors {
   [key: string]: string;
+}
+
+interface EmotionalBodyMapperProps {
+  roomId: string | null;
 }
 
 // Raycaster component to handle clicks on 3D model for fill mode and sensations
@@ -107,7 +112,7 @@ const ClickHandler = ({ mode, selectedColor, selectedSensation, onBodyPartClick,
   return null;
 };
 
-const EmotionalBodyMapper = () => {
+const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
   const [mode, setMode] = useState<'draw' | 'fill' | 'sensations'>('draw');
   const [selectedColor, setSelectedColor] = useState('#ff6b6b');
   const [brushSize, setBrushSize] = useState([10]); // Reduced default size
@@ -119,6 +124,9 @@ const EmotionalBodyMapper = () => {
   const [rotation, setRotation] = useState(0);
   const canvasRef = useRef<HTMLDivElement>(null);
   const modelRef = useRef<THREE.Group>(null);
+
+  // Initialize multiplayer
+  const multiplayer = useMultiplayer(roomId);
 
   const emotionalColors = [
     { color: '#FFD700', name: 'Joy', emotion: 'joy' },
@@ -164,14 +172,24 @@ const EmotionalBodyMapper = () => {
 
   const handleAddDrawingMark = useCallback((mark: DrawingMark) => {
     setDrawingMarks(prev => [...prev, mark]);
-  }, []);
+    
+    // Add to multiplayer stroke if connected
+    if (multiplayer.isConnected) {
+      multiplayer.addToDrawingStroke(mark.position);
+    }
+  }, [multiplayer]);
 
   const handleBodyPartClick = useCallback((partName: string, color: string) => {
     setBodyPartColors(prev => ({
       ...prev,
       [partName]: color
     }));
-  }, []);
+    
+    // Broadcast to multiplayer
+    if (multiplayer.isConnected) {
+      multiplayer.broadcastBodyPartFill({ partName, color });
+    }
+  }, [multiplayer]);
 
   const handleSensationClick = useCallback((position: THREE.Vector3, sensation: { icon: string; color: string; name: string }) => {
     const newSensationMark: SensationMark = {
@@ -182,7 +200,67 @@ const EmotionalBodyMapper = () => {
       size: 0.1
     };
     setSensationMarks(prev => [...prev, newSensationMark]);
-  }, []);
+    
+    // Broadcast to multiplayer
+    if (multiplayer.isConnected) {
+      multiplayer.broadcastSensation({
+        id: newSensationMark.id,
+        position,
+        icon: sensation.icon,
+        color: sensation.color,
+        size: 0.1
+      });
+    }
+  }, [multiplayer]);
+
+  // Handle multiplayer messages
+  useEffect(() => {
+    if (multiplayer.room) {
+      const handleBroadcast = (message: any) => {
+        switch (message.type) {
+          case 'drawingStroke': {
+            const stroke = message.data;
+            // Add all points from the stroke as individual marks
+            stroke.points.forEach((point: THREE.Vector3, index: number) => {
+              const mark: DrawingMark = {
+                id: `${stroke.id}-${index}`,
+                position: new THREE.Vector3(point.x, point.y, point.z),
+                color: stroke.color,
+                size: stroke.size
+              };
+              setDrawingMarks(prev => [...prev, mark]);
+            });
+            break;
+          }
+          case 'sensationPlace': {
+            const sensation = message.data;
+            const newSensationMark: SensationMark = {
+              id: sensation.id,
+              position: new THREE.Vector3(sensation.position.x, sensation.position.y, sensation.position.z),
+              icon: sensation.icon,
+              color: sensation.color,
+              size: sensation.size
+            };
+            setSensationMarks(prev => [...prev, newSensationMark]);
+            break;
+          }
+          case 'bodyPartFill': {
+            const fill = message.data;
+            setBodyPartColors(prev => ({
+              ...prev,
+              [fill.partName]: fill.color
+            }));
+            break;
+          }
+        }
+      };
+
+      multiplayer.room.onMessage('broadcast', handleBroadcast);
+      return () => {
+        multiplayer.room?.onMessage('broadcast', () => {});
+      };
+    }
+  }, [multiplayer.room]);
 
   const rotateLeft = () => {
     setRotation(prev => prev - Math.PI / 2);
@@ -223,8 +301,27 @@ const EmotionalBodyMapper = () => {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-6">
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">Body Mapping Game</h1>
-          <p className="text-lg text-gray-600">This game helps us identify, express, and understand our emotions and how those emotions show up in our bodies.</p>
+          <div className="flex items-center justify-center space-x-3 mb-2">
+            <h1 className="text-4xl font-bold text-gray-800">Body Mapping Game</h1>
+            {roomId && (
+              <div className="flex items-center space-x-2 bg-blue-100 px-3 py-1 rounded-full">
+                <Users className="w-4 h-4 text-blue-600" />
+                <span className="text-sm text-blue-800">
+                  {multiplayer.isConnected ? 'Connected' : multiplayer.isConnecting ? 'Connecting...' : 'Disconnected'}
+                </span>
+                <div className={`w-2 h-2 rounded-full ${
+                  multiplayer.isConnected ? 'bg-green-500' : 
+                  multiplayer.isConnecting ? 'bg-yellow-500' : 'bg-red-500'
+                }`} />
+              </div>
+            )}
+          </div>
+          <p className="text-lg text-gray-600">
+            {roomId 
+              ? 'Collaborate with others to identify, express, and understand emotions and how they show up in your bodies.'
+              : 'This game helps us identify, express, and understand our emotions and how those emotions show up in our bodies.'
+            }
+          </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -281,6 +378,8 @@ const EmotionalBodyMapper = () => {
                   selectedColor={selectedColor}
                   brushSize={brushSize[0]}
                   onAddMark={handleAddDrawingMark}
+                  onStrokeStart={handleDrawingStrokeStart}
+                  onStrokeComplete={handleDrawingStrokeComplete}
                   modelRef={modelRef}
                 />
                 
