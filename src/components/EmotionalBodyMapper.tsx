@@ -172,10 +172,11 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
 
   const handleAddDrawingMark = useCallback((mark: DrawingMark) => {
     setDrawingMarks(prev => [...prev, mark]);
-    
-    // Add to multiplayer stroke if connected
+  }, []);
+
+  const handleAddToDrawingStroke = useCallback((worldPosition: THREE.Vector3) => {
     if (multiplayer.isConnected) {
-      multiplayer.addToDrawingStroke(mark.position);
+      multiplayer.addToDrawingStroke(worldPosition);
     }
   }, [multiplayer]);
 
@@ -254,25 +255,33 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
                 return;
               }
               
-              // Add all points from the stroke as individual marks
-              stroke.points.forEach((point: any, index: number) => {
-                try {
-                  if (!point || typeof point.x !== 'number' || typeof point.y !== 'number' || typeof point.z !== 'number') {
-                    console.warn('⚠️ Invalid point data:', point);
-                    return;
+              // Convert world coordinates to local coordinates and add as marks
+              const modelGroup = modelRef.current;
+              if (modelGroup) {
+                stroke.points.forEach((point: any, index: number) => {
+                  try {
+                    if (!point || typeof point.x !== 'number' || typeof point.y !== 'number' || typeof point.z !== 'number') {
+                      console.warn('⚠️ Invalid point data:', point);
+                      return;
+                    }
+                    
+                    // Convert world position to local position relative to the model
+                    const worldPos = new THREE.Vector3(point.x, point.y, point.z);
+                    const localPos = new THREE.Vector3();
+                    modelGroup.worldToLocal(localPos.copy(worldPos));
+                    
+                    const mark: DrawingMark = {
+                      id: `${stroke.id}-${index}`,
+                      position: localPos,
+                      color: stroke.color || '#ff6b6b',
+                      size: stroke.size || 0.1
+                    };
+                    setDrawingMarks(prev => [...prev, mark]);
+                  } catch (pointError) {
+                    console.error('❌ Error processing point:', pointError, point);
                   }
-                  
-                  const mark: DrawingMark = {
-                    id: `${stroke.id}-${index}`,
-                    position: new THREE.Vector3(point.x, point.y, point.z),
-                    color: stroke.color || '#ff6b6b',
-                    size: stroke.size || 0.1
-                  };
-                  setDrawingMarks(prev => [...prev, mark]);
-                } catch (pointError) {
-                  console.error('❌ Error processing point:', pointError, point);
-                }
-              });
+                });
+              }
               break;
             }
             case 'sensationPlace': {
@@ -460,6 +469,7 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
                   onAddMark={handleAddDrawingMark}
                   onStrokeStart={handleDrawingStrokeStart}
                   onStrokeComplete={handleDrawingStrokeComplete}
+                  onAddToStroke={handleAddToDrawingStroke}
                   modelRef={modelRef}
                 />
                 

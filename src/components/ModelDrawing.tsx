@@ -17,6 +17,7 @@ interface ModelDrawingProps {
   onAddMark: (mark: DrawingMark) => void;
   onStrokeStart?: () => void;
   onStrokeComplete?: () => void;
+  onAddToStroke?: (worldPosition: THREE.Vector3) => void;
   modelRef?: React.RefObject<THREE.Group>;
 }
 
@@ -28,6 +29,7 @@ export const ModelDrawing = ({
   onAddMark,
   onStrokeStart,
   onStrokeComplete,
+  onAddToStroke,
   modelRef 
 }: ModelDrawingProps) => {
   const { camera, gl, raycaster, mouse, scene } = useThree();
@@ -66,8 +68,13 @@ export const ModelDrawing = ({
         size: brushSize / 100
       };
       onAddMark(mark);
+      
+      // Also add world position to multiplayer stroke
+      if (onAddToStroke) {
+        onAddToStroke(worldPosition.clone());
+      }
     }
-  }, [selectedColor, brushSize, onAddMark, modelRef]);
+  }, [selectedColor, brushSize, onAddMark, onAddToStroke, modelRef]);
 
   const interpolateMarks = useCallback((start: THREE.Vector3, end: THREE.Vector3) => {
     const distance = start.distanceTo(end);

@@ -169,15 +169,18 @@ export const useMultiplayer = (roomId: string | null) => {
   }, [state.room, state.isConnected, state.currentPlayerId, state.playerColor]);
 
   const startDrawingStroke = useCallback(() => {
+    console.log('🎨 Starting drawing stroke');
     drawingStrokeRef.current = [];
   }, []);
 
-  const addToDrawingStroke = useCallback((point: THREE.Vector3) => {
-    drawingStrokeRef.current.push(point.clone());
+  const addToDrawingStroke = useCallback((worldPoint: THREE.Vector3) => {
+    console.log('🎨 Adding point to stroke:', worldPoint);
+    drawingStrokeRef.current.push(worldPoint.clone());
   }, []);
 
   const finishDrawingStroke = useCallback((color: string, size: number) => {
     if (drawingStrokeRef.current.length > 0) {
+      console.log('🎨 Finishing stroke with', drawingStrokeRef.current.length, 'points');
       const stroke: Omit<DrawingStroke, 'playerId'> = {
         id: `stroke-${Date.now()}-${Math.random()}`,
         points: [...drawingStrokeRef.current],
