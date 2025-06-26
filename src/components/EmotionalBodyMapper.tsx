@@ -225,51 +225,112 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     }
   }, [multiplayer]);
 
-  // Handle multiplayer messages
+  // Handle multiplayer messages with error boundaries
   useEffect(() => {
     if (multiplayer.room) {
       const handleBroadcast = (message: any) => {
-        switch (message.type) {
-          case 'drawingStroke': {
-            const stroke = message.data;
-            // Add all points from the stroke as individual marks
-            stroke.points.forEach((point: THREE.Vector3, index: number) => {
-              const mark: DrawingMark = {
-                id: `${stroke.id}-${index}`,
-                position: new THREE.Vector3(point.x, point.y, point.z),
-                color: stroke.color,
-                size: stroke.size
-              };
-              setDrawingMarks(prev => [...prev, mark]);
-            });
-            break;
+        try {
+          console.log('📨 Received broadcast message:', message);
+          
+          if (!message || !message.type || !message.data) {
+            console.warn('⚠️ Invalid message format:', message);
+            return;
           }
-          case 'sensationPlace': {
-            const sensation = message.data;
-            const newSensationMark: SensationMark = {
-              id: sensation.id,
-              position: new THREE.Vector3(sensation.position.x, sensation.position.y, sensation.position.z),
-              icon: sensation.icon,
-              color: sensation.color,
-              size: sensation.size
-            };
-            setSensationMarks(prev => [...prev, newSensationMark]);
-            break;
+
+          switch (message.type) {
+            case 'drawingStroke': {
+              const stroke = message.data;
+              console.log('🎨 Processing drawing stroke:', stroke);
+              
+              if (!stroke || !stroke.points || !Array.isArray(stroke.points)) {
+                console.warn('⚠️ Invalid stroke data:', stroke);
+                return;
+              }
+              
+              // Add all points from the stroke as individual marks
+              stroke.points.forEach((point: any, index: number) => {
+                try {
+                  if (!point || typeof point.x !== 'number' || typeof point.y !== 'number' || typeof point.z !== 'number') {
+                    console.warn('⚠️ Invalid point data:', point);
+                    return;
+                  }
+                  
+                  const mark: DrawingMark = {
+                    id: `${stroke.id}-${index}`,
+                    position: new THREE.Vector3(point.x, point.y, point.z),
+                    color: stroke.color || '#ff6b6b',
+                    size: stroke.size || 0.1
+                  };
+                  setDrawingMarks(prev => [...prev, mark]);
+                } catch (pointError) {
+                  console.error('❌ Error processing point:', pointError, point);
+                }
+              });
+              break;
+            }
+            case 'sensationPlace': {
+              const sensation = message.data;
+              console.log('✨ Processing sensation:', sensation);
+              
+              if (!sensation || !sensation.position || !sensation.id) {
+                console.warn('⚠️ Invalid sensation data:', sensation);
+                return;
+              }
+              
+              try {
+                const newSensationMark: SensationMark = {
+                  id: sensation.id,
+                  position: new THREE.Vector3(
+                    sensation.position.x || 0, 
+                    sensation.position.y || 0, 
+                    sensation.position.z || 0
+                  ),
+                  icon: sensation.icon || 'Star',
+                  color: sensation.color || '#ff6b6b',
+                  size: sensation.size || 0.1
+                };
+                setSensationMarks(prev => [...prev, newSensationMark]);
+              } catch (sensationError) {
+                console.error('❌ Error processing sensation:', sensationError, sensation);
+              }
+              break;
+            }
+            case 'bodyPartFill': {
+              const fill = message.data;
+              console.log('🎨 Processing body part fill:', fill);
+              
+              if (!fill || !fill.partName || !fill.color) {
+                console.warn('⚠️ Invalid fill data:', fill);
+                return;
+              }
+              
+              try {
+                setBodyPartColors(prev => ({
+                  ...prev,
+                  [fill.partName]: fill.color
+                }));
+                console.log('✅ Successfully applied body part fill:', fill.partName, fill.color);
+              } catch (fillError) {
+                console.error('❌ Error applying body part fill:', fillError, fill);
+              }
+              break;
+            }
+            default:
+              console.log('🤷 Unknown message type:', message.type);
           }
-          case 'bodyPartFill': {
-            const fill = message.data;
-            setBodyPartColors(prev => ({
-              ...prev,
-              [fill.partName]: fill.color
-            }));
-            break;
-          }
+        } catch (error) {
+          console.error('❌ Error processing broadcast message:', error, message);
         }
       };
 
       multiplayer.room.onMessage('broadcast', handleBroadcast);
+      
       return () => {
-        multiplayer.room?.onMessage('broadcast', () => {});
+        try {
+          multiplayer.room?.onMessage('broadcast', () => {});
+        } catch (error) {
+          console.error('❌ Error cleaning up broadcast listener:', error);
+        }
       };
     }
   }, [multiplayer.room]);
