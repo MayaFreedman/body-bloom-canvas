@@ -63,7 +63,9 @@ export const useMultiplayer = (roomId: string | null) => {
 
     try {
       const server = ServerClass.getInstance();
-      const room = await server.getClient().joinOrCreate('body_mapper', { roomId: id });
+      
+      // Use the connectToColyseusServer method instead of joinOrCreate
+      const room = await server.connectToColyseusServer(id, false);
       
       const playerColors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#ffeaa7', '#dda0dd'];
       const playerColor = playerColors[Math.floor(Math.random() * playerColors.length)];
@@ -113,48 +115,50 @@ export const useMultiplayer = (roomId: string | null) => {
   }, [state.isConnecting, state.isConnected]);
 
   const handleBroadcastMessage = useCallback((message: any) => {
-    // Messages will be handled by the components that subscribe to them
     console.log('Received broadcast message:', message);
   }, []);
 
   const broadcastDrawingStroke = useCallback((stroke: Omit<DrawingStroke, 'playerId'>) => {
     if (state.room && state.isConnected) {
-      state.room.send('broadcast', {
+      const server = ServerClass.getInstance();
+      server.sendEvent({
         type: 'drawingStroke',
-        data: { ...stroke, playerId: state.currentPlayerId }
+        action: { ...stroke, playerId: state.currentPlayerId }
       });
     }
   }, [state.room, state.isConnected, state.currentPlayerId]);
 
   const broadcastSensation = useCallback((sensation: Omit<SensationData, 'playerId'>) => {
     if (state.room && state.isConnected) {
-      state.room.send('broadcast', {
+      const server = ServerClass.getInstance();
+      server.sendEvent({
         type: 'sensationPlace',
-        data: { ...sensation, playerId: state.currentPlayerId }
+        action: { ...sensation, playerId: state.currentPlayerId }
       });
     }
   }, [state.room, state.isConnected, state.currentPlayerId]);
 
   const broadcastBodyPartFill = useCallback((fill: Omit<BodyPartFill, 'playerId'>) => {
     if (state.room && state.isConnected) {
-      state.room.send('broadcast', {
+      const server = ServerClass.getInstance();
+      server.sendEvent({
         type: 'bodyPartFill',
-        data: { ...fill, playerId: state.currentPlayerId }
+        action: { ...fill, playerId: state.currentPlayerId }
       });
     }
   }, [state.room, state.isConnected, state.currentPlayerId]);
 
   const broadcastCursor = useCallback((position: { x: number; y: number }) => {
     if (state.room && state.isConnected) {
-      // Throttle cursor updates to 15fps
       if (cursorThrottleRef.current) {
         clearTimeout(cursorThrottleRef.current);
       }
       
       cursorThrottleRef.current = setTimeout(() => {
-        state.room?.send('broadcast', {
+        const server = ServerClass.getInstance();
+        server.sendEvent({
           type: 'playerCursor',
-          data: {
+          action: {
             playerId: state.currentPlayerId,
             position,
             color: state.playerColor,
