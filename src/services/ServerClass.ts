@@ -44,12 +44,23 @@ export class ServerClass {
     }
 
     try {
-      console.log('🔍 Joining room by ID...');
+      console.log('🔍 Attempting to join or create room...');
       
-      const joinPromise = this.client.joinById(colyseusRoomID, {
-        type: 'videoSession',
-        moderator: isModerator,
-      });
+      // Try joinOrCreate first, then fallback to joinById if that fails
+      let joinPromise;
+      try {
+        console.log('🚀 Trying joinOrCreate method...');
+        joinPromise = this.client.joinOrCreate(colyseusRoomID, {
+          type: 'videoSession',
+          moderator: isModerator,
+        });
+      } catch (joinOrCreateError) {
+        console.log('⚠️ joinOrCreate failed, trying joinById...', joinOrCreateError);
+        joinPromise = this.client.joinById(colyseusRoomID, {
+          type: 'videoSession',
+          moderator: isModerator,
+        });
+      }
 
       console.log('⏳ Join promise created, adding listeners...');
 
@@ -90,6 +101,19 @@ export class ServerClass {
           })
           .catch((error) => {
             console.error('💥 Join promise rejected:', error);
+            console.error('🔍 Error details:', {
+              type: error.constructor.name,
+              message: error.message,
+              isProgressEvent: error instanceof ProgressEvent,
+            });
+
+            // Handle ProgressEvent specifically (WebSocket connection failure)
+            if (error instanceof ProgressEvent) {
+              clearTimeout(timeout);
+              reject(new Error('WebSocket connection failed. The server may not be running or may not accept WebSocket connections.'));
+              return;
+            }
+
             clearTimeout(timeout);
             reject(error);
           });
