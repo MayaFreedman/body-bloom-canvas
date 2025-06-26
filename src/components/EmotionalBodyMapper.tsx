@@ -232,14 +232,21 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
         try {
           console.log('📨 Received broadcast message:', message);
           
-          if (!message || !message.type || !message.data) {
+          if (!message || !message.type) {
             console.warn('⚠️ Invalid message format:', message);
+            return;
+          }
+
+          // Handle both 'data' and 'action' properties for backward compatibility
+          const messageData = message.data || message.action;
+          if (!messageData) {
+            console.warn('⚠️ No data/action in message:', message);
             return;
           }
 
           switch (message.type) {
             case 'drawingStroke': {
-              const stroke = message.data;
+              const stroke = messageData;
               console.log('🎨 Processing drawing stroke:', stroke);
               
               if (!stroke || !stroke.points || !Array.isArray(stroke.points)) {
@@ -269,7 +276,7 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
               break;
             }
             case 'sensationPlace': {
-              const sensation = message.data;
+              const sensation = messageData;
               console.log('✨ Processing sensation:', sensation);
               
               if (!sensation || !sensation.position || !sensation.id) {
@@ -296,7 +303,7 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
               break;
             }
             case 'bodyPartFill': {
-              const fill = message.data;
+              const fill = messageData;
               console.log('🎨 Processing body part fill:', fill);
               
               if (!fill || !fill.partName || !fill.color) {
