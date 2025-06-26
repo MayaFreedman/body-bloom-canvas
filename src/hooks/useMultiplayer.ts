@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Room } from 'colyseus.js';
 import { ServerClass } from '../services/ServerClass';
@@ -64,8 +63,8 @@ export const useMultiplayer = (roomId: string | null) => {
     try {
       const server = ServerClass.getInstance();
       
-      // Use the connectToColyseusServer method instead of joinOrCreate
-      const room = await server.connectToColyseusServer(id, false);
+      // The connectToColyseusServer method returns a Room object
+      const room = await server.connectToColyseusServer(id, false) as Room;
       
       const playerColors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#ffeaa7', '#dda0dd'];
       const playerColor = playerColors[Math.floor(Math.random() * playerColors.length)];
