@@ -147,6 +147,16 @@ export const useMultiplayer = (roomId: string | null) => {
     }
   }, [state.room, state.isConnected, state.currentPlayerId]);
 
+  const broadcastReset = useCallback(() => {
+    if (state.room && state.isConnected) {
+      const server = ServerClass.getInstance();
+      server.sendEvent({
+        type: 'resetAll',
+        action: { playerId: state.currentPlayerId }
+      });
+    }
+  }, [state.room, state.isConnected, state.currentPlayerId]);
+
   const broadcastCursor = useCallback((position: { x: number; y: number }) => {
     if (state.room && state.isConnected) {
       if (cursorThrottleRef.current) {
@@ -213,6 +223,7 @@ export const useMultiplayer = (roomId: string | null) => {
     broadcastDrawingStroke,
     broadcastSensation,
     broadcastBodyPartFill,
+    broadcastReset,
     broadcastCursor,
     startDrawingStroke,
     addToDrawingStroke,

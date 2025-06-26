@@ -1,4 +1,3 @@
-
 import React, { useRef, useCallback, useEffect } from 'react';
 import { RotateCcw, Download, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -72,6 +71,16 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
       multiplayer.broadcastSensation(sensationMark);
     }
   }, [baseHandleSensationClick, multiplayer]);
+
+  // Enhanced reset handler that broadcasts to all users
+  const handleResetAll = useCallback(() => {
+    clearAll();
+    
+    // Broadcast reset to all connected users
+    if (multiplayer.isConnected) {
+      multiplayer.broadcastReset();
+    }
+  }, [clearAll, multiplayer]);
 
   const handleAddToDrawingStroke = useCallback((worldPosition: THREE.Vector3) => {
     if (multiplayer.isConnected) {
@@ -196,6 +205,11 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
               }
               break;
             }
+            case 'resetAll': {
+              console.log('🔄 Processing reset all from another user');
+              clearAll();
+              break;
+            }
             default:
               console.log('🤷 Unknown message type:', message.type);
           }
@@ -214,7 +228,7 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
         }
       };
     }
-  }, [multiplayer.room, setDrawingMarks, setSensationMarks, setBodyPartColors]);
+  }, [multiplayer.room, setDrawingMarks, setSensationMarks, setBodyPartColors, clearAll]);
 
   const captureScreenshot = async () => {
     if (!canvasRef.current) return;
@@ -302,7 +316,7 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
 
             {/* Bottom Controls */}
             <div className="mt-4 flex justify-center space-x-4">
-              <Button variant="outline" onClick={clearAll} className="bg-red-500 text-white hover:bg-red-600">
+              <Button variant="outline" onClick={handleResetAll} className="bg-red-500 text-white hover:bg-red-600">
                 <RotateCcw className="w-4 h-4 mr-2" />
                 Reset All Changes
               </Button>
