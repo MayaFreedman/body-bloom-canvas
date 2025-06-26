@@ -179,6 +179,18 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     }
   }, [multiplayer]);
 
+  const handleDrawingStrokeStart = useCallback(() => {
+    if (multiplayer.isConnected) {
+      multiplayer.startDrawingStroke();
+    }
+  }, [multiplayer]);
+
+  const handleDrawingStrokeComplete = useCallback(() => {
+    if (multiplayer.isConnected) {
+      multiplayer.finishDrawingStroke(selectedColor, brushSize[0] / 100);
+    }
+  }, [multiplayer, selectedColor, brushSize]);
+
   const handleBodyPartClick = useCallback((partName: string, color: string) => {
     setBodyPartColors(prev => ({
       ...prev,
