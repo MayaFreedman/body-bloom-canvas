@@ -2,12 +2,29 @@
 import React, { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
-import { Mesh, Group, MeshBasicMaterial } from 'three';
+import { Mesh, Group, MeshBasicMaterial, Color } from 'three';
 import * as THREE from 'three';
 
 interface HumanModelProps {
   bodyPartColors?: { [key: string]: string };
 }
+
+// Color correction function to make 3D colors match UI colors better
+const correctColorFor3D = (hexColor: string): string => {
+  const color = new Color(hexColor);
+  
+  // Convert to HSL for easier manipulation
+  const hsl = { h: 0, s: 0, l: 0 };
+  color.getHSL(hsl);
+  
+  // Increase saturation and lightness to compensate for 3D rendering
+  hsl.s = Math.min(1, hsl.s * 1.3); // Boost saturation by 30%
+  hsl.l = Math.min(0.9, hsl.l * 1.2); // Boost lightness by 20% but cap at 90%
+  
+  // Convert back to hex
+  color.setHSL(hsl.h, hsl.s, hsl.l);
+  return `#${color.getHexString()}`;
+};
 
 export const HumanModel = ({ bodyPartColors = {} }: HumanModelProps) => {
   const groupRef = useRef<Group>(null);
@@ -66,11 +83,9 @@ export const HumanModel = ({ bodyPartColors = {} }: HumanModelProps) => {
             }
           }
 
-          // Set userData.bodyPart for all meshes
           const meshName = child.name.toLowerCase();
           let bodyPart = null;
           
-          // Try to match mesh name to body part
           for (const [key, value] of Object.entries(bodyPartMapping)) {
             if (meshName.includes(key.toLowerCase()) || child.name === key) {
               bodyPart = value;
@@ -78,7 +93,6 @@ export const HumanModel = ({ bodyPartColors = {} }: HumanModelProps) => {
             }
           }
           
-          // If no specific match, try broader matching
           if (!bodyPart) {
             if (meshName.includes('head') || meshName.includes('skull')) {
               bodyPart = 'head';
@@ -99,18 +113,22 @@ export const HumanModel = ({ bodyPartColors = {} }: HumanModelProps) => {
             }
           }
           
-          // Set userData.bodyPart or fallback to mesh name
           child.userData.bodyPart = bodyPart || child.name || 'body';
           
           console.log(`Mesh: ${child.name}, assigned bodyPart: ${child.userData.bodyPart}`);
           
-          // Apply colors if specified, otherwise reset to original
+          // Apply colors with correction if specified, otherwise reset to original
           if (child.material) {
             const selectedColor = bodyPartColors[child.userData.bodyPart];
             
             if (selectedColor) {
-              // Use MeshBasicMaterial for filled parts to show true colors
-              const basicMaterial = new THREE.MeshBasicMaterial({ color: selectedColor });
+              // Apply color correction to make 3D colors match UI colors better
+              const correctedColor = correctColorFor3D(selectedColor);
+              const basicMaterial = new THREE.MeshBasicMaterial({ 
+                color: correctedColor,
+                // Add slight emissive component to make colors pop more
+                emissive: new Color(selectedColor).multiplyScalar(0.1)
+              });
               child.material = basicMaterial;
             } else {
               // Reset to original color and material type
