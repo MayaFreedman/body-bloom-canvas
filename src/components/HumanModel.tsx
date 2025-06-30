@@ -125,9 +125,7 @@ export const HumanModel = ({ bodyPartColors = {} }: HumanModelProps) => {
               // Apply color correction to make 3D colors match UI colors better
               const correctedColor = correctColorFor3D(selectedColor);
               const basicMaterial = new THREE.MeshBasicMaterial({ 
-                color: correctedColor,
-                // Add slight emissive component to make colors pop more
-                emissive: new Color(selectedColor).multiplyScalar(0.1)
+                color: correctedColor
               });
               child.material = basicMaterial;
             } else {
