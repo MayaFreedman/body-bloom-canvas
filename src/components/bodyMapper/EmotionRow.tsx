@@ -34,7 +34,13 @@ export const EmotionRow = ({
       
       {/* Color Picker - Native HTML with Paint Palette Emoji */}
       <div className="relative">
-        <label className="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center hover:bg-gray-500 transition-all group-hover:scale-110 cursor-pointer">
+        <label 
+          className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-500 transition-all group-hover:scale-110 cursor-pointer"
+          style={{ 
+            backgroundColor: 'rgb(224, 224, 224)',
+            boxShadow: 'rgba(0, 0, 0, 0.1) 0px 2px 4px'
+          }}
+        >
           <span className="text-white text-sm">🎨</span>
           <input
             type="color"
