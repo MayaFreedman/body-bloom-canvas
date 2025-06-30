@@ -2,7 +2,7 @@
 import React, { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
-import { Mesh, Group, MeshBasicMaterial, Color } from 'three';
+import { Mesh, Group, Color } from 'three';
 import * as THREE from 'three';
 
 interface HumanModelProps {
@@ -124,12 +124,19 @@ export const HumanModel = ({ bodyPartColors = {} }: HumanModelProps) => {
             if (selectedColor) {
               // Apply color correction to make 3D colors match UI colors better
               const correctedColor = correctColorFor3D(selectedColor);
-              const basicMaterial = new THREE.MeshBasicMaterial({ 
-                color: correctedColor
-              });
-              child.material = basicMaterial;
+              
+              // Apply color to existing material instead of replacing it
+              if (Array.isArray(child.material)) {
+                child.material.forEach(mat => {
+                  if ('color' in mat) {
+                    mat.color.set(correctedColor);
+                  }
+                });
+              } else if ('color' in child.material) {
+                child.material.color.set(correctedColor);
+              }
             } else {
-              // Reset to original color and material type
+              // Reset to original color
               const originalColor = originalColors.current[child.uuid];
               if (originalColor) {
                 if (Array.isArray(child.material)) {
