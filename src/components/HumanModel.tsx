@@ -105,26 +105,17 @@ export const HumanModel = ({ bodyPartColors = {} }: HumanModelProps) => {
           
           // Apply colors if specified, otherwise reset to original
           if (child.material) {
-            const selectedColor = bodyPartColors[child.userData.bodyPart];
+            const targetColor = bodyPartColors[child.userData.bodyPart] || originalColors.current[child.uuid];
             
-            if (selectedColor) {
-              // Use MeshBasicMaterial for filled parts to show true colors
-              const THREE = require('three');
-              const basicMaterial = new THREE.MeshBasicMaterial({ color: selectedColor });
-              child.material = basicMaterial;
-            } else {
-              // Reset to original color and material type
-              const originalColor = originalColors.current[child.uuid];
-              if (originalColor) {
-                if (Array.isArray(child.material)) {
-                  child.material.forEach(mat => {
-                    if ('color' in mat) {
-                      mat.color.set(originalColor);
-                    }
-                  });
-                } else if ('color' in child.material) {
-                  child.material.color.set(originalColor);
-                }
+            if (targetColor) {
+              if (Array.isArray(child.material)) {
+                child.material.forEach(mat => {
+                  if ('color' in mat) {
+                    mat.color.set(targetColor);
+                  }
+                });
+              } else if ('color' in child.material) {
+                child.material.color.set(targetColor);
               }
             }
           }
