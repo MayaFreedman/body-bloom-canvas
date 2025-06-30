@@ -25,10 +25,15 @@ export const EmotionRow = ({
     <div className="flex items-center space-x-3 mb-3 group">
       {/* Color Circle */}
       <button
-        className={`w-12 h-12 rounded-full border-3 transition-all hover:scale-105 hover:shadow-lg ${
-          isSelected ? 'border-gray-800 shadow-lg scale-105' : 'border-gray-300'
+        className={`w-12 h-12 rounded-full transition-all hover:scale-105 ${
+          isSelected ? 'scale-105' : ''
         }`}
-        style={{ backgroundColor: color }}
+        style={{ 
+          backgroundColor: color,
+          boxShadow: isSelected 
+            ? '0 2px 4px rgba(0, 0, 0, 0.2), 0 0 0 2px black' 
+            : '0 2px 4px rgba(0, 0, 0, 0.1)'
+        }}
         onClick={onSelect}
       />
       
