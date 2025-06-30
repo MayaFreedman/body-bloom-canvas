@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { Palette } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
 interface EmotionRowProps {
@@ -33,10 +32,10 @@ export const EmotionRow = ({
         onClick={onSelect}
       />
       
-      {/* Color Picker - Native HTML */}
+      {/* Color Picker - Native HTML with Paint Palette Emoji */}
       <div className="relative">
-        <label className="w-8 h-8 rounded-full bg-white border-2 border-gray-300 flex items-center justify-center hover:border-gray-400 hover:shadow-md transition-all group-hover:scale-110 cursor-pointer">
-          <Palette className="w-4 h-4 text-gray-600" />
+        <label className="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center hover:bg-gray-500 transition-all group-hover:scale-110 cursor-pointer">
+          <span className="text-white text-sm">🎨</span>
           <input
             type="color"
             value={color}
