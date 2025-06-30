@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Input } from '@/components/ui/input';
 
 interface EmotionRowProps {
@@ -12,24 +12,6 @@ interface EmotionRowProps {
   onSelect: () => void;
 }
 
-// Helper functions to convert between hex and RGB
-const hexToRgb = (hex: string) => {
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return result ? {
-    r: parseInt(result[1], 16),
-    g: parseInt(result[2], 16),
-    b: parseInt(result[3], 16)
-  } : { r: 0, g: 0, b: 0 };
-};
-
-const rgbToHex = (r: number, g: number, b: number) => {
-  const componentToHex = (c: number) => {
-    const hex = Math.max(0, Math.min(255, Math.round(c))).toString(16);
-    return hex.length === 1 ? "0" + hex : hex;
-  };
-  return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
-};
-
 export const EmotionRow = ({
   color,
   emotion,
@@ -39,24 +21,8 @@ export const EmotionRow = ({
   isSelected,
   onSelect
 }: EmotionRowProps) => {
-  const [rgbValues, setRgbValues] = useState(hexToRgb(color));
-
-  // Update RGB values when color prop changes
-  useEffect(() => {
-    setRgbValues(hexToRgb(color));
-  }, [color]);
-
-  const handleRgbChange = (component: 'r' | 'g' | 'b', value: string) => {
-    const numValue = parseInt(value) || 0;
-    const newRgb = { ...rgbValues, [component]: numValue };
-    setRgbValues(newRgb);
-    
-    const hexColor = rgbToHex(newRgb.r, newRgb.g, newRgb.b);
-    onColorChange(hexColor);
-  };
-
   return (
-    <div className="flex items-center space-x-3 group">
+    <div className="flex items-center space-x-4 group">
       {/* Color Circle */}
       <button
         className={`rounded-full transition-all hover:scale-105 ${
@@ -90,43 +56,6 @@ export const EmotionRow = ({
             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
           />
         </label>
-      </div>
-
-      {/* RGB Input Fields */}
-      <div className="flex space-x-1">
-        <div className="flex flex-col items-center">
-          <label className="text-xs text-gray-500 mb-1">R</label>
-          <Input
-            type="number"
-            min="0"
-            max="255"
-            value={rgbValues.r}
-            onChange={(e) => handleRgbChange('r', e.target.value)}
-            className="w-16 h-8 text-xs text-center border border-gray-300 rounded px-1"
-          />
-        </div>
-        <div className="flex flex-col items-center">
-          <label className="text-xs text-gray-500 mb-1">G</label>
-          <Input
-            type="number"
-            min="0"
-            max="255"
-            value={rgbValues.g}
-            onChange={(e) => handleRgbChange('g', e.target.value)}
-            className="w-16 h-8 text-xs text-center border border-gray-300 rounded px-1"
-          />
-        </div>
-        <div className="flex flex-col items-center">
-          <label className="text-xs text-gray-500 mb-1">B</label>
-          <Input
-            type="number"
-            min="0"
-            max="255"
-            value={rgbValues.b}
-            onChange={(e) => handleRgbChange('b', e.target.value)}
-            className="w-16 h-8 text-xs text-center border border-gray-300 rounded px-1"
-          />
-        </div>
       </div>
       
       {/* Emotion Input */}
