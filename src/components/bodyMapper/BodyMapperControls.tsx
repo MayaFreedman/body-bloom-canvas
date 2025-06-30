@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Brush, Palette, Sparkles, Activity, Zap, Wind, Droplet, Snowflake, Thermometer, Heart, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -61,6 +62,8 @@ export const BodyMapperControls = ({
     const newEmotions = [...emotions];
     newEmotions[index] = { ...newEmotions[index], color };
     setEmotions(newEmotions);
+    
+    // Broadcast the emotion change to multiplayer
     onEmotionsUpdate?.(newEmotions);
   };
 
@@ -68,6 +71,8 @@ export const BodyMapperControls = ({
     const newEmotions = [...emotions];
     newEmotions[index] = { ...newEmotions[index], name };
     setEmotions(newEmotions);
+    
+    // Broadcast the emotion change to multiplayer
     onEmotionsUpdate?.(newEmotions);
   };
 
