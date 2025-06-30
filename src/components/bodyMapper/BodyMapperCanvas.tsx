@@ -84,9 +84,9 @@ export const BodyMapperCanvas = ({
         camera={{ position: [0, 0, 5], fov: 50 }}
         style={{ width: '100%', height: '100%' }}
       >
-        <ambientLight intensity={0.6} />
-        <directionalLight position={[10, 10, 5]} intensity={0.8} />
-        <directionalLight position={[-10, -10, -5]} intensity={0.3} />
+        <ambientLight intensity={1.0} />
+        <directionalLight position={[10, 10, 5]} intensity={0.5} />
+        <directionalLight position={[-10, -10, -5]} intensity={0.2} />
         
         <group ref={modelRef} rotation={[0, rotation, 0]}>
           <HumanModel bodyPartColors={bodyPartColors} />
