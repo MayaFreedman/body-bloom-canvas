@@ -22,10 +22,10 @@ export const EmotionRow = ({
   onSelect
 }: EmotionRowProps) => {
   return (
-    <div className="flex items-center space-x-3 mb-3 group">
+    <div className="flex items-center space-x-4 mb-4 group">
       {/* Color Circle */}
       <button
-        className={`w-12 h-12 rounded-full transition-all hover:scale-105 ${
+        className={`w-10 h-10 rounded-full transition-all hover:scale-105 ${
           isSelected ? 'scale-105' : ''
         }`}
         style={{ 
