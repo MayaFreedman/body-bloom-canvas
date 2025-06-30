@@ -42,9 +42,9 @@ const Index = () => {
   // If we have a room ID, show the game
   if (roomId) {
     return (
-      <div className="relative">
+      <div className="relative h-screen w-full">
         {/* Room info bar */}
-        <div className="bg-blue-50 border-b border-blue-200 p-4">
+        <div className="bg-blue-50 border-b border-blue-200 p-4 absolute top-0 left-0 right-0 z-50">
           <div className="max-w-7xl mx-auto flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <Users className="w-5 h-5 text-blue-600" />
@@ -72,7 +72,9 @@ const Index = () => {
           </div>
         </div>
         
-        <EmotionalBodyMapper roomId={roomId} />
+        <div className="pt-16 h-full">
+          <EmotionalBodyMapper roomId={roomId} />
+        </div>
       </div>
     );
   }
@@ -136,18 +138,18 @@ const Index = () => {
           </Card>
         </div>
 
-        {/* Solo Play */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Play Solo</CardTitle>
-            <CardDescription>
-              Practice on your own without multiplayer features
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <EmotionalBodyMapper roomId={null} />
-          </CardContent>
-        </Card>
+        {/* Solo Play - No card wrapper, direct embed */}
+        <div className="bg-white rounded-lg shadow-lg p-6 mb-4">
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">Play Solo</h2>
+          <p className="text-gray-600 mb-4">
+            Practice on your own without multiplayer features
+          </p>
+        </div>
+        
+        {/* Direct game embed */}
+        <div className="h-screen">
+          <EmotionalBodyMapper roomId={null} />
+        </div>
       </div>
     </div>
   );

@@ -250,85 +250,78 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 p-4">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-6">
-          <div className="flex items-center justify-center space-x-3 mb-2">
-            <h1 className="text-4xl font-bold text-gray-800">Body Mapping Game</h1>
-            {roomId && (
-              <div className="flex items-center space-x-2 bg-blue-100 px-3 py-1 rounded-full">
-                <Users className="w-4 h-4 text-blue-600" />
-                <span className="text-sm text-blue-800">
-                  {multiplayer.isConnected ? 'Connected' : multiplayer.isConnecting ? 'Connecting...' : 'Disconnected'}
-                </span>
-                <div className={`w-2 h-2 rounded-full ${
-                  multiplayer.isConnected ? 'bg-green-500' : 
-                  multiplayer.isConnecting ? 'bg-yellow-500' : 'bg-red-500'
-                }`} />
-              </div>
-            )}
+    <div className="h-screen w-full">
+      {/* Top Banner */}
+      <div className="top-banner">
+        <div className="flex items-center justify-center space-x-3 mb-1">
+          <h1>Body Mapping Game</h1>
+          {roomId && (
+            <div className="flex items-center space-x-2 bg-blue-100 bg-opacity-20 px-3 py-1 rounded-full">
+              <Users className="w-4 h-4" />
+              <span className="text-sm">
+                {multiplayer.isConnected ? 'Connected' : multiplayer.isConnecting ? 'Connecting...' : 'Disconnected'}
+              </span>
+              <div className={`w-2 h-2 rounded-full ${
+                multiplayer.isConnected ? 'bg-green-400' : 
+                multiplayer.isConnecting ? 'bg-yellow-400' : 'bg-red-400'
+              }`} />
+            </div>
+          )}
+        </div>
+        <p>
+          {roomId 
+            ? 'Collaborate with others to identify, express, and understand emotions and how they show up in your bodies.'
+            : 'This game helps us identify, express, and understand our emotions and how those emotions show up in our bodies.'
+          }
+        </p>
+      </div>
+
+      <div className="game-container">
+        {/* Canvas Area */}
+        <div className="canvas-container">
+          <div ref={canvasRef} className="w-full h-full">
+            <BodyMapperCanvas
+              mode={mode}
+              selectedColor={selectedColor}
+              brushSize={brushSize[0]}
+              selectedSensation={selectedSensation}
+              drawingMarks={drawingMarks}
+              sensationMarks={sensationMarks}
+              effects={effects}
+              bodyPartColors={bodyPartColors}
+              rotation={rotation}
+              modelRef={modelRef}
+              onAddDrawingMark={handleAddDrawingMark}
+              onDrawingStrokeStart={handleDrawingStrokeStart}
+              onDrawingStrokeComplete={handleDrawingStrokeComplete}
+              onAddToDrawingStroke={handleAddToDrawingStroke}
+              onBodyPartClick={handleBodyPartClick}
+              onSensationClick={handleSensationClick}
+              onRotateLeft={rotateLeft}
+              onRotateRight={rotateRight}
+            />
           </div>
-          <p className="text-lg text-gray-600">
-            {roomId 
-              ? 'Collaborate with others to identify, express, and understand emotions and how they show up in your bodies.'
-              : 'This game helps us identify, express, and understand our emotions and how those emotions show up in our bodies.'
-            }
-          </p>
+          
+          {/* Canvas Controls */}
+          <div className="canvas-controls">
+            <button 
+              onClick={handleResetAll} 
+              className="game-button-destructive px-6 py-3 text-lg min-w-[200px]"
+            >
+              Reset All Changes
+            </button>
+          </div>
+
+          <div className="canvas-side-controls">
+            <button onClick={captureScreenshot} className="control-button">
+              📷 Snapshot
+            </button>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* 3D Canvas */}
-          <div className="lg:col-span-2 lg:order-1">
-            <div ref={canvasRef}>
-              <BodyMapperCanvas
-                mode={mode}
-                selectedColor={selectedColor}
-                brushSize={brushSize[0]}
-                selectedSensation={selectedSensation}
-                drawingMarks={drawingMarks}
-                sensationMarks={sensationMarks}
-                effects={effects}
-                bodyPartColors={bodyPartColors}
-                rotation={rotation}
-                modelRef={modelRef}
-                onAddDrawingMark={handleAddDrawingMark}
-                onDrawingStrokeStart={handleDrawingStrokeStart}
-                onDrawingStrokeComplete={handleDrawingStrokeComplete}
-                onAddToDrawingStroke={handleAddToDrawingStroke}
-                onBodyPartClick={handleBodyPartClick}
-                onSensationClick={handleSensationClick}
-                onRotateLeft={rotateLeft}
-                onRotateRight={rotateRight}
-              />
-            </div>
-            
-            <div className="mt-4 text-center text-gray-600">
-              <p className="text-sm">
-                {mode === 'draw' 
-                  ? 'Click and drag on the body model to draw • Use rotation buttons to rotate'
-                  : mode === 'fill'
-                  ? 'Click on body parts to fill them with color • Use rotation buttons to rotate • Scroll to zoom'
-                  : 'Click on body parts to place sensations • Use rotation buttons to rotate • Scroll to zoom'
-                }
-              </p>
-            </div>
-
-            {/* Bottom Controls */}
-            <div className="mt-4 flex justify-center space-x-4">
-              <Button variant="outline" onClick={handleResetAll} className="bg-red-500 text-white hover:bg-red-600">
-                <RotateCcw className="w-4 h-4 mr-2" />
-                Reset All Changes
-              </Button>
-              <Button variant="outline" onClick={captureScreenshot}>
-                <Download className="w-4 h-4 mr-2" />
-                Snapshot
-              </Button>
-            </div>
-          </div>
-
-          {/* Right Sidebar */}
-          <div className="lg:col-span-2 lg:order-2">
+        {/* Controls Area */}
+        <div className="controls-container">
+          <div className="game-tabs">
             <BodyMapperControls
               mode={mode}
               selectedColor={selectedColor}
