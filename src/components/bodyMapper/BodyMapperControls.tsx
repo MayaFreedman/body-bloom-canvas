@@ -129,7 +129,7 @@ export const BodyMapperControls = ({
         {/* Custom Emotions */}
         <div className="mb-6">
           <h4 className="font-semibold text-gray-800 mb-4">Colors & Emotions</h4>
-          <div className="space-y-2">
+          <div className="space-y-4">
             {emotions.map((emotion, index) => (
               <EmotionRow
                 key={index}
