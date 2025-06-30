@@ -2,7 +2,8 @@
 import React, { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
-import { Mesh, Group } from 'three';
+import { Mesh, Group, MeshBasicMaterial } from 'three';
+import * as THREE from 'three';
 
 interface HumanModelProps {
   bodyPartColors?: { [key: string]: string };
@@ -109,7 +110,6 @@ export const HumanModel = ({ bodyPartColors = {} }: HumanModelProps) => {
             
             if (selectedColor) {
               // Use MeshBasicMaterial for filled parts to show true colors
-              const THREE = require('three');
               const basicMaterial = new THREE.MeshBasicMaterial({ color: selectedColor });
               child.material = basicMaterial;
             } else {
