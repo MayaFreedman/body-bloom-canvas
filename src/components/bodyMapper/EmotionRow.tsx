@@ -32,7 +32,9 @@ export const EmotionRow = ({
           backgroundColor: color,
           boxShadow: isSelected 
             ? '0 2px 4px rgba(0, 0, 0, 0.2), 0 0 0 2px black' 
-            : '0 2px 4px rgba(0, 0, 0, 0.1)'
+            : '0 2px 4px rgba(0, 0, 0, 0.1)',
+          width: '40px',
+          height: '40px'
         }}
         onClick={onSelect}
       />
