@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, forwardRef } from 'react';
 import { Brush, Palette, Sparkles, Activity, Zap, Wind, Droplet, Snowflake, Thermometer, Heart, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
@@ -12,6 +11,13 @@ interface CustomEmotion {
   name: string;
 }
 
+interface EmotionUpdate {
+  type: 'emotionColorChange' | 'emotionNameChange' | 'emotionsInit';
+  index?: number;
+  value?: string;
+  emotions?: CustomEmotion[];
+}
+
 interface BodyMapperControlsProps {
   mode: BodyMapperMode;
   selectedColor: string;
@@ -21,7 +27,7 @@ interface BodyMapperControlsProps {
   onColorChange: (color: string) => void;
   onBrushSizeChange: (size: number[]) => void;
   onSensationChange: (sensation: SelectedSensation) => void;
-  onEmotionsUpdate?: (emotions: CustomEmotion[]) => void;
+  onEmotionsUpdate?: (update: EmotionUpdate) => void;
 }
 
 const iconComponents = {
@@ -40,7 +46,10 @@ const defaultEmotions: CustomEmotion[] = [
   { color: '#8bc34a', name: '' }
 ];
 
-export const BodyMapperControls = ({
+export const BodyMapperControls = React.forwardRef<
+  { handleIncomingEmotionUpdate: (updateData: { type: string; index: number; value: string }) => void },
+  BodyMapperControlsProps
+>(({
   mode,
   selectedColor,
   brushSize,
@@ -50,7 +59,7 @@ export const BodyMapperControls = ({
   onBrushSizeChange,
   onSensationChange,
   onEmotionsUpdate
-}: BodyMapperControlsProps) => {
+}, ref) => {
   const [activeTab, setActiveTab] = useState('feelings');
   const [emotions, setEmotions] = useState<CustomEmotion[]>(defaultEmotions);
 
@@ -63,8 +72,12 @@ export const BodyMapperControls = ({
     newEmotions[index] = { ...newEmotions[index], color };
     setEmotions(newEmotions);
     
-    // Broadcast the emotion change to multiplayer
-    onEmotionsUpdate?.(newEmotions);
+    // Broadcast the specific emotion color change to multiplayer
+    onEmotionsUpdate?.({
+      type: 'emotionColorChange',
+      index,
+      value: color
+    });
   };
 
   const handleEmotionNameChange = (index: number, name: string) => {
@@ -72,16 +85,44 @@ export const BodyMapperControls = ({
     newEmotions[index] = { ...newEmotions[index], name };
     setEmotions(newEmotions);
     
-    // Broadcast the emotion change to multiplayer
-    onEmotionsUpdate?.(newEmotions);
+    // Broadcast the specific emotion name change to multiplayer
+    onEmotionsUpdate?.({
+      type: 'emotionNameChange',
+      index,
+      value: name
+    });
   };
 
   const handleEmotionSelect = (color: string) => {
     onColorChange(color);
   };
 
+  // Function to handle incoming emotion updates from other users
+  const handleIncomingEmotionUpdate = (updateData: { type: string; index: number; value: string }) => {
+    setEmotions(prevEmotions => {
+      const newEmotions = [...prevEmotions];
+      
+      if (updateData.type === 'emotionColorChange') {
+        newEmotions[updateData.index] = { ...newEmotions[updateData.index], color: updateData.value };
+      } else if (updateData.type === 'emotionNameChange') {
+        newEmotions[updateData.index] = { ...newEmotions[updateData.index], name: updateData.value };
+      }
+      
+      return newEmotions;
+    });
+  };
+
+  // Expose the handler function to parent component
+  React.useImperativeHandle(ref, () => ({
+    handleIncomingEmotionUpdate
+  }));
+
   useEffect(() => {
-    onEmotionsUpdate?.(emotions);
+    // Initialize emotions on mount
+    onEmotionsUpdate?.({
+      type: 'emotionsInit',
+      emotions: emotions
+    });
   }, []);
 
   return (
@@ -272,4 +313,6 @@ export const BodyMapperControls = ({
       </div>
     </div>
   );
-};
+});
+
+BodyMapperControls.displayName = 'BodyMapperControls';

@@ -21,6 +21,7 @@ interface EmotionalBodyMapperProps {
 const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
   const canvasRef = useRef<HTMLDivElement>(null);
   const modelRef = useRef<THREE.Group>(null);
+  const controlsRef = useRef<any>(null);
 
   // Use the custom hook for state management
   const {
@@ -52,15 +53,12 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
   const multiplayer = useMultiplayer(roomId);
 
   // Handle emotion updates and broadcast to multiplayer
-  const handleEmotionsUpdate = useCallback((emotions: CustomEmotion[]) => {
-    if (multiplayer.isConnected) {
-      const server = multiplayer.room;
-      if (server) {
-        server.send('broadcast', {
-          type: 'emotionsUpdate',
-          data: emotions
-        });
-      }
+  const handleEmotionsUpdate = useCallback((updateData: any) => {
+    if (multiplayer.isConnected && multiplayer.room) {
+      multiplayer.room.send('broadcast', {
+        type: 'emotionUpdate',
+        data: updateData
+      });
     }
   }, [multiplayer]);
 
@@ -138,11 +136,12 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
           }
 
           switch (message.type) {
-            case 'emotionsUpdate': {
-              // Handle emotion updates from other users
-              console.log('🎨 Processing emotions update:', messageData);
-              // Note: In a full implementation, you'd want to sync this with local state
-              // For now, we'll just log it since the UI updates are handled locally
+            case 'emotionUpdate': {
+              console.log('🎨 Processing emotion update:', messageData);
+              // Forward the emotion update to the controls component
+              if (controlsRef.current && controlsRef.current.handleIncomingEmotionUpdate) {
+                controlsRef.current.handleIncomingEmotionUpdate(messageData);
+              }
               break;
             }
             case 'drawingStroke': {
@@ -356,6 +355,7 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
           {/* Right Column with Tabbed Interface - exactly matching original */}
           <div id="rightColumn">
             <BodyMapperControls
+              ref={controlsRef}
               mode={mode}
               selectedColor={selectedColor}
               brushSize={brushSize}
