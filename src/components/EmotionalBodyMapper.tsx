@@ -9,11 +9,6 @@ import { SensationMark } from '@/types/bodyMapperTypes';
 import html2canvas from 'html2canvas';
 import * as THREE from 'three';
 
-interface CustomEmotion {
-  color: string;
-  name: string;
-}
-
 interface EmotionalBodyMapperProps {
   roomId: string | null;
 }
@@ -50,19 +45,6 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
 
   // Initialize multiplayer
   const multiplayer = useMultiplayer(roomId);
-
-  // Handle emotion updates and broadcast to multiplayer
-  const handleEmotionsUpdate = useCallback((emotions: CustomEmotion[]) => {
-    if (multiplayer.isConnected) {
-      const server = multiplayer.room;
-      if (server) {
-        server.send('broadcast', {
-          type: 'emotionsUpdate',
-          data: emotions
-        });
-      }
-    }
-  }, [multiplayer]);
 
   // Enhanced handlers that include multiplayer broadcasting
   const handleBodyPartClick = useCallback((partName: string, color: string) => {
@@ -138,13 +120,6 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
           }
 
           switch (message.type) {
-            case 'emotionsUpdate': {
-              // Handle emotion updates from other users
-              console.log('🎨 Processing emotions update:', messageData);
-              // Note: In a full implementation, you'd want to sync this with local state
-              // For now, we'll just log it since the UI updates are handled locally
-              break;
-            }
             case 'drawingStroke': {
               const stroke = messageData;
               console.log('🎨 Processing drawing stroke:', stroke);
@@ -364,7 +339,6 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
               onColorChange={setSelectedColor}
               onBrushSizeChange={setBrushSize}
               onSensationChange={setSelectedSensation}
-              onEmotionsUpdate={handleEmotionsUpdate}
             />
           </div>
         </div>

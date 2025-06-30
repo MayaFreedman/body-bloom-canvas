@@ -1,15 +1,10 @@
-import React, { useState, useEffect } from 'react';
+
+import React from 'react';
 import { Brush, Palette, Sparkles, Activity, Zap, Wind, Droplet, Snowflake, Thermometer, Heart, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
-import { EmotionRow } from './EmotionRow';
-import { bodySensations } from '@/constants/bodyMapperConstants';
+import { emotionalColors, bodySensations } from '@/constants/bodyMapperConstants';
 import { BodyMapperMode, SelectedSensation } from '@/types/bodyMapperTypes';
-
-interface CustomEmotion {
-  color: string;
-  name: string;
-}
 
 interface BodyMapperControlsProps {
   mode: BodyMapperMode;
@@ -20,24 +15,11 @@ interface BodyMapperControlsProps {
   onColorChange: (color: string) => void;
   onBrushSizeChange: (size: number[]) => void;
   onSensationChange: (sensation: SelectedSensation) => void;
-  onEmotionsUpdate?: (emotions: CustomEmotion[]) => void;
 }
 
 const iconComponents = {
   Activity, Zap, Wind, Droplet, Snowflake, Thermometer, Heart, Star, Sparkles
 };
-
-const defaultEmotions: CustomEmotion[] = [
-  { color: '#ffeb3b', name: 'Joy' },
-  { color: '#2196f3', name: 'Sadness' },
-  { color: '#f44336', name: 'Anger' },
-  { color: '#4caf50', name: '' },
-  { color: '#9c27b0', name: '' },
-  { color: '#ff9800', name: '' },
-  { color: '#e91e63', name: '' },
-  { color: '#00bcd4', name: '' },
-  { color: '#8bc34a', name: '' }
-];
 
 export const BodyMapperControls = ({
   mode,
@@ -47,37 +29,13 @@ export const BodyMapperControls = ({
   onModeChange,
   onColorChange,
   onBrushSizeChange,
-  onSensationChange,
-  onEmotionsUpdate
+  onSensationChange
 }: BodyMapperControlsProps) => {
-  const [activeTab, setActiveTab] = useState('feelings');
-  const [emotions, setEmotions] = useState<CustomEmotion[]>(defaultEmotions);
+  const [activeTab, setActiveTab] = React.useState('feelings');
 
   const openTab = (tabName: string) => {
     setActiveTab(tabName);
   };
-
-  const handleEmotionColorChange = (index: number, color: string) => {
-    const newEmotions = [...emotions];
-    newEmotions[index] = { ...newEmotions[index], color };
-    setEmotions(newEmotions);
-    onEmotionsUpdate?.(newEmotions);
-  };
-
-  const handleEmotionNameChange = (index: number, name: string) => {
-    const newEmotions = [...emotions];
-    newEmotions[index] = { ...newEmotions[index], name };
-    setEmotions(newEmotions);
-    onEmotionsUpdate?.(newEmotions);
-  };
-
-  const handleEmotionSelect = (color: string) => {
-    onColorChange(color);
-  };
-
-  useEffect(() => {
-    onEmotionsUpdate?.(emotions);
-  }, []);
 
   return (
     <div className="tab-container h-full flex flex-col">
@@ -99,7 +57,7 @@ export const BodyMapperControls = ({
 
       {/* Color by Feelings Tab Content */}
       <div className={`tab-content ${activeTab === 'feelings' ? 'active' : ''}`}>
-        <h3 className="text-xl font-semibold text-gray-800 mb-4">Colors & Emotions</h3>
+        <h3 className="text-xl font-semibold text-gray-800 mb-4">Color by Feelings</h3>
         <div className="subtext-box">
           <p>Identify the feelings you are experiencing, then choose a color that best represents each feeling for you. Use those colors to fill in the body outline.</p>
           <p><strong>Tip:</strong> You can use the colors to show where you feel each emotion or how big or strong that feeling is for you.</p>
@@ -126,21 +84,21 @@ export const BodyMapperControls = ({
           </div>
         </div>
 
-        {/* Custom Emotions */}
+        {/* Colors & Emotions */}
         <div className="mb-6">
-          <h4 className="font-semibold text-gray-800 mb-4">Colors & Emotions</h4>
+          <h4 className="font-semibold text-gray-800 mb-3">Colors & Emotions</h4>
           <div className="space-y-2">
-            {emotions.map((emotion, index) => (
-              <EmotionRow
-                key={index}
-                color={emotion.color}
-                emotion={emotion.name}
-                placeholder={index < 3 ? ['Joy', 'Sadness', 'Anger'][index] : 'Enter emotion'}
-                onColorChange={(color) => handleEmotionColorChange(index, color)}
-                onEmotionChange={(name) => handleEmotionNameChange(index, name)}
-                isSelected={selectedColor === emotion.color}
-                onSelect={() => handleEmotionSelect(emotion.color)}
-              />
+            {emotionalColors.map((item) => (
+              <div key={item.color} className="flex items-center space-x-3">
+                <button
+                  className={`w-8 h-8 rounded-full border-2 transition-all hover:scale-105 ${
+                    selectedColor === item.color ? 'border-gray-800 shadow-lg' : 'border-gray-200'
+                  }`}
+                  style={{ backgroundColor: item.color }}
+                  onClick={() => onColorChange(item.color)}
+                />
+                <span className="text-sm text-gray-700">{item.name}</span>
+              </div>
             ))}
           </div>
         </div>
