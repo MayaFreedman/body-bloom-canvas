@@ -45,14 +45,6 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
-
-    /* Game-specific colors matching reference design */
-    --game-primary: 76 39% 55%; /* #4CAF50 */
-    --game-primary-hover: 76 39% 45%; /* #45a049 */
-    --game-steel-blue: 207 44% 49%; /* #4682B4 - Steel blue */
-    --game-steel-blue-alpha: 207 44% 49% / 0.9; /* Steel blue with transparency */
-    --game-destructive: 4 90% 58%; /* #f44336 */
-    --game-destructive-hover: 4 90% 48%; /* #d32f2f */
   }
 
   .dark {
@@ -92,58 +84,100 @@
   }
 
   html, body {
-    @apply bg-background text-foreground;
     overflow: hidden;
-    font-family: Arial, sans-serif;
+    width: 100%;
+    height: 100%;
     margin: 0;
     padding: 0;
+    font-family: Arial, sans-serif;
   }
 }
 
-/* Game-specific styles matching reference design */
+/* Game-specific styles matching reference design exactly */
 @layer components {
   .game-container {
-    @apply flex w-full h-screen;
+    display: flex;
+    width: 100%;
+    height: 100%;
   }
 
   .canvas-container {
-    @apply w-3/5 h-full relative;
+    width: 60%; /* Canvas takes up 60% of the width */
+    height: 100%;
+    position: relative;
   }
 
   .controls-container {
-    @apply w-2/5 h-full;
+    width: 40%; /* Controls take up 40% of the width */
+    height: 100%;
   }
 
-  .top-banner {
-    @apply fixed top-0 left-0 right-0 z-50 text-center text-white py-2 px-5 shadow-lg;
-    background-color: hsl(var(--game-steel-blue-alpha));
-    backdrop-filter: blur(10px);
+  /* Top Banner - exact match to original */
+  #topBanner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    background-color: rgba(70, 130, 180, 0.9); /* Steel blue with transparency */
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
   }
 
-  .top-banner h1 {
-    @apply text-2xl font-bold tracking-wide mb-1;
+  #topBanner h2 {
+    margin: 0 0 5px 0;
+    font-size: 24px;
+    letter-spacing: 1px;
   }
 
-  .top-banner p {
-    @apply text-sm opacity-90 m-0;
+  #topBanner p {
+    margin: 0;
+    font-size: 14px;
+    opacity: 0.9;
   }
 
-  .game-tabs {
-    @apply bg-white bg-opacity-80 rounded-lg shadow-lg h-full flex flex-col overflow-hidden;
+  /* Right Column with Tabbed Interface - exact match */
+  #rightColumn {
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 10px;
     width: 90%;
-    margin: 80px auto 20px auto;
+    height: calc(100% - 100px); /* Leave space for the top banner */
+    margin: 80px auto 20px auto; /* Center in the controls container with space for the banner */
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    overflow: hidden;
+  }
+
+  /* Tab styling - exact match */
+  .tab-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
   }
 
   .tab-buttons {
-    @apply flex;
+    display: flex;
     background-color: #f0f0f0;
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
   }
 
   .tab-button {
-    @apply flex-1 py-3 px-4 font-bold text-center cursor-pointer transition-colors border-none;
+    flex: 1;
+    padding: 12px 15px;
     background-color: #e0e0e0;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s;
+    text-align: center;
   }
 
   .tab-button:first-child {
@@ -155,52 +189,88 @@
   }
 
   .tab-button.active {
-    background-color: hsl(var(--game-primary));
+    background-color: #4CAF50; /* Exact green color from original */
     color: white;
   }
 
   .tab-content {
-    @apply hidden p-4 flex-1 overflow-y-auto;
+    display: none;
+    padding: 15px;
+    flex: 1;
+    overflow-y: auto;
+    max-height: calc(90vh - 50px);
   }
 
   .tab-content.active {
-    @apply block;
+    display: block;
   }
 
+  /* Subtext box styling - exact match */
   .subtext-box {
-    @apply bg-gray-50 border border-gray-200 rounded-lg p-3 mb-4 text-sm leading-relaxed text-gray-700;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 10px 15px;
+    margin: 10px 0 15px 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #333;
   }
 
-  .game-button-primary {
-    @apply px-4 py-2 rounded-md font-bold text-white cursor-pointer transition-all border-none;
-    background-color: hsl(var(--game-primary));
+  /* Reset button styling - exact match */
+  .reset-button-container {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    width: 250px;
+    height: 70px;
+    padding: 10px;
   }
 
-  .game-button-primary:hover {
-    background-color: hsl(var(--game-primary-hover));
+  .main-reset-button {
+    padding: 15px 25px;
+    background-color: #f44336;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 18px;
+    transition: all 0.2s;
+    min-height: 60px;
+    width: 100%;
+    display: block;
+    margin: 0 auto;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
   }
 
-  .game-button-destructive {
-    @apply px-4 py-2 rounded-md font-bold text-white cursor-pointer transition-all border-none;
-    background-color: hsl(var(--game-destructive));
+  .main-reset-button:hover {
+    background-color: #d32f2f;
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
   }
 
-  .game-button-destructive:hover {
-    background-color: hsl(var(--game-destructive-hover));
-    transform: scale(1.02);
-  }
-
-  .canvas-controls {
-    @apply absolute bottom-5 left-1/2 transform -translate-x-1/2 z-10;
-  }
-
-  .canvas-side-controls {
-    @apply absolute bottom-5 right-5 flex gap-2 z-10;
+  /* Control buttons in canvas area - exact match */
+  .undo-redo-container {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    gap: 10px;
+    z-index: 10;
   }
 
   .control-button {
-    @apply px-3 py-2 rounded-md font-bold text-white cursor-pointer transition-colors border-none;
+    padding: 8px 15px;
     background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s;
   }
 
   .control-button:hover {
@@ -208,48 +278,143 @@
   }
 
   .control-button:disabled {
-    @apply opacity-50 cursor-not-allowed;
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 
-  /* Mobile responsiveness */
+  /* Color and sensation controls styling */
+  .game-button-primary {
+    background-color: #4CAF50; /* Exact green color */
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.2s;
+  }
+
+  .game-button-primary:hover {
+    background-color: #45a049; /* Exact hover color */
+  }
+
+  .game-button-destructive {
+    background-color: #f44336;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.2s;
+  }
+
+  .game-button-destructive:hover {
+    background-color: #d32f2f;
+    transform: scale(1.02);
+  }
+
+  /* Color options styling */
+  .color-option {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid transparent;
+    flex-shrink: 0;
+  }
+
+  /* Mobile responsive layout - exact match */
   @media (max-width: 768px) {
     html, body {
-      overflow-y: auto;
+      overflow-y: auto; /* allow scroll */
     }
 
-    .top-banner {
-      @apply relative;
+    #topBanner {
+      position: relative;
+      z-index: 2;
+      padding: 10px;
+    }
+
+    #topBanner h2 {
+      font-size: 18px;
+      margin: 5px 0;
+    }
+
+    #topBanner p {
+      font-size: 12px;
+      margin: 5px 0;
     }
 
     .game-container {
-      @apply flex-col h-auto;
+      height: auto;
+      flex-direction: column;
     }
 
     .canvas-container {
-      @apply w-full;
-      height: 50vh;
+      width: 100%;
+      height: 55vh; /* Half the screen height on mobile */
     }
 
     .controls-container {
-      @apply w-full h-auto;
+      width: 100%;
+      height: auto;
     }
 
-    .game-tabs {
+    #rightColumn {
       margin: 10px auto;
       width: 100%;
       height: auto;
     }
 
-    .canvas-controls {
-      @apply bottom-16;
+    .reset-button-container {
+      bottom: 70px; /* Move reset button up to avoid overlap */
     }
 
-    .top-banner h1 {
-      @apply text-lg;
+    .undo-redo-container {
+      flex-direction: column;
+      right: 10px;
+      bottom: 10px;
     }
 
-    .top-banner p {
-      @apply text-xs;
+    .control-button, .main-reset-button {
+      padding: 6px 12px;
+      font-size: 14px;
+    }
+  }
+
+  /* Small mobile devices */
+  @media (max-width: 375px) {
+    #rightColumn {
+      margin: 50px auto 10px auto;
+      height: calc(100% - 60px);
+    }
+
+    .color-option {
+      width: 25px;
+      height: 25px;
+    }
+
+    .tab-button {
+      padding: 8px 5px;
+      font-size: 12px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .undo-redo-container {
+      flex-direction: column;
+      right: 10px;
+      bottom: 10px;
+    }
+
+    .reset-button-container {
+      bottom: 80px;
+    }
+
+    .control-button, .main-reset-button {
+      padding: 6px 12px;
+      font-size: 14px;
     }
   }
 }

@@ -54,7 +54,12 @@ export const BodyMapperCanvas = ({
   onRotateRight
 }: BodyMapperCanvasProps) => {
   return (
-    <div className="bg-white rounded-lg shadow-lg overflow-hidden relative" style={{ height: '600px' }}>
+    <div style={{ 
+      width: '100%', 
+      height: '100%',
+      position: 'relative',
+      backgroundColor: 'transparent'
+    }}>
       {/* Left Rotation Button */}
       <Button
         variant="outline"
@@ -75,7 +80,10 @@ export const BodyMapperCanvas = ({
         <ChevronRight className="w-6 h-6" />
       </Button>
 
-      <Canvas camera={{ position: [0, 0, 5], fov: 50 }}>
+      <Canvas 
+        camera={{ position: [0, 0, 5], fov: 50 }}
+        style={{ width: '100%', height: '100%' }}
+      >
         <ambientLight intensity={0.6} />
         <directionalLight position={[10, 10, 5]} intensity={0.8} />
         <directionalLight position={[-10, -10, -5]} intensity={0.3} />

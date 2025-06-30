@@ -250,21 +250,23 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
   };
 
   return (
-    <div className="h-screen w-full">
-      {/* Top Banner */}
-      <div className="top-banner">
-        <div className="flex items-center justify-center space-x-3 mb-1">
-          <h1>Body Mapping Game</h1>
+    <div style={{ height: '100vh', width: '100%' }}>
+      {/* Top Banner - exactly matching original HTML structure */}
+      <div id="topBanner">
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
+          <h2>Body Mapping Game</h2>
           {roomId && (
-            <div className="flex items-center space-x-2 bg-blue-100 bg-opacity-20 px-3 py-1 rounded-full">
-              <Users className="w-4 h-4" />
-              <span className="text-sm">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: 'rgba(255, 255, 255, 0.2)', padding: '4px 12px', borderRadius: '20px', marginTop: '4px' }}>
+              <Users style={{ width: '16px', height: '16px' }} />
+              <span style={{ fontSize: '14px' }}>
                 {multiplayer.isConnected ? 'Connected' : multiplayer.isConnecting ? 'Connecting...' : 'Disconnected'}
               </span>
-              <div className={`w-2 h-2 rounded-full ${
-                multiplayer.isConnected ? 'bg-green-400' : 
-                multiplayer.isConnecting ? 'bg-yellow-400' : 'bg-red-400'
-              }`} />
+              <div style={{
+                width: '8px', 
+                height: '8px', 
+                borderRadius: '50%',
+                backgroundColor: multiplayer.isConnected ? '#4ade80' : multiplayer.isConnecting ? '#fbbf24' : '#ef4444'
+              }} />
             </div>
           )}
         </div>
@@ -277,9 +279,9 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
       </div>
 
       <div className="game-container">
-        {/* Canvas Area */}
+        {/* Canvas Area - exactly matching original structure */}
         <div className="canvas-container">
-          <div ref={canvasRef} className="w-full h-full">
+          <div ref={canvasRef} style={{ width: '100%', height: '100%' }}>
             <BodyMapperCanvas
               mode={mode}
               selectedColor={selectedColor}
@@ -302,26 +304,32 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
             />
           </div>
           
-          {/* Canvas Controls */}
-          <div className="canvas-controls">
+          {/* Reset Button Container - exactly matching original */}
+          <div className="reset-button-container">
             <button 
               onClick={handleResetAll} 
-              className="game-button-destructive px-6 py-3 text-lg min-w-[200px]"
+              className="main-reset-button"
+              aria-label="Reset all changes to the body model" 
+              title="Click to reset all changes"
             >
               Reset All Changes
             </button>
           </div>
 
-          <div className="canvas-side-controls">
+          {/* Undo/Redo Container - exactly matching original */}
+          <div className="undo-redo-container">
+            <button className="control-button">↩ Undo</button>
+            <button className="control-button">↪ Redo</button>
             <button onClick={captureScreenshot} className="control-button">
               📷 Snapshot
             </button>
           </div>
         </div>
 
-        {/* Controls Area */}
+        {/* Controls Area - exactly matching original structure */}
         <div className="controls-container">
-          <div className="game-tabs">
+          {/* Right Column with Tabbed Interface - exactly matching original */}
+          <div id="rightColumn">
             <BodyMapperControls
               mode={mode}
               selectedColor={selectedColor}
