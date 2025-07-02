@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { Room } from 'colyseus.js';
 import { DrawingMark, SensationMark } from '@/types/bodyMapperTypes';
@@ -14,6 +13,17 @@ interface MultiplayerMessageHandlerProps {
   clearAll: () => void;
   controlsRef: React.RefObject<any>;
 }
+
+// Helper function to interpolate between two world positions
+const interpolateWorldPositions = (start: THREE.Vector3, end: THREE.Vector3, steps: number = 10): THREE.Vector3[] => {
+  const positions: THREE.Vector3[] = [];
+  for (let i = 0; i <= steps; i++) {
+    const t = i / steps;
+    const interpolatedPosition = new THREE.Vector3().lerpVectors(start, end, t);
+    positions.push(interpolatedPosition);
+  }
+  return positions;
+};
 
 export const MultiplayerMessageHandler = ({
   room,
@@ -59,9 +69,12 @@ export const MultiplayerMessageHandler = ({
               return;
             }
             
-            // Convert surface coordinates back to world positions
+            // Convert surface coordinates back to world positions and interpolate
             const modelGroup = modelRef.current;
             if (modelGroup) {
+              const worldPositions: { position: THREE.Vector3; surfacePoint: SurfaceDrawingPoint }[] = [];
+              
+              // First, convert all surface points to world positions
               stroke.points.forEach((surfacePoint: SurfaceDrawingPoint) => {
                 try {
                   if (!surfacePoint.surfaceCoord) {
@@ -69,35 +82,68 @@ export const MultiplayerMessageHandler = ({
                     return;
                   }
                   
-                  // Find the mesh for this body part
                   const mesh = findMeshByBodyPart(modelGroup, surfacePoint.surfaceCoord.bodyPart);
                   if (!mesh) {
                     console.warn('⚠️ Could not find mesh for body part:', surfacePoint.surfaceCoord.bodyPart);
                     return;
                   }
                   
-                  // Convert surface coordinates to world position
                   const worldPos = surfaceCoordinatesToWorldPosition(surfacePoint.surfaceCoord, mesh);
                   if (!worldPos) {
                     console.warn('⚠️ Could not convert surface coordinates to world position');
                     return;
                   }
                   
-                  // Convert to local position relative to the model
-                  const localPos = new THREE.Vector3();
-                  modelGroup.worldToLocal(localPos.copy(worldPos));
-                  
-                  const mark = {
-                    id: surfacePoint.id,
-                    position: localPos,
-                    color: surfacePoint.color,
-                    size: surfacePoint.size
-                  };
-                  setDrawingMarks(prev => [...prev, mark]);
+                  worldPositions.push({ position: worldPos, surfacePoint });
                 } catch (pointError) {
                   console.error('❌ Error processing surface point:', pointError, surfacePoint);
                 }
               });
+              
+              // Now interpolate between consecutive world positions
+              for (let i = 0; i < worldPositions.length; i++) {
+                const current = worldPositions[i];
+                const localPos = new THREE.Vector3();
+                modelGroup.worldToLocal(localPos.copy(current.position));
+                
+                // Add the current point
+                const mark = {
+                  id: current.surfacePoint.id,
+                  position: localPos,
+                  color: current.surfacePoint.color,
+                  size: current.surfacePoint.size
+                };
+                setDrawingMarks(prev => [...prev, mark]);
+                
+                // Interpolate to the next point if it exists and is on the same body part
+                if (i < worldPositions.length - 1) {
+                  const next = worldPositions[i + 1];
+                  
+                  // Only interpolate if both points are on the same body part
+                  if (current.surfacePoint.surfaceCoord.bodyPart === next.surfacePoint.surfaceCoord.bodyPart) {
+                    const distance = current.position.distanceTo(next.position);
+                    const steps = Math.max(1, Math.floor(distance * 50)); // Same interpolation density as local drawing
+                    
+                    if (steps > 1) {
+                      const interpolatedPositions = interpolateWorldPositions(current.position, next.position, steps);
+                      
+                      // Add interpolated marks (skip first and last as they're already added)
+                      for (let j = 1; j < interpolatedPositions.length - 1; j++) {
+                        const interpolatedLocalPos = new THREE.Vector3();
+                        modelGroup.worldToLocal(interpolatedLocalPos.copy(interpolatedPositions[j]));
+                        
+                        const interpolatedMark = {
+                          id: `interpolated-${current.surfacePoint.id}-${j}`,
+                          position: interpolatedLocalPos,
+                          color: current.surfacePoint.color,
+                          size: current.surfacePoint.size
+                        };
+                        setDrawingMarks(prev => [...prev, interpolatedMark]);
+                      }
+                    }
+                  }
+                }
+              }
             }
             break;
           }
