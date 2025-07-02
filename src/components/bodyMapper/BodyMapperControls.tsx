@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect, forwardRef } from 'react';
-import { Brush, Palette, Sparkles, Activity, Zap, Wind, Droplet, Snowflake, Thermometer, Heart, Star } from 'lucide-react';
+import { Brush, Palette, Sparkles, Activity, Zap, Wind, Droplet, Snowflake, Thermometer, Heart, Star, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { EmotionRow } from './EmotionRow';
@@ -12,10 +13,11 @@ interface CustomEmotion {
 }
 
 interface EmotionUpdate {
-  type: 'emotionColorChange' | 'emotionNameChange' | 'emotionsInit';
+  type: 'emotionColorChange' | 'emotionNameChange' | 'emotionsInit' | 'addEmotion';
   index?: number;
   value?: string;
   emotions?: CustomEmotion[];
+  emotion?: CustomEmotion;
 }
 
 interface BodyMapperControlsProps {
@@ -42,12 +44,11 @@ const defaultEmotions: CustomEmotion[] = [
   { color: '#9c27b0', name: '' },
   { color: '#ff9800', name: '' },
   { color: '#e91e63', name: '' },
-  { color: '#00bcd4', name: '' },
-  { color: '#8bc34a', name: '' }
+  { color: '#00bcd4', name: '' }
 ];
 
 export const BodyMapperControls = React.forwardRef<
-  { handleIncomingEmotionUpdate: (updateData: { type: string; index: number; value: string }) => void },
+  { handleIncomingEmotionUpdate: (updateData: { type: string; index?: number; value?: string; emotion?: CustomEmotion }) => void },
   BodyMapperControlsProps
 >(({
   mode,
@@ -97,18 +98,45 @@ export const BodyMapperControls = React.forwardRef<
     onColorChange(color);
   };
 
+  const handleAddColor = () => {
+    const colors = ['#8bc34a', '#607d8b', '#795548', '#ff5722', '#3f51b5', '#009688', '#cddc39', '#ffc107'];
+    const nextColor = colors[emotions.length % colors.length];
+    
+    const newEmotion: CustomEmotion = {
+      color: nextColor,
+      name: ''
+    };
+    
+    const newEmotions = [...emotions, newEmotion];
+    setEmotions(newEmotions);
+    
+    // Broadcast the new emotion to multiplayer
+    onEmotionsUpdate?.({
+      type: 'addEmotion',
+      emotion: newEmotion
+    });
+  };
+
   // Function to handle incoming emotion updates from other users
-  const handleIncomingEmotionUpdate = (updateData: { type: string; index: number; value: string }) => {
+  const handleIncomingEmotionUpdate = (updateData: { type: string; index?: number; value?: string; emotion?: CustomEmotion }) => {
     setEmotions(prevEmotions => {
-      const newEmotions = [...prevEmotions];
-      
-      if (updateData.type === 'emotionColorChange') {
-        newEmotions[updateData.index] = { ...newEmotions[updateData.index], color: updateData.value };
-      } else if (updateData.type === 'emotionNameChange') {
-        newEmotions[updateData.index] = { ...newEmotions[updateData.index], name: updateData.value };
+      if (updateData.type === 'addEmotion' && updateData.emotion) {
+        return [...prevEmotions, updateData.emotion];
       }
       
-      return newEmotions;
+      if (updateData.index !== undefined) {
+        const newEmotions = [...prevEmotions];
+        
+        if (updateData.type === 'emotionColorChange') {
+          newEmotions[updateData.index] = { ...newEmotions[updateData.index], color: updateData.value || '' };
+        } else if (updateData.type === 'emotionNameChange') {
+          newEmotions[updateData.index] = { ...newEmotions[updateData.index], name: updateData.value || '' };
+        }
+        
+        return newEmotions;
+      }
+      
+      return prevEmotions;
     });
   };
 
@@ -188,6 +216,17 @@ export const BodyMapperControls = React.forwardRef<
                 onSelect={() => handleEmotionSelect(emotion.color)}
               />
             ))}
+          </div>
+          
+          {/* Add Color Button */}
+          <div className="mt-4">
+            <Button
+              onClick={handleAddColor}
+              className="w-full bg-green-500 hover:bg-green-600 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center"
+            >
+              <Plus className="w-5 h-5 mr-2" />
+              ADD COLOR
+            </Button>
           </div>
         </div>
 
