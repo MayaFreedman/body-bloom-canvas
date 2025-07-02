@@ -69,6 +69,7 @@ export const useBodyMapperState = () => {
     bodyPartColors,
     setBodyPartColors,
     rotation,
+    setRotation,
     handleAddDrawingMark,
     handleBodyPartClick,
     handleSensationClick,

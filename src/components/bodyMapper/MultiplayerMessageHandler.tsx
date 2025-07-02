@@ -10,6 +10,7 @@ interface MultiplayerMessageHandlerProps {
   setDrawingMarks: React.Dispatch<React.SetStateAction<DrawingMark[]>>;
   setSensationMarks: React.Dispatch<React.SetStateAction<SensationMark[]>>;
   setBodyPartColors: React.Dispatch<React.SetStateAction<Record<string, string>>>;
+  setRotation: React.Dispatch<React.SetStateAction<number>>;
   clearAll: () => void;
   controlsRef: React.RefObject<any>;
 }
@@ -42,6 +43,7 @@ export const MultiplayerMessageHandler = ({
   setDrawingMarks,
   setSensationMarks,
   setBodyPartColors,
+  setRotation,
   clearAll,
   controlsRef
 }: MultiplayerMessageHandlerProps) => {
@@ -64,6 +66,15 @@ export const MultiplayerMessageHandler = ({
         }
 
         switch (message.type) {
+          case 'modelRotation': {
+            console.log('🔄 Processing model rotation:', messageData);
+            if (messageData.direction === 'left') {
+              setRotation(prev => prev - Math.PI / 2);
+            } else if (messageData.direction === 'right') {
+              setRotation(prev => prev + Math.PI / 2);
+            }
+            break;
+          }
           case 'emotionUpdate': {
             console.log('🎨 Processing emotion update:', messageData);
             if (controlsRef.current && controlsRef.current.handleIncomingEmotionUpdate) {
@@ -224,7 +235,7 @@ export const MultiplayerMessageHandler = ({
         console.error('❌ Error cleaning up broadcast listener:', error);
       }
     };
-  }, [room, setDrawingMarks, setSensationMarks, setBodyPartColors, clearAll, modelRef, controlsRef]);
+  }, [room, setDrawingMarks, setSensationMarks, setBodyPartColors, setRotation, clearAll, modelRef, controlsRef]);
 
   return null;
 };

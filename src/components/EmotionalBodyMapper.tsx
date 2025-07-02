@@ -37,11 +37,12 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     bodyPartColors,
     setBodyPartColors,
     rotation,
+    setRotation,
     handleAddDrawingMark,
     handleBodyPartClick: baseHandleBodyPartClick,
     handleSensationClick: baseHandleSensationClick,
-    rotateLeft,
-    rotateRight,
+    rotateLeft: baseRotateLeft,
+    rotateRight: baseRotateRight,
     clearAll
   } = useBodyMapperState();
 
@@ -57,6 +58,31 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
       });
     }
   }, [multiplayer]);
+
+  // Synchronized rotation handlers that broadcast to all users
+  const handleRotateLeft = useCallback(() => {
+    baseRotateLeft();
+    
+    // Broadcast rotation to all users
+    if (multiplayer.isConnected && multiplayer.room) {
+      multiplayer.room.send('broadcast', {
+        type: 'modelRotation',
+        data: { direction: 'left' }
+      });
+    }
+  }, [baseRotateLeft, multiplayer]);
+
+  const handleRotateRight = useCallback(() => {
+    baseRotateRight();
+    
+    // Broadcast rotation to all users
+    if (multiplayer.isConnected && multiplayer.room) {
+      multiplayer.room.send('broadcast', {
+        type: 'modelRotation',
+        data: { direction: 'right' }
+      });
+    }
+  }, [baseRotateRight, multiplayer]);
 
   // Enhanced handlers that include multiplayer broadcasting
   const handleBodyPartClick = useCallback((partName: string, color: string) => {
@@ -141,8 +167,8 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
               onAddToDrawingStroke={handleAddToDrawingStroke}
               onBodyPartClick={handleBodyPartClick}
               onSensationClick={handleSensationClick}
-              onRotateLeft={rotateLeft}
-              onRotateRight={rotateRight}
+              onRotateLeft={handleRotateLeft}
+              onRotateRight={handleRotateRight}
             />
           </div>
           
@@ -177,6 +203,7 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
         setDrawingMarks={setDrawingMarks}
         setSensationMarks={setSensationMarks}
         setBodyPartColors={setBodyPartColors}
+        setRotation={setRotation}
         clearAll={clearAll}
         controlsRef={controlsRef}
       />
