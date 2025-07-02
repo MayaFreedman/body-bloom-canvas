@@ -1,3 +1,4 @@
+
 import React, { useRef, useCallback, useEffect } from 'react';
 import { RotateCcw, Download, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -112,9 +113,9 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
 
   const handleDrawingStrokeComplete = useCallback(() => {
     if (multiplayer.isConnected) {
-      multiplayer.finishDrawingStroke(selectedColor, brushSize[0] / 100);
+      multiplayer.finishDrawingStroke(selectedColor, brushSize[0] / 100, rotation);
     }
-  }, [multiplayer, selectedColor, brushSize]);
+  }, [multiplayer, selectedColor, brushSize, rotation]);
 
   // Handle multiplayer messages
   useEffect(() => {
@@ -153,6 +154,13 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
                 return;
               }
               
+              // Calculate rotation difference
+              const senderRotation = stroke.rotation || 0;
+              const receiverRotation = rotation;
+              const rotationDifference = receiverRotation - senderRotation;
+              
+              console.log('🔄 Rotation difference:', rotationDifference, 'radians');
+              
               // Convert world coordinates to local coordinates and add as marks
               const modelGroup = modelRef.current;
               if (modelGroup) {
@@ -163,10 +171,21 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
                       return;
                     }
                     
-                    // Convert world position to local position relative to the model
-                    const worldPos = new THREE.Vector3(point.x, point.y, point.z);
+                    // Create the original world position
+                    const originalWorldPos = new THREE.Vector3(point.x, point.y, point.z);
+                    
+                    // Apply rotation correction if there's a difference
+                    let correctedWorldPos = originalWorldPos;
+                    if (Math.abs(rotationDifference) > 0.01) { // Small threshold to avoid floating point issues
+                      // Rotate the point around the Y-axis to match the receiver's perspective
+                      correctedWorldPos = originalWorldPos.clone();
+                      const rotationMatrix = new THREE.Matrix4().makeRotationY(rotationDifference);
+                      correctedWorldPos.applyMatrix4(rotationMatrix);
+                    }
+                    
+                    // Convert to local position relative to the model
                     const localPos = new THREE.Vector3();
-                    modelGroup.worldToLocal(localPos.copy(worldPos));
+                    modelGroup.worldToLocal(localPos.copy(correctedWorldPos));
                     
                     const mark = {
                       id: `${stroke.id}-${index}`,
@@ -252,7 +271,7 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
         }
       };
     }
-  }, [multiplayer.room, setDrawingMarks, setSensationMarks, setBodyPartColors, clearAll]);
+  }, [multiplayer.room, setDrawingMarks, setSensationMarks, setBodyPartColors, clearAll, rotation]);
 
   const captureScreenshot = async () => {
     if (!canvasRef.current) return;

@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Room } from 'colyseus.js';
 import { ServerClass } from '../services/ServerClass';
@@ -9,6 +10,7 @@ interface DrawingStroke {
   color: string;
   size: number;
   playerId: string;
+  rotation: number; // Add rotation metadata
 }
 
 interface SensationData {
@@ -188,14 +190,15 @@ export const useMultiplayer = (roomId: string | null) => {
     drawingStrokeRef.current.push(worldPoint.clone());
   }, []);
 
-  const finishDrawingStroke = useCallback((color: string, size: number) => {
+  const finishDrawingStroke = useCallback((color: string, size: number, rotation: number) => {
     if (drawingStrokeRef.current.length > 0) {
-      console.log('🎨 Finishing stroke with', drawingStrokeRef.current.length, 'points');
+      console.log('🎨 Finishing stroke with', drawingStrokeRef.current.length, 'points, rotation:', rotation);
       const stroke: Omit<DrawingStroke, 'playerId'> = {
         id: `stroke-${Date.now()}-${Math.random()}`,
         points: [...drawingStrokeRef.current],
         color,
-        size
+        size,
+        rotation // Include the sender's rotation
       };
       broadcastDrawingStroke(stroke);
       drawingStrokeRef.current = [];
