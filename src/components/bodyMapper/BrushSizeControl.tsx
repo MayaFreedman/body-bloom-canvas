@@ -9,8 +9,8 @@ interface BrushSizeControlProps {
 }
 
 export const BrushSizeControl = ({ brushSize, selectedColor, onBrushSizeChange }: BrushSizeControlProps) => {
-  // Simple scaling - just make the preview much smaller to better match actual drawing size
-  const actualVisualSize = Math.max(2, Math.min(30, brushSize[0] * 1.5));
+  // Simple scaling - make the preview smaller to better match actual drawing size
+  const actualVisualSize = Math.max(2, Math.min(30, brushSize[0] * 0.75));
 
   return (
     <div>
