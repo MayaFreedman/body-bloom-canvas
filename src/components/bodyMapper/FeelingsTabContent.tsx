@@ -47,6 +47,15 @@ export const FeelingsTabContent = ({
 
       <PaintingModeSelector mode={mode} onModeChange={onModeChange} />
       
+      {/* Brush Size Control - Only visible in Draw mode */}
+      {mode === 'draw' && (
+        <BrushSizeControl
+          brushSize={brushSize}
+          selectedColor={selectedColor}
+          onBrushSizeChange={onBrushSizeChange}
+        />
+      )}
+
       <EmotionColorManager
         emotions={emotions}
         selectedColor={selectedColor}
@@ -55,12 +64,6 @@ export const FeelingsTabContent = ({
         onEmotionSelect={onEmotionSelect}
         onAddColor={onAddColor}
         onDeleteColor={onDeleteColor}
-      />
-
-      <BrushSizeControl
-        brushSize={brushSize}
-        selectedColor={selectedColor}
-        onBrushSizeChange={onBrushSizeChange}
       />
     </div>
   );
