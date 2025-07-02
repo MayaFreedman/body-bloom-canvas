@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect, forwardRef } from 'react';
-import { Brush, Palette, Sparkles, Activity, Zap, Wind, Droplet, Snowflake, Thermometer, Heart, Star, Plus } from 'lucide-react';
+import { Brush, Palette, Sparkles, Activity, Zap, Wind, Droplet, Snowflake, Thermometer, Heart, Star, Plus, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { EmotionRow } from './EmotionRow';
@@ -13,7 +12,7 @@ interface CustomEmotion {
 }
 
 interface EmotionUpdate {
-  type: 'emotionColorChange' | 'emotionNameChange' | 'emotionsInit' | 'addEmotion';
+  type: 'emotionColorChange' | 'emotionNameChange' | 'emotionsInit' | 'addEmotion' | 'deleteEmotion';
   index?: number;
   value?: string;
   emotions?: CustomEmotion[];
@@ -117,11 +116,29 @@ export const BodyMapperControls = React.forwardRef<
     });
   };
 
+  const handleDeleteColor = (index: number) => {
+    // Only allow deletion if it's not one of the base 8 colors
+    if (index < 8) return;
+    
+    const newEmotions = emotions.filter((_, i) => i !== index);
+    setEmotions(newEmotions);
+    
+    // Broadcast the deletion to multiplayer
+    onEmotionsUpdate?.({
+      type: 'deleteEmotion',
+      index
+    });
+  };
+
   // Function to handle incoming emotion updates from other users
   const handleIncomingEmotionUpdate = (updateData: { type: string; index?: number; value?: string; emotion?: CustomEmotion }) => {
     setEmotions(prevEmotions => {
       if (updateData.type === 'addEmotion' && updateData.emotion) {
         return [...prevEmotions, updateData.emotion];
+      }
+      
+      if (updateData.type === 'deleteEmotion' && updateData.index !== undefined) {
+        return prevEmotions.filter((_, i) => i !== updateData.index);
       }
       
       if (updateData.index !== undefined) {
@@ -205,16 +222,29 @@ export const BodyMapperControls = React.forwardRef<
           <h4 className="font-semibold text-gray-800 mb-4">Colors & Emotions</h4>
           <div className="space-y-4">
             {emotions.map((emotion, index) => (
-              <EmotionRow
-                key={index}
-                color={emotion.color}
-                emotion={emotion.name}
-                placeholder={index < 3 ? ['Joy', 'Sadness', 'Anger'][index] : 'Enter emotion'}
-                onColorChange={(color) => handleEmotionColorChange(index, color)}
-                onEmotionChange={(name) => handleEmotionNameChange(index, name)}
-                isSelected={selectedColor === emotion.color}
-                onSelect={() => handleEmotionSelect(emotion.color)}
-              />
+              <div key={index} className="flex items-center space-x-2">
+                <div className="flex-1">
+                  <EmotionRow
+                    color={emotion.color}
+                    emotion={emotion.name}
+                    placeholder={index < 3 ? ['Joy', 'Sadness', 'Anger'][index] : 'Enter emotion'}
+                    onColorChange={(color) => handleEmotionColorChange(index, color)}
+                    onEmotionChange={(name) => handleEmotionNameChange(index, name)}
+                    isSelected={selectedColor === emotion.color}
+                    onSelect={() => handleEmotionSelect(emotion.color)}
+                  />
+                </div>
+                {/* Delete button - only show for colors beyond the base 8 */}
+                {index >= 8 && (
+                  <button
+                    onClick={() => handleDeleteColor(index)}
+                    className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full transition-colors"
+                    title="Delete this color"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
             ))}
           </div>
           
