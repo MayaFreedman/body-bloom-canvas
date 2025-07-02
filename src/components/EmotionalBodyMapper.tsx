@@ -8,7 +8,7 @@ import { useBodyMapperState } from '@/hooks/useBodyMapperState';
 import { useMultiplayer } from '@/hooks/useMultiplayer';
 import { SensationMark } from '@/types/bodyMapperTypes';
 import * as THREE from 'three';
-import { SurfaceDrawingPoint, WorldDrawingPoint } from '@/utils/surfaceCoordinates';
+import { WorldDrawingPoint } from '@/types/multiplayerTypes';
 
 interface EmotionalBodyMapperProps {
   roomId: string | null;
