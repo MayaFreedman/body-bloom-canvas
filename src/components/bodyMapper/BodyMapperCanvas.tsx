@@ -82,7 +82,7 @@ export const BodyMapperCanvas = ({
       </Button>
 
       <Canvas 
-        camera={{ position: [0, 0, 5], fov: 50 }}
+        camera={{ position: [0, 0, 3.5], fov: 50 }}
         style={{ width: '100%', height: '100%' }}
       >
         <ambientLight intensity={1.0} />
@@ -129,8 +129,8 @@ export const BodyMapperCanvas = ({
         <OrbitControls 
           enableRotate={false}
           enablePan={false}
-          minDistance={3}
-          maxDistance={8}
+          minDistance={2.5}
+          maxDistance={6}
           maxPolarAngle={Math.PI}
           minPolarAngle={0}
           enabled={mode !== 'draw'}

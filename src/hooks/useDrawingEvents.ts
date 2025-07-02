@@ -1,4 +1,3 @@
-
 import { useRef, useCallback } from 'react';
 import { useThree } from '@react-three/fiber';
 import * as THREE from 'three';
@@ -60,11 +59,12 @@ export const useDrawingEvents = ({
       const localPosition = new THREE.Vector3();
       modelGroup.worldToLocal(localPosition.copy(worldPosition));
       
+      // Make actual drawing marks much smaller - divide by 200 instead of 100
       const mark: DrawingMark = {
         id: `mark-${Date.now()}-${Math.random()}`,
         position: localPosition,
         color: selectedColor,
-        size: brushSize / 100
+        size: brushSize / 200
       };
       onAddMark(mark);
       
@@ -78,7 +78,7 @@ export const useDrawingEvents = ({
           },
           bodyPart: intersect.object.userData.bodyPart,
           color: selectedColor,
-          size: brushSize / 100
+          size: brushSize / 200
         };
         onAddToStroke(worldPoint);
       }
