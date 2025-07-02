@@ -9,11 +9,18 @@ interface BrushSizeControlProps {
 }
 
 export const BrushSizeControl = ({ brushSize, selectedColor, onBrushSizeChange }: BrushSizeControlProps) => {
-  // Convert brush size to actual visual size that matches the 3D drawing
-  // The drawing uses brushSize / 100 as the radius in 3D space
-  // For a human model at typical viewing distance, we need to scale this appropriately
-  // Based on testing: a 3D radius of 0.1 (brushSize 10) appears roughly 20-25px on screen
-  const actualVisualSize = Math.max(2, Math.min(60, (brushSize[0] / 100) * 200));
+  // Calculate actual visual size based on proper 3D-to-screen projection
+  // The 3D drawing uses brushSize / 100 as the radius in 3D space
+  // Camera settings: FOV = 50°, distance ≈ 5 units, canvas ≈ 800px wide
+  const threeDRadius = brushSize[0] / 100; // Convert brush size to 3D radius
+  const cameraDistance = 5; // Typical camera distance from model
+  const fovRadians = (50 * Math.PI) / 180; // 50° FOV in radians
+  const canvasWidth = 800; // Approximate canvas width
+  
+  // Project 3D radius to screen pixels
+  // Formula: screenSize = (3D_radius / (distance * tan(fov/2))) * (canvasWidth / 2)
+  const projectedRadius = (threeDRadius / (cameraDistance * Math.tan(fovRadians / 2))) * (canvasWidth / 2);
+  const actualVisualSize = Math.max(2, Math.min(60, projectedRadius));
 
   return (
     <div>
