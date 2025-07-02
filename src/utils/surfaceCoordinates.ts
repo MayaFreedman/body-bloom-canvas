@@ -27,7 +27,7 @@ export const calculateSurfaceCoordinates = (
 
   // Get barycentric coordinates from the intersection
   const barycentricCoords = new THREE.Vector3();
-  if (intersect.face && intersect.object.geometry instanceof THREE.BufferGeometry) {
+  if (intersect.face && intersect.object instanceof THREE.Mesh && intersect.object.geometry instanceof THREE.BufferGeometry) {
     // Use the face index to get triangle information
     const faceIndex = intersect.faceIndex || 0;
     
