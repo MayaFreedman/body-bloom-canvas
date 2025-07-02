@@ -11,8 +11,9 @@ interface BrushSizeControlProps {
 export const BrushSizeControl = ({ brushSize, selectedColor, onBrushSizeChange }: BrushSizeControlProps) => {
   // Convert brush size to actual visual size that matches the 3D drawing
   // The drawing uses brushSize / 100 as the radius in 3D space
-  // We need to convert this back to a reasonable pixel representation
-  const actualVisualSize = Math.max(4, Math.min(40, brushSize[0] * 1.2));
+  // For a human model at typical viewing distance, we need to scale this appropriately
+  // Based on testing: a 3D radius of 0.1 (brushSize 10) appears roughly 20-25px on screen
+  const actualVisualSize = Math.max(2, Math.min(60, (brushSize[0] / 100) * 200));
 
   return (
     <div>
