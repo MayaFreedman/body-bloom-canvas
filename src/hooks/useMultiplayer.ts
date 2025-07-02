@@ -1,16 +1,13 @@
-
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Room } from 'colyseus.js';
 import { ServerClass } from '../services/ServerClass';
 import * as THREE from 'three';
+import { SurfaceDrawingPoint } from '@/utils/surfaceCoordinates';
 
 interface DrawingStroke {
   id: string;
-  points: THREE.Vector3[];
-  color: string;
-  size: number;
+  points: SurfaceDrawingPoint[];
   playerId: string;
-  rotation: number; // Add rotation metadata
 }
 
 interface SensationData {
@@ -55,7 +52,7 @@ export const useMultiplayer = (roomId: string | null) => {
   });
 
   const cursorThrottleRef = useRef<NodeJS.Timeout | null>(null);
-  const drawingStrokeRef = useRef<THREE.Vector3[]>([]);
+  const drawingStrokeRef = useRef<SurfaceDrawingPoint[]>([]);
 
   const connectToRoom = useCallback(async (id: string) => {
     if (state.isConnecting || state.isConnected) return;
@@ -185,20 +182,17 @@ export const useMultiplayer = (roomId: string | null) => {
     drawingStrokeRef.current = [];
   }, []);
 
-  const addToDrawingStroke = useCallback((worldPoint: THREE.Vector3) => {
-    console.log('🎨 Adding point to stroke:', worldPoint);
-    drawingStrokeRef.current.push(worldPoint.clone());
+  const addToDrawingStroke = useCallback((surfacePoint: SurfaceDrawingPoint) => {
+    console.log('🎨 Adding surface point to stroke:', surfacePoint);
+    drawingStrokeRef.current.push(surfacePoint);
   }, []);
 
-  const finishDrawingStroke = useCallback((color: string, size: number, rotation: number) => {
+  const finishDrawingStroke = useCallback(() => {
     if (drawingStrokeRef.current.length > 0) {
-      console.log('🎨 Finishing stroke with', drawingStrokeRef.current.length, 'points, rotation:', rotation);
+      console.log('🎨 Finishing stroke with', drawingStrokeRef.current.length, 'surface points');
       const stroke: Omit<DrawingStroke, 'playerId'> = {
         id: `stroke-${Date.now()}-${Math.random()}`,
-        points: [...drawingStrokeRef.current],
-        color,
-        size,
-        rotation // Include the sender's rotation
+        points: [...drawingStrokeRef.current]
       };
       broadcastDrawingStroke(stroke);
       drawingStrokeRef.current = [];

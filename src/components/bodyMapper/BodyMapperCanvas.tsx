@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
@@ -10,6 +9,7 @@ import { ModelDrawing } from '@/components/ModelDrawing';
 import SensationParticles from '@/components/SensationParticles';
 import { ClickHandler } from './ClickHandler';
 import { DrawingMark, SensationMark, Effect, BodyPartColors, BodyMapperMode, SelectedSensation } from '@/types/bodyMapperTypes';
+import { SurfaceDrawingPoint } from '@/utils/surfaceCoordinates';
 import * as THREE from 'three';
 
 interface BodyMapperCanvasProps {
@@ -26,7 +26,7 @@ interface BodyMapperCanvasProps {
   onAddDrawingMark: (mark: DrawingMark) => void;
   onDrawingStrokeStart: () => void;
   onDrawingStrokeComplete: () => void;
-  onAddToDrawingStroke: (worldPosition: THREE.Vector3) => void;
+  onAddToDrawingStroke: (surfacePoint: SurfaceDrawingPoint) => void;
   onBodyPartClick: (partName: string, color: string) => void;
   onSensationClick: (position: THREE.Vector3, sensation: SelectedSensation) => void;
   onRotateLeft: () => void;

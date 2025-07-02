@@ -1,4 +1,3 @@
-
 import React, { useRef, useCallback, useEffect } from 'react';
 import { RotateCcw, Download, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -9,6 +8,7 @@ import { useMultiplayer } from '@/hooks/useMultiplayer';
 import { SensationMark } from '@/types/bodyMapperTypes';
 import html2canvas from 'html2canvas';
 import * as THREE from 'three';
+import { surfaceCoordinatesToWorldPosition, findMeshByBodyPart, SurfaceDrawingPoint } from '@/utils/surfaceCoordinates';
 
 interface CustomEmotion {
   color: string;
@@ -99,9 +99,9 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     }
   }, [clearAll, multiplayer]);
 
-  const handleAddToDrawingStroke = useCallback((worldPosition: THREE.Vector3) => {
+  const handleAddToDrawingStroke = useCallback((surfacePoint: SurfaceDrawingPoint) => {
     if (multiplayer.isConnected) {
-      multiplayer.addToDrawingStroke(worldPosition);
+      multiplayer.addToDrawingStroke(surfacePoint);
     }
   }, [multiplayer]);
 
@@ -113,9 +113,9 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
 
   const handleDrawingStrokeComplete = useCallback(() => {
     if (multiplayer.isConnected) {
-      multiplayer.finishDrawingStroke(selectedColor, brushSize[0] / 100, rotation);
+      multiplayer.finishDrawingStroke();
     }
-  }, [multiplayer, selectedColor, brushSize, rotation]);
+  }, [multiplayer]);
 
   // Handle multiplayer messages
   useEffect(() => {
@@ -129,7 +129,6 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
             return;
           }
 
-          // Handle both 'data' and 'action' properties for backward compatibility
           const messageData = message.data || message.action;
           if (!messageData) {
             console.warn('⚠️ No data/action in message:', message);
@@ -139,7 +138,6 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
           switch (message.type) {
             case 'emotionUpdate': {
               console.log('🎨 Processing emotion update:', messageData);
-              // Forward the emotion update to the controls component
               if (controlsRef.current && controlsRef.current.handleIncomingEmotionUpdate) {
                 controlsRef.current.handleIncomingEmotionUpdate(messageData);
               }
@@ -147,55 +145,50 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
             }
             case 'drawingStroke': {
               const stroke = messageData;
-              console.log('🎨 Processing drawing stroke:', stroke);
+              console.log('🎨 Processing surface-based drawing stroke:', stroke);
               
               if (!stroke || !stroke.points || !Array.isArray(stroke.points)) {
                 console.warn('⚠️ Invalid stroke data:', stroke);
                 return;
               }
               
-              // Calculate rotation difference
-              const senderRotation = stroke.rotation || 0;
-              const receiverRotation = rotation;
-              const rotationDifference = receiverRotation - senderRotation;
-              
-              console.log('🔄 Rotation difference:', rotationDifference, 'radians');
-              
-              // Convert world coordinates to local coordinates and add as marks
+              // Convert surface coordinates back to world positions
               const modelGroup = modelRef.current;
               if (modelGroup) {
-                stroke.points.forEach((point: any, index: number) => {
+                stroke.points.forEach((surfacePoint: SurfaceDrawingPoint) => {
                   try {
-                    if (!point || typeof point.x !== 'number' || typeof point.y !== 'number' || typeof point.z !== 'number') {
-                      console.warn('⚠️ Invalid point data:', point);
+                    if (!surfacePoint.surfaceCoord) {
+                      console.warn('⚠️ Invalid surface point data:', surfacePoint);
                       return;
                     }
                     
-                    // Create the original world position
-                    const originalWorldPos = new THREE.Vector3(point.x, point.y, point.z);
+                    // Find the mesh for this body part
+                    const mesh = findMeshByBodyPart(modelGroup, surfacePoint.surfaceCoord.bodyPart);
+                    if (!mesh) {
+                      console.warn('⚠️ Could not find mesh for body part:', surfacePoint.surfaceCoord.bodyPart);
+                      return;
+                    }
                     
-                    // Apply rotation correction if there's a difference
-                    let correctedWorldPos = originalWorldPos;
-                    if (Math.abs(rotationDifference) > 0.01) { // Small threshold to avoid floating point issues
-                      // Rotate the point around the Y-axis to match the receiver's perspective
-                      correctedWorldPos = originalWorldPos.clone();
-                      const rotationMatrix = new THREE.Matrix4().makeRotationY(rotationDifference);
-                      correctedWorldPos.applyMatrix4(rotationMatrix);
+                    // Convert surface coordinates to world position
+                    const worldPos = surfaceCoordinatesToWorldPosition(surfacePoint.surfaceCoord, mesh);
+                    if (!worldPos) {
+                      console.warn('⚠️ Could not convert surface coordinates to world position');
+                      return;
                     }
                     
                     // Convert to local position relative to the model
                     const localPos = new THREE.Vector3();
-                    modelGroup.worldToLocal(localPos.copy(correctedWorldPos));
+                    modelGroup.worldToLocal(localPos.copy(worldPos));
                     
                     const mark = {
-                      id: `${stroke.id}-${index}`,
+                      id: surfacePoint.id,
                       position: localPos,
-                      color: stroke.color || '#ff6b6b',
-                      size: stroke.size || 0.1
+                      color: surfacePoint.color,
+                      size: surfacePoint.size
                     };
                     setDrawingMarks(prev => [...prev, mark]);
                   } catch (pointError) {
-                    console.error('❌ Error processing point:', pointError, point);
+                    console.error('❌ Error processing surface point:', pointError, surfacePoint);
                   }
                 });
               }
@@ -271,7 +264,7 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
         }
       };
     }
-  }, [multiplayer.room, setDrawingMarks, setSensationMarks, setBodyPartColors, clearAll, rotation]);
+  }, [multiplayer.room, setDrawingMarks, setSensationMarks, setBodyPartColors, clearAll]);
 
   const captureScreenshot = async () => {
     if (!canvasRef.current) return;

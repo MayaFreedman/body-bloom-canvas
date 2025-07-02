@@ -1,6 +1,8 @@
+
 import React, { useRef, useCallback } from 'react';
 import { useThree, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import { calculateSurfaceCoordinates, SurfaceDrawingPoint } from '@/utils/surfaceCoordinates';
 
 interface DrawingMark {
   id: string;
@@ -17,7 +19,7 @@ interface ModelDrawingProps {
   onAddMark: (mark: DrawingMark) => void;
   onStrokeStart?: () => void;
   onStrokeComplete?: () => void;
-  onAddToStroke?: (worldPosition: THREE.Vector3) => void;
+  onAddToStroke?: (surfacePoint: SurfaceDrawingPoint) => void;
   modelRef?: React.RefObject<THREE.Group>;
 }
 
@@ -54,7 +56,7 @@ export const ModelDrawing = ({
     return meshes;
   }, [modelRef]);
 
-  const addMarkAtPosition = useCallback((worldPosition: THREE.Vector3) => {
+  const addMarkAtPosition = useCallback((worldPosition: THREE.Vector3, intersect?: THREE.Intersection) => {
     const modelGroup = modelRef?.current;
     if (modelGroup) {
       // Convert world position to local position relative to the model
@@ -69,21 +71,31 @@ export const ModelDrawing = ({
       };
       onAddMark(mark);
       
-      // Also add world position to multiplayer stroke
-      if (onAddToStroke) {
-        onAddToStroke(worldPosition.clone());
+      // Also create surface coordinate data for multiplayer
+      if (onAddToStroke && intersect && intersect.object instanceof THREE.Mesh) {
+        const surfaceCoord = calculateSurfaceCoordinates(intersect, intersect.object);
+        if (surfaceCoord) {
+          const surfacePoint: SurfaceDrawingPoint = {
+            id: mark.id,
+            surfaceCoord,
+            color: selectedColor,
+            size: brushSize / 100
+          };
+          onAddToStroke(surfacePoint);
+        }
       }
     }
   }, [selectedColor, brushSize, onAddMark, onAddToStroke, modelRef]);
 
-  const interpolateMarks = useCallback((start: THREE.Vector3, end: THREE.Vector3) => {
+  const interpolateMarks = useCallback((start: THREE.Vector3, end: THREE.Vector3, startIntersect?: THREE.Intersection, endIntersect?: THREE.Intersection) => {
     const distance = start.distanceTo(end);
     const steps = Math.max(1, Math.floor(distance * 50)); // More steps for smoother lines
     
     for (let i = 0; i <= steps; i++) {
       const t = i / steps;
       const interpolatedPosition = new THREE.Vector3().lerpVectors(start, end, t);
-      addMarkAtPosition(interpolatedPosition);
+      // Use the end intersect for surface coordinate calculation
+      addMarkAtPosition(interpolatedPosition, endIntersect);
     }
   }, [addMarkAtPosition]);
 
@@ -111,7 +123,7 @@ export const ModelDrawing = ({
           strokeStarted.current = true;
         }
         
-        addMarkAtPosition(intersect.point);
+        addMarkAtPosition(intersect.point, intersect);
         lastPosition.current = intersect.point.clone();
         lastMarkTime.current = Date.now();
       }
@@ -140,9 +152,9 @@ export const ModelDrawing = ({
         const currentPosition = intersect.point;
         
         if (lastPosition.current) {
-          interpolateMarks(lastPosition.current, currentPosition);
+          interpolateMarks(lastPosition.current, currentPosition, undefined, intersect);
         } else {
-          addMarkAtPosition(currentPosition);
+          addMarkAtPosition(currentPosition, intersect);
         }
         
         lastPosition.current = currentPosition.clone();
