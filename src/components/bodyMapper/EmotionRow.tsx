@@ -22,7 +22,9 @@ export const EmotionRow = ({
   onSelect
 }: EmotionRowProps) => {
   return (
-    <div className="flex items-center space-x-4 group">
+    <div 
+      className="flex items-center space-x-4 group hover:bg-[rgb(249,249,249)] p-2 rounded-lg transition-colors duration-200"
+    >
       {/* Color Circle */}
       <button
         className={`rounded-full transition-all hover:scale-105 ${
