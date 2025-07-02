@@ -2,7 +2,7 @@
 import React from 'react';
 import { useDrawingEvents } from '@/hooks/useDrawingEvents';
 import { useDrawingEventListeners } from '@/hooks/useDrawingEventListeners';
-import { SurfaceDrawingPoint } from '@/utils/surfaceCoordinates';
+import { WorldDrawingPoint } from '@/types/multiplayerTypes';
 import * as THREE from 'three';
 
 interface DrawingMark {
@@ -20,7 +20,7 @@ interface ModelDrawingProps {
   onAddMark: (mark: DrawingMark) => void;
   onStrokeStart?: () => void;
   onStrokeComplete?: () => void;
-  onAddToStroke?: (surfacePoint: SurfaceDrawingPoint) => void;
+  onAddToStroke?: (worldPoint: WorldDrawingPoint) => void;
   modelRef?: React.RefObject<THREE.Group>;
 }
 

@@ -1,8 +1,7 @@
-
 import React, { useEffect } from 'react';
 import { Room } from 'colyseus.js';
 import { DrawingMark, SensationMark } from '@/types/bodyMapperTypes';
-import { SurfaceDrawingPoint, findMeshByBodyPart, surfaceCoordinatesToWorldPosition } from '@/utils/surfaceCoordinates';
+import { WorldDrawingPoint } from '@/types/multiplayerTypes';
 import * as THREE from 'three';
 
 interface MultiplayerMessageHandlerProps {
@@ -74,77 +73,59 @@ export const MultiplayerMessageHandler = ({
           }
           case 'drawingStroke': {
             const stroke = messageData;
-            console.log('🎨 Processing surface-based drawing stroke:', stroke);
+            console.log('🎨 Processing world position drawing stroke:', stroke);
             
             if (!stroke || !stroke.points || !Array.isArray(stroke.points)) {
               console.warn('⚠️ Invalid stroke data:', stroke);
               return;
             }
             
-            // Convert surface coordinates back to world positions and create all marks at once
+            // Convert world positions to local positions and create all marks at once
             const modelGroup = modelRef.current;
             if (modelGroup) {
               const newMarks: DrawingMark[] = [];
-              const worldPositions: { position: THREE.Vector3; surfacePoint: SurfaceDrawingPoint }[] = [];
-              
-              // First, convert all surface points to world positions
-              stroke.points.forEach((surfacePoint: SurfaceDrawingPoint) => {
-                try {
-                  if (!surfacePoint.surfaceCoord) {
-                    console.warn('⚠️ Invalid surface point data:', surfacePoint);
-                    return;
-                  }
-                  
-                  const mesh = findMeshByBodyPart(modelGroup, surfacePoint.surfaceCoord.bodyPart);
-                  if (!mesh) {
-                    console.warn('⚠️ Could not find mesh for body part:', surfacePoint.surfaceCoord.bodyPart);
-                    return;
-                  }
-                  
-                  const worldPos = surfaceCoordinatesToWorldPosition(surfacePoint.surfaceCoord, mesh);
-                  if (!worldPos) {
-                    console.warn('⚠️ Could not convert surface coordinates to world position');
-                    return;
-                  }
-                  
-                  worldPositions.push({ position: worldPos, surfacePoint });
-                } catch (pointError) {
-                  console.error('❌ Error processing surface point:', pointError, surfacePoint);
-                }
-              });
               
               // Process points and create marks with interpolation
-              for (let i = 0; i < worldPositions.length; i++) {
-                const current = worldPositions[i];
+              for (let i = 0; i < stroke.points.length; i++) {
+                const currentPoint: WorldDrawingPoint = stroke.points[i];
+                const worldPos = new THREE.Vector3(
+                  currentPoint.worldPosition.x,
+                  currentPoint.worldPosition.y,
+                  currentPoint.worldPosition.z
+                );
+                
                 const localPos = new THREE.Vector3();
-                modelGroup.worldToLocal(localPos.copy(current.position));
+                modelGroup.worldToLocal(localPos.copy(worldPos));
                 
                 // Add the current point
                 const mark: DrawingMark = {
-                  id: current.surfacePoint.id,
+                  id: currentPoint.id,
                   position: localPos,
-                  color: current.surfacePoint.color,
-                  size: current.surfacePoint.size
+                  color: currentPoint.color,
+                  size: currentPoint.size
                 };
                 newMarks.push(mark);
                 
                 // Interpolate to the next point if it exists and is on the same body part
-                if (i < worldPositions.length - 1) {
-                  const next = worldPositions[i + 1];
-                  const currentBodyPart = current.surfacePoint.surfaceCoord.bodyPart;
-                  const nextBodyPart = next.surfacePoint.surfaceCoord.bodyPart;
+                if (i < stroke.points.length - 1) {
+                  const nextPoint: WorldDrawingPoint = stroke.points[i + 1];
+                  const nextWorldPos = new THREE.Vector3(
+                    nextPoint.worldPosition.x,
+                    nextPoint.worldPosition.y,
+                    nextPoint.worldPosition.z
+                  );
                   
                   // Only interpolate if both points are on the same body part
-                  if (currentBodyPart === nextBodyPart) {
-                    const distance = current.position.distanceTo(next.position);
+                  if (currentPoint.bodyPart === nextPoint.bodyPart) {
+                    const distance = worldPos.distanceTo(nextWorldPos);
                     const steps = Math.max(1, Math.floor(distance * 50)); // Same interpolation density as local drawing
                     
                     if (steps > 1) {
                       const interpolatedPositions = interpolateWorldPositions(
-                        current.position, 
-                        next.position, 
-                        currentBodyPart,
-                        nextBodyPart,
+                        worldPos, 
+                        nextWorldPos, 
+                        currentPoint.bodyPart,
+                        nextPoint.bodyPart,
                         steps
                       );
                       
@@ -154,10 +135,10 @@ export const MultiplayerMessageHandler = ({
                         modelGroup.worldToLocal(interpolatedLocalPos.copy(interpolatedWorldPos));
                         
                         const interpolatedMark: DrawingMark = {
-                          id: `interpolated-${current.surfacePoint.id}-${j}`,
+                          id: `interpolated-${currentPoint.id}-${j}`,
                           position: interpolatedLocalPos,
-                          color: current.surfacePoint.color,
-                          size: current.surfacePoint.size
+                          color: currentPoint.color,
+                          size: currentPoint.size
                         };
                         newMarks.push(interpolatedMark);
                       });

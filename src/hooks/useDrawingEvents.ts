@@ -2,7 +2,7 @@
 import { useRef, useCallback } from 'react';
 import { useThree } from '@react-three/fiber';
 import * as THREE from 'three';
-import { calculateSurfaceCoordinates, SurfaceDrawingPoint } from '@/utils/surfaceCoordinates';
+import { WorldDrawingPoint } from '@/types/multiplayerTypes';
 
 interface DrawingMark {
   id: string;
@@ -18,7 +18,7 @@ interface UseDrawingEventsProps {
   onAddMark: (mark: DrawingMark) => void;
   onStrokeStart?: () => void;
   onStrokeComplete?: () => void;
-  onAddToStroke?: (surfacePoint: SurfaceDrawingPoint) => void;
+  onAddToStroke?: (worldPoint: WorldDrawingPoint) => void;
   modelRef?: React.RefObject<THREE.Group>;
 }
 
@@ -69,16 +69,18 @@ export const useDrawingEvents = ({
       onAddMark(mark);
       
       if (onAddToStroke && intersect && intersect.object instanceof THREE.Mesh) {
-        const surfaceCoord = calculateSurfaceCoordinates(intersect, intersect.object);
-        if (surfaceCoord) {
-          const surfacePoint: SurfaceDrawingPoint = {
-            id: mark.id,
-            surfaceCoord,
-            color: selectedColor,
-            size: brushSize / 100
-          };
-          onAddToStroke(surfacePoint);
-        }
+        const worldPoint: WorldDrawingPoint = {
+          id: mark.id,
+          worldPosition: {
+            x: worldPosition.x,
+            y: worldPosition.y,
+            z: worldPosition.z
+          },
+          bodyPart: intersect.object.userData.bodyPart,
+          color: selectedColor,
+          size: brushSize / 100
+        };
+        onAddToStroke(worldPoint);
       }
     }
   }, [selectedColor, brushSize, onAddMark, onAddToStroke, modelRef]);

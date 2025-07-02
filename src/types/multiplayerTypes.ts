@@ -1,11 +1,17 @@
-
 import * as THREE from 'three';
 import { Room } from 'colyseus.js';
-import { SurfaceDrawingPoint } from '@/utils/surfaceCoordinates';
+
+export interface WorldDrawingPoint {
+  id: string;
+  worldPosition: { x: number; y: number; z: number };
+  bodyPart: string;
+  color: string;
+  size: number;
+}
 
 export interface DrawingStroke {
   id: string;
-  points: SurfaceDrawingPoint[];
+  points: WorldDrawingPoint[];
   playerId: string;
 }
 

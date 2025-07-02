@@ -1,7 +1,7 @@
 
 import { useRef, useCallback } from 'react';
 import { ServerClass } from '../services/ServerClass';
-import { SurfaceDrawingPoint } from '@/utils/surfaceCoordinates';
+import { WorldDrawingPoint } from '@/types/multiplayerTypes';
 import { DrawingStroke } from '@/types/multiplayerTypes';
 
 export const useMultiplayerDrawing = (
@@ -9,7 +9,7 @@ export const useMultiplayerDrawing = (
   isConnected: boolean,
   currentPlayerId: string | null
 ) => {
-  const drawingStrokeRef = useRef<SurfaceDrawingPoint[]>([]);
+  const drawingStrokeRef = useRef<WorldDrawingPoint[]>([]);
 
   const broadcastDrawingStroke = useCallback((stroke: Omit<DrawingStroke, 'playerId'>) => {
     if (room && isConnected) {
@@ -26,14 +26,14 @@ export const useMultiplayerDrawing = (
     drawingStrokeRef.current = [];
   }, []);
 
-  const addToDrawingStroke = useCallback((surfacePoint: SurfaceDrawingPoint) => {
-    console.log('🎨 Adding surface point to stroke:', surfacePoint);
-    drawingStrokeRef.current.push(surfacePoint);
+  const addToDrawingStroke = useCallback((worldPoint: WorldDrawingPoint) => {
+    console.log('🎨 Adding world point to stroke:', worldPoint);
+    drawingStrokeRef.current.push(worldPoint);
   }, []);
 
   const finishDrawingStroke = useCallback(() => {
     if (drawingStrokeRef.current.length > 0) {
-      console.log('🎨 Finishing stroke with', drawingStrokeRef.current.length, 'surface points');
+      console.log('🎨 Finishing stroke with', drawingStrokeRef.current.length, 'world points');
       const stroke: Omit<DrawingStroke, 'playerId'> = {
         id: `stroke-${Date.now()}-${Math.random()}`,
         points: [...drawingStrokeRef.current]

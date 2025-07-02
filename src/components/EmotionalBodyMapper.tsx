@@ -1,4 +1,3 @@
-
 import React, { useRef, useCallback } from 'react';
 import { BodyMapperCanvas } from './bodyMapper/BodyMapperCanvas';
 import { BodyMapperControls } from './bodyMapper/BodyMapperControls';
@@ -9,7 +8,7 @@ import { useBodyMapperState } from '@/hooks/useBodyMapperState';
 import { useMultiplayer } from '@/hooks/useMultiplayer';
 import { SensationMark } from '@/types/bodyMapperTypes';
 import * as THREE from 'three';
-import { SurfaceDrawingPoint } from '@/utils/surfaceCoordinates';
+import { SurfaceDrawingPoint, WorldDrawingPoint } from '@/utils/surfaceCoordinates';
 
 interface EmotionalBodyMapperProps {
   roomId: string | null;
@@ -95,9 +94,9 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     }
   }, [clearAll, multiplayer]);
 
-  const handleAddToDrawingStroke = useCallback((surfacePoint: SurfaceDrawingPoint) => {
+  const handleAddToDrawingStroke = useCallback((worldPoint: WorldDrawingPoint) => {
     if (multiplayer.isConnected) {
-      multiplayer.addToDrawingStroke(surfacePoint);
+      multiplayer.addToDrawingStroke(worldPoint);
     }
   }, [multiplayer]);
 
