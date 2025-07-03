@@ -1,15 +1,13 @@
-import React, { useRef, useCallback } from 'react';
-import { BodyMapperCanvas } from './bodyMapper/BodyMapperCanvas';
-import { BodyMapperControls } from './bodyMapper/BodyMapperControls';
+
+import React, { useRef } from 'react';
 import { TopBanner } from './bodyMapper/TopBanner';
-import { ControlButtons } from './bodyMapper/ControlButtons';
 import { MultiplayerMessageHandler } from './bodyMapper/MultiplayerMessageHandler';
+import { BodyMapperLayout } from './bodyMapper/BodyMapperLayout';
 import { useEnhancedBodyMapperState } from '@/hooks/useEnhancedBodyMapperState';
 import { useMultiplayer } from '@/hooks/useMultiplayer';
-import { SensationMark } from '@/types/bodyMapperTypes';
-import { DrawingStroke, DrawingMark } from '@/types/actionHistoryTypes';
+import { useMultiplayerDrawingHandlers } from '@/hooks/useMultiplayerDrawingHandlers';
+import { useRotationHandlers } from '@/hooks/useRotationHandlers';
 import * as THREE from 'three';
-import { WorldDrawingPoint } from '@/types/multiplayerTypes';
 
 interface EmotionalBodyMapperProps {
   roomId: string | null;
@@ -20,10 +18,8 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
   const modelRef = useRef<THREE.Group>(null);
   const controlsRef = useRef<any>(null);
 
-  // Generate a unique user ID for this session
   const currentUserId = React.useMemo(() => `user-${Date.now()}-${Math.random()}`, []);
 
-  // Use the enhanced hook for state management with user ID
   const {
     mode,
     setMode,
@@ -49,205 +45,33 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     restoreStroke
   } = useEnhancedBodyMapperState({ currentUserId });
 
-  // Initialize multiplayer
   const multiplayer = useMultiplayer(roomId);
 
-  // Handle emotion updates and broadcast to multiplayer
-  const handleEmotionsUpdate = useCallback((updateData: any) => {
-    if (multiplayer.isConnected && multiplayer.room) {
-      multiplayer.room.send('broadcast', {
-        type: 'emotionUpdate',
-        data: updateData
-      });
-    }
-  }, [multiplayer]);
+  const {
+    handleEmotionsUpdate,
+    handleBodyPartClick,
+    handleIncomingBodyPartFill,
+    handleIncomingDrawingStroke,
+    handleSensationClick,
+    handleResetAll,
+    handleAddToDrawingStroke,
+    handleDrawingStrokeStart,
+    handleDrawingStrokeComplete
+  } = useMultiplayerDrawingHandlers({
+    multiplayer,
+    handleStartDrawing,
+    handleFinishDrawing,
+    baseHandleBodyPartClick,
+    restoreStroke,
+    modelRef,
+    clearAll
+  });
 
-  // Synchronized rotation handlers that broadcast to all users
-  const handleRotateLeft = useCallback(() => {
-    setRotation(prev => prev - Math.PI / 2);
-    
-    // Broadcast rotation to all users
-    if (multiplayer.isConnected && multiplayer.room) {
-      multiplayer.room.send('broadcast', {
-        type: 'modelRotation',
-        data: { direction: 'left' }
-      });
-    }
-  }, [setRotation, multiplayer]);
+  const { handleRotateLeft, handleRotateRight } = useRotationHandlers({ 
+    setRotation, 
+    multiplayer 
+  });
 
-  const handleRotateRight = useCallback(() => {
-    setRotation(prev => prev + Math.PI / 2);
-    
-    // Broadcast rotation to all users
-    if (multiplayer.isConnected && multiplayer.room) {
-      multiplayer.room.send('broadcast', {
-        type: 'modelRotation',
-        data: { direction: 'right' }
-      });
-    }
-  }, [setRotation, multiplayer]);
-
-  // Enhanced handlers that include multiplayer broadcasting
-  const handleBodyPartClick = useCallback((partName: string, color: string) => {
-    baseHandleBodyPartClick(partName, color);
-    
-    // Broadcast to multiplayer
-    if (multiplayer.isConnected) {
-      multiplayer.broadcastBodyPartFill({ partName, color });
-    }
-  }, [baseHandleBodyPartClick, multiplayer]);
-
-  // Handler for incoming multiplayer body part fills
-  const handleIncomingBodyPartFill = useCallback((partName: string, color: string) => {
-    console.log('📨 Handling incoming body part fill:', partName, color);
-    // Use the same handler but without broadcasting to avoid loops
-    baseHandleBodyPartClick(partName, color);
-  }, [baseHandleBodyPartClick]);
-
-  // Handler for incoming multiplayer drawing strokes
-  const handleIncomingDrawingStroke = useCallback((stroke: any) => {
-    console.log('📨 Handling incoming drawing stroke:', stroke);
-    
-    if (!stroke || !stroke.points || !Array.isArray(stroke.points)) {
-      console.warn('⚠️ Invalid stroke data:', stroke);
-      return;
-    }
-    
-    // Convert world positions to local positions and create all marks
-    const modelGroup = modelRef.current;
-    if (modelGroup) {
-      console.log('🎨 Processing', stroke.points.length, 'points from incoming stroke');
-      
-      const marks: DrawingMark[] = [];
-      
-      // Process each point and convert to DrawingMark
-      for (let i = 0; i < stroke.points.length; i++) {
-        const currentPoint: WorldDrawingPoint = stroke.points[i];
-        const worldPos = new THREE.Vector3(
-          currentPoint.worldPosition.x,
-          currentPoint.worldPosition.y,
-          currentPoint.worldPosition.z
-        );
-        
-        const localPos = new THREE.Vector3();
-        modelGroup.worldToLocal(localPos.copy(worldPos));
-        
-        // Create DrawingMark with proper structure
-        const mark: DrawingMark = {
-          id: currentPoint.id,
-          position: localPos,
-          color: currentPoint.color,
-          size: currentPoint.size,
-          strokeId: stroke.id,
-          timestamp: Date.now(),
-          userId: stroke.playerId // Preserve the original sender's ID
-        };
-        
-        marks.push(mark);
-        
-        // Add interpolated marks between points if they're on the same body part
-        if (i < stroke.points.length - 1) {
-          const nextPoint: WorldDrawingPoint = stroke.points[i + 1];
-          const nextWorldPos = new THREE.Vector3(
-            nextPoint.worldPosition.x,
-            nextPoint.worldPosition.y,
-            nextPoint.worldPosition.z
-          );
-          
-          if (currentPoint.bodyPart === nextPoint.bodyPart) {
-            const distance = worldPos.distanceTo(nextWorldPos);
-            const steps = Math.max(1, Math.floor(distance * 50));
-            
-            if (steps > 1) {
-              for (let j = 1; j < steps; j++) {
-                const t = j / steps;
-                const interpolatedWorldPos = new THREE.Vector3().lerpVectors(worldPos, nextWorldPos, t);
-                const interpolatedLocalPos = new THREE.Vector3();
-                modelGroup.worldToLocal(interpolatedLocalPos.copy(interpolatedWorldPos));
-                
-                const interpolatedMark: DrawingMark = {
-                  id: `interpolated-${currentPoint.id}-${j}`,
-                  position: interpolatedLocalPos,
-                  color: currentPoint.color,
-                  size: currentPoint.size,
-                  strokeId: stroke.id,
-                  timestamp: Date.now(),
-                  userId: stroke.playerId
-                };
-                marks.push(interpolatedMark);
-              }
-            }
-          }
-        }
-      }
-      
-      // Create a complete DrawingStroke object
-      const completeStroke: DrawingStroke = {
-        id: stroke.id,
-        marks: marks,
-        startTime: Date.now() - 1000, // Approximate start time
-        endTime: Date.now(),
-        brushSize: stroke.points[0]?.size || 3,
-        color: stroke.points[0]?.color || '#ff6b6b',
-        isComplete: true,
-        userId: stroke.playerId
-      };
-      
-      // Use restoreStroke to add the complete stroke
-      restoreStroke(completeStroke);
-      
-      console.log(`✅ Successfully restored incoming drawing stroke with ${marks.length} marks`);
-    }
-  }, [modelRef, restoreStroke]);
-
-  const handleSensationClick = useCallback((position: THREE.Vector3, sensation: { icon: string; color: string; name: string }) => {
-    // For now, just log - sensation functionality needs to be integrated with enhanced state
-    console.log('Sensation clicked:', position, sensation);
-    
-    // Broadcast to multiplayer
-    if (multiplayer.isConnected) {
-      const sensationMark = {
-        id: `sensation-${Date.now()}-${Math.random()}`,
-        position,
-        icon: sensation.icon,
-        color: sensation.color,
-        size: 0.1
-      };
-      multiplayer.broadcastSensation(sensationMark);
-    }
-  }, [multiplayer]);
-
-  // Enhanced reset handler that broadcasts to all users
-  const handleResetAll = useCallback(() => {
-    clearAll();
-    
-    // Broadcast reset to all connected users
-    if (multiplayer.isConnected) {
-      multiplayer.broadcastReset();
-    }
-  }, [clearAll, multiplayer]);
-
-  const handleAddToDrawingStroke = useCallback((worldPoint: WorldDrawingPoint) => {
-    if (multiplayer.isConnected) {
-      multiplayer.addToDrawingStroke(worldPoint);
-    }
-  }, [multiplayer]);
-
-  const handleDrawingStrokeStart = useCallback(() => {
-    handleStartDrawing();
-    if (multiplayer.isConnected) {
-      multiplayer.startDrawingStroke();
-    }
-  }, [handleStartDrawing, multiplayer]);
-
-  const handleDrawingStrokeComplete = useCallback(() => {
-    handleFinishDrawing();
-    if (multiplayer.isConnected) {
-      multiplayer.finishDrawingStroke();
-    }
-  }, [handleFinishDrawing, multiplayer]);
-
-  // Convert drawing marks to legacy format for canvas
   const legacyDrawingMarks = drawingMarks.map(mark => ({
     id: mark.id,
     position: mark.position,
@@ -263,65 +87,41 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
         isConnecting={multiplayer.isConnecting}
       />
 
-      <div className="game-container">
-        {/* Canvas Area */}
-        <div className="canvas-container">
-          <div ref={canvasRef} style={{ width: '100%', height: '100%' }}>
-            <BodyMapperCanvas
-              mode={mode}
-              selectedColor={selectedColor}
-              brushSize={brushSize[0]}
-              selectedSensation={selectedSensation}
-              drawingMarks={legacyDrawingMarks}
-              sensationMarks={[]} // Empty for now
-              effects={[]} // Empty for now
-              bodyPartColors={bodyPartColors}
-              rotation={rotation}
-              modelRef={modelRef}
-              onAddDrawingMark={(mark) => handleAddDrawingMark(mark)}
-              onDrawingStrokeStart={handleDrawingStrokeStart}
-              onDrawingStrokeComplete={handleDrawingStrokeComplete}
-              onAddToDrawingStroke={handleAddToDrawingStroke}
-              onBodyPartClick={handleBodyPartClick}
-              onSensationClick={handleSensationClick}
-              onRotateLeft={handleRotateLeft}
-              onRotateRight={handleRotateRight}
-            />
-          </div>
-          
-          <ControlButtons 
-            onResetAll={handleResetAll}
-            onUndo={handleUndo}
-            onRedo={handleRedo}
-            canUndo={canUndo}
-            canRedo={canRedo}
-            canvasRef={canvasRef}
-          />
-        </div>
-
-        {/* Controls Area */}
-        <div className="controls-container">
-          <div id="rightColumn">
-            <BodyMapperControls
-              ref={controlsRef}
-              mode={mode}
-              selectedColor={selectedColor}
-              brushSize={brushSize}
-              selectedSensation={selectedSensation}
-              onModeChange={setMode}
-              onColorChange={setSelectedColor}
-              onBrushSizeChange={setBrushSize}
-              onSensationChange={setSelectedSensation}
-              onEmotionsUpdate={handleEmotionsUpdate}
-            />
-          </div>
-        </div>
-      </div>
+      <BodyMapperLayout
+        mode={mode}
+        selectedColor={selectedColor}
+        brushSize={brushSize}
+        selectedSensation={selectedSensation}
+        drawingMarks={legacyDrawingMarks}
+        bodyPartColors={bodyPartColors}
+        rotation={rotation}
+        modelRef={modelRef}
+        controlsRef={controlsRef}
+        canvasRef={canvasRef}
+        canUndo={canUndo}
+        canRedo={canRedo}
+        setMode={setMode}
+        setSelectedColor={setSelectedColor}
+        setBrushSize={setBrushSize}
+        setSelectedSensation={setSelectedSensation}
+        onAddDrawingMark={handleAddDrawingMark}
+        onDrawingStrokeStart={handleDrawingStrokeStart}
+        onDrawingStrokeComplete={handleDrawingStrokeComplete}
+        onAddToDrawingStroke={handleAddToDrawingStroke}
+        onBodyPartClick={handleBodyPartClick}
+        onSensationClick={handleSensationClick}
+        onRotateLeft={handleRotateLeft}
+        onRotateRight={handleRotateRight}
+        onResetAll={handleResetAll}
+        onUndo={handleUndo}
+        onRedo={handleRedo}
+        onEmotionsUpdate={handleEmotionsUpdate}
+      />
 
       <MultiplayerMessageHandler
         room={multiplayer.room}
         modelRef={modelRef}
-        setDrawingMarks={handleIncomingDrawingStroke} // Now properly connected!
+        setDrawingMarks={handleIncomingDrawingStroke}
         setSensationMarks={() => {}}
         setBodyPartColors={handleIncomingBodyPartFill}
         setRotation={setRotation}
