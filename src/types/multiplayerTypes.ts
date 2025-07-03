@@ -1,3 +1,4 @@
+
 import * as THREE from 'three';
 import { Room } from 'colyseus.js';
 
@@ -7,6 +8,27 @@ export interface WorldDrawingPoint {
   bodyPart: string;
   color: string;
   size: number;
+}
+
+export interface StrokeKeyPoint {
+  id: string;
+  worldPosition: { x: number; y: number; z: number };
+  bodyPart: string;
+  timestamp: number;
+  isDirectionChange?: boolean;
+}
+
+export interface OptimizedDrawingStroke {
+  id: string;
+  keyPoints: StrokeKeyPoint[];
+  metadata: {
+    color: string;
+    size: number;
+    startTime: number;
+    endTime: number;
+    totalLength: number;
+  };
+  playerId: string;
 }
 
 export interface DrawingStroke {
@@ -39,7 +61,7 @@ export interface PlayerCursor {
 
 export interface MultiplayerState {
   isConnected: boolean;
-  isConnecting: boolean;
+  isConnected: boolean;
   room: Room | null;
   players: Map<string, PlayerCursor>;
   currentPlayerId: string | null;

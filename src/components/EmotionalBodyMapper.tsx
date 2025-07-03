@@ -52,6 +52,7 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     handleBodyPartClick,
     handleIncomingBodyPartFill,
     handleIncomingDrawingStroke,
+    handleIncomingOptimizedStroke,
     handleSensationClick,
     handleResetAll,
     handleAddToDrawingStroke,
@@ -127,6 +128,7 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
         setRotation={setRotation}
         clearAll={clearAll}
         controlsRef={controlsRef}
+        onIncomingOptimizedStroke={handleIncomingOptimizedStroke}
       />
     </div>
   );

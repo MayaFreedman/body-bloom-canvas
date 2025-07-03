@@ -1,17 +1,59 @@
 
 import { useRef, useCallback } from 'react';
 import { ServerClass } from '../services/ServerClass';
-import { WorldDrawingPoint } from '@/types/multiplayerTypes';
-import { DrawingStroke } from '@/types/multiplayerTypes';
+import { WorldDrawingPoint, OptimizedDrawingStroke } from '@/types/multiplayerTypes';
+import { useOptimizedStrokeProcessing } from './useOptimizedStrokeProcessing';
 
 export const useMultiplayerDrawing = (
   room: any,
   isConnected: boolean,
   currentPlayerId: string | null
 ) => {
-  const drawingStrokeRef = useRef<WorldDrawingPoint[]>([]);
+  const optimizedProcessing = useOptimizedStrokeProcessing();
+  const currentStrokeMetadata = useRef<{ color: string; size: number } | null>(null);
 
-  const broadcastDrawingStroke = useCallback((stroke: Omit<DrawingStroke, 'playerId'>) => {
+  const broadcastDrawingStroke = useCallback((stroke: Omit<OptimizedDrawingStroke, 'playerId'>) => {
+    if (room && isConnected) {
+      const server = ServerClass.getInstance();
+      server.sendEvent({
+        type: 'optimizedDrawingStroke',
+        action: { ...stroke, playerId: currentPlayerId }
+      });
+    }
+  }, [room, isConnected, currentPlayerId]);
+
+  const startDrawingStroke = useCallback((color: string, size: number) => {
+    console.log('🎨 Starting optimized drawing stroke');
+    currentStrokeMetadata.current = { color, size };
+    optimizedProcessing.resetStroke();
+  }, [optimizedProcessing]);
+
+  const addToDrawingStroke = useCallback((worldPoint: WorldDrawingPoint) => {
+    console.log('🎨 Adding key point to optimized stroke:', worldPoint);
+    const worldPosition = new THREE.Vector3(
+      worldPoint.worldPosition.x,
+      worldPoint.worldPosition.y,
+      worldPoint.worldPosition.z
+    );
+    optimizedProcessing.addStrokePoint(worldPosition, worldPoint.bodyPart);
+  }, [optimizedProcessing]);
+
+  const finishDrawingStroke = useCallback(() => {
+    if (!currentStrokeMetadata.current) return;
+    
+    const { color, size } = currentStrokeMetadata.current;
+    const optimizedStroke = optimizedProcessing.finalizeStroke(color, size);
+    
+    if (optimizedStroke) {
+      console.log('🎨 Finishing optimized stroke with', optimizedStroke.keyPoints.length, 'key points');
+      broadcastDrawingStroke(optimizedStroke);
+    }
+    
+    currentStrokeMetadata.current = null;
+  }, [optimizedProcessing, broadcastDrawingStroke]);
+
+  // Legacy support for existing DrawingStroke format
+  const broadcastLegacyDrawingStroke = useCallback((stroke: Omit<{ id: string; points: WorldDrawingPoint[] }, 'playerId'>) => {
     if (room && isConnected) {
       const server = ServerClass.getInstance();
       server.sendEvent({
@@ -21,32 +63,12 @@ export const useMultiplayerDrawing = (
     }
   }, [room, isConnected, currentPlayerId]);
 
-  const startDrawingStroke = useCallback(() => {
-    console.log('🎨 Starting drawing stroke');
-    drawingStrokeRef.current = [];
-  }, []);
-
-  const addToDrawingStroke = useCallback((worldPoint: WorldDrawingPoint) => {
-    console.log('🎨 Adding world point to stroke:', worldPoint);
-    drawingStrokeRef.current.push(worldPoint);
-  }, []);
-
-  const finishDrawingStroke = useCallback(() => {
-    if (drawingStrokeRef.current.length > 0) {
-      console.log('🎨 Finishing stroke with', drawingStrokeRef.current.length, 'world points');
-      const stroke: Omit<DrawingStroke, 'playerId'> = {
-        id: `stroke-${Date.now()}-${Math.random()}`,
-        points: [...drawingStrokeRef.current]
-      };
-      broadcastDrawingStroke(stroke);
-      drawingStrokeRef.current = [];
-    }
-  }, [broadcastDrawingStroke]);
-
   return {
     startDrawingStroke,
     addToDrawingStroke,
     finishDrawingStroke,
-    broadcastDrawingStroke
+    broadcastDrawingStroke,
+    broadcastLegacyDrawingStroke,
+    reconstructStroke: optimizedProcessing.reconstructStroke
   };
 };

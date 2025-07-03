@@ -2,7 +2,7 @@
 import { useCallback } from 'react';
 import { useMultiplayer } from './useMultiplayer';
 import { DrawingMark } from '@/types/actionHistoryTypes';
-import { WorldDrawingPoint } from '@/types/multiplayerTypes';
+import { WorldDrawingPoint, OptimizedDrawingStroke } from '@/types/multiplayerTypes';
 import * as THREE from 'three';
 
 interface UseMultiplayerDrawingHandlersProps {
@@ -46,8 +46,47 @@ export const useMultiplayerDrawingHandlers = ({
     baseHandleBodyPartClick(partName, color);
   }, [baseHandleBodyPartClick]);
 
+  const handleIncomingOptimizedStroke = useCallback((optimizedStroke: OptimizedDrawingStroke) => {
+    console.log('📨 Handling incoming optimized stroke:', optimizedStroke);
+    
+    const modelGroup = modelRef.current;
+    if (modelGroup && multiplayer.reconstructStroke) {
+      const reconstructedPoints = multiplayer.reconstructStroke(optimizedStroke);
+      console.log('🎨 Reconstructed', reconstructedPoints.length, 'points from', optimizedStroke.keyPoints.length, 'key points');
+      
+      const marks: DrawingMark[] = reconstructedPoints.map((worldPos, index) => {
+        const localPos = new THREE.Vector3();
+        modelGroup.worldToLocal(localPos.copy(worldPos));
+        
+        return {
+          id: `reconstructed-${optimizedStroke.id}-${index}`,
+          position: localPos,
+          color: optimizedStroke.metadata.color,
+          size: optimizedStroke.metadata.size,
+          strokeId: optimizedStroke.id,
+          timestamp: Date.now() + index, // Slight offset to maintain order
+          userId: optimizedStroke.playerId
+        };
+      });
+      
+      const completeStroke = {
+        id: optimizedStroke.id,
+        marks: marks,
+        startTime: optimizedStroke.metadata.startTime,
+        endTime: optimizedStroke.metadata.endTime,
+        brushSize: optimizedStroke.metadata.size,
+        color: optimizedStroke.metadata.color,
+        isComplete: true,
+        userId: optimizedStroke.playerId
+      };
+      
+      restoreStroke(completeStroke);
+      console.log(`✅ Successfully restored optimized stroke with ${marks.length} marks`);
+    }
+  }, [modelRef, restoreStroke, multiplayer]);
+
   const handleIncomingDrawingStroke = useCallback((stroke: any) => {
-    console.log('📨 Handling incoming drawing stroke:', stroke);
+    console.log('📨 Handling incoming legacy drawing stroke:', stroke);
     
     if (!stroke || !stroke.points || !Array.isArray(stroke.points)) {
       console.warn('⚠️ Invalid stroke data:', stroke);
@@ -56,7 +95,7 @@ export const useMultiplayerDrawingHandlers = ({
     
     const modelGroup = modelRef.current;
     if (modelGroup) {
-      console.log('🎨 Processing', stroke.points.length, 'points from incoming stroke');
+      console.log('🎨 Processing', stroke.points.length, 'points from incoming legacy stroke');
       
       const marks: DrawingMark[] = [];
       
@@ -131,7 +170,7 @@ export const useMultiplayerDrawingHandlers = ({
       
       restoreStroke(completeStroke);
       
-      console.log(`✅ Successfully restored incoming drawing stroke with ${marks.length} marks`);
+      console.log(`✅ Successfully restored incoming legacy drawing stroke with ${marks.length} marks`);
     }
   }, [modelRef, restoreStroke]);
 
@@ -167,7 +206,10 @@ export const useMultiplayerDrawingHandlers = ({
   const handleDrawingStrokeStart = useCallback(() => {
     handleStartDrawing();
     if (multiplayer.isConnected) {
-      multiplayer.startDrawingStroke();
+      // Get current drawing state to pass to multiplayer
+      const currentColor = '#ff6b6b'; // This should come from the actual state
+      const currentSize = 3; // This should come from the actual state
+      multiplayer.startDrawingStroke(currentColor, currentSize);
     }
   }, [handleStartDrawing, multiplayer]);
 
@@ -183,6 +225,7 @@ export const useMultiplayerDrawingHandlers = ({
     handleBodyPartClick,
     handleIncomingBodyPartFill,
     handleIncomingDrawingStroke,
+    handleIncomingOptimizedStroke,
     handleSensationClick,
     handleResetAll,
     handleAddToDrawingStroke,

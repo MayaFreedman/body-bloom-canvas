@@ -1,19 +1,19 @@
-
 import React, { useEffect } from 'react';
 import { Room } from 'colyseus.js';
 import { DrawingMark, SensationMark } from '@/types/bodyMapperTypes';
-import { WorldDrawingPoint } from '@/types/multiplayerTypes';
+import { WorldDrawingPoint, OptimizedDrawingStroke } from '@/types/multiplayerTypes';
 import * as THREE from 'three';
 
 interface MultiplayerMessageHandlerProps {
   room: Room | null;
   modelRef: React.RefObject<THREE.Group>;
-  setDrawingMarks: (stroke: any) => void; // Changed to handler function
+  setDrawingMarks: (stroke: any) => void;
   setSensationMarks: React.Dispatch<React.SetStateAction<SensationMark[]>>;
-  setBodyPartColors: (partName: string, color: string) => void; // Changed to handler function
+  setBodyPartColors: (partName: string, color: string) => void;
   setRotation: React.Dispatch<React.SetStateAction<number>>;
   clearAll: () => void;
   controlsRef: React.RefObject<any>;
+  onIncomingOptimizedStroke?: (stroke: OptimizedDrawingStroke) => void;
 }
 
 export const MultiplayerMessageHandler = ({
@@ -24,7 +24,8 @@ export const MultiplayerMessageHandler = ({
   setBodyPartColors,
   setRotation,
   clearAll,
-  controlsRef
+  controlsRef,
+  onIncomingOptimizedStroke
 }: MultiplayerMessageHandlerProps) => {
   useEffect(() => {
     if (!room) return;
@@ -61,16 +62,29 @@ export const MultiplayerMessageHandler = ({
             }
             break;
           }
+          case 'optimizedDrawingStroke': {
+            const optimizedStroke = messageData as OptimizedDrawingStroke;
+            console.log('🎨 Processing optimized drawing stroke:', optimizedStroke);
+            
+            if (!optimizedStroke || !optimizedStroke.keyPoints || !Array.isArray(optimizedStroke.keyPoints)) {
+              console.warn('⚠️ Invalid optimized stroke data:', optimizedStroke);
+              return;
+            }
+            
+            if (onIncomingOptimizedStroke) {
+              onIncomingOptimizedStroke(optimizedStroke);
+            }
+            break;
+          }
           case 'drawingStroke': {
             const stroke = messageData;
-            console.log('🎨 Processing drawing stroke via handler:', stroke);
+            console.log('🎨 Processing legacy drawing stroke via handler:', stroke);
             
             if (!stroke || !stroke.points || !Array.isArray(stroke.points)) {
               console.warn('⚠️ Invalid stroke data:', stroke);
               return;
             }
             
-            // Use the handler function instead of direct state manipulation
             setDrawingMarks(stroke);
             break;
           }
@@ -111,7 +125,6 @@ export const MultiplayerMessageHandler = ({
             }
             
             try {
-              // Use the handler function instead of direct state update
               setBodyPartColors(fill.partName, fill.color);
               console.log('✅ Successfully applied body part fill via handler:', fill.partName, fill.color);
             } catch (fillError) {
@@ -141,7 +154,7 @@ export const MultiplayerMessageHandler = ({
         console.error('❌ Error cleaning up broadcast listener:', error);
       }
     };
-  }, [room, setDrawingMarks, setSensationMarks, setBodyPartColors, setRotation, clearAll, modelRef, controlsRef]);
+  }, [room, setDrawingMarks, setSensationMarks, setBodyPartColors, setRotation, clearAll, modelRef, controlsRef, onIncomingOptimizedStroke]);
 
   return null;
 };
