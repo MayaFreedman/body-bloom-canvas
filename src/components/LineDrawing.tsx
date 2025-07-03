@@ -33,9 +33,10 @@ export const LineDrawing = ({ strokes }: LineDrawingProps) => {
   return (
     <>
       {lineGeometries.map((line) => (
-        <line key={line.id} geometry={line.geometry}>
-          <lineBasicMaterial color={line.color} linewidth={line.width} />
-        </line>
+        <primitive key={line.id} object={new THREE.Line(line.geometry, new THREE.LineBasicMaterial({ 
+          color: line.color,
+          linewidth: line.width 
+        }))} />
       ))}
     </>
   );
