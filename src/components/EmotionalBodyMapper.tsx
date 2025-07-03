@@ -7,6 +7,7 @@ import { MultiplayerMessageHandler } from './bodyMapper/MultiplayerMessageHandle
 import { useEnhancedBodyMapperState } from '@/hooks/useEnhancedBodyMapperState';
 import { useMultiplayer } from '@/hooks/useMultiplayer';
 import { SensationMark } from '@/types/bodyMapperTypes';
+import { DrawingStroke, DrawingMark } from '@/types/actionHistoryTypes';
 import * as THREE from 'three';
 import { WorldDrawingPoint } from '@/types/multiplayerTypes';
 
@@ -44,7 +45,8 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     handleRedo,
     clearAll,
     canUndo,
-    canRedo
+    canRedo,
+    restoreStroke
   } = useEnhancedBodyMapperState({ currentUserId });
 
   // Initialize multiplayer
@@ -111,12 +113,14 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
       return;
     }
     
-    // Convert world positions to local positions and create all marks at once
+    // Convert world positions to local positions and create all marks
     const modelGroup = modelRef.current;
     if (modelGroup) {
       console.log('🎨 Processing', stroke.points.length, 'points from incoming stroke');
       
-      // Process each point and add it directly without creating a local stroke
+      const marks: DrawingMark[] = [];
+      
+      // Process each point and convert to DrawingMark
       for (let i = 0; i < stroke.points.length; i++) {
         const currentPoint: WorldDrawingPoint = stroke.points[i];
         const worldPos = new THREE.Vector3(
@@ -128,20 +132,20 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
         const localPos = new THREE.Vector3();
         modelGroup.worldToLocal(localPos.copy(worldPos));
         
-        // Create mark directly without going through stroke manager
-        // This preserves the original user context
-        const mark = {
+        // Create DrawingMark with proper structure
+        const mark: DrawingMark = {
           id: currentPoint.id,
           position: localPos,
           color: currentPoint.color,
-          size: currentPoint.size
+          size: currentPoint.size,
+          strokeId: stroke.id,
+          timestamp: Date.now(),
+          userId: stroke.playerId // Preserve the original sender's ID
         };
         
-        // Add the mark directly - this bypasses the local user stroke system
-        // and adds the mark as-is from the remote user
-        handleAddDrawingMark(mark);
+        marks.push(mark);
         
-        // Interpolate to the next point if it exists and is on the same body part
+        // Add interpolated marks between points if they're on the same body part
         if (i < stroke.points.length - 1) {
           const nextPoint: WorldDrawingPoint = stroke.points[i + 1];
           const nextWorldPos = new THREE.Vector3(
@@ -150,35 +154,51 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
             nextPoint.worldPosition.z
           );
           
-          // Only interpolate if both points are on the same body part
           if (currentPoint.bodyPart === nextPoint.bodyPart) {
             const distance = worldPos.distanceTo(nextWorldPos);
             const steps = Math.max(1, Math.floor(distance * 50));
             
             if (steps > 1) {
-              // Add interpolated marks
               for (let j = 1; j < steps; j++) {
                 const t = j / steps;
                 const interpolatedWorldPos = new THREE.Vector3().lerpVectors(worldPos, nextWorldPos, t);
                 const interpolatedLocalPos = new THREE.Vector3();
                 modelGroup.worldToLocal(interpolatedLocalPos.copy(interpolatedWorldPos));
                 
-                const interpolatedMark = {
+                const interpolatedMark: DrawingMark = {
                   id: `interpolated-${currentPoint.id}-${j}`,
                   position: interpolatedLocalPos,
                   color: currentPoint.color,
-                  size: currentPoint.size
+                  size: currentPoint.size,
+                  strokeId: stroke.id,
+                  timestamp: Date.now(),
+                  userId: stroke.playerId
                 };
-                handleAddDrawingMark(interpolatedMark);
+                marks.push(interpolatedMark);
               }
             }
           }
         }
       }
       
-      console.log(`✅ Successfully processed incoming drawing stroke with ${stroke.points.length} points`);
+      // Create a complete DrawingStroke object
+      const completeStroke: DrawingStroke = {
+        id: stroke.id,
+        marks: marks,
+        startTime: Date.now() - 1000, // Approximate start time
+        endTime: Date.now(),
+        brushSize: stroke.points[0]?.size || 3,
+        color: stroke.points[0]?.color || '#ff6b6b',
+        isComplete: true,
+        userId: stroke.playerId
+      };
+      
+      // Use restoreStroke to add the complete stroke
+      restoreStroke(completeStroke);
+      
+      console.log(`✅ Successfully restored incoming drawing stroke with ${marks.length} marks`);
     }
-  }, [handleAddDrawingMark, modelRef]);
+  }, [modelRef, restoreStroke]);
 
   const handleSensationClick = useCallback((position: THREE.Vector3, sensation: { icon: string; color: string; name: string }) => {
     // For now, just log - sensation functionality needs to be integrated with enhanced state

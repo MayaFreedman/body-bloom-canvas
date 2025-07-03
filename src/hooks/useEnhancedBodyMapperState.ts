@@ -105,6 +105,9 @@ export const useEnhancedBodyMapperState = ({ currentUserId }: UseEnhancedBodyMap
     
     // User-specific functions
     getUserMarks: strokeManager.getMarksByUser,
-    clearUserHistory: actionHistory.clearUserHistory
+    clearUserHistory: actionHistory.clearUserHistory,
+    
+    // Expose restoreStroke for multiplayer
+    restoreStroke: strokeManager.restoreStroke
   };
 };
