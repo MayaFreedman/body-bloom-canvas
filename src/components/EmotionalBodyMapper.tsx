@@ -201,7 +201,7 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
       <MultiplayerMessageHandler
         room={multiplayer.room}
         modelRef={modelRef}
-        setDrawingMarks={setLineStrokes}
+        setDrawingMarks={setLineStrokes as any}
         setSensationMarks={setSensationMarks}
         setBodyPartColors={setBodyPartColors}
         setRotation={setRotation}
