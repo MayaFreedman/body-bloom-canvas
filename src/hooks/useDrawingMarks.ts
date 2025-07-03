@@ -28,7 +28,7 @@ export const useDrawingMarks = ({
   getBodyPartAtPosition
 }: UseDrawingMarksProps) => {
 
-  const addMarkAtPosition = useCallback((worldPosition: THREE.Vector3, intersect?: THREE.Intersection) => {
+  const addMarkAtPosition = useCallback((worldPosition: THREE.Vector3, intersect?: THREE.Intersection, isInterpolated: boolean = false) => {
     const modelGroup = modelRef?.current;
     if (modelGroup) {
       const localPosition = new THREE.Vector3();
@@ -43,7 +43,9 @@ export const useDrawingMarks = ({
       };
       onAddMark(mark);
       
-      if (onAddToStroke && intersect && intersect.object instanceof THREE.Mesh) {
+      // Only send network updates for actual user clicks, not interpolated points
+      // This dramatically reduces network traffic
+      if (onAddToStroke && intersect && intersect.object instanceof THREE.Mesh && !isInterpolated) {
         const worldPoint: WorldDrawingPoint = {
           id: mark.id,
           worldPosition: {
@@ -68,10 +70,11 @@ export const useDrawingMarks = ({
 
     const distance = start.distanceTo(end);
     
-    // Inverse relationship: smaller brush size = more interpolation
-    // Map brush size (3-20) to interpolation multiplier (100-25)
-    const interpolationMultiplier = 125 - (brushSize * 5);
-    const steps = Math.max(1, Math.floor(distance * interpolationMultiplier));
+    // Smart interpolation: more for smaller brushes, but capped to prevent excessive marks
+    const baseMultiplier = Math.max(25, 125 - (brushSize * 5)); // Range: 25-100
+    const maxSteps = brushSize <= 5 ? 50 : brushSize <= 10 ? 30 : 15; // Adaptive cap
+    const calculatedSteps = Math.floor(distance * baseMultiplier);
+    const steps = Math.max(1, Math.min(maxSteps, calculatedSteps));
     
     for (let i = 1; i <= steps; i++) {
       const t = i / steps;
@@ -80,7 +83,8 @@ export const useDrawingMarks = ({
       // Validate that the interpolated position is still on the same body part
       const bodyPartAtInterpolated = getBodyPartAtPosition(interpolatedPosition);
       if (bodyPartAtInterpolated === startBodyPart) {
-        addMarkAtPosition(interpolatedPosition, endIntersect);
+        // Mark as interpolated to skip network updates
+        addMarkAtPosition(interpolatedPosition, endIntersect, true);
       }
     }
   }, [addMarkAtPosition, getBodyPartAtPosition, brushSize]);

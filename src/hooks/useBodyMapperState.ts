@@ -1,6 +1,6 @@
-
 import { useState, useCallback } from 'react';
 import { DrawingMark, SensationMark, Effect, BodyPartColors, BodyMapperMode, SelectedSensation } from '@/types/bodyMapperTypes';
+import { useDrawingOptimization } from './useDrawingOptimization';
 import * as THREE from 'three';
 
 export const useBodyMapperState = () => {
@@ -14,9 +14,21 @@ export const useBodyMapperState = () => {
   const [bodyPartColors, setBodyPartColors] = useState<BodyPartColors>({});
   const [rotation, setRotation] = useState(0);
 
+  // Add performance optimization
+  const optimization = useDrawingOptimization();
+
   const handleAddDrawingMark = useCallback((mark: DrawingMark) => {
-    setDrawingMarks(prev => [...prev, mark]);
-  }, []);
+    setDrawingMarks(prev => {
+      const newMarks = [...prev, mark];
+      
+      // Auto-optimize if we have too many marks
+      if (optimization.shouldTriggerCleanup(newMarks)) {
+        return optimization.optimizeMarks(newMarks);
+      }
+      
+      return newMarks;
+    });
+  }, [optimization]);
 
   const handleBodyPartClick = useCallback((partName: string, color: string) => {
     setBodyPartColors(prev => ({
