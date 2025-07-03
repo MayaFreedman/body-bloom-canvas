@@ -8,35 +8,13 @@ import * as THREE from 'three';
 interface MultiplayerMessageHandlerProps {
   room: Room | null;
   modelRef: React.RefObject<THREE.Group>;
-  setDrawingMarks: React.Dispatch<React.SetStateAction<DrawingMark[]>>;
+  setDrawingMarks: (stroke: any) => void; // Changed to handler function
   setSensationMarks: React.Dispatch<React.SetStateAction<SensationMark[]>>;
   setBodyPartColors: (partName: string, color: string) => void; // Changed to handler function
   setRotation: React.Dispatch<React.SetStateAction<number>>;
   clearAll: () => void;
   controlsRef: React.RefObject<any>;
 }
-
-// Helper function to interpolate between two world positions with body part validation
-const interpolateWorldPositions = (
-  start: THREE.Vector3, 
-  end: THREE.Vector3, 
-  startBodyPart: string,
-  endBodyPart: string,
-  steps: number = 10
-): THREE.Vector3[] => {
-  // Only interpolate if both points are on the same body part
-  if (startBodyPart !== endBodyPart) {
-    return [];
-  }
-
-  const positions: THREE.Vector3[] = [];
-  for (let i = 1; i < steps; i++) { // Skip first and last points as they're already processed
-    const t = i / steps;
-    const interpolatedPosition = new THREE.Vector3().lerpVectors(start, end, t);
-    positions.push(interpolatedPosition);
-  }
-  return positions;
-};
 
 export const MultiplayerMessageHandler = ({
   room,
@@ -85,86 +63,15 @@ export const MultiplayerMessageHandler = ({
           }
           case 'drawingStroke': {
             const stroke = messageData;
-            console.log('🎨 Processing world position drawing stroke:', stroke);
+            console.log('🎨 Processing drawing stroke via handler:', stroke);
             
             if (!stroke || !stroke.points || !Array.isArray(stroke.points)) {
               console.warn('⚠️ Invalid stroke data:', stroke);
               return;
             }
             
-            // Convert world positions to local positions and create all marks at once
-            const modelGroup = modelRef.current;
-            if (modelGroup) {
-              const newMarks: DrawingMark[] = [];
-              
-              // Process points and create marks with interpolation
-              for (let i = 0; i < stroke.points.length; i++) {
-                const currentPoint: WorldDrawingPoint = stroke.points[i];
-                const worldPos = new THREE.Vector3(
-                  currentPoint.worldPosition.x,
-                  currentPoint.worldPosition.y,
-                  currentPoint.worldPosition.z
-                );
-                
-                const localPos = new THREE.Vector3();
-                modelGroup.worldToLocal(localPos.copy(worldPos));
-                
-                // Add the current point
-                const mark: DrawingMark = {
-                  id: currentPoint.id,
-                  position: localPos,
-                  color: currentPoint.color,
-                  size: currentPoint.size
-                };
-                newMarks.push(mark);
-                
-                // Interpolate to the next point if it exists and is on the same body part
-                if (i < stroke.points.length - 1) {
-                  const nextPoint: WorldDrawingPoint = stroke.points[i + 1];
-                  const nextWorldPos = new THREE.Vector3(
-                    nextPoint.worldPosition.x,
-                    nextPoint.worldPosition.y,
-                    nextPoint.worldPosition.z
-                  );
-                  
-                  // Only interpolate if both points are on the same body part
-                  if (currentPoint.bodyPart === nextPoint.bodyPart) {
-                    const distance = worldPos.distanceTo(nextWorldPos);
-                    const steps = Math.max(1, Math.floor(distance * 50)); // Same interpolation density as local drawing
-                    
-                    if (steps > 1) {
-                      const interpolatedPositions = interpolateWorldPositions(
-                        worldPos, 
-                        nextWorldPos, 
-                        currentPoint.bodyPart,
-                        nextPoint.bodyPart,
-                        steps
-                      );
-                      
-                      // Add interpolated marks
-                      interpolatedPositions.forEach((interpolatedWorldPos, j) => {
-                        const interpolatedLocalPos = new THREE.Vector3();
-                        modelGroup.worldToLocal(interpolatedLocalPos.copy(interpolatedWorldPos));
-                        
-                        const interpolatedMark: DrawingMark = {
-                          id: `interpolated-${currentPoint.id}-${j}`,
-                          position: interpolatedLocalPos,
-                          color: currentPoint.color,
-                          size: currentPoint.size
-                        };
-                        newMarks.push(interpolatedMark);
-                      });
-                    }
-                  }
-                }
-              }
-              
-              // Batch update all marks at once to prevent glitches
-              if (newMarks.length > 0) {
-                setDrawingMarks(prev => [...prev, ...newMarks]);
-                console.log(`✅ Added ${newMarks.length} drawing marks from stroke`);
-              }
-            }
+            // Use the handler function instead of direct state manipulation
+            setDrawingMarks(stroke);
             break;
           }
           case 'sensationPlace': {

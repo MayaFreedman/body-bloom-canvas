@@ -103,6 +103,81 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     baseHandleBodyPartClick(partName, color);
   }, [baseHandleBodyPartClick]);
 
+  // Handler for incoming multiplayer drawing strokes
+  const handleIncomingDrawingStroke = useCallback((stroke: any) => {
+    console.log('📨 Handling incoming drawing stroke:', stroke);
+    
+    if (!stroke || !stroke.points || !Array.isArray(stroke.points)) {
+      console.warn('⚠️ Invalid stroke data:', stroke);
+      return;
+    }
+    
+    // Convert world positions to local positions and create all marks at once
+    const modelGroup = modelRef.current;
+    if (modelGroup) {
+      console.log('🎨 Processing', stroke.points.length, 'points from incoming stroke');
+      
+      // Process points and create marks with interpolation
+      for (let i = 0; i < stroke.points.length; i++) {
+        const currentPoint: WorldDrawingPoint = stroke.points[i];
+        const worldPos = new THREE.Vector3(
+          currentPoint.worldPosition.x,
+          currentPoint.worldPosition.y,
+          currentPoint.worldPosition.z
+        );
+        
+        const localPos = new THREE.Vector3();
+        modelGroup.worldToLocal(localPos.copy(worldPos));
+        
+        // Add the current point using the enhanced state system
+        const mark = {
+          id: currentPoint.id,
+          position: localPos,
+          color: currentPoint.color,
+          size: currentPoint.size
+        };
+        
+        handleAddDrawingMark(mark);
+        
+        // Interpolate to the next point if it exists and is on the same body part
+        if (i < stroke.points.length - 1) {
+          const nextPoint: WorldDrawingPoint = stroke.points[i + 1];
+          const nextWorldPos = new THREE.Vector3(
+            nextPoint.worldPosition.x,
+            nextPoint.worldPosition.y,
+            nextPoint.worldPosition.z
+          );
+          
+          // Only interpolate if both points are on the same body part
+          if (currentPoint.bodyPart === nextPoint.bodyPart) {
+            const distance = worldPos.distanceTo(nextWorldPos);
+            const steps = Math.max(1, Math.floor(distance * 50));
+            
+            if (steps > 1) {
+              // Add interpolated marks
+              for (let j = 1; j < steps; j++) {
+                const t = j / steps;
+                const interpolatedWorldPos = new THREE.Vector3().lerpVectors(worldPos, nextWorldPos, t);
+                const interpolatedLocalPos = new THREE.Vector3();
+                modelGroup.worldToLocal(interpolatedLocalPos.copy(interpolatedWorldPos));
+                
+                const interpolatedMark = {
+                  id: `interpolated-${currentPoint.id}-${j}`,
+                  position: interpolatedLocalPos,
+                  color: currentPoint.color,
+                  size: currentPoint.size
+                };
+                handleAddDrawingMark(interpolatedMark);
+              }
+            }
+          }
+        }
+      }
+      
+      console.log(`✅ Successfully processed incoming drawing stroke`);
+    }
+  }, [handleAddDrawingMark, modelRef]);
+
   const handleSensationClick = useCallback((position: THREE.Vector3, sensation: { icon: string; color: string; name: string }) => {
     // For now, just log - sensation functionality needs to be integrated with enhanced state
     console.log('Sensation clicked:', position, sensation);
@@ -224,9 +299,9 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
       <MultiplayerMessageHandler
         room={multiplayer.room}
         modelRef={modelRef}
-        setDrawingMarks={() => {}} // These will need to be updated for enhanced state
+        setDrawingMarks={handleIncomingDrawingStroke} // Now properly connected!
         setSensationMarks={() => {}}
-        setBodyPartColors={handleIncomingBodyPartFill} // Now properly connected!
+        setBodyPartColors={handleIncomingBodyPartFill}
         setRotation={setRotation}
         clearAll={clearAll}
         controlsRef={controlsRef}
