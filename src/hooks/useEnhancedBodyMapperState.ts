@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { BodyMapperMode, SelectedSensation } from '@/types/bodyMapperTypes';
+import { BodyMapperMode, SelectedSensation, SensationMark } from '@/types/bodyMapperTypes';
 import { useActionHistory } from './useActionHistory';
 import { useStrokeManager } from './useStrokeManager';
 import { useSpatialIndex } from './useSpatialIndex';
@@ -19,6 +19,7 @@ export const useEnhancedBodyMapperState = ({ currentUserId }: UseEnhancedBodyMap
   const [brushSize, setBrushSize] = useState([3]);
   const [selectedSensation, setSelectedSensation] = useState<SelectedSensation | null>(null);
   const [bodyPartColors, setBodyPartColors] = useState<Record<string, string>>({});
+  const [sensationMarks, setSensationMarks] = useState<SensationMark[]>([]);
   const [rotation, setRotation] = useState(0);
 
   // Enhanced state management with user ID
@@ -55,6 +56,24 @@ export const useEnhancedBodyMapperState = ({ currentUserId }: UseEnhancedBodyMap
     currentUserId 
   });
 
+  // Add sensation handling
+  const handleSensationClick = (position: any, sensation: SelectedSensation) => {
+    const newSensationMark: SensationMark = {
+      id: `sensation-${Date.now()}-${Math.random()}`,
+      position,
+      icon: sensation.icon,
+      color: sensation.color,
+      size: 0.1
+    };
+    setSensationMarks(prev => [...prev, newSensationMark]);
+    console.log('Added sensation mark:', newSensationMark);
+  };
+
+  const clearAll = () => {
+    bodyPartOps.clearAll();
+    setSensationMarks([]);
+  };
+
   // Update spatial index when marks change
   useEffect(() => {
     const allMarks = strokeManager.getAllMarks();
@@ -79,6 +98,8 @@ export const useEnhancedBodyMapperState = ({ currentUserId }: UseEnhancedBodyMap
     selectedSensation,
     setSelectedSensation,
     drawingMarks, // Legacy compatibility
+    sensationMarks,
+    setSensationMarks,
     bodyPartColors,
     rotation,
     setRotation,
@@ -87,11 +108,12 @@ export const useEnhancedBodyMapperState = ({ currentUserId }: UseEnhancedBodyMap
     handleStartDrawing: drawingOps.handleStartDrawing,
     handleAddDrawingMark: drawingOps.handleAddDrawingMark,
     handleFinishDrawing: drawingOps.handleFinishDrawing,
+    handleSensationClick,
     handleErase: eraseOps.handleErase,
     handleUndo: undoRedoOps.handleUndo,
     handleRedo: undoRedoOps.handleRedo,
     handleBodyPartClick: bodyPartOps.handleBodyPartClick,
-    clearAll: bodyPartOps.clearAll,
+    clearAll,
     
     // State queries
     canUndo: actionHistory.canUndo,

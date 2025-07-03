@@ -30,12 +30,15 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     selectedSensation,
     setSelectedSensation,
     drawingMarks,
+    sensationMarks,
+    setSensationMarks,
     bodyPartColors,
     rotation,
     setRotation,
     handleStartDrawing,
     handleAddDrawingMark,
     handleFinishDrawing,
+    handleSensationClick: localHandleSensationClick,
     handleBodyPartClick: baseHandleBodyPartClick,
     handleUndo,
     handleRedo,
@@ -73,6 +76,12 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     multiplayer 
   });
 
+  // Combine local and multiplayer sensation handling
+  const combinedSensationClick = (position: THREE.Vector3, sensation: any) => {
+    localHandleSensationClick(position, sensation);
+    handleSensationClick(position, sensation);
+  };
+
   const legacyDrawingMarks = drawingMarks.map(mark => ({
     id: mark.id,
     position: mark.position,
@@ -94,6 +103,7 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
         brushSize={brushSize}
         selectedSensation={selectedSensation}
         drawingMarks={legacyDrawingMarks}
+        sensationMarks={sensationMarks}
         bodyPartColors={bodyPartColors}
         rotation={rotation}
         modelRef={modelRef}
@@ -110,7 +120,7 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
         onDrawingStrokeComplete={handleDrawingStrokeComplete}
         onAddToDrawingStroke={handleAddToDrawingStroke}
         onBodyPartClick={handleBodyPartClick}
-        onSensationClick={handleSensationClick}
+        onSensationClick={combinedSensationClick}
         onRotateLeft={handleRotateLeft}
         onRotateRight={handleRotateRight}
         onResetAll={handleResetAll}
@@ -123,7 +133,7 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
         room={multiplayer.room}
         modelRef={modelRef}
         setDrawingMarks={handleIncomingDrawingStroke}
-        setSensationMarks={() => {}}
+        setSensationMarks={setSensationMarks}
         setBodyPartColors={handleIncomingBodyPartFill}
         setRotation={setRotation}
         clearAll={clearAll}

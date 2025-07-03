@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { Room } from 'colyseus.js';
 import { DrawingMark, SensationMark } from '@/types/bodyMapperTypes';
@@ -90,7 +91,7 @@ export const MultiplayerMessageHandler = ({
           }
           case 'sensationPlace': {
             const sensation = messageData;
-            console.log('✨ Processing sensation:', sensation);
+            console.log('✨ Processing sensation placement:', sensation);
             
             if (!sensation || !sensation.position || !sensation.id) {
               console.warn('⚠️ Invalid sensation data:', sensation);
@@ -109,6 +110,7 @@ export const MultiplayerMessageHandler = ({
                 color: sensation.color || '#ff6b6b',
                 size: sensation.size || 0.1
               };
+              console.log('✨ Adding sensation mark:', newSensationMark);
               setSensationMarks(prev => [...prev, newSensationMark]);
             } catch (sensationError) {
               console.error('❌ Error processing sensation:', sensationError, sensation);

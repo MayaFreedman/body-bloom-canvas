@@ -54,6 +54,8 @@ export const BodyMapperCanvas = ({
   onRotateLeft,
   onRotateRight
 }: BodyMapperCanvasProps) => {
+  console.log('BodyMapperCanvas rendering with sensation marks:', sensationMarks);
+  
   return (
     <div style={{ 
       width: '100%', 
