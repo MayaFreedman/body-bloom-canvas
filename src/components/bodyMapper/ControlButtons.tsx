@@ -74,7 +74,7 @@ export const ControlButtons = ({
           className={`control-button ${!canUndo ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'}`}
           title="Undo last action"
         >
-          ↩ Undo {canUndo ? '✓' : '✗'}
+          ↩ Undo
         </button>
         <button 
           onClick={handleRedo}
@@ -82,7 +82,7 @@ export const ControlButtons = ({
           className={`control-button ${!canRedo ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'}`}
           title="Redo last undone action"
         >
-          ↪ Redo {canRedo ? '✓' : '✗'}
+          ↪ Redo
         </button>
         <button onClick={captureScreenshot} className="control-button">
           📷 Snapshot
