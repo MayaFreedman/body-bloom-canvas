@@ -15,13 +15,17 @@ export const useUndoRedoOperations = ({
   setBodyPartColors
 }: UseUndoRedoOperationsProps) => {
   const handleUndo = useCallback(() => {
+    console.log('handleUndo called');
     const actionToUndo = actionHistory.undo();
+    console.log('Action to undo:', actionToUndo);
     
     if (actionToUndo) {
       switch (actionToUndo.type) {
         case 'draw':
+          console.log('Undoing draw action with strokes:', actionToUndo.data.strokes);
           if (actionToUndo.data.strokes) {
             actionToUndo.data.strokes.forEach(stroke => {
+              console.log('Removing stroke:', stroke.id);
               strokeManager.removeStroke(stroke.id);
             });
           }
@@ -31,6 +35,7 @@ export const useUndoRedoOperations = ({
           console.log('Undo erase not fully implemented yet');
           break;
         case 'fill':
+          console.log('Undoing fill action');
           if (actionToUndo.data.bodyPartColors) {
             // Restore previous body part colors
             setBodyPartColors(prev => {
@@ -38,6 +43,7 @@ export const useUndoRedoOperations = ({
               Object.keys(actionToUndo.data.bodyPartColors!).forEach(part => {
                 delete updated[part];
               });
+              console.log('Updated body part colors after undo:', updated);
               return updated;
             });
           }
@@ -49,7 +55,9 @@ export const useUndoRedoOperations = ({
   }, [actionHistory, strokeManager, setBodyPartColors]);
 
   const handleRedo = useCallback(() => {
+    console.log('handleRedo called');
     const actionToRedo = actionHistory.redo();
+    console.log('Action to redo:', actionToRedo);
     
     if (actionToRedo) {
       switch (actionToRedo.type) {
@@ -60,11 +68,16 @@ export const useUndoRedoOperations = ({
           }
           break;
         case 'fill':
+          console.log('Redoing fill action');
           if (actionToRedo.data.bodyPartColors) {
-            setBodyPartColors(prev => ({
-              ...prev,
-              ...actionToRedo.data.bodyPartColors
-            }));
+            setBodyPartColors(prev => {
+              const updated = {
+                ...prev,
+                ...actionToRedo.data.bodyPartColors
+              };
+              console.log('Updated body part colors after redo:', updated);
+              return updated;
+            });
           }
           break;
       }

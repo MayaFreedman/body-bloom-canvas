@@ -38,6 +38,20 @@ export const ControlButtons = ({
     }
   };
 
+  const handleUndo = () => {
+    console.log('Undo clicked, canUndo:', canUndo);
+    if (onUndo && canUndo) {
+      onUndo();
+    }
+  };
+
+  const handleRedo = () => {
+    console.log('Redo clicked, canRedo:', canRedo);
+    if (onRedo && canRedo) {
+      onRedo();
+    }
+  };
+
   return (
     <>
       {/* Reset Button Container */}
@@ -55,20 +69,20 @@ export const ControlButtons = ({
       {/* Undo/Redo Container */}
       <div className="undo-redo-container">
         <button 
-          onClick={onUndo}
+          onClick={handleUndo}
           disabled={!canUndo}
-          className={`control-button ${!canUndo ? 'opacity-50 cursor-not-allowed' : ''}`}
+          className={`control-button ${!canUndo ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'}`}
           title="Undo last action"
         >
-          ↩ Undo
+          ↩ Undo {canUndo ? '✓' : '✗'}
         </button>
         <button 
-          onClick={onRedo}
+          onClick={handleRedo}
           disabled={!canRedo}
-          className={`control-button ${!canRedo ? 'opacity-50 cursor-not-allowed' : ''}`}
+          className={`control-button ${!canRedo ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'}`}
           title="Redo last undone action"
         >
-          ↪ Redo
+          ↪ Redo {canRedo ? '✓' : '✗'}
         </button>
         <button onClick={captureScreenshot} className="control-button">
           📷 Snapshot
