@@ -3,7 +3,7 @@ import React from 'react';
 import { BodyMapperCanvas } from './BodyMapperCanvas';
 import { BodyMapperControls } from './BodyMapperControls';
 import { ControlButtons } from './ControlButtons';
-import { BodyMapperMode, SelectedSensation } from '@/types/bodyMapperTypes';
+import { BodyMapperMode, SelectedSensation, SensationMark } from '@/types/bodyMapperTypes';
 import { WorldDrawingPoint } from '@/types/multiplayerTypes';
 import * as THREE from 'three';
 
@@ -13,6 +13,7 @@ interface BodyMapperLayoutProps {
   brushSize: number[];
   selectedSensation: SelectedSensation | null;
   drawingMarks: any[];
+  sensationMarks: SensationMark[];
   bodyPartColors: Record<string, string>;
   rotation: number;
   modelRef: React.RefObject<THREE.Group>;
@@ -44,6 +45,7 @@ export const BodyMapperLayout = ({
   brushSize,
   selectedSensation,
   drawingMarks,
+  sensationMarks,
   bodyPartColors,
   rotation,
   modelRef,
@@ -78,7 +80,7 @@ export const BodyMapperLayout = ({
             brushSize={brushSize[0]}
             selectedSensation={selectedSensation}
             drawingMarks={drawingMarks}
-            sensationMarks={[]}
+            sensationMarks={sensationMarks}
             effects={[]}
             bodyPartColors={bodyPartColors}
             rotation={rotation}
