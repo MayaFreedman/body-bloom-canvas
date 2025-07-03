@@ -1,5 +1,3 @@
-
-
 import { useCallback } from 'react';
 import * as THREE from 'three';
 import { WorldDrawingPoint } from '@/types/multiplayerTypes';
@@ -71,40 +69,22 @@ export const useDrawingMarks = ({
 
     const distance = start.distanceTo(end);
     
-    // Enhanced adaptive interpolation for smoother lines
-    // Much higher base multipliers for ultra-smooth results
-    const getBaseMultiplier = (size: number): number => {
-      if (size <= 3) return 200;  // Highest quality for smallest brushes
-      if (size <= 5) return 175;  // Very high quality for small brushes  
-      if (size <= 8) return 150;  // High quality for medium brushes
-      if (size <= 12) return 125; // Good quality for larger brushes
-      return 100; // Standard quality for largest brushes
+    // Optimized interpolation - balanced smoothness without lag
+    const getStepCount = (size: number, distance: number): number => {
+      // Base steps on brush size and distance, but keep reasonable limits
+      const baseMultiplier = size <= 3 ? 60 : size <= 8 ? 45 : 30;
+      const calculatedSteps = Math.floor(distance * baseMultiplier);
+      
+      // Cap at reasonable maximums to prevent lag
+      const maxSteps = size <= 3 ? 20 : size <= 8 ? 15 : 10;
+      
+      return Math.max(1, Math.min(maxSteps, calculatedSteps));
     };
     
-    // Adaptive max steps based on brush size - much higher limits
-    const getMaxSteps = (size: number): number => {
-      if (size <= 3) return 80;   // Ultra-smooth for tiny brushes
-      if (size <= 5) return 65;   // Very smooth for small brushes
-      if (size <= 8) return 55;   // Smooth for medium brushes
-      if (size <= 12) return 40;  // Good for larger brushes
-      return 25; // Reasonable for largest brushes
-    };
+    const steps = getStepCount(brushSize, distance);
     
-    const baseMultiplier = getBaseMultiplier(brushSize);
-    const maxSteps = getMaxSteps(brushSize);
-    const calculatedSteps = Math.floor(distance * baseMultiplier);
-    const steps = Math.max(1, Math.min(maxSteps, calculatedSteps));
-    
-    // Performance monitoring - warn if we're creating too many marks
-    if (steps > 60) {
-      console.log(`🔍 High interpolation: ${steps} steps for distance ${distance.toFixed(3)} with brush size ${brushSize}`);
-    }
-    
-    // Cap extreme cases to prevent performance issues
-    const finalSteps = Math.min(steps, 100); // Absolute safety cap
-    
-    for (let i = 1; i <= finalSteps; i++) {
-      const t = i / finalSteps;
+    for (let i = 1; i <= steps; i++) {
+      const t = i / steps;
       const interpolatedPosition = new THREE.Vector3().lerpVectors(start, end, t);
       
       // Validate that the interpolated position is still on the same body part
@@ -121,4 +101,3 @@ export const useDrawingMarks = ({
     interpolateMarks
   };
 };
-

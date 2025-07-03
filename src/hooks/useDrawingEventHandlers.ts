@@ -27,13 +27,11 @@ export const useDrawingEventHandlers = ({
   const lastPosition = useRef<THREE.Vector3 | null>(null);
   const lastBodyPart = useRef<string | null>(null);
   const strokeStarted = useRef(false);
-  const frameCount = useRef(0);
 
   const handlePointerDown = useCallback((event: PointerEvent) => {
     if (!isDrawing) return;
     isMouseDown.current = true;
     strokeStarted.current = false;
-    frameCount.current = 0;
     
     const rect = gl.domElement.getBoundingClientRect();
     mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
@@ -53,6 +51,7 @@ export const useDrawingEventHandlers = ({
           strokeStarted.current = true;
         }
         
+        // Place mark immediately - no throttling for primary marks
         addMarkAtPosition(intersect.point, intersect);
         lastPosition.current = intersect.point.clone();
         lastBodyPart.current = intersect.object.userData.bodyPart;
@@ -64,27 +63,11 @@ export const useDrawingEventHandlers = ({
   const handlePointerMove = useCallback((event: PointerEvent) => {
     if (!isDrawing || !isMouseDown.current) return;
     
-    frameCount.current++;
     const now = Date.now();
     
-    // Adaptive throttling based on performance
-    // Reduce throttle for smaller brushes to capture more detail
-    const getThrottleTime = (): number => {
-      // For the first few frames, be more responsive
-      if (frameCount.current < 5) return 8;
-      
-      // Performance-based throttling
-      // If we're getting too many events, throttle more aggressively
-      const timeSinceStart = now - (lastMarkTime.current - 100);
-      const eventsPerSecond = frameCount.current / (timeSinceStart / 1000);
-      
-      if (eventsPerSecond > 120) return 20; // Slow down if too fast
-      if (eventsPerSecond > 80) return 16;  // Standard throttle
-      return 12; // Faster for smooth drawing
-    };
-    
-    const throttleTime = getThrottleTime();
-    if (now - lastMarkTime.current < throttleTime) return;
+    // Fixed, predictable throttling - optimized for responsiveness
+    const THROTTLE_TIME = 8; // Consistent 8ms for smooth feel
+    if (now - lastMarkTime.current < THROTTLE_TIME) return;
 
     const rect = gl.domElement.getBoundingClientRect();
     mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
@@ -102,10 +85,12 @@ export const useDrawingEventHandlers = ({
         const currentPosition = intersect.point;
         const currentBodyPart = intersect.object.userData.bodyPart;
         
+        // Place primary mark immediately
+        addMarkAtPosition(currentPosition, intersect);
+        
+        // Do interpolation if we have a previous position
         if (lastPosition.current && lastBodyPart.current) {
           interpolateMarks(lastPosition.current, currentPosition, lastBodyPart.current, currentBodyPart, intersect);
-        } else {
-          addMarkAtPosition(currentPosition, intersect);
         }
         
         lastPosition.current = currentPosition.clone();
@@ -126,7 +111,6 @@ export const useDrawingEventHandlers = ({
     lastPosition.current = null;
     lastBodyPart.current = null;
     strokeStarted.current = false;
-    frameCount.current = 0;
   }, [onStrokeComplete]);
 
   return {
