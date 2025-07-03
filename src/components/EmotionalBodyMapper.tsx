@@ -1,3 +1,4 @@
+
 import React, { useRef, useCallback } from 'react';
 import { BodyMapperCanvas } from './bodyMapper/BodyMapperCanvas';
 import { BodyMapperControls } from './bodyMapper/BodyMapperControls';
@@ -29,8 +30,8 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     setBrushSize,
     selectedSensation,
     setSelectedSensation,
-    drawingMarks,
-    setDrawingMarks,
+    lineStrokes,
+    setLineStrokes,
     sensationMarks,
     setSensationMarks,
     effects,
@@ -38,7 +39,7 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     setBodyPartColors,
     rotation,
     setRotation,
-    handleAddDrawingMark,
+    handleAddStroke,
     handleBodyPartClick: baseHandleBodyPartClick,
     handleSensationClick: baseHandleSensationClick,
     rotateLeft: baseRotateLeft,
@@ -155,13 +156,13 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
               selectedColor={selectedColor}
               brushSize={brushSize[0]}
               selectedSensation={selectedSensation}
-              drawingMarks={drawingMarks}
+              lineStrokes={lineStrokes}
               sensationMarks={sensationMarks}
               effects={effects}
               bodyPartColors={bodyPartColors}
               rotation={rotation}
               modelRef={modelRef}
-              onAddDrawingMark={handleAddDrawingMark}
+              onAddStroke={handleAddStroke}
               onDrawingStrokeStart={handleDrawingStrokeStart}
               onDrawingStrokeComplete={handleDrawingStrokeComplete}
               onAddToDrawingStroke={handleAddToDrawingStroke}
@@ -200,7 +201,7 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
       <MultiplayerMessageHandler
         room={multiplayer.room}
         modelRef={modelRef}
-        setDrawingMarks={setDrawingMarks}
+        setDrawingMarks={setLineStrokes}
         setSensationMarks={setSensationMarks}
         setBodyPartColors={setBodyPartColors}
         setRotation={setRotation}

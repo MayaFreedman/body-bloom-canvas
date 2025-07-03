@@ -6,10 +6,11 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { HumanModel } from '@/components/HumanModel';
 import { EffectsRenderer } from '@/components/EffectsRenderer';
-import { ModelDrawing } from '@/components/ModelDrawing';
+import { ModelLineDrawing } from '@/components/ModelLineDrawing';
 import SensationParticles from '@/components/SensationParticles';
 import { ClickHandler } from './ClickHandler';
-import { DrawingMark, SensationMark, Effect, BodyPartColors, BodyMapperMode, SelectedSensation } from '@/types/bodyMapperTypes';
+import { SensationMark, Effect, BodyPartColors, BodyMapperMode, SelectedSensation } from '@/types/bodyMapperTypes';
+import { LineStroke } from '@/types/lineDrawingTypes';
 import { WorldDrawingPoint } from '@/types/multiplayerTypes';
 import * as THREE from 'three';
 
@@ -18,13 +19,13 @@ interface BodyMapperCanvasProps {
   selectedColor: string;
   brushSize: number;
   selectedSensation: SelectedSensation | null;
-  drawingMarks: DrawingMark[];
+  lineStrokes: LineStroke[];
   sensationMarks: SensationMark[];
   effects: Effect[];
   bodyPartColors: BodyPartColors;
   rotation: number;
   modelRef: React.RefObject<THREE.Group>;
-  onAddDrawingMark: (mark: DrawingMark) => void;
+  onAddStroke: (stroke: LineStroke) => void;
   onDrawingStrokeStart: () => void;
   onDrawingStrokeComplete: () => void;
   onAddToDrawingStroke: (worldPoint: WorldDrawingPoint) => void;
@@ -39,13 +40,13 @@ export const BodyMapperCanvas = ({
   selectedColor,
   brushSize,
   selectedSensation,
-  drawingMarks,
+  lineStrokes,
   sensationMarks,
   effects,
   bodyPartColors,
   rotation,
   modelRef,
-  onAddDrawingMark,
+  onAddStroke,
   onDrawingStrokeStart,
   onDrawingStrokeComplete,
   onAddToDrawingStroke,
@@ -92,24 +93,16 @@ export const BodyMapperCanvas = ({
         <group ref={modelRef} rotation={[0, rotation, 0]}>
           <HumanModel bodyPartColors={bodyPartColors} />
           
-          {/* Render drawing marks as children of the model group so they rotate with it */}
-          {drawingMarks.map((mark) => (
-            <mesh key={mark.id} position={mark.position}>
-              <sphereGeometry args={[mark.size, 8, 8]} />
-              <meshBasicMaterial color={mark.color} />      
-            </mesh>
-          ))}
-
           {/* Render sensation particles as children of the model group */}
           <SensationParticles sensationMarks={sensationMarks} />
         </group>
         
-        <ModelDrawing
+        <ModelLineDrawing
           isDrawing={mode === 'draw'}
-          drawingMarks={drawingMarks}
+          lineStrokes={lineStrokes}
           selectedColor={selectedColor}
           brushSize={brushSize}
-          onAddMark={onAddDrawingMark}
+          onAddStroke={onAddStroke}
           onStrokeStart={onDrawingStrokeStart}
           onStrokeComplete={onDrawingStrokeComplete}
           onAddToStroke={onAddToDrawingStroke}
