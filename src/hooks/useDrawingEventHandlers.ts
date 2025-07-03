@@ -1,4 +1,5 @@
 
+
 import { useRef, useCallback } from 'react';
 import { useThree } from '@react-three/fiber';
 import * as THREE from 'three';
@@ -26,11 +27,13 @@ export const useDrawingEventHandlers = ({
   const lastPosition = useRef<THREE.Vector3 | null>(null);
   const lastBodyPart = useRef<string | null>(null);
   const strokeStarted = useRef(false);
+  const frameCount = useRef(0);
 
   const handlePointerDown = useCallback((event: PointerEvent) => {
     if (!isDrawing) return;
     isMouseDown.current = true;
     strokeStarted.current = false;
+    frameCount.current = 0;
     
     const rect = gl.domElement.getBoundingClientRect();
     mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
@@ -61,8 +64,27 @@ export const useDrawingEventHandlers = ({
   const handlePointerMove = useCallback((event: PointerEvent) => {
     if (!isDrawing || !isMouseDown.current) return;
     
+    frameCount.current++;
     const now = Date.now();
-    if (now - lastMarkTime.current < 16) return;
+    
+    // Adaptive throttling based on performance
+    // Reduce throttle for smaller brushes to capture more detail
+    const getThrottleTime = (): number => {
+      // For the first few frames, be more responsive
+      if (frameCount.current < 5) return 8;
+      
+      // Performance-based throttling
+      // If we're getting too many events, throttle more aggressively
+      const timeSinceStart = now - (lastMarkTime.current - 100);
+      const eventsPerSecond = frameCount.current / (timeSinceStart / 1000);
+      
+      if (eventsPerSecond > 120) return 20; // Slow down if too fast
+      if (eventsPerSecond > 80) return 16;  // Standard throttle
+      return 12; // Faster for smooth drawing
+    };
+    
+    const throttleTime = getThrottleTime();
+    if (now - lastMarkTime.current < throttleTime) return;
 
     const rect = gl.domElement.getBoundingClientRect();
     mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
@@ -104,6 +126,7 @@ export const useDrawingEventHandlers = ({
     lastPosition.current = null;
     lastBodyPart.current = null;
     strokeStarted.current = false;
+    frameCount.current = 0;
   }, [onStrokeComplete]);
 
   return {
@@ -112,3 +135,4 @@ export const useDrawingEventHandlers = ({
     handlePointerUp
   };
 };
+

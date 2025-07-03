@@ -1,4 +1,5 @@
 
+
 import { useCallback } from 'react';
 import * as THREE from 'three';
 import { WorldDrawingPoint } from '@/types/multiplayerTypes';
@@ -70,14 +71,40 @@ export const useDrawingMarks = ({
 
     const distance = start.distanceTo(end);
     
-    // Smart interpolation: more for smaller brushes, but capped to prevent excessive marks
-    const baseMultiplier = Math.max(25, 125 - (brushSize * 5)); // Range: 25-100
-    const maxSteps = brushSize <= 5 ? 50 : brushSize <= 10 ? 30 : 15; // Adaptive cap
+    // Enhanced adaptive interpolation for smoother lines
+    // Much higher base multipliers for ultra-smooth results
+    const getBaseMultiplier = (size: number): number => {
+      if (size <= 3) return 200;  // Highest quality for smallest brushes
+      if (size <= 5) return 175;  // Very high quality for small brushes  
+      if (size <= 8) return 150;  // High quality for medium brushes
+      if (size <= 12) return 125; // Good quality for larger brushes
+      return 100; // Standard quality for largest brushes
+    };
+    
+    // Adaptive max steps based on brush size - much higher limits
+    const getMaxSteps = (size: number): number => {
+      if (size <= 3) return 80;   // Ultra-smooth for tiny brushes
+      if (size <= 5) return 65;   // Very smooth for small brushes
+      if (size <= 8) return 55;   // Smooth for medium brushes
+      if (size <= 12) return 40;  // Good for larger brushes
+      return 25; // Reasonable for largest brushes
+    };
+    
+    const baseMultiplier = getBaseMultiplier(brushSize);
+    const maxSteps = getMaxSteps(brushSize);
     const calculatedSteps = Math.floor(distance * baseMultiplier);
     const steps = Math.max(1, Math.min(maxSteps, calculatedSteps));
     
-    for (let i = 1; i <= steps; i++) {
-      const t = i / steps;
+    // Performance monitoring - warn if we're creating too many marks
+    if (steps > 60) {
+      console.log(`🔍 High interpolation: ${steps} steps for distance ${distance.toFixed(3)} with brush size ${brushSize}`);
+    }
+    
+    // Cap extreme cases to prevent performance issues
+    const finalSteps = Math.min(steps, 100); // Absolute safety cap
+    
+    for (let i = 1; i <= finalSteps; i++) {
+      const t = i / finalSteps;
       const interpolatedPosition = new THREE.Vector3().lerpVectors(start, end, t);
       
       // Validate that the interpolated position is still on the same body part
@@ -94,3 +121,4 @@ export const useDrawingMarks = ({
     interpolateMarks
   };
 };
+
