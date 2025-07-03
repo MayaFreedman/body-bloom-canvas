@@ -116,11 +116,7 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     if (modelGroup) {
       console.log('🎨 Processing', stroke.points.length, 'points from incoming stroke');
       
-      // Start a new stroke for the incoming data
-      const strokeId = handleStartDrawing();
-      console.log('🎨 Started stroke for incoming data:', strokeId);
-      
-      // Process points and create marks with interpolation
+      // Process each point and add it directly without creating a local stroke
       for (let i = 0; i < stroke.points.length; i++) {
         const currentPoint: WorldDrawingPoint = stroke.points[i];
         const worldPos = new THREE.Vector3(
@@ -132,7 +128,8 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
         const localPos = new THREE.Vector3();
         modelGroup.worldToLocal(localPos.copy(worldPos));
         
-        // Add the current point using the enhanced state system
+        // Create mark directly without going through stroke manager
+        // This preserves the original user context
         const mark = {
           id: currentPoint.id,
           position: localPos,
@@ -140,6 +137,8 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
           size: currentPoint.size
         };
         
+        // Add the mark directly - this bypasses the local user stroke system
+        // and adds the mark as-is from the remote user
         handleAddDrawingMark(mark);
         
         // Interpolate to the next point if it exists and is on the same body part
@@ -177,11 +176,9 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
         }
       }
       
-      // Finish the stroke to commit it properly
-      const completedStroke = handleFinishDrawing();
-      console.log(`✅ Successfully processed incoming drawing stroke:`, completedStroke?.id);
+      console.log(`✅ Successfully processed incoming drawing stroke with ${stroke.points.length} points`);
     }
-  }, [handleAddDrawingMark, handleStartDrawing, handleFinishDrawing, modelRef]);
+  }, [handleAddDrawingMark, modelRef]);
 
   const handleSensationClick = useCallback((position: THREE.Vector3, sensation: { icon: string; color: string; name: string }) => {
     // For now, just log - sensation functionality needs to be integrated with enhanced state
