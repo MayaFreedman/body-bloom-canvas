@@ -1,4 +1,3 @@
-
 import React, { useRef, useCallback } from 'react';
 import { BodyMapperCanvas } from './bodyMapper/BodyMapperCanvas';
 import { BodyMapperControls } from './bodyMapper/BodyMapperControls';
@@ -30,8 +29,8 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     setBrushSize,
     selectedSensation,
     setSelectedSensation,
-    lineStrokes,
-    setLineStrokes,
+    drawingMarks,
+    setDrawingMarks,
     sensationMarks,
     setSensationMarks,
     effects,
@@ -39,7 +38,7 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     setBodyPartColors,
     rotation,
     setRotation,
-    handleAddStroke,
+    handleAddDrawingMark,
     handleBodyPartClick: baseHandleBodyPartClick,
     handleSensationClick: baseHandleSensationClick,
     rotateLeft: baseRotateLeft,
@@ -156,13 +155,13 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
               selectedColor={selectedColor}
               brushSize={brushSize[0]}
               selectedSensation={selectedSensation}
-              lineStrokes={lineStrokes}
+              drawingMarks={drawingMarks}
               sensationMarks={sensationMarks}
               effects={effects}
               bodyPartColors={bodyPartColors}
               rotation={rotation}
               modelRef={modelRef}
-              onAddStroke={handleAddStroke}
+              onAddDrawingMark={handleAddDrawingMark}
               onDrawingStrokeStart={handleDrawingStrokeStart}
               onDrawingStrokeComplete={handleDrawingStrokeComplete}
               onAddToDrawingStroke={handleAddToDrawingStroke}
@@ -201,7 +200,7 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
       <MultiplayerMessageHandler
         room={multiplayer.room}
         modelRef={modelRef}
-        setDrawingMarks={setLineStrokes as any}
+        setDrawingMarks={setDrawingMarks}
         setSensationMarks={setSensationMarks}
         setBodyPartColors={setBodyPartColors}
         setRotation={setRotation}

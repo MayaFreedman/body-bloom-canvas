@@ -1,7 +1,6 @@
 
 import { useState, useCallback } from 'react';
-import { SensationMark, Effect, BodyPartColors, BodyMapperMode, SelectedSensation } from '@/types/bodyMapperTypes';
-import { LineStroke } from '@/types/lineDrawingTypes';
+import { DrawingMark, SensationMark, Effect, BodyPartColors, BodyMapperMode, SelectedSensation } from '@/types/bodyMapperTypes';
 import * as THREE from 'three';
 
 export const useBodyMapperState = () => {
@@ -9,14 +8,14 @@ export const useBodyMapperState = () => {
   const [selectedColor, setSelectedColor] = useState('#ff6b6b');
   const [brushSize, setBrushSize] = useState([10]);
   const [selectedSensation, setSelectedSensation] = useState<SelectedSensation | null>(null);
-  const [lineStrokes, setLineStrokes] = useState<LineStroke[]>([]);
+  const [drawingMarks, setDrawingMarks] = useState<DrawingMark[]>([]);
   const [sensationMarks, setSensationMarks] = useState<SensationMark[]>([]);
   const [effects, setEffects] = useState<Effect[]>([]);
   const [bodyPartColors, setBodyPartColors] = useState<BodyPartColors>({});
   const [rotation, setRotation] = useState(0);
 
-  const handleAddStroke = useCallback((stroke: LineStroke) => {
-    setLineStrokes(prev => [...prev, stroke]);
+  const handleAddDrawingMark = useCallback((mark: DrawingMark) => {
+    setDrawingMarks(prev => [...prev, mark]);
   }, []);
 
   const handleBodyPartClick = useCallback((partName: string, color: string) => {
@@ -46,7 +45,7 @@ export const useBodyMapperState = () => {
   }, []);
 
   const clearAll = useCallback(() => {
-    setLineStrokes([]);
+    setDrawingMarks([]);
     setEffects([]);
     setBodyPartColors({});
     setSensationMarks([]);
@@ -61,8 +60,8 @@ export const useBodyMapperState = () => {
     setBrushSize,
     selectedSensation,
     setSelectedSensation,
-    lineStrokes,
-    setLineStrokes,
+    drawingMarks,
+    setDrawingMarks,
     sensationMarks,
     setSensationMarks,
     effects,
@@ -71,7 +70,7 @@ export const useBodyMapperState = () => {
     setBodyPartColors,
     rotation,
     setRotation,
-    handleAddStroke,
+    handleAddDrawingMark,
     handleBodyPartClick,
     handleSensationClick,
     rotateLeft,
