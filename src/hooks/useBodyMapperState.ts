@@ -6,7 +6,7 @@ import * as THREE from 'three';
 export const useBodyMapperState = () => {
   const [mode, setMode] = useState<BodyMapperMode>('draw');
   const [selectedColor, setSelectedColor] = useState('#ff6b6b');
-  const [brushSize, setBrushSize] = useState([10]);
+  const [brushSize, setBrushSize] = useState([3]); // Changed from 10 to 3 (new minimum)
   const [selectedSensation, setSelectedSensation] = useState<SelectedSensation | null>(null);
   const [drawingMarks, setDrawingMarks] = useState<DrawingMark[]>([]);
   const [sensationMarks, setSensationMarks] = useState<SensationMark[]>([]);

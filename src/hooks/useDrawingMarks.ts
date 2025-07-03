@@ -67,7 +67,11 @@ export const useDrawingMarks = ({
     }
 
     const distance = start.distanceTo(end);
-    const steps = Math.max(1, Math.floor(distance * 50));
+    
+    // Inverse relationship: smaller brush size = more interpolation
+    // Map brush size (3-20) to interpolation multiplier (100-25)
+    const interpolationMultiplier = 125 - (brushSize * 5);
+    const steps = Math.max(1, Math.floor(distance * interpolationMultiplier));
     
     for (let i = 1; i <= steps; i++) {
       const t = i / steps;
@@ -79,7 +83,7 @@ export const useDrawingMarks = ({
         addMarkAtPosition(interpolatedPosition, endIntersect);
       }
     }
-  }, [addMarkAtPosition, getBodyPartAtPosition]);
+  }, [addMarkAtPosition, getBodyPartAtPosition, brushSize]);
 
   return {
     addMarkAtPosition,
