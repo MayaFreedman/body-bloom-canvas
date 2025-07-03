@@ -31,21 +31,31 @@ export const useUndoRedoOperations = ({
           }
           break;
         case 'erase':
-          // Re-add erased marks (would need to restore strokes)
-          console.log('Undo erase not fully implemented yet');
+          console.log('Undoing erase action by restoring strokes');
+          if (actionToUndo.data.strokes) {
+            // Restore the erased strokes
+            actionToUndo.data.strokes.forEach(stroke => {
+              strokeManager.restoreStroke(stroke);
+            });
+          }
           break;
         case 'fill':
           console.log('Undoing fill action');
-          if (actionToUndo.data.bodyPartColors) {
-            // Restore previous body part colors
-            setBodyPartColors(prev => {
-              const updated = { ...prev };
-              Object.keys(actionToUndo.data.bodyPartColors!).forEach(part => {
-                delete updated[part];
-              });
-              console.log('Updated body part colors after undo:', updated);
-              return updated;
+          if (actionToUndo.data.previousBodyPartColors !== undefined) {
+            // Restore the previous body part colors state
+            setBodyPartColors(actionToUndo.data.previousBodyPartColors);
+            console.log('Restored previous body part colors:', actionToUndo.data.previousBodyPartColors);
+          }
+          break;
+        case 'clear':
+          console.log('Undoing clear action by restoring all cleared content');
+          if (actionToUndo.data.strokes) {
+            actionToUndo.data.strokes.forEach(stroke => {
+              strokeManager.restoreStroke(stroke);
             });
+          }
+          if (actionToUndo.data.previousBodyPartColors !== undefined) {
+            setBodyPartColors(actionToUndo.data.previousBodyPartColors);
           }
           break;
       }
@@ -62,29 +72,47 @@ export const useUndoRedoOperations = ({
     if (actionToRedo) {
       switch (actionToRedo.type) {
         case 'draw':
+          console.log('Redoing draw action');
           if (actionToRedo.data.strokes) {
-            // Re-add strokes (would need more complex state restoration)  
-            console.log('Redo draw not fully implemented yet');
+            actionToRedo.data.strokes.forEach(stroke => {
+              strokeManager.restoreStroke(stroke);
+            });
+          }
+          break;
+        case 'erase':
+          console.log('Redoing erase action');
+          if (actionToRedo.data.strokes) {
+            actionToRedo.data.strokes.forEach(stroke => {
+              strokeManager.removeStroke(stroke.id);
+            });
           }
           break;
         case 'fill':
           console.log('Redoing fill action');
           if (actionToRedo.data.bodyPartColors) {
-            setBodyPartColors(prev => {
-              const updated = {
-                ...prev,
-                ...actionToRedo.data.bodyPartColors
-              };
-              console.log('Updated body part colors after redo:', updated);
-              return updated;
+            setBodyPartColors(prev => ({
+              ...prev,
+              ...actionToRedo.data.bodyPartColors
+            }));
+            console.log('Applied body part colors after redo:', actionToRedo.data.bodyPartColors);
+          }
+          break;
+        case 'clear':
+          console.log('Redoing clear action');
+          if (actionToRedo.data.strokes) {
+            actionToRedo.data.strokes.forEach(stroke => {
+              strokeManager.removeStroke(stroke.id);
             });
+          }
+          if (actionToRedo.data.bodyPartColors) {
+            setBodyPartColors({});
           }
           break;
       }
     }
     
     return actionToRedo;
-  }, [actionHistory, setBodyPartColors]);
+  }, [actionHistory, strokeManager, setBodyPartColors]);
 
   return {
     handleUndo,

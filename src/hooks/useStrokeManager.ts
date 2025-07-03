@@ -69,6 +69,19 @@ export const useStrokeManager = ({ currentUserId }: UseStrokeManagerProps) => {
     setCompletedStrokes(prev => prev.filter(stroke => stroke.id !== strokeId));
   }, []);
 
+  const restoreStroke = useCallback((stroke: DrawingStroke) => {
+    console.log('Restoring stroke:', stroke.id);
+    setCompletedStrokes(prev => {
+      // Check if stroke already exists to avoid duplicates
+      const exists = prev.some(s => s.id === stroke.id);
+      if (exists) {
+        console.log('Stroke already exists, skipping restore');
+        return prev;
+      }
+      return [...prev, stroke];
+    });
+  }, []);
+
   const removeStrokesByUser = useCallback((userId: string) => {
     setCompletedStrokes(prev => prev.filter(stroke => stroke.userId !== userId));
   }, []);
@@ -92,6 +105,7 @@ export const useStrokeManager = ({ currentUserId }: UseStrokeManagerProps) => {
     addMarkToStroke,
     finishStroke,
     removeStroke,
+    restoreStroke,
     removeStrokesByUser,
     getAllMarks,
     getMarksByUser

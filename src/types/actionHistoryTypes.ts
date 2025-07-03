@@ -31,6 +31,7 @@ export interface ActionHistoryItem {
     strokes?: DrawingStroke[];
     marks?: DrawingMark[];
     bodyPartColors?: Record<string, string>;
+    previousBodyPartColors?: Record<string, string>;
     erasedMarks?: DrawingMark[];
     affectedArea?: {
       center: THREE.Vector3;

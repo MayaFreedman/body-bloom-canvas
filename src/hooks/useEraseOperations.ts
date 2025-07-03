@@ -25,17 +25,25 @@ export const useEraseOperations = ({
     const userMarksToErase = marksToErase.filter(mark => mark.userId === currentUserId);
     
     if (userMarksToErase.length > 0) {
-      // Remove strokes that contain erased marks
+      // Get the full strokes that contain erased marks
       const strokesToRemove = new Set<string>();
+      const strokesBeingErased: any[] = [];
+      
       userMarksToErase.forEach(mark => strokesToRemove.add(mark.strokeId));
       
+      // Store the complete strokes before removing them
       strokesToRemove.forEach(strokeId => {
+        const stroke = strokeManager.completedStrokes.find(s => s.id === strokeId);
+        if (stroke) {
+          strokesBeingErased.push(stroke);
+        }
         strokeManager.removeStroke(strokeId);
       });
 
       actionHistory.addAction({
         type: 'erase',
         data: {
+          strokes: strokesBeingErased,
           erasedMarks: userMarksToErase,
           affectedArea: { center, radius }
         }

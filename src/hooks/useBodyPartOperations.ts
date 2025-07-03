@@ -19,7 +19,7 @@ export const useBodyPartOperations = ({
   currentUserId
 }: UseBodyPartOperationsProps) => {
   const handleBodyPartClick = useCallback((partName: string, color: string) => {
-    const previousColor = bodyPartColors[partName];
+    const previousColors = { ...bodyPartColors };
     
     setBodyPartColors(prev => ({
       ...prev,
@@ -29,7 +29,8 @@ export const useBodyPartOperations = ({
     actionHistory.addAction({
       type: 'fill',
       data: {
-        bodyPartColors: { [partName]: color }
+        bodyPartColors: { [partName]: color },
+        previousBodyPartColors: previousColors
       },
       metadata: {
         bodyPart: partName,
@@ -39,20 +40,19 @@ export const useBodyPartOperations = ({
   }, [bodyPartColors, actionHistory, setBodyPartColors]);
 
   const clearAll = useCallback(() => {
-    // Only clear user's own strokes and body part fills
+    // Only clear user's own strokes and store them for undo
     const userStrokes = strokeManager.completedStrokes.filter(stroke => stroke.userId === currentUserId);
+    const previousColors = { ...bodyPartColors };
     
     strokeManager.removeStrokesByUser(currentUserId || '');
-    
-    // Note: Body part colors are global - might need different handling in multiplayer
-    const currentColors = { ...bodyPartColors };
     setBodyPartColors({});
 
     actionHistory.addAction({
       type: 'clear',
       data: {
         strokes: userStrokes,
-        bodyPartColors: currentColors
+        bodyPartColors: {},
+        previousBodyPartColors: previousColors
       }
     });
   }, [strokeManager, bodyPartColors, actionHistory, currentUserId, setBodyPartColors]);
