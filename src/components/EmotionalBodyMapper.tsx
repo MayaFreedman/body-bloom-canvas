@@ -1,4 +1,3 @@
-
 import React, { useRef, useCallback } from 'react';
 import { BodyMapperCanvas } from './bodyMapper/BodyMapperCanvas';
 import { BodyMapperControls } from './bodyMapper/BodyMapperControls';
@@ -117,6 +116,10 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     if (modelGroup) {
       console.log('🎨 Processing', stroke.points.length, 'points from incoming stroke');
       
+      // Start a new stroke for the incoming data
+      const strokeId = handleStartDrawing();
+      console.log('🎨 Started stroke for incoming data:', strokeId);
+      
       // Process points and create marks with interpolation
       for (let i = 0; i < stroke.points.length; i++) {
         const currentPoint: WorldDrawingPoint = stroke.points[i];
@@ -174,9 +177,11 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
         }
       }
       
-      console.log(`✅ Successfully processed incoming drawing stroke`);
+      // Finish the stroke to commit it properly
+      const completedStroke = handleFinishDrawing();
+      console.log(`✅ Successfully processed incoming drawing stroke:`, completedStroke?.id);
     }
-  }, [handleAddDrawingMark, modelRef]);
+  }, [handleAddDrawingMark, handleStartDrawing, handleFinishDrawing, modelRef]);
 
   const handleSensationClick = useCallback((position: THREE.Vector3, sensation: { icon: string; color: string; name: string }) => {
     // For now, just log - sensation functionality needs to be integrated with enhanced state
