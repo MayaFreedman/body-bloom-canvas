@@ -49,128 +49,194 @@ export const useMultiplayerDrawingHandlers = ({
   const handleIncomingOptimizedStroke = useCallback((optimizedStroke: OptimizedDrawingStroke) => {
     console.log('📨 Handling incoming optimized stroke:', optimizedStroke);
     
-    const modelGroup = modelRef.current;
-    if (modelGroup && multiplayer.reconstructStroke) {
+    try {
+      const modelGroup = modelRef.current;
+      if (!modelGroup) {
+        console.warn('⚠️ Model group not available for stroke reconstruction');
+        return;
+      }
+
+      if (!multiplayer.reconstructStroke) {
+        console.warn('⚠️ Reconstruct stroke function not available');
+        return;
+      }
+
+      if (!optimizedStroke || !optimizedStroke.keyPoints || optimizedStroke.keyPoints.length === 0) {
+        console.warn('⚠️ Invalid optimized stroke data:', optimizedStroke);
+        return;
+      }
+
       const reconstructedPoints = multiplayer.reconstructStroke(optimizedStroke);
       console.log('🎨 Reconstructed', reconstructedPoints.length, 'points from', optimizedStroke.keyPoints.length, 'key points');
       
+      if (reconstructedPoints.length === 0) {
+        console.warn('⚠️ No points reconstructed from stroke');
+        return;
+      }
+
       const marks: DrawingMark[] = reconstructedPoints.map((worldPos, index) => {
+        // Validate world position
+        if (!worldPos || typeof worldPos.x !== 'number' || typeof worldPos.y !== 'number' || typeof worldPos.z !== 'number') {
+          console.warn('⚠️ Invalid world position:', worldPos);
+          return null;
+        }
+
         const localPos = new THREE.Vector3();
-        modelGroup.worldToLocal(localPos.copy(worldPos));
+        try {
+          modelGroup.worldToLocal(localPos.copy(worldPos));
+        } catch (error) {
+          console.error('❌ Error converting world to local position:', error);
+          return null;
+        }
         
         return {
           id: `reconstructed-${optimizedStroke.id}-${index}`,
           position: localPos,
-          color: optimizedStroke.metadata.color,
-          size: optimizedStroke.metadata.size,
+          color: optimizedStroke.metadata.color || '#ff6b6b',
+          size: Math.max(0.001, Math.min(0.1, optimizedStroke.metadata.size / 200)), // Clamp size to reasonable bounds
           strokeId: optimizedStroke.id,
-          timestamp: Date.now() + index, // Slight offset to maintain order
-          userId: optimizedStroke.playerId
+          timestamp: Date.now() + index,
+          userId: optimizedStroke.playerId || 'unknown'
         };
-      });
+      }).filter(mark => mark !== null) as DrawingMark[];
       
+      if (marks.length === 0) {
+        console.warn('⚠️ No valid marks created from reconstructed points');
+        return;
+      }
+
       const completeStroke = {
         id: optimizedStroke.id,
         marks: marks,
-        startTime: optimizedStroke.metadata.startTime,
-        endTime: optimizedStroke.metadata.endTime,
-        brushSize: optimizedStroke.metadata.size,
-        color: optimizedStroke.metadata.color,
+        startTime: optimizedStroke.metadata.startTime || Date.now() - 1000,
+        endTime: optimizedStroke.metadata.endTime || Date.now(),
+        brushSize: Math.max(1, Math.min(20, optimizedStroke.metadata.size || 3)), // Clamp brush size
+        color: optimizedStroke.metadata.color || '#ff6b6b',
         isComplete: true,
-        userId: optimizedStroke.playerId
+        userId: optimizedStroke.playerId || 'unknown'
       };
       
       restoreStroke(completeStroke);
       console.log(`✅ Successfully restored optimized stroke with ${marks.length} marks`);
+    } catch (error) {
+      console.error('❌ Error processing optimized stroke:', error, optimizedStroke);
     }
   }, [modelRef, restoreStroke, multiplayer]);
 
   const handleIncomingDrawingStroke = useCallback((stroke: any) => {
     console.log('📨 Handling incoming legacy drawing stroke:', stroke);
     
-    if (!stroke || !stroke.points || !Array.isArray(stroke.points)) {
-      console.warn('⚠️ Invalid stroke data:', stroke);
-      return;
-    }
-    
-    const modelGroup = modelRef.current;
-    if (modelGroup) {
+    try {
+      if (!stroke || !stroke.points || !Array.isArray(stroke.points)) {
+        console.warn('⚠️ Invalid stroke data:', stroke);
+        return;
+      }
+      
+      const modelGroup = modelRef.current;
+      if (!modelGroup) {
+        console.warn('⚠️ Model group not available for stroke processing');
+        return;
+      }
+
       console.log('🎨 Processing', stroke.points.length, 'points from incoming legacy stroke');
       
       const marks: DrawingMark[] = [];
       
       for (let i = 0; i < stroke.points.length; i++) {
         const currentPoint: WorldDrawingPoint = stroke.points[i];
+        
+        if (!currentPoint || !currentPoint.worldPosition) {
+          console.warn('⚠️ Invalid point data:', currentPoint);
+          continue;
+        }
+
         const worldPos = new THREE.Vector3(
-          currentPoint.worldPosition.x,
-          currentPoint.worldPosition.y,
-          currentPoint.worldPosition.z
+          currentPoint.worldPosition.x || 0,
+          currentPoint.worldPosition.y || 0,
+          currentPoint.worldPosition.z || 0
         );
         
         const localPos = new THREE.Vector3();
-        modelGroup.worldToLocal(localPos.copy(worldPos));
+        try {
+          modelGroup.worldToLocal(localPos.copy(worldPos));
+        } catch (error) {
+          console.error('❌ Error converting world to local position:', error);
+          continue;
+        }
         
         const mark: DrawingMark = {
-          id: currentPoint.id,
+          id: currentPoint.id || `legacy-${i}`,
           position: localPos,
-          color: currentPoint.color,
-          size: currentPoint.size,
+          color: currentPoint.color || '#ff6b6b',
+          size: Math.max(0.001, Math.min(0.1, (currentPoint.size || 3) / 200)), // Clamp size
           strokeId: stroke.id,
-          timestamp: Date.now(),
-          userId: stroke.playerId
+          timestamp: Date.now() + i,
+          userId: stroke.playerId || 'unknown'
         };
         
         marks.push(mark);
         
+        // Interpolation logic - simplified and safer
         if (i < stroke.points.length - 1) {
           const nextPoint: WorldDrawingPoint = stroke.points[i + 1];
-          const nextWorldPos = new THREE.Vector3(
-            nextPoint.worldPosition.x,
-            nextPoint.worldPosition.y,
-            nextPoint.worldPosition.z
-          );
-          
-          if (currentPoint.bodyPart === nextPoint.bodyPart) {
+          if (nextPoint && nextPoint.worldPosition && currentPoint.bodyPart === nextPoint.bodyPart) {
+            const nextWorldPos = new THREE.Vector3(
+              nextPoint.worldPosition.x || 0,
+              nextPoint.worldPosition.y || 0,
+              nextPoint.worldPosition.z || 0
+            );
+            
             const distance = worldPos.distanceTo(nextWorldPos);
-            const steps = Math.max(1, Math.floor(distance * 50));
+            const steps = Math.max(1, Math.min(10, Math.floor(distance * 30))); // Limit interpolation steps
             
             if (steps > 1) {
               for (let j = 1; j < steps; j++) {
                 const t = j / steps;
                 const interpolatedWorldPos = new THREE.Vector3().lerpVectors(worldPos, nextWorldPos, t);
                 const interpolatedLocalPos = new THREE.Vector3();
-                modelGroup.worldToLocal(interpolatedLocalPos.copy(interpolatedWorldPos));
                 
-                const interpolatedMark: DrawingMark = {
-                  id: `interpolated-${currentPoint.id}-${j}`,
-                  position: interpolatedLocalPos,
-                  color: currentPoint.color,
-                  size: currentPoint.size,
-                  strokeId: stroke.id,
-                  timestamp: Date.now(),
-                  userId: stroke.playerId
-                };
-                marks.push(interpolatedMark);
+                try {
+                  modelGroup.worldToLocal(interpolatedLocalPos.copy(interpolatedWorldPos));
+                  
+                  const interpolatedMark: DrawingMark = {
+                    id: `interpolated-${currentPoint.id}-${j}`,
+                    position: interpolatedLocalPos,
+                    color: currentPoint.color || '#ff6b6b',
+                    size: Math.max(0.001, Math.min(0.1, (currentPoint.size || 3) / 200)),
+                    strokeId: stroke.id,
+                    timestamp: Date.now() + i * 100 + j,
+                    userId: stroke.playerId || 'unknown'
+                  };
+                  marks.push(interpolatedMark);
+                } catch (error) {
+                  console.error('❌ Error creating interpolated mark:', error);
+                }
               }
             }
           }
         }
       }
       
+      if (marks.length === 0) {
+        console.warn('⚠️ No valid marks created from legacy stroke');
+        return;
+      }
+
       const completeStroke = {
         id: stroke.id,
         marks: marks,
         startTime: Date.now() - 1000,
         endTime: Date.now(),
-        brushSize: stroke.points[0]?.size || 3,
+        brushSize: Math.max(1, Math.min(20, stroke.points[0]?.size || 3)),
         color: stroke.points[0]?.color || '#ff6b6b',
         isComplete: true,
-        userId: stroke.playerId
+        userId: stroke.playerId || 'unknown'
       };
       
       restoreStroke(completeStroke);
-      
       console.log(`✅ Successfully restored incoming legacy drawing stroke with ${marks.length} marks`);
+    } catch (error) {
+      console.error('❌ Error processing legacy stroke:', error, stroke);
     }
   }, [modelRef, restoreStroke]);
 
