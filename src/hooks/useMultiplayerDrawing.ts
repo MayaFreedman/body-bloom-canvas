@@ -1,5 +1,6 @@
 
 import { useRef, useCallback } from 'react';
+import * as THREE from 'three';
 import { ServerClass } from '../services/ServerClass';
 import { WorldDrawingPoint, OptimizedDrawingStroke } from '@/types/multiplayerTypes';
 import { useOptimizedStrokeProcessing } from './useOptimizedStrokeProcessing';

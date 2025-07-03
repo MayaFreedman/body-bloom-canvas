@@ -61,7 +61,7 @@ export interface PlayerCursor {
 
 export interface MultiplayerState {
   isConnected: boolean;
-  isConnected: boolean;
+  isConnecting: boolean;
   room: Room | null;
   players: Map<string, PlayerCursor>;
   currentPlayerId: string | null;
