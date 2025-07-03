@@ -4,10 +4,21 @@ import html2canvas from 'html2canvas';
 
 interface ControlButtonsProps {
   onResetAll: () => void;
+  onUndo?: () => void;
+  onRedo?: () => void;
+  canUndo?: boolean;
+  canRedo?: boolean;
   canvasRef: React.RefObject<HTMLDivElement>;
 }
 
-export const ControlButtons = ({ onResetAll, canvasRef }: ControlButtonsProps) => {
+export const ControlButtons = ({ 
+  onResetAll, 
+  onUndo, 
+  onRedo, 
+  canUndo = false, 
+  canRedo = false, 
+  canvasRef 
+}: ControlButtonsProps) => {
   const captureScreenshot = async () => {
     if (!canvasRef.current) return;
     
@@ -43,8 +54,22 @@ export const ControlButtons = ({ onResetAll, canvasRef }: ControlButtonsProps) =
 
       {/* Undo/Redo Container */}
       <div className="undo-redo-container">
-        <button className="control-button">↩ Undo</button>
-        <button className="control-button">↪ Redo</button>
+        <button 
+          onClick={onUndo}
+          disabled={!canUndo}
+          className={`control-button ${!canUndo ? 'opacity-50 cursor-not-allowed' : ''}`}
+          title="Undo last action"
+        >
+          ↩ Undo
+        </button>
+        <button 
+          onClick={onRedo}
+          disabled={!canRedo}
+          className={`control-button ${!canRedo ? 'opacity-50 cursor-not-allowed' : ''}`}
+          title="Redo last undone action"
+        >
+          ↪ Redo
+        </button>
         <button onClick={captureScreenshot} className="control-button">
           📷 Snapshot
         </button>

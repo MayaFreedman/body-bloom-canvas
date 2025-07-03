@@ -7,7 +7,11 @@ import { useStrokeManager } from './useStrokeManager';
 import { useSpatialIndex } from './useSpatialIndex';
 import * as THREE from 'three';
 
-export const useEnhancedBodyMapperState = () => {
+interface UseEnhancedBodyMapperStateProps {
+  currentUserId: string | null;
+}
+
+export const useEnhancedBodyMapperState = ({ currentUserId }: UseEnhancedBodyMapperStateProps = { currentUserId: null }) => {
   const [mode, setMode] = useState<BodyMapperMode>('draw');
   const [selectedColor, setSelectedColor] = useState('#ff6b6b');
   const [brushSize, setBrushSize] = useState([3]);
@@ -15,9 +19,9 @@ export const useEnhancedBodyMapperState = () => {
   const [bodyPartColors, setBodyPartColors] = useState<Record<string, string>>({});
   const [rotation, setRotation] = useState(0);
 
-  // Enhanced state management
-  const actionHistory = useActionHistory();
-  const strokeManager = useStrokeManager();
+  // Enhanced state management with user ID
+  const actionHistory = useActionHistory({ currentUserId });
+  const strokeManager = useStrokeManager({ currentUserId });
   const spatialIndex = useSpatialIndex();
 
   // Update spatial index when marks change
@@ -31,7 +35,7 @@ export const useEnhancedBodyMapperState = () => {
     return strokeId;
   }, [strokeManager, brushSize, selectedColor]);
 
-  const handleAddDrawingMark = useCallback((mark: Omit<DrawingMark, 'strokeId' | 'timestamp'>) => {
+  const handleAddDrawingMark = useCallback((mark: Omit<DrawingMark, 'strokeId' | 'timestamp' | 'userId'>) => {
     const enhancedMark = strokeManager.addMarkToStroke(mark);
     return enhancedMark;
   }, [strokeManager]);
@@ -58,10 +62,13 @@ export const useEnhancedBodyMapperState = () => {
   const handleErase = useCallback((center: THREE.Vector3, radius: number) => {
     const marksToErase = spatialIndex.queryRadius(center, radius);
     
-    if (marksToErase.length > 0) {
+    // Only erase marks created by the current user
+    const userMarksToErase = marksToErase.filter(mark => mark.userId === currentUserId);
+    
+    if (userMarksToErase.length > 0) {
       // Remove strokes that contain erased marks
       const strokesToRemove = new Set<string>();
-      marksToErase.forEach(mark => strokesToRemove.add(mark.strokeId));
+      userMarksToErase.forEach(mark => strokesToRemove.add(mark.strokeId));
       
       strokesToRemove.forEach(strokeId => {
         strokeManager.removeStroke(strokeId);
@@ -70,14 +77,14 @@ export const useEnhancedBodyMapperState = () => {
       actionHistory.addAction({
         type: 'erase',
         data: {
-          erasedMarks: marksToErase,
+          erasedMarks: userMarksToErase,
           affectedArea: { center, radius }
         }
       });
     }
     
-    return marksToErase;
-  }, [spatialIndex, strokeManager, actionHistory]);
+    return userMarksToErase;
+  }, [spatialIndex, strokeManager, actionHistory, currentUserId]);
 
   const handleUndo = useCallback(() => {
     const actionToUndo = actionHistory.undo();
@@ -159,24 +166,23 @@ export const useEnhancedBodyMapperState = () => {
   }, [bodyPartColors, actionHistory]);
 
   const clearAll = useCallback(() => {
-    const currentState = {
-      strokes: [...strokeManager.completedStrokes],
-      bodyPartColors: { ...bodyPartColors }
-    };
-
-    strokeManager.completedStrokes.forEach(stroke => {
-      strokeManager.removeStroke(stroke.id);
-    });
+    // Only clear user's own strokes and body part fills
+    const userStrokes = strokeManager.completedStrokes.filter(stroke => stroke.userId === currentUserId);
+    
+    strokeManager.removeStrokesByUser(currentUserId || '');
+    
+    // Note: Body part colors are global - might need different handling in multiplayer
+    const currentColors = { ...bodyPartColors };
     setBodyPartColors({});
 
     actionHistory.addAction({
       type: 'clear',
       data: {
-        strokes: currentState.strokes,
-        bodyPartColors: currentState.bodyPartColors
+        strokes: userStrokes,
+        bodyPartColors: currentColors
       }
     });
-  }, [strokeManager, bodyPartColors, actionHistory]);
+  }, [strokeManager, bodyPartColors, actionHistory, currentUserId]);
 
   // Legacy compatibility - convert to old format for existing components
   const drawingMarks = strokeManager.getAllMarks().map(mark => ({
@@ -218,6 +224,10 @@ export const useEnhancedBodyMapperState = () => {
     
     // Utility functions
     queryMarksInRadius: spatialIndex.queryRadius,
-    queryMarksInBox: spatialIndex.queryBox
+    queryMarksInBox: spatialIndex.queryBox,
+    
+    // User-specific functions
+    getUserMarks: strokeManager.getMarksByUser,
+    clearUserHistory: actionHistory.clearUserHistory
   };
 };

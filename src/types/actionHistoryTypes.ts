@@ -8,6 +8,7 @@ export interface DrawingMark {
   size: number;
   timestamp: number;
   strokeId: string;
+  userId?: string; // Track which user created this mark
 }
 
 export interface DrawingStroke {
@@ -18,12 +19,14 @@ export interface DrawingStroke {
   brushSize: number;
   color: string;
   isComplete: boolean;
+  userId?: string; // Track which user created this stroke
 }
 
 export interface ActionHistoryItem {
   id: string;
   type: 'draw' | 'erase' | 'fill' | 'clear';
   timestamp: number;
+  userId: string; // Required - every action must have a user ID
   data: {
     strokes?: DrawingStroke[];
     marks?: DrawingMark[];
@@ -41,9 +44,14 @@ export interface ActionHistoryItem {
   };
 }
 
-export interface ActionHistory {
+export interface UserActionHistory {
   items: ActionHistoryItem[];
   currentIndex: number;
+  maxHistorySize: number;
+}
+
+export interface ActionHistory {
+  userHistories: Map<string, UserActionHistory>;
   maxHistorySize: number;
 }
 
