@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { Room } from 'colyseus.js';
 import { DrawingMark, SensationMark } from '@/types/bodyMapperTypes';
@@ -9,7 +10,7 @@ interface MultiplayerMessageHandlerProps {
   modelRef: React.RefObject<THREE.Group>;
   setDrawingMarks: React.Dispatch<React.SetStateAction<DrawingMark[]>>;
   setSensationMarks: React.Dispatch<React.SetStateAction<SensationMark[]>>;
-  setBodyPartColors: React.Dispatch<React.SetStateAction<Record<string, string>>>;
+  setBodyPartColors: (partName: string, color: string) => void; // Changed to handler function
   setRotation: React.Dispatch<React.SetStateAction<number>>;
   clearAll: () => void;
   controlsRef: React.RefObject<any>;
@@ -203,11 +204,9 @@ export const MultiplayerMessageHandler = ({
             }
             
             try {
-              setBodyPartColors(prev => ({
-                ...prev,
-                [fill.partName]: fill.color
-              }));
-              console.log('✅ Successfully applied body part fill:', fill.partName, fill.color);
+              // Use the handler function instead of direct state update
+              setBodyPartColors(fill.partName, fill.color);
+              console.log('✅ Successfully applied body part fill via handler:', fill.partName, fill.color);
             } catch (fillError) {
               console.error('❌ Error applying body part fill:', fillError, fill);
             }

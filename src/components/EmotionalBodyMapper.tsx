@@ -96,6 +96,13 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     }
   }, [baseHandleBodyPartClick, multiplayer]);
 
+  // Handler for incoming multiplayer body part fills
+  const handleIncomingBodyPartFill = useCallback((partName: string, color: string) => {
+    console.log('📨 Handling incoming body part fill:', partName, color);
+    // Use the same handler but without broadcasting to avoid loops
+    baseHandleBodyPartClick(partName, color);
+  }, [baseHandleBodyPartClick]);
+
   const handleSensationClick = useCallback((position: THREE.Vector3, sensation: { icon: string; color: string; name: string }) => {
     // For now, just log - sensation functionality needs to be integrated with enhanced state
     console.log('Sensation clicked:', position, sensation);
@@ -219,7 +226,7 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
         modelRef={modelRef}
         setDrawingMarks={() => {}} // These will need to be updated for enhanced state
         setSensationMarks={() => {}}
-        setBodyPartColors={() => {}}
+        setBodyPartColors={handleIncomingBodyPartFill} // Now properly connected!
         setRotation={setRotation}
         clearAll={clearAll}
         controlsRef={controlsRef}
