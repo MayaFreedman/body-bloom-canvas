@@ -1,3 +1,4 @@
+
 import { useCallback } from 'react';
 import * as THREE from 'three';
 import { WorldDrawingPoint } from '@/types/multiplayerTypes';
@@ -69,14 +70,37 @@ export const useDrawingMarks = ({
 
     const distance = start.distanceTo(end);
     
-    // Optimized interpolation - balanced smoothness without lag
+    // Significantly increased interpolation - much more for smaller brushes
     const getStepCount = (size: number, distance: number): number => {
-      // Base steps on brush size and distance, but keep reasonable limits
-      const baseMultiplier = size <= 3 ? 60 : size <= 8 ? 45 : 30;
+      // Base steps dramatically increased, with smaller brushes getting exponentially more
+      let baseMultiplier;
+      if (size <= 3) {
+        baseMultiplier = 150; // Tiny brushes get massive interpolation
+      } else if (size <= 5) {
+        baseMultiplier = 120; // Small brushes get very high interpolation
+      } else if (size <= 8) {
+        baseMultiplier = 90;  // Medium brushes get high interpolation
+      } else if (size <= 12) {
+        baseMultiplier = 70;  // Larger brushes get good interpolation
+      } else {
+        baseMultiplier = 50;  // Largest brushes get moderate interpolation
+      }
+      
       const calculatedSteps = Math.floor(distance * baseMultiplier);
       
-      // Cap at reasonable maximums to prevent lag
-      const maxSteps = size <= 3 ? 20 : size <= 8 ? 15 : 10;
+      // Much higher maximums, especially for small brushes
+      let maxSteps;
+      if (size <= 3) {
+        maxSteps = 80;  // Tiny brushes can have up to 80 steps
+      } else if (size <= 5) {
+        maxSteps = 60;  // Small brushes can have up to 60 steps
+      } else if (size <= 8) {
+        maxSteps = 45;  // Medium brushes can have up to 45 steps
+      } else if (size <= 12) {
+        maxSteps = 35;  // Larger brushes can have up to 35 steps
+      } else {
+        maxSteps = 25;  // Largest brushes can have up to 25 steps
+      }
       
       return Math.max(1, Math.min(maxSteps, calculatedSteps));
     };
