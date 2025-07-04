@@ -22,7 +22,7 @@ export const useEnhancedBodyMapperState = ({ currentUserId }: UseEnhancedBodyMap
   const [sensationMarks, setSensationMarks] = useState<SensationMark[]>([]);
   const [rotation, setRotation] = useState(0);
 
-  // Enhanced state management with user ID
+  // Global action history and stroke management
   const actionHistory = useActionHistory({ currentUserId });
   const strokeManager = useStrokeManager({ currentUserId });
   const spatialIndex = useSpatialIndex();
@@ -97,7 +97,7 @@ export const useEnhancedBodyMapperState = ({ currentUserId }: UseEnhancedBodyMap
     setBrushSize,
     selectedSensation,
     setSelectedSensation,
-    drawingMarks, // Legacy compatibility
+    drawingMarks,
     sensationMarks,
     setSensationMarks,
     bodyPartColors,
@@ -115,7 +115,7 @@ export const useEnhancedBodyMapperState = ({ currentUserId }: UseEnhancedBodyMap
     handleBodyPartClick: bodyPartOps.handleBodyPartClick,
     clearAll,
     
-    // State queries
+    // State queries - now global
     canUndo: actionHistory.canUndo,
     canRedo: actionHistory.canRedo,
     currentStroke: strokeManager.currentStroke,
@@ -125,14 +125,14 @@ export const useEnhancedBodyMapperState = ({ currentUserId }: UseEnhancedBodyMap
     queryMarksInRadius: spatialIndex.queryRadius,
     queryMarksInBox: spatialIndex.queryBox,
     
-    // User-specific functions
+    // User-specific functions (still needed for stroke management)
     getUserMarks: strokeManager.getMarksByUser,
-    clearUserHistory: actionHistory.clearUserHistory,
+    clearUserHistory: actionHistory.clearHistory,
     
     // Expose restoreStroke for multiplayer
     restoreStroke: strokeManager.restoreStroke,
     
-    // Add the missing addAction function
+    // Global action history
     addAction: actionHistory.addAction
   };
 };
