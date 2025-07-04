@@ -1,4 +1,3 @@
-
 import React, { useRef, useState, useCallback } from 'react';
 import { TopBanner } from './bodyMapper/TopBanner';
 import { MultiplayerMessageHandler } from './bodyMapper/MultiplayerMessageHandler';
@@ -49,7 +48,6 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     clearAll,
     canUndo,
     canRedo,
-    restoreStroke,
     addAction
   } = useEnhancedBodyMapperState({ currentUserId });
 
@@ -71,7 +69,7 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     handleStartDrawing,
     handleFinishDrawing,
     baseHandleBodyPartClick,
-    restoreStroke,
+    restoreStroke: undefined,
     modelRef,
     clearAll,
     selectedColor,
