@@ -288,10 +288,17 @@ export const useStrokeHandlers = ({
     }
   }, [handleFinishDrawing, multiplayer]);
 
+  const handleAddToDrawingStroke = useCallback((worldPoint: WorldDrawingPoint) => {
+    if (multiplayer.isConnected) {
+      multiplayer.addToDrawingStroke(worldPoint);
+    }
+  }, [multiplayer]);
+
   return {
     handleIncomingOptimizedStroke,
     handleIncomingDrawingStroke,
     handleDrawingStrokeStart,
-    handleDrawingStrokeComplete
+    handleDrawingStrokeComplete,
+    handleAddToDrawingStroke
   };
 };
