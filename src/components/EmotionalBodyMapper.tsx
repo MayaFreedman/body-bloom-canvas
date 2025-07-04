@@ -45,7 +45,8 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     clearAll,
     canUndo,
     canRedo,
-    restoreStroke
+    restoreStroke,
+    addAction
   } = useEnhancedBodyMapperState({ currentUserId });
 
   const multiplayer = useMultiplayer(roomId);
@@ -68,7 +69,10 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     baseHandleBodyPartClick,
     restoreStroke,
     modelRef,
-    clearAll
+    clearAll,
+    selectedColor,
+    brushSize,
+    addAction
   });
 
   const { handleRotateLeft, handleRotateRight } = useRotationHandlers({ 

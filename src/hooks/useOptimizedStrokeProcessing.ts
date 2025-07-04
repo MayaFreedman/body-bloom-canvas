@@ -9,7 +9,6 @@ export const useOptimizedStrokeProcessing = () => {
 
   const addStrokePoint = useCallback((worldPosition: THREE.Vector3, bodyPart: string) => {
     try {
-      // Validate input
       if (!worldPosition || typeof worldPosition.x !== 'number' || typeof worldPosition.y !== 'number' || typeof worldPosition.z !== 'number') {
         console.warn('⚠️ Invalid world position for stroke point:', worldPosition);
         return;
@@ -31,9 +30,8 @@ export const useOptimizedStrokeProcessing = () => {
         timestamp: Date.now()
       };
 
-      // Smart point selection logic
       const shouldIncludePoint = (point: StrokeKeyPoint): boolean => {
-        if (!lastPointRef.current) return true; // Always include first point
+        if (!lastPointRef.current) return true;
         
         const lastPoint = lastPointRef.current;
         const distance = Math.sqrt(
@@ -42,13 +40,9 @@ export const useOptimizedStrokeProcessing = () => {
           Math.pow(point.worldPosition.z - lastPoint.worldPosition.z, 2)
         );
         
-        // Include point if:
-        // 1. Significant distance from last point
-        // 2. Body part change
-        // 3. Time gap (direction change indicator)
-        const significantDistance = distance > 0.02;
+        const significantDistance = distance > 0.015; // Slightly tighter threshold for better optimization
         const bodyPartChange = point.bodyPart !== lastPoint.bodyPart;
-        const timeGap = point.timestamp - lastPoint.timestamp > 100;
+        const timeGap = point.timestamp - lastPoint.timestamp > 80; // Reduced time gap
         
         return significantDistance || bodyPartChange || timeGap;
       };
@@ -70,7 +64,6 @@ export const useOptimizedStrokeProcessing = () => {
         return null;
       }
 
-      // Validate inputs
       if (!color || typeof color !== 'string') {
         console.warn('⚠️ Invalid color for stroke, using default');
         color = '#ff6b6b';
@@ -83,7 +76,6 @@ export const useOptimizedStrokeProcessing = () => {
 
       const keyPoints = [...currentStrokePoints.current];
       
-      // Calculate total stroke length for reconstruction
       let totalLength = 0;
       for (let i = 1; i < keyPoints.length; i++) {
         const prev = keyPoints[i - 1];
@@ -106,18 +98,21 @@ export const useOptimizedStrokeProcessing = () => {
           endTime: keyPoints[keyPoints.length - 1].timestamp,
           totalLength
         },
-        playerId: '' // Will be set by the multiplayer handler
+        playerId: ''
       };
 
-      // Reset for next stroke
       currentStrokePoints.current = [];
       lastPointRef.current = null;
 
-      console.log('✅ Finalized optimized stroke with', keyPoints.length, 'key points');
+      console.log('✅ Finalized optimized stroke with complete metadata:', {
+        keyPointsCount: keyPoints.length,
+        color: stroke.metadata.color,
+        size: stroke.metadata.size,
+        totalLength: stroke.metadata.totalLength
+      });
       return stroke;
     } catch (error) {
       console.error('❌ Error finalizing stroke:', error);
-      // Reset state even on error
       currentStrokePoints.current = [];
       lastPointRef.current = null;
       return null;
@@ -136,8 +131,13 @@ export const useOptimizedStrokeProcessing = () => {
         return [];
       }
 
+      console.log('🎨 Reconstructing stroke with metadata:', {
+        keyPoints: stroke.keyPoints.length,
+        color: stroke.metadata.color,
+        size: stroke.metadata.size
+      });
+
       if (stroke.keyPoints.length < 2) {
-        // Single point stroke
         const point = stroke.keyPoints[0];
         if (!point || !point.worldPosition) {
           console.warn('⚠️ Invalid single point:', point);
@@ -152,7 +152,10 @@ export const useOptimizedStrokeProcessing = () => {
 
       const reconstructedPoints: THREE.Vector3[] = [];
       
-      // Use standardized linear interpolation for consistent reconstruction
+      // Enhanced reconstruction with better smoothing based on stroke metadata
+      const strokeSize = stroke.metadata.size || 3;
+      const densityFactor = Math.max(40, Math.min(120, 80 / Math.max(1, strokeSize))); // Adjust density based on stroke size
+      
       for (let i = 0; i < stroke.keyPoints.length - 1; i++) {
         const currentKeyPoint = stroke.keyPoints[i];
         const nextKeyPoint = stroke.keyPoints[i + 1];
@@ -175,20 +178,22 @@ export const useOptimizedStrokeProcessing = () => {
 
         reconstructedPoints.push(current);
 
-        // Only interpolate if both points are on the same body part
         if (currentKeyPoint.bodyPart === nextKeyPoint.bodyPart) {
           const distance = current.distanceTo(next);
-          const steps = Math.max(1, Math.min(20, Math.floor(distance * 80 / (stroke.metadata.size || 3)))); // Limit interpolation steps
+          const steps = Math.max(1, Math.min(25, Math.floor(distance * densityFactor)));
           
-          for (let j = 1; j < steps; j++) {
-            const t = j / steps;
-            const interpolated = new THREE.Vector3().lerpVectors(current, next, t);
-            reconstructedPoints.push(interpolated);
+          if (steps > 1) {
+            for (let j = 1; j < steps; j++) {
+              const t = j / steps;
+              // Use smooth interpolation for better stroke quality
+              const smoothT = t * t * (3 - 2 * t); // Smoothstep function
+              const interpolated = new THREE.Vector3().lerpVectors(current, next, smoothT);
+              reconstructedPoints.push(interpolated);
+            }
           }
         }
       }
       
-      // Add the final point
       const lastPoint = stroke.keyPoints[stroke.keyPoints.length - 1];
       if (lastPoint?.worldPosition) {
         reconstructedPoints.push(new THREE.Vector3(
@@ -198,7 +203,12 @@ export const useOptimizedStrokeProcessing = () => {
         ));
       }
 
-      console.log('🎨 Reconstructed', reconstructedPoints.length, 'points from', stroke.keyPoints.length, 'key points');
+      console.log('✅ Successfully reconstructed stroke:', {
+        originalKeyPoints: stroke.keyPoints.length,
+        reconstructedPoints: reconstructedPoints.length,
+        color: stroke.metadata.color,
+        size: stroke.metadata.size
+      });
       return reconstructedPoints;
     } catch (error) {
       console.error('❌ Error reconstructing stroke:', error);

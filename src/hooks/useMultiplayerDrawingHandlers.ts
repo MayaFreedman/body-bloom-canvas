@@ -13,6 +13,9 @@ interface UseMultiplayerDrawingHandlersProps {
   restoreStroke: (stroke: any) => void;
   modelRef: React.RefObject<THREE.Group>;
   clearAll: () => void;
+  selectedColor: string;
+  brushSize: number[];
+  addAction: (action: any) => void;
 }
 
 export const useMultiplayerDrawingHandlers = ({
@@ -22,7 +25,10 @@ export const useMultiplayerDrawingHandlers = ({
   baseHandleBodyPartClick,
   restoreStroke,
   modelRef,
-  clearAll
+  clearAll,
+  selectedColor,
+  brushSize,
+  addAction
 }: UseMultiplayerDrawingHandlersProps) => {
   const handleEmotionsUpdate = useCallback((updateData: any) => {
     if (multiplayer.isConnected && multiplayer.room) {
@@ -47,7 +53,13 @@ export const useMultiplayerDrawingHandlers = ({
   }, [baseHandleBodyPartClick]);
 
   const handleIncomingOptimizedStroke = useCallback((optimizedStroke: OptimizedDrawingStroke) => {
-    console.log('📨 Handling incoming optimized stroke:', optimizedStroke);
+    console.log('📨 Handling incoming optimized stroke with metadata:', {
+      id: optimizedStroke.id,
+      keyPointsCount: optimizedStroke.keyPoints.length,
+      color: optimizedStroke.metadata.color,
+      size: optimizedStroke.metadata.size,
+      playerId: optimizedStroke.playerId
+    });
     
     try {
       const modelGroup = modelRef.current;
@@ -66,6 +78,12 @@ export const useMultiplayerDrawingHandlers = ({
         return;
       }
 
+      // Validate metadata
+      const metadata = optimizedStroke.metadata;
+      if (!metadata || !metadata.color || !metadata.size) {
+        console.warn('⚠️ Missing stroke metadata, using defaults:', metadata);
+      }
+
       const reconstructedPoints = multiplayer.reconstructStroke(optimizedStroke);
       console.log('🎨 Reconstructed', reconstructedPoints.length, 'points from', optimizedStroke.keyPoints.length, 'key points');
       
@@ -75,7 +93,6 @@ export const useMultiplayerDrawingHandlers = ({
       }
 
       const marks: DrawingMark[] = reconstructedPoints.map((worldPos, index) => {
-        // Validate world position
         if (!worldPos || typeof worldPos.x !== 'number' || typeof worldPos.y !== 'number' || typeof worldPos.z !== 'number') {
           console.warn('⚠️ Invalid world position:', worldPos);
           return null;
@@ -92,8 +109,8 @@ export const useMultiplayerDrawingHandlers = ({
         return {
           id: `reconstructed-${optimizedStroke.id}-${index}`,
           position: localPos,
-          color: optimizedStroke.metadata.color || '#ff6b6b',
-          size: Math.max(0.001, Math.min(0.1, optimizedStroke.metadata.size / 200)), // Clamp size to reasonable bounds
+          color: metadata.color || '#ff6b6b',
+          size: Math.max(0.001, Math.min(0.1, metadata.size / 200)),
           strokeId: optimizedStroke.id,
           timestamp: Date.now() + index,
           userId: optimizedStroke.playerId || 'unknown'
@@ -108,23 +125,47 @@ export const useMultiplayerDrawingHandlers = ({
       const completeStroke = {
         id: optimizedStroke.id,
         marks: marks,
-        startTime: optimizedStroke.metadata.startTime || Date.now() - 1000,
-        endTime: optimizedStroke.metadata.endTime || Date.now(),
-        brushSize: Math.max(1, Math.min(20, optimizedStroke.metadata.size || 3)), // Clamp brush size
-        color: optimizedStroke.metadata.color || '#ff6b6b',
+        startTime: metadata.startTime || Date.now() - 1000,
+        endTime: metadata.endTime || Date.now(),
+        brushSize: Math.max(1, Math.min(20, metadata.size || 3)),
+        color: metadata.color || '#ff6b6b',
         isComplete: true,
         userId: optimizedStroke.playerId || 'unknown'
       };
       
+      // Add to action history for reset all functionality
+      addAction({
+        type: 'draw',
+        data: {
+          strokes: [completeStroke]
+        },
+        metadata: {
+          brushSize: completeStroke.brushSize,
+          color: completeStroke.color,
+          isMultiplayer: true,
+          playerId: optimizedStroke.playerId
+        }
+      });
+      
       restoreStroke(completeStroke);
-      console.log(`✅ Successfully restored optimized stroke with ${marks.length} marks`);
+      console.log('✅ Successfully restored optimized stroke with correct metadata:', {
+        marksCount: marks.length,
+        color: completeStroke.color,
+        size: completeStroke.brushSize
+      });
     } catch (error) {
       console.error('❌ Error processing optimized stroke:', error, optimizedStroke);
     }
-  }, [modelRef, restoreStroke, multiplayer]);
+  }, [modelRef, restoreStroke, multiplayer, addAction]);
 
   const handleIncomingDrawingStroke = useCallback((stroke: any) => {
-    console.log('📨 Handling incoming legacy drawing stroke:', stroke);
+    console.log('📨 Handling incoming legacy drawing stroke with metadata:', {
+      id: stroke.id,
+      pointsCount: stroke.points?.length,
+      firstPointColor: stroke.points?.[0]?.color,
+      firstPointSize: stroke.points?.[0]?.size,
+      playerId: stroke.playerId
+    });
     
     try {
       if (!stroke || !stroke.points || !Array.isArray(stroke.points)) {
@@ -168,7 +209,7 @@ export const useMultiplayerDrawingHandlers = ({
           id: currentPoint.id || `legacy-${i}`,
           position: localPos,
           color: currentPoint.color || '#ff6b6b',
-          size: Math.max(0.001, Math.min(0.1, (currentPoint.size || 3) / 200)), // Clamp size
+          size: Math.max(0.001, Math.min(0.1, (currentPoint.size || 3) / 200)),
           strokeId: stroke.id,
           timestamp: Date.now() + i,
           userId: stroke.playerId || 'unknown'
@@ -176,7 +217,7 @@ export const useMultiplayerDrawingHandlers = ({
         
         marks.push(mark);
         
-        // Interpolation logic - simplified and safer
+        // Enhanced interpolation with better smoothing
         if (i < stroke.points.length - 1) {
           const nextPoint: WorldDrawingPoint = stroke.points[i + 1];
           if (nextPoint && nextPoint.worldPosition && currentPoint.bodyPart === nextPoint.bodyPart) {
@@ -187,12 +228,14 @@ export const useMultiplayerDrawingHandlers = ({
             );
             
             const distance = worldPos.distanceTo(nextWorldPos);
-            const steps = Math.max(1, Math.min(10, Math.floor(distance * 30))); // Limit interpolation steps
+            const steps = Math.max(1, Math.min(15, Math.floor(distance * 50))); // Improved smoothing
             
             if (steps > 1) {
               for (let j = 1; j < steps; j++) {
                 const t = j / steps;
-                const interpolatedWorldPos = new THREE.Vector3().lerpVectors(worldPos, nextWorldPos, t);
+                // Use smooth interpolation curve
+                const smoothT = t * t * (3 - 2 * t); // Smoothstep function
+                const interpolatedWorldPos = new THREE.Vector3().lerpVectors(worldPos, nextWorldPos, smoothT);
                 const interpolatedLocalPos = new THREE.Vector3();
                 
                 try {
@@ -233,12 +276,30 @@ export const useMultiplayerDrawingHandlers = ({
         userId: stroke.playerId || 'unknown'
       };
       
+      // Add to action history for reset all functionality
+      addAction({
+        type: 'draw',
+        data: {
+          strokes: [completeStroke]
+        },
+        metadata: {
+          brushSize: completeStroke.brushSize,
+          color: completeStroke.color,
+          isMultiplayer: true,
+          playerId: stroke.playerId
+        }
+      });
+      
       restoreStroke(completeStroke);
-      console.log(`✅ Successfully restored incoming legacy drawing stroke with ${marks.length} marks`);
+      console.log('✅ Successfully restored legacy stroke with correct metadata:', {
+        marksCount: marks.length,
+        color: completeStroke.color,
+        size: completeStroke.brushSize
+      });
     } catch (error) {
       console.error('❌ Error processing legacy stroke:', error, stroke);
     }
-  }, [modelRef, restoreStroke]);
+  }, [modelRef, restoreStroke, addAction]);
 
   const handleSensationClick = useCallback((position: THREE.Vector3, sensation: { icon: string; color: string; name: string }) => {
     console.log('Sensation clicked:', position, sensation);
@@ -272,12 +333,14 @@ export const useMultiplayerDrawingHandlers = ({
   const handleDrawingStrokeStart = useCallback(() => {
     handleStartDrawing();
     if (multiplayer.isConnected) {
-      // Get current drawing state to pass to multiplayer
-      const currentColor = '#ff6b6b'; // This should come from the actual state
-      const currentSize = 3; // This should come from the actual state
-      multiplayer.startDrawingStroke(currentColor, currentSize);
+      // Use actual current state values
+      console.log('🎨 Starting multiplayer stroke with current state:', {
+        color: selectedColor,
+        size: brushSize[0]
+      });
+      multiplayer.startDrawingStroke(selectedColor, brushSize[0]);
     }
-  }, [handleStartDrawing, multiplayer]);
+  }, [handleStartDrawing, multiplayer, selectedColor, brushSize]);
 
   const handleDrawingStrokeComplete = useCallback(() => {
     handleFinishDrawing();
