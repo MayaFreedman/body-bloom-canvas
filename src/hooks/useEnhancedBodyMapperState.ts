@@ -130,6 +130,9 @@ export const useEnhancedBodyMapperState = ({ currentUserId }: UseEnhancedBodyMap
     clearUserHistory: actionHistory.clearUserHistory,
     
     // Expose restoreStroke for multiplayer
-    restoreStroke: strokeManager.restoreStroke
+    restoreStroke: strokeManager.restoreStroke,
+    
+    // Add the missing addAction function
+    addAction: actionHistory.addAction
   };
 };
