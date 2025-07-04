@@ -213,7 +213,7 @@ export const useOptimizedStrokeProcessing = () => {
         // Only interpolate between points on the same body part
         if (currentKeyPoint.bodyPart === nextKeyPoint.bodyPart) {
           const distance = current.distanceTo(next);
-          const steps = this.getInterpolationStepCount(strokeSize, distance);
+          const steps = getInterpolationStepCount(strokeSize, distance);
           
           console.log(`🎨 Interpolating ${steps} steps between key points (distance: ${distance.toFixed(3)}, size: ${strokeSize})`);
           
