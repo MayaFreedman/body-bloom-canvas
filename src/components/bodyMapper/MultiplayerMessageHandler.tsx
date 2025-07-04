@@ -33,17 +33,22 @@ export const MultiplayerMessageHandler = ({
 
     const handleBroadcast = (message: any) => {
       try {
+        console.log('📨 Received broadcast message:', message);
+        
         if (!message || !message.type) {
+          console.warn('⚠️ Invalid message format:', message);
           return;
         }
 
         const messageData = message.data || message.action;
         if (!messageData) {
+          console.warn('⚠️ No data/action in message:', message);
           return;
         }
 
         switch (message.type) {
           case 'modelRotation': {
+            console.log('🔄 Processing model rotation:', messageData);
             if (messageData.direction === 'left') {
               setRotation(prev => prev - Math.PI / 2);
             } else if (messageData.direction === 'right') {
@@ -52,6 +57,7 @@ export const MultiplayerMessageHandler = ({
             break;
           }
           case 'emotionUpdate': {
+            console.log('🎨 Processing emotion update:', messageData);
             if (controlsRef.current && controlsRef.current.handleIncomingEmotionUpdate) {
               controlsRef.current.handleIncomingEmotionUpdate(messageData);
             }
@@ -67,17 +73,16 @@ export const MultiplayerMessageHandler = ({
             }
             
             if (onIncomingOptimizedStroke) {
-              console.log('🔗 Calling onIncomingOptimizedStroke handler');
               onIncomingOptimizedStroke(optimizedStroke);
-            } else {
-              console.warn('⚠️ No onIncomingOptimizedStroke handler provided');
             }
             break;
           }
           case 'drawingStroke': {
             const stroke = messageData;
+            console.log('🎨 Processing legacy drawing stroke via handler:', stroke);
             
             if (!stroke || !stroke.points || !Array.isArray(stroke.points)) {
+              console.warn('⚠️ Invalid stroke data:', stroke);
               return;
             }
             
@@ -86,8 +91,10 @@ export const MultiplayerMessageHandler = ({
           }
           case 'sensationPlace': {
             const sensation = messageData;
+            console.log('✨ Processing sensation placement:', sensation);
             
             if (!sensation || !sensation.position || !sensation.id) {
+              console.warn('⚠️ Invalid sensation data:', sensation);
               return;
             }
             
@@ -103,6 +110,7 @@ export const MultiplayerMessageHandler = ({
                 color: sensation.color || '#ff6b6b',
                 size: sensation.size || 0.1
               };
+              console.log('✨ Adding sensation mark:', newSensationMark);
               setSensationMarks(prev => [...prev, newSensationMark]);
             } catch (sensationError) {
               console.error('❌ Error processing sensation:', sensationError, sensation);
@@ -111,22 +119,28 @@ export const MultiplayerMessageHandler = ({
           }
           case 'bodyPartFill': {
             const fill = messageData;
+            console.log('🎨 Processing body part fill:', fill);
             
             if (!fill || !fill.partName || !fill.color) {
+              console.warn('⚠️ Invalid fill data:', fill);
               return;
             }
             
             try {
               setBodyPartColors(fill.partName, fill.color);
+              console.log('✅ Successfully applied body part fill via handler:', fill.partName, fill.color);
             } catch (fillError) {
               console.error('❌ Error applying body part fill:', fillError, fill);
             }
             break;
           }
           case 'resetAll': {
+            console.log('🔄 Processing reset all from another user');
             clearAll();
             break;
           }
+          default:
+            console.log('🤷 Unknown message type:', message.type);
         }
       } catch (error) {
         console.error('❌ Error processing broadcast message:', error, message);

@@ -1,6 +1,7 @@
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { DrawingStroke, DrawingMark } from '@/types/actionHistoryTypes';
+import * as THREE from 'three';
 
 interface UseStrokeManagerProps {
   currentUserId: string | null;
@@ -8,7 +9,7 @@ interface UseStrokeManagerProps {
 
 export const useStrokeManager = ({ currentUserId }: UseStrokeManagerProps) => {
   const [currentStroke, setCurrentStroke] = useState<DrawingStroke | null>(null);
-  const [allStrokes, setAllStrokes] = useState<Map<string, DrawingStroke>>(new Map());
+  const [completedStrokes, setCompletedStrokes] = useState<DrawingStroke[]>([]);
 
   const startStroke = useCallback((brushSize: number, color: string) => {
     if (!currentUserId) return null;
@@ -24,7 +25,6 @@ export const useStrokeManager = ({ currentUserId }: UseStrokeManagerProps) => {
       userId: currentUserId
     };
     
-    console.log('🎨 Starting stroke:', newStroke.id);
     setCurrentStroke(newStroke);
     return newStroke.id;
   }, [currentUserId]);
@@ -59,44 +59,37 @@ export const useStrokeManager = ({ currentUserId }: UseStrokeManagerProps) => {
       isComplete: true
     };
 
-    console.log('✅ Finishing stroke:', completedStroke.id, 'with', completedStroke.marks.length, 'marks');
-    
-    setAllStrokes(prev => new Map(prev).set(completedStroke.id, completedStroke));
+    setCompletedStrokes(prev => [...prev, completedStroke]);
     setCurrentStroke(null);
     
     return completedStroke;
   }, [currentStroke]);
 
-  // Simple operations that work directly with the Map
-  const addStroke = useCallback((stroke: DrawingStroke) => {
-    console.log('➕ Adding stroke:', stroke.id);
-    setAllStrokes(prev => new Map(prev).set(stroke.id, stroke));
+  const removeStroke = useCallback((strokeId: string) => {
+    setCompletedStrokes(prev => prev.filter(stroke => stroke.id !== strokeId));
   }, []);
 
-  const removeStroke = useCallback((strokeId: string) => {
-    console.log('🗑️ Removing stroke:', strokeId);
-    setAllStrokes(prev => {
-      const newMap = new Map(prev);
-      const removed = newMap.delete(strokeId);
-      console.log('🗑️ Stroke removal result:', removed ? 'SUCCESS' : 'NOT FOUND');
-      console.log('🗑️ Strokes remaining:', newMap.size);
-      return newMap;
+  const restoreStroke = useCallback((stroke: DrawingStroke) => {
+    console.log('Restoring stroke:', stroke.id);
+    setCompletedStrokes(prev => {
+      // Check if stroke already exists to avoid duplicates
+      const exists = prev.some(s => s.id === stroke.id);
+      if (exists) {
+        console.log('Stroke already exists, skipping restore');
+        return prev;
+      }
+      return [...prev, stroke];
     });
   }, []);
 
-  const clearAllStrokes = useCallback(() => {
-    console.log('🧹 Clearing all strokes');
-    setAllStrokes(new Map());
-    setCurrentStroke(null);
+  const removeStrokesByUser = useCallback((userId: string) => {
+    setCompletedStrokes(prev => prev.filter(stroke => stroke.userId !== userId));
   }, []);
 
-  // Convert Map to array for rendering
-  const completedStrokes = Array.from(allStrokes.values());
-
   const getAllMarks = useCallback((): DrawingMark[] => {
-    const allMarks = completedStrokes.flatMap(stroke => stroke.marks || []);
+    const allMarks = completedStrokes.flatMap(stroke => stroke.marks);
     if (currentStroke) {
-      allMarks.push(...(currentStroke.marks || []));
+      allMarks.push(...currentStroke.marks);
     }
     return allMarks.sort((a, b) => a.timestamp - b.timestamp);
   }, [completedStrokes, currentStroke]);
@@ -111,9 +104,9 @@ export const useStrokeManager = ({ currentUserId }: UseStrokeManagerProps) => {
     startStroke,
     addMarkToStroke,
     finishStroke,
-    addStroke,
     removeStroke,
-    clearAllStrokes,
+    restoreStroke,
+    removeStrokesByUser,
     getAllMarks,
     getMarksByUser
   };

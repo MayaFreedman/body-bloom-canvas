@@ -3,12 +3,11 @@ import { useCallback } from 'react';
 import { useMultiplayer } from './useMultiplayer';
 
 interface UseRotationHandlersProps {
-  rotation: number;
   setRotation: React.Dispatch<React.SetStateAction<number>>;
   multiplayer: ReturnType<typeof useMultiplayer>;
 }
 
-export const useRotationHandlers = ({ rotation, setRotation, multiplayer }: UseRotationHandlersProps) => {
+export const useRotationHandlers = ({ setRotation, multiplayer }: UseRotationHandlersProps) => {
   const handleRotateLeft = useCallback(() => {
     setRotation(prev => prev - Math.PI / 2);
     
@@ -18,7 +17,7 @@ export const useRotationHandlers = ({ rotation, setRotation, multiplayer }: UseR
         data: { direction: 'left' }
       });
     }
-  }, [setRotation, multiplayer.isConnected, multiplayer.room]);
+  }, [setRotation, multiplayer]);
 
   const handleRotateRight = useCallback(() => {
     setRotation(prev => prev + Math.PI / 2);
@@ -29,7 +28,7 @@ export const useRotationHandlers = ({ rotation, setRotation, multiplayer }: UseR
         data: { direction: 'right' }
       });
     }
-  }, [setRotation, multiplayer.isConnected, multiplayer.room]);
+  }, [setRotation, multiplayer]);
 
   return {
     handleRotateLeft,

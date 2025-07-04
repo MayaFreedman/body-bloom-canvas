@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { EmotionalBodyMapper } from '@/components/EmotionalBodyMapper';
+import EmotionalBodyMapper from '@/components/EmotionalBodyMapper';
 
 const Index = () => {
   const [searchParams] = useSearchParams();

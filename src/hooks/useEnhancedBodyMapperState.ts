@@ -1,224 +1,92 @@
-import { useState, useCallback, useMemo } from 'react';
+
+import { useState, useEffect } from 'react';
+import { BodyMapperMode, SelectedSensation, SensationMark } from '@/types/bodyMapperTypes';
 import { useActionHistory } from './useActionHistory';
 import { useStrokeManager } from './useStrokeManager';
-import { useBodyPartOperations } from './useBodyPartOperations';
-import { useSensationHandlers } from './useSensationHandlers';
+import { useSpatialIndex } from './useSpatialIndex';
 import { useDrawingOperations } from './useDrawingOperations';
 import { useEraseOperations } from './useEraseOperations';
 import { useUndoRedoOperations } from './useUndoRedoOperations';
-import { useSpatialIndex } from './useSpatialIndex';
-import { 
-  BodyMapperMode, 
-  SelectedSensation, 
-  SensationMark, 
-  BodyPartColors,
-  DrawingMark 
-} from '@/types/bodyMapperTypes';
-import { ActionHistoryItem } from '@/types/actionHistoryTypes';
-import * as THREE from 'three';
+import { useBodyPartOperations } from './useBodyPartOperations';
 
 interface UseEnhancedBodyMapperStateProps {
-  currentUserId: string;
+  currentUserId: string | null;
 }
 
-export const useEnhancedBodyMapperState = ({ currentUserId }: UseEnhancedBodyMapperStateProps) => {
+export const useEnhancedBodyMapperState = ({ currentUserId }: UseEnhancedBodyMapperStateProps = { currentUserId: null }) => {
   const [mode, setMode] = useState<BodyMapperMode>('draw');
   const [selectedColor, setSelectedColor] = useState('#ff6b6b');
   const [brushSize, setBrushSize] = useState([3]);
   const [selectedSensation, setSelectedSensation] = useState<SelectedSensation | null>(null);
+  const [bodyPartColors, setBodyPartColors] = useState<Record<string, string>>({});
   const [sensationMarks, setSensationMarks] = useState<SensationMark[]>([]);
-  const [bodyPartColors, setBodyPartColors] = useState<BodyPartColors>({});
   const [rotation, setRotation] = useState(0);
 
+  // Enhanced state management with user ID
   const actionHistory = useActionHistory({ currentUserId });
   const strokeManager = useStrokeManager({ currentUserId });
   const spatialIndex = useSpatialIndex();
-  
-  const bodyPartOps = useBodyPartOperations({ 
-    actionHistory,
-    strokeManager,
-    bodyPartColors,
-    setBodyPartColors,
-    currentUserId
-  });
-  
-  const sensationOps = useSensationHandlers({ multiplayer: { isConnected: false } as any });
-  
+
+  // Specialized operation hooks
   const drawingOps = useDrawingOperations({ 
     strokeManager, 
-    actionHistory,
-    brushSize,
+    actionHistory, 
+    brushSize, 
     selectedColor 
   });
   
   const eraseOps = useEraseOperations({ 
-    strokeManager,
-    actionHistory,
-    spatialIndex,
-    currentUserId
+    strokeManager, 
+    actionHistory, 
+    spatialIndex, 
+    currentUserId 
   });
   
   const undoRedoOps = useUndoRedoOperations({ 
-    strokeManager,
-    actionHistory,
-    setBodyPartColors
+    strokeManager, 
+    actionHistory, 
+    setBodyPartColors 
+  });
+  
+  const bodyPartOps = useBodyPartOperations({ 
+    actionHistory, 
+    strokeManager, 
+    bodyPartColors, 
+    setBodyPartColors, 
+    currentUserId 
   });
 
-  // FIXED: Get drawing marks directly from stroke manager, not action history
-  const drawingMarks = useMemo(() => {
-    const marks: DrawingMark[] = [];
-    
-    // Get marks from all completed strokes in stroke manager
-    strokeManager.completedStrokes.forEach(stroke => {
-      if (stroke.marks && Array.isArray(stroke.marks)) {
-        stroke.marks.forEach(mark => {
-          if (mark.position && mark.color && mark.size) {
-            marks.push({
-              id: mark.id,
-              position: mark.position,
-              color: mark.color,
-              size: mark.size
-            });
-          }
-        });
-      }
-    });
-    
-    // Also include marks from current stroke if drawing
-    if (strokeManager.currentStroke && strokeManager.currentStroke.marks) {
-      strokeManager.currentStroke.marks.forEach(mark => {
-        if (mark.position && mark.color && mark.size) {
-          marks.push({
-            id: mark.id,
-            position: mark.position,
-            color: mark.color,
-            size: mark.size
-          });
-        }
-      });
-    }
-    
-    return marks;
-  }, [strokeManager.completedStrokes, strokeManager.currentStroke]); // FIXED: Proper dependencies
-
-  const handleStartDrawing = useCallback(() => {
-    const strokeId = strokeManager.startStroke(brushSize[0], selectedColor);
-    console.log('🎨 Started drawing stroke:', strokeId);
-  }, [strokeManager, brushSize, selectedColor]);
-
-  const handleAddDrawingMark = useCallback((mark: Omit<DrawingMark, 'id'>) => {
-    const fullMark = strokeManager.addMarkToStroke({
-      ...mark,
-      id: `mark-${Date.now()}-${Math.random()}`
-    });
-    return fullMark;
-  }, [strokeManager]);
-
-  const handleFinishDrawing = useCallback(() => {
-    const completedStroke = strokeManager.finishStroke();
-    if (completedStroke) {
-      actionHistory.addAction({
-        type: 'draw',
-        data: { strokes: [completedStroke] },
-        metadata: { brushSize: brushSize[0], color: selectedColor }
-      });
-      console.log('✅ Completed drawing stroke with', completedStroke.marks.length, 'marks');
-    }
-  }, [strokeManager, actionHistory, brushSize, selectedColor]);
-
-  const handleSensationClick = useCallback((position: THREE.Vector3, sensation: SelectedSensation) => {
-    const mark: SensationMark = {
+  // Add sensation handling
+  const handleSensationClick = (position: any, sensation: SelectedSensation) => {
+    const newSensationMark: SensationMark = {
       id: `sensation-${Date.now()}-${Math.random()}`,
       position,
       icon: sensation.icon,
       color: sensation.color,
       size: 0.1
     };
-    setSensationMarks(prev => [...prev, mark]);
-    
-    // Store sensation marks in action history
-    actionHistory.addAction({
-      type: 'draw',
-      data: { sensationMarks: [mark] },
-      metadata: { color: sensation.color, sensation: sensation.name }
-    });
-  }, [actionHistory]);
+    setSensationMarks(prev => [...prev, newSensationMark]);
+    console.log('Added sensation mark:', newSensationMark);
+  };
 
-  const handleBodyPartClick = useCallback((partName: string, color: string) => {
-    bodyPartOps.handleBodyPartClick(partName, color);
-  }, [bodyPartOps]);
-
-  const handleUndo = useCallback(() => {
-    if (!actionHistory.canUndo) {
-      return;
-    }
-    
-    const undoResult = undoRedoOps.handleUndo();
-    if (undoResult) {
-      console.log('✅ Undo completed for action:', undoResult.type);
-      
-      // Handle sensation marks for undo
-      if (undoResult.data.sensationMarks) {
-        setSensationMarks(prev => {
-          const marksToRemove = undoResult.data.sensationMarks || [];
-          return prev.filter(mark => !marksToRemove.some((m: SensationMark) => m.id === mark.id));
-        });
-      }
-    }
-  }, [undoRedoOps, actionHistory.canUndo]);
-
-  const handleRedo = useCallback(() => {
-    if (!actionHistory.canRedo) {
-      return;
-    }
-    
-    const redoResult = undoRedoOps.handleRedo();
-    if (redoResult) {
-      console.log('✅ Redo completed for action:', redoResult.type);
-      
-      // Handle sensation marks for redo
-      if (redoResult.data.sensationMarks) {
-        const marksToAdd = redoResult.data.sensationMarks || [];
-        marksToAdd.forEach((mark: SensationMark) => {
-          setSensationMarks(prev => [...prev, mark]);
-        });
-      }
-    }
-  }, [undoRedoOps, actionHistory.canRedo]);
-
-  const clearAll = useCallback(() => {
-    console.log('🧹 clearAll called - removing ALL strokes and colors from ALL users');
-    
-    // Store current state for undo
-    const allStrokes = strokeManager.completedStrokes;
-    const previousColors = { ...bodyPartColors };
-    const previousSensations = [...sensationMarks];
-    
-    console.log('🧹 Clearing', allStrokes.length, 'strokes from all users');
-    console.log('🧹 Clearing colors:', Object.keys(previousColors).length, 'body parts');
-    console.log('🧹 Clearing sensations:', previousSensations.length, 'sensation marks');
-    
-    // Clear everything
-    strokeManager.clearAllStrokes();
-    setBodyPartColors({});
+  const clearAll = () => {
+    bodyPartOps.clearAll();
     setSensationMarks([]);
-    
-    // Add clear action to history with all previous state
-    actionHistory.addAction({
-      type: 'clear',
-      data: {
-        strokes: allStrokes,
-        bodyPartColors: {},
-        previousBodyPartColors: previousColors,
-        sensationMarks: previousSensations
-      },
-      metadata: { color: selectedColor }
-    });
-  }, [strokeManager, bodyPartColors, sensationMarks, actionHistory, selectedColor]);
+  };
 
-  const addAction = useCallback((action: Omit<ActionHistoryItem, 'timestamp' | 'id' | 'userId'>) => {
-    actionHistory.addAction(action);
-  }, [actionHistory]);
+  // Update spatial index when marks change
+  useEffect(() => {
+    const allMarks = strokeManager.getAllMarks();
+    spatialIndex.buildSpatialIndex(allMarks);
+  }, [strokeManager.completedStrokes, strokeManager.currentStroke]);
+
+  // Legacy compatibility - convert to old format for existing components
+  const drawingMarks = strokeManager.getAllMarks().map(mark => ({
+    id: mark.id,
+    position: mark.position,
+    color: mark.color,
+    size: mark.size
+  }));
 
   return {
     mode,
@@ -229,22 +97,42 @@ export const useEnhancedBodyMapperState = ({ currentUserId }: UseEnhancedBodyMap
     setBrushSize,
     selectedSensation,
     setSelectedSensation,
-    drawingMarks,
+    drawingMarks, // Legacy compatibility
     sensationMarks,
     setSensationMarks,
     bodyPartColors,
     rotation,
     setRotation,
-    handleStartDrawing,
-    handleAddDrawingMark,
-    handleFinishDrawing,
+    
+    // Enhanced functionality
+    handleStartDrawing: drawingOps.handleStartDrawing,
+    handleAddDrawingMark: drawingOps.handleAddDrawingMark,
+    handleFinishDrawing: drawingOps.handleFinishDrawing,
     handleSensationClick,
-    handleBodyPartClick,
-    handleUndo,
-    handleRedo,
+    handleErase: eraseOps.handleErase,
+    handleUndo: undoRedoOps.handleUndo,
+    handleRedo: undoRedoOps.handleRedo,
+    handleBodyPartClick: bodyPartOps.handleBodyPartClick,
     clearAll,
+    
+    // State queries
     canUndo: actionHistory.canUndo,
     canRedo: actionHistory.canRedo,
-    addAction
+    currentStroke: strokeManager.currentStroke,
+    completedStrokes: strokeManager.completedStrokes,
+    
+    // Utility functions
+    queryMarksInRadius: spatialIndex.queryRadius,
+    queryMarksInBox: spatialIndex.queryBox,
+    
+    // User-specific functions
+    getUserMarks: strokeManager.getMarksByUser,
+    clearUserHistory: actionHistory.clearUserHistory,
+    
+    // Expose restoreStroke for multiplayer
+    restoreStroke: strokeManager.restoreStroke,
+    
+    // Add the missing addAction function
+    addAction: actionHistory.addAction
   };
 };

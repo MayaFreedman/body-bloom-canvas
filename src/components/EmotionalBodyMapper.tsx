@@ -1,8 +1,8 @@
 
-import React, { useRef, useCallback } from 'react';
-import { BodyMapperLayout } from './bodyMapper/BodyMapperLayout';
-import { MultiplayerMessageHandler } from './bodyMapper/MultiplayerMessageHandler';
+import React, { useRef } from 'react';
 import { TopBanner } from './bodyMapper/TopBanner';
+import { MultiplayerMessageHandler } from './bodyMapper/MultiplayerMessageHandler';
+import { BodyMapperLayout } from './bodyMapper/BodyMapperLayout';
 import { useEnhancedBodyMapperState } from '@/hooks/useEnhancedBodyMapperState';
 import { useMultiplayer } from '@/hooks/useMultiplayer';
 import { useMultiplayerDrawingHandlers } from '@/hooks/useMultiplayerDrawingHandlers';
@@ -10,105 +10,142 @@ import { useRotationHandlers } from '@/hooks/useRotationHandlers';
 import * as THREE from 'three';
 
 interface EmotionalBodyMapperProps {
-  roomId?: string;
+  roomId: string | null;
 }
 
-export const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
+const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
+  const canvasRef = useRef<HTMLDivElement>(null);
   const modelRef = useRef<THREE.Group>(null);
   const controlsRef = useRef<any>(null);
-  const canvasRef = useRef<HTMLDivElement>(null);
-  
-  const currentUserId = `user-${Date.now()}-${Math.random()}`;
-  
-  const bodyMapperState = useEnhancedBodyMapperState({ currentUserId });
-  const multiplayer = useMultiplayer(roomId || null);
-  
-  const multiplayerHandlers = useMultiplayerDrawingHandlers({
+
+  const currentUserId = React.useMemo(() => `user-${Date.now()}-${Math.random()}`, []);
+
+  const {
+    mode,
+    setMode,
+    selectedColor,
+    setSelectedColor,
+    brushSize,
+    setBrushSize,
+    selectedSensation,
+    setSelectedSensation,
+    drawingMarks,
+    sensationMarks,
+    setSensationMarks,
+    bodyPartColors,
+    rotation,
+    setRotation,
+    handleStartDrawing,
+    handleAddDrawingMark,
+    handleFinishDrawing,
+    handleSensationClick: localHandleSensationClick,
+    handleBodyPartClick: baseHandleBodyPartClick,
+    handleUndo,
+    handleRedo,
+    clearAll,
+    canUndo,
+    canRedo,
+    restoreStroke,
+    addAction
+  } = useEnhancedBodyMapperState({ currentUserId });
+
+  const multiplayer = useMultiplayer(roomId);
+
+  const {
+    handleEmotionsUpdate,
+    handleBodyPartClick,
+    handleIncomingBodyPartFill,
+    handleIncomingDrawingStroke,
+    handleIncomingOptimizedStroke,
+    handleSensationClick,
+    handleResetAll,
+    handleAddToDrawingStroke,
+    handleDrawingStrokeStart,
+    handleDrawingStrokeComplete
+  } = useMultiplayerDrawingHandlers({
     multiplayer,
-    handleStartDrawing: bodyMapperState.handleStartDrawing,
-    handleFinishDrawing: bodyMapperState.handleFinishDrawing,
-    baseHandleBodyPartClick: bodyMapperState.handleBodyPartClick,
-    restoreStroke: () => {}, // Not used anymore
+    handleStartDrawing,
+    handleFinishDrawing,
+    baseHandleBodyPartClick,
+    restoreStroke,
     modelRef,
-    clearAll: bodyMapperState.clearAll,
-    selectedColor: bodyMapperState.selectedColor,
-    brushSize: bodyMapperState.brushSize,
-    addAction: bodyMapperState.addAction
+    clearAll,
+    selectedColor,
+    brushSize,
+    addAction
   });
 
-  const rotationHandlers = useRotationHandlers({
-    multiplayer,
-    rotation: bodyMapperState.rotation,
-    setRotation: bodyMapperState.setRotation
+  const { handleRotateLeft, handleRotateRight } = useRotationHandlers({ 
+    setRotation, 
+    multiplayer 
   });
 
-  const setBodyPartColors = useCallback((partName: string, color: string) => {
-    console.log('🎨 Setting body part color:', partName, color);
-    // This should trigger the body part color update
-    bodyMapperState.handleBodyPartClick(partName, color);
-  }, [bodyMapperState.handleBodyPartClick]);
+  // Combine local and multiplayer sensation handling
+  const combinedSensationClick = (position: THREE.Vector3, sensation: any) => {
+    localHandleSensationClick(position, sensation);
+    handleSensationClick(position, sensation);
+  };
 
-  console.log('🔄 EmotionalBodyMapper rendering with:', {
-    drawingMarks: bodyMapperState.drawingMarks.length,
-    sensationMarks: bodyMapperState.sensationMarks.length,
-    isConnected: multiplayer.isConnected,
-    roomId
-  });
+  const legacyDrawingMarks = drawingMarks.map(mark => ({
+    id: mark.id,
+    position: mark.position,
+    color: mark.color,
+    size: mark.size
+  }));
 
   return (
-    <div className="emotional-body-mapper">
+    <div style={{ height: '100vh', width: '100%' }}>
       <TopBanner 
+        roomId={roomId}
         isConnected={multiplayer.isConnected}
         isConnecting={multiplayer.isConnecting}
-        playerCount={multiplayer.players.size}
-        currentPlayerId={multiplayer.currentPlayerId}
-        playerColor={multiplayer.playerColor}
       />
-      
+
       <BodyMapperLayout
-        mode={bodyMapperState.mode}
-        selectedColor={bodyMapperState.selectedColor}
-        brushSize={bodyMapperState.brushSize}
-        selectedSensation={bodyMapperState.selectedSensation}
-        drawingMarks={bodyMapperState.drawingMarks}
-        sensationMarks={bodyMapperState.sensationMarks}
-        bodyPartColors={bodyMapperState.bodyPartColors}
-        rotation={bodyMapperState.rotation}
+        mode={mode}
+        selectedColor={selectedColor}
+        brushSize={brushSize}
+        selectedSensation={selectedSensation}
+        drawingMarks={legacyDrawingMarks}
+        sensationMarks={sensationMarks}
+        bodyPartColors={bodyPartColors}
+        rotation={rotation}
         modelRef={modelRef}
         controlsRef={controlsRef}
         canvasRef={canvasRef}
-        canUndo={bodyMapperState.canUndo}
-        canRedo={bodyMapperState.canRedo}
-        setMode={bodyMapperState.setMode}
-        setSelectedColor={bodyMapperState.setSelectedColor}
-        setBrushSize={bodyMapperState.setBrushSize}
-        setSelectedSensation={bodyMapperState.setSelectedSensation}
-        onAddDrawingMark={bodyMapperState.handleAddDrawingMark}
-        onDrawingStrokeStart={multiplayerHandlers.handleDrawingStrokeStart}
-        onDrawingStrokeComplete={multiplayerHandlers.handleDrawingStrokeComplete}
-        onAddToDrawingStroke={multiplayerHandlers.handleAddToDrawingStroke}
-        onBodyPartClick={multiplayerHandlers.handleBodyPartClick}
-        onSensationClick={bodyMapperState.handleSensationClick}
-        onRotateLeft={rotationHandlers.handleRotateLeft}
-        onRotateRight={rotationHandlers.handleRotateRight}
-        onResetAll={multiplayerHandlers.handleResetAll}
-        onUndo={bodyMapperState.handleUndo}
-        onRedo={bodyMapperState.handleRedo}
-        onEmotionsUpdate={multiplayerHandlers.handleEmotionsUpdate}
+        canUndo={canUndo}
+        canRedo={canRedo}
+        setMode={setMode}
+        setSelectedColor={setSelectedColor}
+        setBrushSize={setBrushSize}
+        setSelectedSensation={setSelectedSensation}
+        onAddDrawingMark={handleAddDrawingMark}
+        onDrawingStrokeStart={handleDrawingStrokeStart}
+        onDrawingStrokeComplete={handleDrawingStrokeComplete}
+        onAddToDrawingStroke={handleAddToDrawingStroke}
+        onBodyPartClick={handleBodyPartClick}
+        onSensationClick={combinedSensationClick}
+        onRotateLeft={handleRotateLeft}
+        onRotateRight={handleRotateRight}
+        onResetAll={handleResetAll}
+        onUndo={handleUndo}
+        onRedo={handleRedo}
+        onEmotionsUpdate={handleEmotionsUpdate}
       />
 
-      {/* CRITICAL: Pass the stroke handler to MultiplayerMessageHandler */}
       <MultiplayerMessageHandler
         room={multiplayer.room}
         modelRef={modelRef}
-        setDrawingMarks={() => {}} // Legacy support
-        setSensationMarks={bodyMapperState.setSensationMarks}
-        setBodyPartColors={setBodyPartColors}
-        setRotation={bodyMapperState.setRotation}
-        clearAll={bodyMapperState.clearAll}
+        setDrawingMarks={handleIncomingDrawingStroke}
+        setSensationMarks={setSensationMarks}
+        setBodyPartColors={handleIncomingBodyPartFill}
+        setRotation={setRotation}
+        clearAll={clearAll}
         controlsRef={controlsRef}
-        onIncomingOptimizedStroke={multiplayerHandlers.handleIncomingOptimizedStroke}
+        onIncomingOptimizedStroke={handleIncomingOptimizedStroke}
       />
     </div>
   );
 };
+
+export default EmotionalBodyMapper;
