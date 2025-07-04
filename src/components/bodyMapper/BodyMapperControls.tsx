@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, forwardRef } from 'react';
 import { TabContainer } from './TabContainer';
 import { BodyMapperMode, SelectedSensation } from '@/types/bodyMapperTypes';
@@ -168,7 +169,7 @@ export const BodyMapperControls = React.forwardRef<
       selectedSensation={selectedSensation}
       onSensationChange={onSensationChange}
     >
-      {/* Empty children as tabs are now handled internally */}
+      <div />
     </TabContainer>
   );
 });
