@@ -23,7 +23,7 @@ interface UseEnhancedBodyMapperStateProps {
 }
 
 export const useEnhancedBodyMapperState = ({ currentUserId }: UseEnhancedBodyMapperStateProps) => {
-  const [mode, setMode] = useState<BodyMapperMode>('color');
+  const [mode, setMode] = useState<BodyMapperMode>('draw');
   const [selectedColor, setSelectedColor] = useState('#ff6b6b');
   const [brushSize, setBrushSize] = useState([3]);
   const [selectedSensation, setSelectedSensation] = useState<SelectedSensation | null>(null);
@@ -81,9 +81,7 @@ export const useEnhancedBodyMapperState = ({ currentUserId }: UseEnhancedBodyMap
                   id: mark.id,
                   position: mark.position,
                   color: mark.color,
-                  size: mark.size,
-                  timestamp: mark.timestamp,
-                  userId: mark.userId
+                  size: mark.size
                 });
               }
             });
@@ -101,9 +99,10 @@ export const useEnhancedBodyMapperState = ({ currentUserId }: UseEnhancedBodyMap
     console.log('🎨 Started drawing stroke:', strokeId);
   }, [strokeManager, brushSize, selectedColor]);
 
-  const handleAddDrawingMark = useCallback((mark: Omit<DrawingMark, 'timestamp' | 'strokeId'>) => {
+  const handleAddDrawingMark = useCallback((mark: Omit<DrawingMark, 'id'>) => {
     const fullMark = strokeManager.addMarkToStroke({
-      ...mark
+      ...mark,
+      id: `mark-${Date.now()}-${Math.random()}`
     });
     console.log('🎨 Added drawing mark:', fullMark?.id);
   }, [strokeManager]);
@@ -124,20 +123,18 @@ export const useEnhancedBodyMapperState = ({ currentUserId }: UseEnhancedBodyMap
     const mark: SensationMark = {
       id: `sensation-${Date.now()}-${Math.random()}`,
       position,
-      sensation: sensation.name,
+      icon: sensation.icon,
       color: sensation.color,
-      size: 0.1,
-      timestamp: Date.now(),
-      userId: currentUserId
+      size: 0.1
     };
     setSensationMarks(prev => [...prev, mark]);
     
     actionHistory.addAction({
-      type: 'draw', // Using 'draw' as it's a valid type
+      type: 'draw',
       data: { marks: [mark as any] },
       metadata: { color: sensation.color }
     });
-  }, [actionHistory, currentUserId]);
+  }, [actionHistory]);
 
   const handleBodyPartClick = useCallback((partName: string, color: string) => {
     bodyPartOps.handleBodyPartClick(partName, color);
