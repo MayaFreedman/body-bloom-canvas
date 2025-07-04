@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from 'react';
 import { ActionHistoryItem } from '@/types/actionHistoryTypes';
 
@@ -7,7 +6,7 @@ interface UseActionHistoryProps {
   currentUserId: string | null;
 }
 
-export const useActionHistory = ({ maxHistorySize = 1000, currentUserId }: UseActionHistoryProps) => {
+export const useActionHistory = ({ maxHistorySize = 100, currentUserId }: UseActionHistoryProps) => {
   const [items, setItems] = useState<ActionHistoryItem[]>([]);
   const [currentIndex, setCurrentIndex] = useState(-1);
 
@@ -32,12 +31,12 @@ export const useActionHistory = ({ maxHistorySize = 1000, currentUserId }: UseAc
       const newItems = prev.slice(0, currentIndex + 1);
       newItems.push(newAction);
 
-      // Only trim history if it gets unreasonably long (1000+ items)
+      // Only trim history if it gets reasonably long (100+ items)
       if (newItems.length > maxHistorySize) {
         const trimmedItems = newItems.slice(-maxHistorySize);
         // Update currentIndex to point to the last item in trimmed array
         setCurrentIndex(trimmedItems.length - 1);
-        console.log('📊 Trimmed history (was getting very long), updated global index to:', trimmedItems.length - 1);
+        console.log('📊 Trimmed history (reached 100+ items), updated global index to:', trimmedItems.length - 1);
         return trimmedItems;
       }
 
