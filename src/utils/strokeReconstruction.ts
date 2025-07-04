@@ -3,34 +3,32 @@ import { OptimizedDrawingStroke } from '@/types/multiplayerTypes';
 import * as THREE from 'three';
 
 export const getInterpolationStepCount = (brushSize: number, distance: number): number => {
-  // This matches the exact logic from useDrawingMarks.ts
   let baseMultiplier;
   if (brushSize <= 3) {
-    baseMultiplier = 150; // Tiny brushes get massive interpolation
+    baseMultiplier = 150;
   } else if (brushSize <= 5) {
-    baseMultiplier = 120; // Small brushes get very high interpolation
+    baseMultiplier = 120;
   } else if (brushSize <= 8) {
-    baseMultiplier = 90;  // Medium brushes get high interpolation
+    baseMultiplier = 90;
   } else if (brushSize <= 12) {
-    baseMultiplier = 70;  // Larger brushes get good interpolation
+    baseMultiplier = 70;
   } else {
-    baseMultiplier = 50;  // Largest brushes get moderate interpolation
+    baseMultiplier = 50;
   }
   
   const calculatedSteps = Math.floor(distance * baseMultiplier);
   
-  // Match maximum limits exactly
   let maxSteps;
   if (brushSize <= 3) {
-    maxSteps = 80;  // Tiny brushes can have up to 80 steps
+    maxSteps = 80;
   } else if (brushSize <= 5) {
-    maxSteps = 60;  // Small brushes can have up to 60 steps
+    maxSteps = 60;
   } else if (brushSize <= 8) {
-    maxSteps = 45;  // Medium brushes can have up to 45 steps
+    maxSteps = 45;
   } else if (brushSize <= 12) {
-    maxSteps = 35;  // Larger brushes can have up to 35 steps
+    maxSteps = 35;
   } else {
-    maxSteps = 25;  // Largest brushes can have up to 25 steps
+    maxSteps = 25;
   }
   
   return Math.max(1, Math.min(maxSteps, calculatedSteps));
@@ -38,18 +36,13 @@ export const getInterpolationStepCount = (brushSize: number, distance: number): 
 
 export const reconstructStroke = (stroke: OptimizedDrawingStroke): THREE.Vector3[] => {
   try {
-    if (!stroke || !stroke.keyPoints || !Array.isArray(stroke.keyPoints)) {
-      console.warn('⚠️ Invalid stroke for reconstruction');
+    if (!stroke?.keyPoints?.length) {
       return [];
     }
 
-    if (stroke.keyPoints.length === 0) {
-      return [];
-    }
-
-    if (stroke.keyPoints.length < 2) {
+    if (stroke.keyPoints.length === 1) {
       const point = stroke.keyPoints[0];
-      if (!point || !point.worldPosition) {
+      if (!point?.worldPosition) {
         return [];
       }
       return [new THREE.Vector3(
@@ -83,7 +76,6 @@ export const reconstructStroke = (stroke: OptimizedDrawingStroke): THREE.Vector3
 
       reconstructedPoints.push(current);
 
-      // Only interpolate between points on the same body part
       if (currentKeyPoint.bodyPart === nextKeyPoint.bodyPart) {
         const distance = current.distanceTo(next);
         const steps = getInterpolationStepCount(strokeSize, distance);
@@ -91,7 +83,6 @@ export const reconstructStroke = (stroke: OptimizedDrawingStroke): THREE.Vector3
         if (steps > 1) {
           for (let j = 1; j < steps; j++) {
             const t = j / steps;
-            // Use smoothstep function for identical smoothing to local version
             const smoothT = t * t * (3 - 2 * t);
             const interpolated = new THREE.Vector3().lerpVectors(current, next, smoothT);
             reconstructedPoints.push(interpolated);
