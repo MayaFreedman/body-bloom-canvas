@@ -42,6 +42,8 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     handleBodyPartClick: baseHandleBodyPartClick,
     handleUndo,
     handleRedo,
+    handleIncomingUndo,
+    handleIncomingRedo,
     clearAll,
     canUndo,
     canRedo,
@@ -79,6 +81,21 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     setRotation, 
     multiplayer 
   });
+
+  // Enhanced undo/redo with multiplayer support
+  const handleMultiplayerUndo = React.useCallback(() => {
+    const result = handleUndo();
+    if (result && multiplayer.isConnected) {
+      multiplayer.broadcastUndo();
+    }
+  }, [handleUndo, multiplayer]);
+
+  const handleMultiplayerRedo = React.useCallback(() => {
+    const result = handleRedo();
+    if (result && multiplayer.isConnected) {
+      multiplayer.broadcastRedo();
+    }
+  }, [handleRedo, multiplayer]);
 
   // Combine local and multiplayer sensation handling
   const combinedSensationClick = (position: THREE.Vector3, sensation: any) => {
@@ -128,8 +145,8 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
         onRotateLeft={handleRotateLeft}
         onRotateRight={handleRotateRight}
         onResetAll={handleResetAll}
-        onUndo={handleUndo}
-        onRedo={handleRedo}
+        onUndo={handleMultiplayerUndo}
+        onRedo={handleMultiplayerRedo}
         onEmotionsUpdate={handleEmotionsUpdate}
       />
 
@@ -143,6 +160,8 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
         clearAll={clearAll}
         controlsRef={controlsRef}
         onIncomingOptimizedStroke={handleIncomingOptimizedStroke}
+        onIncomingUndo={handleIncomingUndo}
+        onIncomingRedo={handleIncomingRedo}
       />
     </div>
   );

@@ -112,6 +112,8 @@ export const useEnhancedBodyMapperState = ({ currentUserId }: UseEnhancedBodyMap
     handleErase: eraseOps.handleErase,
     handleUndo: undoRedoOps.handleUndo,
     handleRedo: undoRedoOps.handleRedo,
+    handleIncomingUndo: undoRedoOps.handleIncomingUndo,
+    handleIncomingRedo: undoRedoOps.handleIncomingRedo,
     handleBodyPartClick: bodyPartOps.handleBodyPartClick,
     clearAll,
     

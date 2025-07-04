@@ -31,6 +31,28 @@ export const useMultiplayerBroadcast = (
     }
   }, [room, isConnected, currentPlayerId]);
 
+  const broadcastUndo = useCallback(() => {
+    if (room && isConnected) {
+      console.log('Broadcasting undo action');
+      const server = ServerClass.getInstance();
+      server.sendEvent({
+        type: 'undoAction',
+        action: { playerId: currentPlayerId }
+      });
+    }
+  }, [room, isConnected, currentPlayerId]);
+
+  const broadcastRedo = useCallback(() => {
+    if (room && isConnected) {
+      console.log('Broadcasting redo action');
+      const server = ServerClass.getInstance();
+      server.sendEvent({
+        type: 'redoAction',
+        action: { playerId: currentPlayerId }
+      });
+    }
+  }, [room, isConnected, currentPlayerId]);
+
   const broadcastReset = useCallback(() => {
     if (room && isConnected) {
       const server = ServerClass.getInstance();
@@ -71,6 +93,8 @@ export const useMultiplayerBroadcast = (
   return {
     broadcastSensation,
     broadcastBodyPartFill,
+    broadcastUndo,
+    broadcastRedo,
     broadcastReset,
     broadcastCursor,
     cleanup

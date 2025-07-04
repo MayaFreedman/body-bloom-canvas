@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { Room } from 'colyseus.js';
 import { DrawingMark, SensationMark } from '@/types/bodyMapperTypes';
@@ -15,6 +14,8 @@ interface MultiplayerMessageHandlerProps {
   clearAll: () => void;
   controlsRef: React.RefObject<any>;
   onIncomingOptimizedStroke?: (stroke: OptimizedDrawingStroke) => void;
+  onIncomingUndo?: () => void;
+  onIncomingRedo?: () => void;
 }
 
 export const MultiplayerMessageHandler = ({
@@ -26,7 +27,9 @@ export const MultiplayerMessageHandler = ({
   setRotation,
   clearAll,
   controlsRef,
-  onIncomingOptimizedStroke
+  onIncomingOptimizedStroke,
+  onIncomingUndo,
+  onIncomingRedo
 }: MultiplayerMessageHandlerProps) => {
   useEffect(() => {
     if (!room) return;
@@ -47,6 +50,20 @@ export const MultiplayerMessageHandler = ({
         }
 
         switch (message.type) {
+          case 'undoAction': {
+            console.log('🔄 Processing incoming undo action');
+            if (onIncomingUndo) {
+              onIncomingUndo();
+            }
+            break;
+          }
+          case 'redoAction': {
+            console.log('🔄 Processing incoming redo action');
+            if (onIncomingRedo) {
+              onIncomingRedo();
+            }
+            break;
+          }
           case 'modelRotation': {
             console.log('🔄 Processing model rotation:', messageData);
             if (messageData.direction === 'left') {
@@ -156,7 +173,7 @@ export const MultiplayerMessageHandler = ({
         console.error('❌ Error cleaning up broadcast listener:', error);
       }
     };
-  }, [room, setDrawingMarks, setSensationMarks, setBodyPartColors, setRotation, clearAll, modelRef, controlsRef, onIncomingOptimizedStroke]);
+  }, [room, setDrawingMarks, setSensationMarks, setBodyPartColors, setRotation, clearAll, modelRef, controlsRef, onIncomingOptimizedStroke, onIncomingUndo, onIncomingRedo]);
 
   return null;
 };
