@@ -1,4 +1,3 @@
-
 import { useState, useCallback, useMemo } from 'react';
 import { useActionHistory } from './useActionHistory';
 import { useStrokeManager } from './useStrokeManager';
@@ -67,13 +66,11 @@ export const useEnhancedBodyMapperState = ({ currentUserId }: UseEnhancedBodyMap
 
   // FIXED: Get drawing marks directly from stroke manager, not action history
   const drawingMarks = useMemo(() => {
-    console.log('🎨 Getting drawing marks from stroke manager, strokes:', strokeManager.completedStrokes.length);
     const marks: DrawingMark[] = [];
     
     // Get marks from all completed strokes in stroke manager
     strokeManager.completedStrokes.forEach(stroke => {
       if (stroke.marks && Array.isArray(stroke.marks)) {
-        console.log('🎨 Processing stroke', stroke.id, 'with', stroke.marks.length, 'marks, color:', stroke.color);
         stroke.marks.forEach(mark => {
           if (mark.position && mark.color && mark.size) {
             marks.push({
@@ -101,7 +98,6 @@ export const useEnhancedBodyMapperState = ({ currentUserId }: UseEnhancedBodyMap
       });
     }
     
-    console.log('🎨 Final drawing marks count:', marks.length);
     return marks;
   }, [strokeManager.completedStrokes, strokeManager.currentStroke]); // FIXED: Proper dependencies
 
@@ -115,7 +111,7 @@ export const useEnhancedBodyMapperState = ({ currentUserId }: UseEnhancedBodyMap
       ...mark,
       id: `mark-${Date.now()}-${Math.random()}`
     });
-    console.log('🎨 Added drawing mark:', fullMark?.id);
+    return fullMark;
   }, [strokeManager]);
 
   const handleFinishDrawing = useCallback(() => {
@@ -126,7 +122,7 @@ export const useEnhancedBodyMapperState = ({ currentUserId }: UseEnhancedBodyMap
         data: { strokes: [completedStroke] },
         metadata: { brushSize: brushSize[0], color: selectedColor }
       });
-      console.log('🎨 Completed drawing stroke with', completedStroke.marks.length, 'marks');
+      console.log('✅ Completed drawing stroke with', completedStroke.marks.length, 'marks');
     }
   }, [strokeManager, actionHistory, brushSize, selectedColor]);
 
@@ -153,9 +149,7 @@ export const useEnhancedBodyMapperState = ({ currentUserId }: UseEnhancedBodyMap
   }, [bodyPartOps]);
 
   const handleUndo = useCallback(() => {
-    console.log('🔄 Undo requested, can undo:', actionHistory.canUndo);
     if (!actionHistory.canUndo) {
-      console.log('❌ Cannot undo - no actions available');
       return;
     }
     
@@ -174,9 +168,7 @@ export const useEnhancedBodyMapperState = ({ currentUserId }: UseEnhancedBodyMap
   }, [undoRedoOps, actionHistory.canUndo]);
 
   const handleRedo = useCallback(() => {
-    console.log('🔄 Redo requested, can redo:', actionHistory.canRedo);
     if (!actionHistory.canRedo) {
-      console.log('❌ Cannot redo - no actions available');
       return;
     }
     

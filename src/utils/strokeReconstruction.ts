@@ -39,25 +39,17 @@ export const getInterpolationStepCount = (brushSize: number, distance: number): 
 export const reconstructStroke = (stroke: OptimizedDrawingStroke): THREE.Vector3[] => {
   try {
     if (!stroke || !stroke.keyPoints || !Array.isArray(stroke.keyPoints)) {
-      console.warn('⚠️ Invalid stroke for reconstruction:', stroke);
+      console.warn('⚠️ Invalid stroke for reconstruction');
       return [];
     }
 
     if (stroke.keyPoints.length === 0) {
-      console.warn('⚠️ No key points to reconstruct');
       return [];
     }
-
-    console.log('🎨 Reconstructing stroke with enhanced smoothing:', {
-      keyPoints: stroke.keyPoints.length,
-      color: stroke.metadata.color,
-      size: stroke.metadata.size
-    });
 
     if (stroke.keyPoints.length < 2) {
       const point = stroke.keyPoints[0];
       if (!point || !point.worldPosition) {
-        console.warn('⚠️ Invalid single point:', point);
         return [];
       }
       return [new THREE.Vector3(
@@ -75,7 +67,6 @@ export const reconstructStroke = (stroke: OptimizedDrawingStroke): THREE.Vector3
       const nextKeyPoint = stroke.keyPoints[i + 1];
       
       if (!currentKeyPoint?.worldPosition || !nextKeyPoint?.worldPosition) {
-        console.warn('⚠️ Invalid key points for interpolation:', currentKeyPoint, nextKeyPoint);
         continue;
       }
 
@@ -96,8 +87,6 @@ export const reconstructStroke = (stroke: OptimizedDrawingStroke): THREE.Vector3
       if (currentKeyPoint.bodyPart === nextKeyPoint.bodyPart) {
         const distance = current.distanceTo(next);
         const steps = getInterpolationStepCount(strokeSize, distance);
-        
-        console.log(`🎨 Interpolating ${steps} steps between key points (distance: ${distance.toFixed(3)}, size: ${strokeSize})`);
         
         if (steps > 1) {
           for (let j = 1; j < steps; j++) {
@@ -121,13 +110,6 @@ export const reconstructStroke = (stroke: OptimizedDrawingStroke): THREE.Vector3
       ));
     }
 
-    console.log('✅ Enhanced reconstruction complete:', {
-      originalKeyPoints: stroke.keyPoints.length,
-      reconstructedPoints: reconstructedPoints.length,
-      smoothingRatio: (reconstructedPoints.length / stroke.keyPoints.length).toFixed(2),
-      color: stroke.metadata.color,
-      size: stroke.metadata.size
-    });
     return reconstructedPoints;
   } catch (error) {
     console.error('❌ Error reconstructing stroke:', error);

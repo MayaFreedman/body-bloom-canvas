@@ -1,5 +1,5 @@
 
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 import { useMultiplayer } from './useMultiplayer';
 import { DrawingMark } from '@/types/actionHistoryTypes';
 import { WorldDrawingPoint, OptimizedDrawingStroke } from '@/types/multiplayerTypes';
@@ -26,19 +26,22 @@ export const useStrokeHandlers = ({
   brushSize,
   addAction
 }: UseStrokeHandlersProps) => {
+  const processedStrokes = useRef(new Set<string>());
+
   const handleIncomingOptimizedStroke = useCallback((optimizedStroke: OptimizedDrawingStroke) => {
-    console.log('📨 Handling incoming optimized stroke with metadata:', {
-      id: optimizedStroke.id,
-      keyPointsCount: optimizedStroke.keyPoints.length,
-      color: optimizedStroke.metadata.color,
-      size: optimizedStroke.metadata.size,
-      playerId: optimizedStroke.playerId
-    });
+    // Prevent duplicate processing
+    if (processedStrokes.current.has(optimizedStroke.id)) {
+      console.log('⚠️ Skipping duplicate stroke:', optimizedStroke.id);
+      return;
+    }
+    
+    console.log('📨 Processing new optimized stroke:', optimizedStroke.id, 'from player:', optimizedStroke.playerId);
+    processedStrokes.current.add(optimizedStroke.id);
     
     try {
       const modelGroup = modelRef.current;
       if (!modelGroup) {
-        console.warn('⚠️ Model group not available for stroke reconstruction');
+        console.warn('⚠️ Model group not available');
         return;
       }
 
@@ -48,26 +51,25 @@ export const useStrokeHandlers = ({
       }
 
       if (!optimizedStroke || !optimizedStroke.keyPoints || optimizedStroke.keyPoints.length === 0) {
-        console.warn('⚠️ Invalid optimized stroke data:', optimizedStroke);
+        console.warn('⚠️ Invalid optimized stroke data');
         return;
       }
 
       const metadata = optimizedStroke.metadata;
       if (!metadata || !metadata.color || !metadata.size) {
-        console.warn('⚠️ Missing stroke metadata, using defaults:', metadata);
+        console.warn('⚠️ Missing stroke metadata, using defaults');
       }
 
       const reconstructedPoints = multiplayer.reconstructStroke(optimizedStroke);
       console.log('🎨 Reconstructed', reconstructedPoints.length, 'points from', optimizedStroke.keyPoints.length, 'key points');
       
       if (reconstructedPoints.length === 0) {
-        console.warn('⚠️ No points reconstructed from stroke');
+        console.warn('⚠️ No points reconstructed');
         return;
       }
 
       const marks: DrawingMark[] = reconstructedPoints.map((worldPos, index) => {
         if (!worldPos || typeof worldPos.x !== 'number' || typeof worldPos.y !== 'number' || typeof worldPos.z !== 'number') {
-          console.warn('⚠️ Invalid world position:', worldPos);
           return null;
         }
 
@@ -75,7 +77,7 @@ export const useStrokeHandlers = ({
         try {
           modelGroup.worldToLocal(localPos.copy(worldPos));
         } catch (error) {
-          console.error('❌ Error converting world to local position:', error);
+          console.error('❌ Error converting position:', error);
           return null;
         }
         
@@ -91,7 +93,7 @@ export const useStrokeHandlers = ({
       }).filter(mark => mark !== null) as DrawingMark[];
       
       if (marks.length === 0) {
-        console.warn('⚠️ No valid marks created from reconstructed points');
+        console.warn('⚠️ No valid marks created');
         return;
       }
 
@@ -120,46 +122,40 @@ export const useStrokeHandlers = ({
         }
       });
       
-      console.log('✅ Successfully processed optimized stroke with correct metadata:', {
-        marksCount: marks.length,
-        color: completeStroke.color,
-        size: completeStroke.brushSize
-      });
+      console.log('✅ Processed stroke:', optimizedStroke.id, 'with', marks.length, 'marks');
     } catch (error) {
-      console.error('❌ Error processing optimized stroke:', error, optimizedStroke);
+      console.error('❌ Error processing optimized stroke:', error);
     }
   }, [modelRef, multiplayer, addAction]);
 
   const handleIncomingDrawingStroke = useCallback((stroke: any) => {
-    console.log('📨 Handling incoming legacy drawing stroke with metadata:', {
-      id: stroke.id,
-      pointsCount: stroke.points?.length,
-      firstPointColor: stroke.points?.[0]?.color,
-      firstPointSize: stroke.points?.[0]?.size,
-      playerId: stroke.playerId
-    });
+    // Prevent duplicate processing
+    if (processedStrokes.current.has(stroke.id)) {
+      console.log('⚠️ Skipping duplicate legacy stroke:', stroke.id);
+      return;
+    }
+    
+    console.log('📨 Processing legacy stroke:', stroke.id, 'from player:', stroke.playerId);
+    processedStrokes.current.add(stroke.id);
     
     try {
       if (!stroke || !stroke.points || !Array.isArray(stroke.points)) {
-        console.warn('⚠️ Invalid stroke data:', stroke);
+        console.warn('⚠️ Invalid stroke data');
         return;
       }
       
       const modelGroup = modelRef.current;
       if (!modelGroup) {
-        console.warn('⚠️ Model group not available for stroke processing');
+        console.warn('⚠️ Model group not available');
         return;
       }
 
-      console.log('🎨 Processing', stroke.points.length, 'points from incoming legacy stroke');
-      
       const marks: DrawingMark[] = [];
       
       for (let i = 0; i < stroke.points.length; i++) {
         const currentPoint: WorldDrawingPoint = stroke.points[i];
         
         if (!currentPoint || !currentPoint.worldPosition) {
-          console.warn('⚠️ Invalid point data:', currentPoint);
           continue;
         }
 
@@ -173,7 +169,6 @@ export const useStrokeHandlers = ({
         try {
           modelGroup.worldToLocal(localPos.copy(worldPos));
         } catch (error) {
-          console.error('❌ Error converting world to local position:', error);
           continue;
         }
         
@@ -189,6 +184,7 @@ export const useStrokeHandlers = ({
         
         marks.push(mark);
         
+        // Simplified interpolation for legacy strokes
         if (i < stroke.points.length - 1) {
           const nextPoint: WorldDrawingPoint = stroke.points[i + 1];
           if (nextPoint && nextPoint.worldPosition && currentPoint.bodyPart === nextPoint.bodyPart) {
@@ -199,7 +195,7 @@ export const useStrokeHandlers = ({
             );
             
             const distance = worldPos.distanceTo(nextWorldPos);
-            const steps = Math.max(1, Math.min(15, Math.floor(distance * 50)));
+            const steps = Math.max(1, Math.min(10, Math.floor(distance * 30)));
             
             if (steps > 1) {
               for (let j = 1; j < steps; j++) {
@@ -222,7 +218,7 @@ export const useStrokeHandlers = ({
                   };
                   marks.push(interpolatedMark);
                 } catch (error) {
-                  console.error('❌ Error creating interpolated mark:', error);
+                  // Skip invalid interpolated marks
                 }
               }
             }
@@ -246,7 +242,7 @@ export const useStrokeHandlers = ({
         userId: stroke.playerId || 'unknown'
       };
       
-      // Add action to history - this will handle the stroke storage
+      // Add action to history
       addAction({
         type: 'draw',
         data: {
@@ -260,23 +256,15 @@ export const useStrokeHandlers = ({
         }
       });
       
-      console.log('✅ Successfully processed legacy stroke with correct metadata:', {
-        marksCount: marks.length,
-        color: completeStroke.color,
-        size: completeStroke.brushSize
-      });
+      console.log('✅ Processed legacy stroke:', stroke.id, 'with', marks.length, 'marks');
     } catch (error) {
-      console.error('❌ Error processing legacy stroke:', error, stroke);
+      console.error('❌ Error processing legacy stroke:', error);
     }
   }, [modelRef, addAction]);
 
   const handleDrawingStrokeStart = useCallback(() => {
     handleStartDrawing();
     if (multiplayer.isConnected) {
-      console.log('🎨 Starting multiplayer stroke with current state:', {
-        color: selectedColor,
-        size: brushSize[0]
-      });
       multiplayer.startDrawingStroke(selectedColor, brushSize[0]);
     }
   }, [handleStartDrawing, multiplayer, selectedColor, brushSize]);
