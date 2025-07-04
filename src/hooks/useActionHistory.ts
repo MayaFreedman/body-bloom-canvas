@@ -34,74 +34,83 @@ export const useActionHistory = ({ maxHistorySize = 100, currentUserId }: UseAct
 
     setState(prevState => {
       // Remove any items after current index (when undoing then doing new action)
-      const newItems = prevState.items.slice(0, prevState.currentIndex + 1);
-      newItems.push(newAction);
+      const itemsUpToCurrent = prevState.items.slice(0, prevState.currentIndex + 1);
+      const newItems = [...itemsUpToCurrent, newAction];
 
       // Trim if needed
-      if (newItems.length > maxHistorySize) {
-        const trimmedItems = newItems.slice(-maxHistorySize);
-        const newIndex = trimmedItems.length - 1;
-        console.log('📊 Trimmed history, new length:', trimmedItems.length, 'index:', newIndex);
-        return {
-          items: trimmedItems,
-          currentIndex: newIndex
-        };
-      }
+      const finalItems = newItems.length > maxHistorySize 
+        ? newItems.slice(-maxHistorySize)
+        : newItems;
 
-      // Normal case - point to the newly added item
-      const newIndex = newItems.length - 1;
-      console.log('📊 Set global index to:', newIndex, 'for', newItems.length, 'items');
+      // Always point to the last item after adding
+      const newIndex = finalItems.length - 1;
+      
+      console.log('📊 Updated global history: items:', finalItems.length, 'index:', newIndex);
+      
       return {
-        items: newItems,
+        items: finalItems,
         currentIndex: newIndex
       };
     });
   }, [maxHistorySize, currentUserId]);
 
   const undo = useCallback((): ActionHistoryItem | null => {
-    console.log('↩️ Global undo called, currentIndex:', state.currentIndex, 'items length:', state.items.length);
-    
-    // Can't undo if no valid current action
-    if (state.currentIndex < 0 || state.currentIndex >= state.items.length) {
-      console.log('❌ Cannot undo - currentIndex:', state.currentIndex, 'items length:', state.items.length);
-      return null;
-    }
-    
-    const actionToUndo = state.items[state.currentIndex];
-    console.log('↩️ Undoing global action:', actionToUndo?.type, 'by user:', actionToUndo?.userId);
-    
-    setState(prevState => ({
-      ...prevState,
-      currentIndex: prevState.currentIndex - 1
-    }));
-    
-    return actionToUndo;
-  }, [state.items, state.currentIndex]);
+    return new Promise<ActionHistoryItem | null>((resolve) => {
+      setState(prevState => {
+        console.log('↩️ Global undo called, currentIndex:', prevState.currentIndex, 'items length:', prevState.items.length);
+        
+        // Can't undo if we're already at the beginning or no items
+        if (prevState.currentIndex < 0 || prevState.items.length === 0) {
+          console.log('❌ Cannot undo - at beginning or no items');
+          resolve(null);
+          return prevState;
+        }
+        
+        const actionToUndo = prevState.items[prevState.currentIndex];
+        console.log('↩️ Undoing global action:', actionToUndo?.type, 'by user:', actionToUndo?.userId);
+        
+        const newIndex = prevState.currentIndex - 1;
+        console.log('📊 Setting global index from', prevState.currentIndex, 'to:', newIndex);
+        
+        resolve(actionToUndo);
+        
+        return {
+          ...prevState,
+          currentIndex: newIndex
+        };
+      });
+    });
+  }, []);
 
   const redo = useCallback((): ActionHistoryItem | null => {
-    console.log('↪️ Global redo called, currentIndex:', state.currentIndex, 'items length:', state.items.length);
-    
-    // Can't redo if at end of history
-    if (state.currentIndex >= state.items.length - 1) {
-      console.log('❌ Cannot redo - at end of history, currentIndex:', state.currentIndex, 'items length:', state.items.length);
-      return null;
-    }
-    
-    const newIndex = state.currentIndex + 1;
-    const actionToRedo = state.items[newIndex];
-    console.log('↪️ Redoing global action:', actionToRedo?.type, 'by user:', actionToRedo?.userId);
-    
-    setState(prevState => ({
-      ...prevState,
-      currentIndex: newIndex
-    }));
-    
-    return actionToRedo;
-  }, [state.items, state.currentIndex]);
+    return new Promise<ActionHistoryItem | null>((resolve) => {
+      setState(prevState => {
+        console.log('↪️ Global redo called, currentIndex:', prevState.currentIndex, 'items length:', prevState.items.length);
+        
+        // Can't redo if we're at the end
+        if (prevState.currentIndex >= prevState.items.length - 1) {
+          console.log('❌ Cannot redo - at end of history');
+          resolve(null);
+          return prevState;
+        }
+        
+        const newIndex = prevState.currentIndex + 1;
+        const actionToRedo = prevState.items[newIndex];
+        console.log('↪️ Redoing global action:', actionToRedo?.type, 'by user:', actionToRedo?.userId);
+        
+        resolve(actionToRedo);
+        
+        return {
+          ...prevState,
+          currentIndex: newIndex
+        };
+      });
+    });
+  }, []);
 
-  // Simple bounds checking
-  const canUndo = state.currentIndex >= 0 && state.currentIndex < state.items.length;
-  const canRedo = state.currentIndex < state.items.length - 1 && state.items.length > 0;
+  // Simplified bounds checking - matches the actual undo/redo logic
+  const canUndo = state.currentIndex >= 0 && state.items.length > 0;
+  const canRedo = state.currentIndex < state.items.length - 1;
 
   console.log('🎛️ Global action history state - canUndo:', canUndo, 'canRedo:', canRedo, 'items:', state.items.length, 'index:', state.currentIndex);
 

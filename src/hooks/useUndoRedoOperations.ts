@@ -14,9 +14,9 @@ export const useUndoRedoOperations = ({
   actionHistory,
   setBodyPartColors
 }: UseUndoRedoOperationsProps) => {
-  const handleUndo = useCallback(() => {
+  const handleUndo = useCallback(async () => {
     console.log('🔄 Global handleUndo called');
-    const actionToUndo = actionHistory.undo();
+    const actionToUndo = await actionHistory.undo();
     
     if (!actionToUndo) {
       console.log('❌ No action to undo');
@@ -71,9 +71,9 @@ export const useUndoRedoOperations = ({
     return actionToUndo;
   }, [actionHistory, strokeManager, setBodyPartColors]);
 
-  const handleRedo = useCallback(() => {
+  const handleRedo = useCallback(async () => {
     console.log('🔄 Global handleRedo called');
-    const actionToRedo = actionHistory.redo();
+    const actionToRedo = await actionHistory.redo();
     
     if (!actionToRedo) {
       console.log('❌ No action to redo');
