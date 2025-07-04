@@ -31,6 +31,7 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     selectedSensation,
     setSelectedSensation,
     drawingMarks,
+    setDrawingMarks,
     sensationMarks,
     setSensationMarks,
     bodyPartColors,
@@ -105,8 +106,27 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
 
   const handleIncomingErase = (center: THREE.Vector3, radius: number) => {
     console.log('🧹 INCOMING ERASE: Received multiplayer erase at', center, 'with radius', radius);
+    
+    // Remove marks visually from the drawing marks state
+    setDrawingMarks(prevMarks => {
+      const marksToKeep = prevMarks.filter(mark => {
+        const distance = mark.position.distanceTo(center);
+        const shouldKeep = distance > radius + mark.size;
+        if (!shouldKeep) {
+          console.log('🧹 INCOMING ERASE: Removing visual mark', mark.id, 'at distance', distance);
+        }
+        return shouldKeep;
+      });
+      
+      const removedCount = prevMarks.length - marksToKeep.length;
+      console.log('🧹 INCOMING ERASE: Removed', removedCount, 'visual marks from display');
+      
+      return marksToKeep;
+    });
+    
+    // Also run the regular erase operation for any local stroke manager cleanup
     const erasedMarks = handleErase(center, radius);
-    console.log('🧹 INCOMING ERASE: Processed incoming erase, erased', erasedMarks.length, 'marks');
+    console.log('🧹 INCOMING ERASE: Processed stroke manager erase, erased', erasedMarks.length, 'marks');
   };
 
   // Combine local and multiplayer sensation handling
