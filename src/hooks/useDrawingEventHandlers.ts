@@ -32,6 +32,7 @@ export const useDrawingEventHandlers = ({
 
   const handlePointerDown = useCallback((event: PointerEvent) => {
     if (!isDrawing) return;
+    console.log('🖱️ Pointer down - starting drawing');
     isMouseDown.current = true;
     strokeStarted.current = false;
     
@@ -48,6 +49,7 @@ export const useDrawingEventHandlers = ({
       const intersect = intersects[0];
       
       if (intersect.object.userData.bodyPart) {
+        console.log('✅ Hit body part:', intersect.object.userData.bodyPart);
         if (onStrokeStart && !strokeStarted.current) {
           onStrokeStart();
           strokeStarted.current = true;
@@ -104,6 +106,8 @@ export const useDrawingEventHandlers = ({
         const currentPosition = intersect.point;
         const currentBodyPart = intersect.object.userData.bodyPart;
         
+        console.log('🖱️ Pointer move - placing mark and interpolating');
+        
         // Place primary mark for local display
         addMarkAtPosition(currentPosition, intersect);
         
@@ -125,6 +129,7 @@ export const useDrawingEventHandlers = ({
         
         // Enhanced interpolation for ultra-smooth local drawing
         if (lastPosition.current && lastBodyPart.current) {
+          console.log('🔄 Calling interpolateMarks between positions');
           interpolateMarks(lastPosition.current, currentPosition, lastBodyPart.current, currentBodyPart, intersect);
         }
         
@@ -136,6 +141,7 @@ export const useDrawingEventHandlers = ({
   }, [isDrawing, addMarkAtPosition, onAddToStroke, interpolateMarks, camera, gl, raycaster, mouse, getIntersectedObjects]);
 
   const handlePointerUp = useCallback(() => {
+    console.log('🖱️ Pointer up - ending drawing');
     if (isMouseDown.current && strokeStarted.current) {
       if (onStrokeComplete) {
         onStrokeComplete();

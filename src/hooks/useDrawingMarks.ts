@@ -39,12 +39,17 @@ export const useDrawingMarks = ({
         size: brushSize / 200
       };
       onAddMark(mark);
+      
+      console.log('Added mark:', isInterpolated ? 'INTERPOLATED' : 'PRIMARY', 'brush size:', brushSize, 'mark size:', mark.size);
     }
   }, [selectedColor, brushSize, onAddMark, modelRef]);
 
   const interpolateMarks = useCallback((start: THREE.Vector3, end: THREE.Vector3, startBodyPart: string, endBodyPart: string, endIntersect?: THREE.Intersection) => {
+    console.log('🎨 Interpolating between points, distance:', start.distanceTo(end), 'brush size:', brushSize);
+    
     // Only interpolate if both points are on the same body part
     if (startBodyPart !== endBodyPart) {
+      console.log('❌ Different body parts, skipping interpolation');
       return;
     }
 
@@ -86,6 +91,7 @@ export const useDrawingMarks = ({
     };
     
     const steps = getStepCount(brushSize, distance);
+    console.log('🎨 Will create', steps, 'interpolated steps for distance', distance.toFixed(3));
     
     for (let i = 1; i <= steps; i++) {
       const t = i / steps;
@@ -98,6 +104,8 @@ export const useDrawingMarks = ({
       if (bodyPartAtInterpolated === startBodyPart) {
         // Mark as interpolated to skip network updates
         addMarkAtPosition(interpolatedPosition, endIntersect, true);
+      } else {
+        console.log('⚠️ Interpolated point not on same body part, skipping');
       }
     }
   }, [addMarkAtPosition, getBodyPartAtPosition, brushSize]);
