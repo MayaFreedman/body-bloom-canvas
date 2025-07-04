@@ -1,5 +1,4 @@
-
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { GlobalActionHistory, ActionHistoryItem } from '@/types/actionHistoryTypes';
 
 interface UseActionHistoryProps {
@@ -12,6 +11,14 @@ export const useActionHistory = ({ maxHistorySize = 50 }: UseActionHistoryProps 
     currentIndex: -1,
     maxHistorySize
   });
+
+  // Keep a ref to the current history for synchronous access
+  const historyRef = useRef(history);
+
+  // Update the ref whenever history changes
+  useEffect(() => {
+    historyRef.current = history;
+  }, [history]);
 
   const addAction = useCallback((action: Omit<ActionHistoryItem, 'id' | 'timestamp'>) => {
     console.log('Adding action to global history:', action);
@@ -48,22 +55,21 @@ export const useActionHistory = ({ maxHistorySize = 50 }: UseActionHistoryProps 
   const undo = useCallback((): ActionHistoryItem | null => {
     console.log('Global undo called');
     
-    let actionToUndo: ActionHistoryItem | null = null;
+    const currentHistory = historyRef.current;
     
-    setHistory(prev => {
-      if (prev.currentIndex < 0) {
-        console.log('Cannot undo - no history or at beginning');
-        return prev;
-      }
-      
-      actionToUndo = prev.items[prev.currentIndex];
-      console.log('Action to undo:', actionToUndo);
-      
-      return {
-        ...prev,
-        currentIndex: prev.currentIndex - 1
-      };
-    });
+    if (currentHistory.currentIndex < 0) {
+      console.log('Cannot undo - no history or at beginning');
+      return null;
+    }
+    
+    const actionToUndo = currentHistory.items[currentHistory.currentIndex];
+    console.log('Action to undo:', actionToUndo);
+    
+    // Update the history state
+    setHistory(prev => ({
+      ...prev,
+      currentIndex: prev.currentIndex - 1
+    }));
     
     return actionToUndo;
   }, []);
@@ -71,23 +77,22 @@ export const useActionHistory = ({ maxHistorySize = 50 }: UseActionHistoryProps 
   const redo = useCallback((): ActionHistoryItem | null => {
     console.log('Global redo called');
     
-    let actionToRedo: ActionHistoryItem | null = null;
+    const currentHistory = historyRef.current;
     
-    setHistory(prev => {
-      if (prev.currentIndex >= prev.items.length - 1) {
-        console.log('Cannot redo - no history or at end');
-        return prev;
-      }
-      
-      const newIndex = prev.currentIndex + 1;
-      actionToRedo = prev.items[newIndex];
-      console.log('Action to redo:', actionToRedo);
-      
-      return {
-        ...prev,
-        currentIndex: newIndex
-      };
-    });
+    if (currentHistory.currentIndex >= currentHistory.items.length - 1) {
+      console.log('Cannot redo - no history or at end');
+      return null;
+    }
+    
+    const newIndex = currentHistory.currentIndex + 1;
+    const actionToRedo = currentHistory.items[newIndex];
+    console.log('Action to redo:', actionToRedo);
+    
+    // Update the history state
+    setHistory(prev => ({
+      ...prev,
+      currentIndex: newIndex
+    }));
     
     return actionToRedo;
   }, []);
