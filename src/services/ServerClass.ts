@@ -1,3 +1,4 @@
+
 import { Client } from "colyseus.js";
 
 export class ServerClass {
@@ -33,6 +34,9 @@ export class ServerClass {
       console.log("📡 Client state before join:", {
         client: !!this.client,
       });
+
+      // Debug: Check if we can override the client's XMLHttpRequest behavior
+      console.log("🔧 Client endpoint:", this.client.endpoint);
 
       // Create the join promise with detailed logging
       console.log("🚀 Creating join promise...");
