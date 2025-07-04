@@ -8,8 +8,13 @@ interface UseActionHistoryProps {
 }
 
 export const useActionHistory = ({ maxHistorySize = 100, currentUserId }: UseActionHistoryProps) => {
-  const [items, setItems] = useState<ActionHistoryItem[]>([]);
-  const [currentIndex, setCurrentIndex] = useState(-1);
+  const [state, setState] = useState<{
+    items: ActionHistoryItem[];
+    currentIndex: number;
+  }>({
+    items: [],
+    currentIndex: -1
+  });
 
   const addAction = useCallback((action: Omit<ActionHistoryItem, 'id' | 'timestamp' | 'userId'>) => {
     console.log('📝 Adding global action:', action.type, 'by user:', currentUserId);
@@ -27,83 +32,90 @@ export const useActionHistory = ({ maxHistorySize = 100, currentUserId }: UseAct
 
     console.log('✅ New global action created:', newAction.type, 'with id:', newAction.id);
 
-    setItems(prev => {
+    setState(prevState => {
       // Remove any items after current index (when undoing then doing new action)
-      const newItems = prev.slice(0, currentIndex + 1);
+      const newItems = prevState.items.slice(0, prevState.currentIndex + 1);
       newItems.push(newAction);
 
-      // Only trim history if it gets reasonably long (100+ items)
+      // Trim if needed
       if (newItems.length > maxHistorySize) {
         const trimmedItems = newItems.slice(-maxHistorySize);
-        console.log('📊 Trimmed history (reached 100+ items), new length:', trimmedItems.length);
-        // Set currentIndex to point to the last item in trimmed array
-        setCurrentIndex(trimmedItems.length - 1);
-        console.log('📊 Set global index to:', trimmedItems.length - 1, 'after trimming');
-        return trimmedItems;
+        const newIndex = trimmedItems.length - 1;
+        console.log('📊 Trimmed history, new length:', trimmedItems.length, 'index:', newIndex);
+        return {
+          items: trimmedItems,
+          currentIndex: newIndex
+        };
       }
 
-      // Normal case - set index to point to the newly added item (last item)
-      setCurrentIndex(newItems.length - 1);
-      console.log('📊 Set global index to:', newItems.length - 1, 'for', newItems.length, 'items');
-      return newItems;
+      // Normal case - point to the newly added item
+      const newIndex = newItems.length - 1;
+      console.log('📊 Set global index to:', newIndex, 'for', newItems.length, 'items');
+      return {
+        items: newItems,
+        currentIndex: newIndex
+      };
     });
-  }, [maxHistorySize, currentUserId, currentIndex]);
+  }, [maxHistorySize, currentUserId]);
 
   const undo = useCallback((): ActionHistoryItem | null => {
-    console.log('↩️ Global undo called, currentIndex:', currentIndex, 'items length:', items.length);
+    console.log('↩️ Global undo called, currentIndex:', state.currentIndex, 'items length:', state.items.length);
     
-    // Can undo if currentIndex is valid (>= 0) and within items array
-    if (currentIndex < 0 || currentIndex >= items.length) {
-      console.log('❌ Cannot undo - currentIndex:', currentIndex, 'items length:', items.length);
+    // Can't undo if no valid current action
+    if (state.currentIndex < 0 || state.currentIndex >= state.items.length) {
+      console.log('❌ Cannot undo - currentIndex:', state.currentIndex, 'items length:', state.items.length);
       return null;
     }
     
-    const actionToUndo = items[currentIndex];
+    const actionToUndo = state.items[state.currentIndex];
     console.log('↩️ Undoing global action:', actionToUndo?.type, 'by user:', actionToUndo?.userId);
     
-    setCurrentIndex(prev => {
-      const newIndex = prev - 1;
-      console.log('📊 Setting global index from', prev, 'to:', newIndex);
-      return newIndex;
-    });
+    setState(prevState => ({
+      ...prevState,
+      currentIndex: prevState.currentIndex - 1
+    }));
     
     return actionToUndo;
-  }, [items, currentIndex]);
+  }, [state.items, state.currentIndex]);
 
   const redo = useCallback((): ActionHistoryItem | null => {
-    console.log('↪️ Global redo called, currentIndex:', currentIndex, 'items length:', items.length);
+    console.log('↪️ Global redo called, currentIndex:', state.currentIndex, 'items length:', state.items.length);
     
-    // Can redo if there are items after currentIndex
-    if (currentIndex >= items.length - 1) {
-      console.log('❌ Cannot redo - at end of history, currentIndex:', currentIndex, 'items length:', items.length);
+    // Can't redo if at end of history
+    if (state.currentIndex >= state.items.length - 1) {
+      console.log('❌ Cannot redo - at end of history, currentIndex:', state.currentIndex, 'items length:', state.items.length);
       return null;
     }
     
-    const newIndex = currentIndex + 1;
-    const actionToRedo = items[newIndex];
+    const newIndex = state.currentIndex + 1;
+    const actionToRedo = state.items[newIndex];
     console.log('↪️ Redoing global action:', actionToRedo?.type, 'by user:', actionToRedo?.userId);
     
-    setCurrentIndex(newIndex);
+    setState(prevState => ({
+      ...prevState,
+      currentIndex: newIndex
+    }));
     
     return actionToRedo;
-  }, [items, currentIndex]);
+  }, [state.items, state.currentIndex]);
 
-  // Fixed: canUndo should check if currentIndex >= 0 AND within bounds
-  const canUndo = currentIndex >= 0 && currentIndex < items.length;
-  // Fixed: canRedo should check if there are actions after currentIndex
-  const canRedo = currentIndex < items.length - 1 && items.length > 0;
+  // Simple bounds checking
+  const canUndo = state.currentIndex >= 0 && state.currentIndex < state.items.length;
+  const canRedo = state.currentIndex < state.items.length - 1 && state.items.length > 0;
 
-  console.log('🎛️ Global action history state - canUndo:', canUndo, 'canRedo:', canRedo, 'items:', items.length, 'index:', currentIndex);
+  console.log('🎛️ Global action history state - canUndo:', canUndo, 'canRedo:', canRedo, 'items:', state.items.length, 'index:', state.currentIndex);
 
   const clearHistory = useCallback(() => {
     console.log('🧹 Clearing global history');
-    setItems([]);
-    setCurrentIndex(-1);
+    setState({
+      items: [],
+      currentIndex: -1
+    });
   }, []);
 
   return {
-    items,
-    currentIndex,
+    items: state.items,
+    currentIndex: state.currentIndex,
     addAction,
     undo,
     redo,
