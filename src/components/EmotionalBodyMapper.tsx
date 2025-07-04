@@ -1,3 +1,4 @@
+
 import React, { useRef } from 'react';
 import { TopBanner } from './bodyMapper/TopBanner';
 import { MultiplayerMessageHandler } from './bodyMapper/MultiplayerMessageHandler';
@@ -50,7 +51,8 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     canUndo,
     canRedo,
     restoreStroke,
-    addAction
+    addAction,
+    queryMarksInRadius
   } = useEnhancedBodyMapperState({ 
     currentUserId,
     isMultiplayer: multiplayer.isConnected,
@@ -106,20 +108,17 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
   const handleIncomingErase = (center: THREE.Vector3, radius: number) => {
     console.log('🧹 INCOMING ERASE: Received multiplayer erase at', center, 'with radius', radius);
     
-    // Use a modified erase that doesn't add to action history (since it's from another user)
-    const marksToErase = spatialIndex.queryRadius(center, radius);
+    // Use the queryMarksInRadius function from the hook to find marks to erase
+    const marksToErase = queryMarksInRadius(center, radius);
     
     if (marksToErase.length > 0) {
-      const strokesToRemove = new Set<string>();
+      console.log('🧹 INCOMING ERASE: Found', marksToErase.length, 'marks to erase');
       
-      marksToErase.forEach(mark => strokesToRemove.add(mark.strokeId));
+      // Apply the erase operation using the hook's handleErase function
+      // This will handle the actual removal from the stroke manager
+      handleErase(center, radius);
       
-      // Remove strokes without adding to history
-      strokesToRemove.forEach(strokeId => {
-        strokeManager.removeStroke(strokeId);
-      });
-      
-      console.log('🧹 INCOMING ERASE: Processed incoming erase, erased', marksToErase.length, 'marks from', strokesToRemove.size, 'strokes');
+      console.log('🧹 INCOMING ERASE: Processed incoming erase, erased', marksToErase.length, 'marks');
     }
   };
 
