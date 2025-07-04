@@ -39,9 +39,6 @@ export const useDrawingMarks = ({
         size: brushSize / 200
       };
       onAddMark(mark);
-      
-      // REMOVED: Individual dot broadcasting - now handled at stroke level
-      // This was the root cause of the batching problem
     }
   }, [selectedColor, brushSize, onAddMark, modelRef]);
 
@@ -92,7 +89,9 @@ export const useDrawingMarks = ({
     
     for (let i = 1; i <= steps; i++) {
       const t = i / steps;
-      const interpolatedPosition = new THREE.Vector3().lerpVectors(start, end, t);
+      // Use smoothstep function for enhanced smoothing
+      const smoothT = t * t * (3 - 2 * t);
+      const interpolatedPosition = new THREE.Vector3().lerpVectors(start, end, smoothT);
       
       // Validate that the interpolated position is still on the same body part
       const bodyPartAtInterpolated = getBodyPartAtPosition(interpolatedPosition);

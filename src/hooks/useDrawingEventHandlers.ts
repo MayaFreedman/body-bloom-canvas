@@ -84,8 +84,8 @@ export const useDrawingEventHandlers = ({
     
     const now = Date.now();
     
-    // Fixed, predictable throttling - optimized for responsiveness
-    const THROTTLE_TIME = 8; // Consistent 8ms for smooth feel
+    // Enhanced throttling for smoother drawing - optimized for responsiveness
+    const THROTTLE_TIME = 6; // Reduced from 8ms to 6ms for even smoother feel
     if (now - lastMarkTime.current < THROTTLE_TIME) return;
 
     const rect = gl.domElement.getBoundingClientRect();
@@ -123,7 +123,7 @@ export const useDrawingEventHandlers = ({
           onAddToStroke(worldPoint);
         }
         
-        // Do interpolation for local smoothness
+        // Enhanced interpolation for ultra-smooth local drawing
         if (lastPosition.current && lastBodyPart.current) {
           interpolateMarks(lastPosition.current, currentPosition, lastBodyPart.current, currentBodyPart, intersect);
         }
