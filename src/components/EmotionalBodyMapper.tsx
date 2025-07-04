@@ -1,4 +1,3 @@
-
 import React, { useRef } from 'react';
 import { TopBanner } from './bodyMapper/TopBanner';
 import { MultiplayerMessageHandler } from './bodyMapper/MultiplayerMessageHandler';
@@ -88,16 +87,40 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     multiplayer 
   });
 
-  // Handle multiplayer erasing
+  // Handle multiplayer erasing - broadcast to other users
   const handleMultiplayerErase = (center: THREE.Vector3, radius: number) => {
-    handleErase(center, radius);
+    console.log('🧹 MULTIPLAYER ERASE: Local erase requested at', center, 'with radius', radius);
+    console.log('🧹 MULTIPLAYER ERASE: Is connected:', multiplayer.isConnected);
+    
+    const erasedMarks = handleErase(center, radius);
+    console.log('🧹 MULTIPLAYER ERASE: Local erase completed, erased', erasedMarks.length, 'marks');
+    
+    // Always broadcast erase events so other users see the changes
     if (multiplayer.isConnected) {
+      console.log('🧹 MULTIPLAYER ERASE: Broadcasting erase to multiplayer');
       multiplayer.broadcastErase(center, radius);
     }
   };
 
+  // Handle incoming erase from other users - apply globally without recording to local history
   const handleIncomingErase = (center: THREE.Vector3, radius: number) => {
-    handleErase(center, radius);
+    console.log('🧹 INCOMING ERASE: Received multiplayer erase at', center, 'with radius', radius);
+    
+    // Use a modified erase that doesn't add to action history (since it's from another user)
+    const marksToErase = spatialIndex.queryRadius(center, radius);
+    
+    if (marksToErase.length > 0) {
+      const strokesToRemove = new Set<string>();
+      
+      marksToErase.forEach(mark => strokesToRemove.add(mark.strokeId));
+      
+      // Remove strokes without adding to history
+      strokesToRemove.forEach(strokeId => {
+        strokeManager.removeStroke(strokeId);
+      });
+      
+      console.log('🧹 INCOMING ERASE: Processed incoming erase, erased', marksToErase.length, 'marks from', strokesToRemove.size, 'strokes');
+    }
   };
 
   // Combine local and multiplayer sensation handling
