@@ -34,17 +34,18 @@ export const useActionHistory = ({ maxHistorySize = 50, currentUserId }: UseActi
 
       // Trim history if it exceeds max size
       if (newItems.length > maxHistorySize) {
-        newItems.shift();
-        // Adjust currentIndex since we removed the first item
-        setCurrentIndex(prev => Math.max(-1, prev - 1));
-        return newItems;
+        const trimmedItems = newItems.slice(-maxHistorySize);
+        // Update currentIndex to point to the last item in trimmed array
+        setCurrentIndex(trimmedItems.length - 1);
+        console.log('📊 Trimmed history, updated global index to:', trimmedItems.length - 1);
+        return trimmedItems;
       }
 
+      // Normal case - set index to point to the newly added item
+      setCurrentIndex(newItems.length - 1);
+      console.log('📊 Updated global index to:', newItems.length - 1);
       return newItems;
     });
-
-    setCurrentIndex(prev => prev + 1);
-    console.log('📊 Updated global index to:', currentIndex + 1);
   }, [maxHistorySize, currentUserId, currentIndex]);
 
   const undo = useCallback((): ActionHistoryItem | null => {
@@ -86,10 +87,10 @@ export const useActionHistory = ({ maxHistorySize = 50, currentUserId }: UseActi
     return actionToRedo;
   }, [items, currentIndex]);
 
-  // Fixed: canUndo should check if currentIndex >= 0 (there are actions to undo)
-  const canUndo = currentIndex >= 0;
+  // Fixed: canUndo should check if currentIndex >= 0 AND within bounds
+  const canUndo = currentIndex >= 0 && currentIndex < items.length;
   // Fixed: canRedo should check if there are actions after currentIndex
-  const canRedo = currentIndex < items.length - 1;
+  const canRedo = currentIndex < items.length - 1 && items.length > 0;
 
   console.log('🎛️ Global action history state - canUndo:', canUndo, 'canRedo:', canRedo, 'items:', items.length, 'index:', currentIndex);
 
