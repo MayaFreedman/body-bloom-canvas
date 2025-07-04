@@ -129,10 +129,11 @@ export const useEnhancedBodyMapperState = ({ currentUserId }: UseEnhancedBodyMap
     };
     setSensationMarks(prev => [...prev, mark]);
     
+    // Store sensation marks separately in action history
     actionHistory.addAction({
       type: 'draw',
-      data: { marks: [mark as any] },
-      metadata: { color: sensation.color }
+      data: { sensationMarks: [mark] },
+      metadata: { color: sensation.color, sensation: sensation.name }
     });
   }, [actionHistory]);
 
@@ -151,11 +152,11 @@ export const useEnhancedBodyMapperState = ({ currentUserId }: UseEnhancedBodyMap
     if (undoResult) {
       console.log('✅ Undo completed for action:', undoResult.type);
       
-      // Handle sensation marks for undo
-      if (undoResult.type === 'draw' && undoResult.data.marks) {
+      // Handle sensation marks for undo - check for sensationMarks in data
+      if (undoResult.type === 'draw' && undoResult.data.sensationMarks) {
         setSensationMarks(prev => {
-          const marksToRemove = undoResult.data.marks || [];
-          return prev.filter(mark => !marksToRemove.some(m => m.id === mark.id));
+          const marksToRemove = undoResult.data.sensationMarks || [];
+          return prev.filter(mark => !marksToRemove.some((m: SensationMark) => m.id === mark.id));
         });
       }
     }
@@ -172,13 +173,11 @@ export const useEnhancedBodyMapperState = ({ currentUserId }: UseEnhancedBodyMap
     if (redoResult) {
       console.log('✅ Redo completed for action:', redoResult.type);
       
-      // Handle sensation marks for redo
-      if (redoResult.type === 'draw' && redoResult.data.marks) {
-        const marksToAdd = redoResult.data.marks || [];
-        marksToAdd.forEach(mark => {
-          if (mark.icon) { // It's a sensation mark
-            setSensationMarks(prev => [...prev, mark as SensationMark]);
-          }
+      // Handle sensation marks for redo - check for sensationMarks in data
+      if (redoResult.type === 'draw' && redoResult.data.sensationMarks) {
+        const marksToAdd = redoResult.data.sensationMarks || [];
+        marksToAdd.forEach((mark: SensationMark) => {
+          setSensationMarks(prev => [...prev, mark]);
         });
       }
     }
@@ -208,7 +207,7 @@ export const useEnhancedBodyMapperState = ({ currentUserId }: UseEnhancedBodyMap
         strokes: allStrokes,
         bodyPartColors: {},
         previousBodyPartColors: previousColors,
-        marks: previousSensations as any[]
+        sensationMarks: previousSensations
       },
       metadata: { color: selectedColor }
     });
