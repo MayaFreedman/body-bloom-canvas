@@ -20,6 +20,8 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
 
   const currentUserId = React.useMemo(() => `user-${Date.now()}-${Math.random()}`, []);
 
+  const multiplayer = useMultiplayer(roomId);
+
   const {
     mode,
     setMode,
@@ -49,9 +51,12 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     canRedo,
     restoreStroke,
     addAction
-  } = useEnhancedBodyMapperState({ currentUserId });
-
-  const multiplayer = useMultiplayer(roomId);
+  } = useEnhancedBodyMapperState({ 
+    currentUserId,
+    isMultiplayer: multiplayer.isConnected,
+    broadcastUndo: multiplayer.broadcastUndo,
+    broadcastRedo: multiplayer.broadcastRedo
+  });
 
   const {
     handleEmotionsUpdate,
@@ -82,21 +87,6 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     multiplayer 
   });
 
-  // Enhanced undo/redo with multiplayer support
-  const handleMultiplayerUndo = React.useCallback(() => {
-    const result = handleUndo();
-    if (result && multiplayer.isConnected) {
-      multiplayer.broadcastUndo();
-    }
-  }, [handleUndo, multiplayer]);
-
-  const handleMultiplayerRedo = React.useCallback(() => {
-    const result = handleRedo();
-    if (result && multiplayer.isConnected) {
-      multiplayer.broadcastRedo();
-    }
-  }, [handleRedo, multiplayer]);
-
   // Combine local and multiplayer sensation handling
   const combinedSensationClick = (position: THREE.Vector3, sensation: any) => {
     localHandleSensationClick(position, sensation);
@@ -109,6 +99,8 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     color: mark.color,
     size: mark.size
   }));
+
+  console.log('EmotionalBodyMapper - canUndo:', canUndo, 'canRedo:', canRedo);
 
   return (
     <div style={{ height: '100vh', width: '100%' }}>
@@ -145,8 +137,8 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
         onRotateLeft={handleRotateLeft}
         onRotateRight={handleRotateRight}
         onResetAll={handleResetAll}
-        onUndo={handleMultiplayerUndo}
-        onRedo={handleMultiplayerRedo}
+        onUndo={handleUndo}
+        onRedo={handleRedo}
         onEmotionsUpdate={handleEmotionsUpdate}
       />
 

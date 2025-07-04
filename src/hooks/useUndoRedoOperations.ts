@@ -23,11 +23,11 @@ export const useUndoRedoOperations = ({
   const performUndo = useCallback((actionToUndo: any) => {
     if (!actionToUndo) return;
 
-    console.log('Performing undo for action:', actionToUndo.type);
+    console.log('Performing undo for action:', actionToUndo.type, 'ID:', actionToUndo.id);
     
     switch (actionToUndo.type) {
       case 'draw':
-        console.log('Undoing draw action with strokes:', actionToUndo.data.strokes);
+        console.log('Undoing draw action with strokes:', actionToUndo.data.strokes?.map(s => s.id));
         if (actionToUndo.data.strokes) {
           actionToUndo.data.strokes.forEach((stroke: any) => {
             console.log('Removing stroke:', stroke.id);
@@ -38,7 +38,6 @@ export const useUndoRedoOperations = ({
       case 'erase':
         console.log('Undoing erase action by restoring strokes');
         if (actionToUndo.data.strokes) {
-          // Restore the erased strokes
           actionToUndo.data.strokes.forEach((stroke: any) => {
             strokeManager.restoreStroke(stroke);
           });
@@ -47,7 +46,6 @@ export const useUndoRedoOperations = ({
       case 'fill':
         console.log('Undoing fill action');
         if (actionToUndo.data.previousBodyPartColors !== undefined) {
-          // Restore the previous body part colors state
           setBodyPartColors(actionToUndo.data.previousBodyPartColors);
           console.log('Restored previous body part colors:', actionToUndo.data.previousBodyPartColors);
         }
@@ -69,7 +67,7 @@ export const useUndoRedoOperations = ({
   const performRedo = useCallback((actionToRedo: any) => {
     if (!actionToRedo) return;
 
-    console.log('Performing redo for action:', actionToRedo.type);
+    console.log('Performing redo for action:', actionToRedo.type, 'ID:', actionToRedo.id);
     
     switch (actionToRedo.type) {
       case 'draw':
@@ -113,15 +111,15 @@ export const useUndoRedoOperations = ({
   }, [strokeManager, setBodyPartColors]);
 
   const handleUndo = useCallback(() => {
-    console.log('handleUndo called');
+    console.log('handleUndo called - LOCAL ACTION');
     const actionToUndo = actionHistory.undo();
-    console.log('Action to undo:', actionToUndo);
     
     if (actionToUndo) {
       performUndo(actionToUndo);
       
-      // Broadcast to multiplayer if connected
+      // Broadcast to multiplayer if connected (this will trigger performUndo on other clients)
       if (isMultiplayer && broadcastUndo) {
+        console.log('Broadcasting undo to multiplayer');
         broadcastUndo();
       }
     }
@@ -130,15 +128,15 @@ export const useUndoRedoOperations = ({
   }, [actionHistory, performUndo, isMultiplayer, broadcastUndo]);
 
   const handleRedo = useCallback(() => {
-    console.log('handleRedo called');
+    console.log('handleRedo called - LOCAL ACTION');
     const actionToRedo = actionHistory.redo();
-    console.log('Action to redo:', actionToRedo);
     
     if (actionToRedo) {
       performRedo(actionToRedo);
       
-      // Broadcast to multiplayer if connected
+      // Broadcast to multiplayer if connected (this will trigger performRedo on other clients)
       if (isMultiplayer && broadcastRedo) {
+        console.log('Broadcasting redo to multiplayer');
         broadcastRedo();
       }
     }
@@ -146,9 +144,9 @@ export const useUndoRedoOperations = ({
     return actionToRedo;
   }, [actionHistory, performRedo, isMultiplayer, broadcastRedo]);
 
-  // Handle incoming multiplayer undo/redo
+  // Handle incoming multiplayer undo/redo - only perform the operation, don't modify local history
   const handleIncomingUndo = useCallback(() => {
-    console.log('Handling incoming multiplayer undo');
+    console.log('Handling incoming multiplayer undo - REMOTE ACTION');
     const actionToUndo = actionHistory.undo();
     if (actionToUndo) {
       performUndo(actionToUndo);
@@ -156,7 +154,7 @@ export const useUndoRedoOperations = ({
   }, [actionHistory, performUndo]);
 
   const handleIncomingRedo = useCallback(() => {
-    console.log('Handling incoming multiplayer redo');
+    console.log('Handling incoming multiplayer redo - REMOTE ACTION');  
     const actionToRedo = actionHistory.redo();
     if (actionToRedo) {
       performRedo(actionToRedo);

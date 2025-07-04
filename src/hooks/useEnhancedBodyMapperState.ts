@@ -11,9 +11,17 @@ import { useBodyPartOperations } from './useBodyPartOperations';
 
 interface UseEnhancedBodyMapperStateProps {
   currentUserId: string | null;
+  isMultiplayer?: boolean;
+  broadcastUndo?: () => void;
+  broadcastRedo?: () => void;
 }
 
-export const useEnhancedBodyMapperState = ({ currentUserId }: UseEnhancedBodyMapperStateProps = { currentUserId: null }) => {
+export const useEnhancedBodyMapperState = ({ 
+  currentUserId,
+  isMultiplayer = false,
+  broadcastUndo,
+  broadcastRedo
+}: UseEnhancedBodyMapperStateProps) => {
   const [mode, setMode] = useState<BodyMapperMode>('draw');
   const [selectedColor, setSelectedColor] = useState('#ff6b6b');
   const [brushSize, setBrushSize] = useState([3]);
@@ -22,12 +30,12 @@ export const useEnhancedBodyMapperState = ({ currentUserId }: UseEnhancedBodyMap
   const [sensationMarks, setSensationMarks] = useState<SensationMark[]>([]);
   const [rotation, setRotation] = useState(0);
 
-  // Simplified global state management
+  // Centralized state management
   const actionHistory = useActionHistory();
   const strokeManager = useStrokeManager({ currentUserId });
   const spatialIndex = useSpatialIndex();
 
-  // Specialized operation hooks
+  // Specialized operation hooks with multiplayer support
   const drawingOps = useDrawingOperations({ 
     strokeManager, 
     actionHistory, 
@@ -45,7 +53,10 @@ export const useEnhancedBodyMapperState = ({ currentUserId }: UseEnhancedBodyMap
   const undoRedoOps = useUndoRedoOperations({ 
     strokeManager, 
     actionHistory, 
-    setBodyPartColors 
+    setBodyPartColors,
+    broadcastUndo,
+    broadcastRedo,
+    isMultiplayer
   });
   
   const bodyPartOps = useBodyPartOperations({ 
