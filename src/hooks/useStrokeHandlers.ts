@@ -1,4 +1,3 @@
-
 import { useCallback, useRef } from 'react';
 import { useMultiplayer } from './useMultiplayer';
 import { DrawingMark } from '@/types/actionHistoryTypes';
@@ -29,9 +28,17 @@ export const useStrokeHandlers = ({
   const processedStrokes = useRef(new Set<string>());
 
   const handleIncomingOptimizedStroke = useCallback((optimizedStroke: OptimizedDrawingStroke) => {
+    console.log('🎨 INCOMING OPTIMIZED STROKE HANDLER CALLED:', {
+      strokeId: optimizedStroke.id,
+      playerId: optimizedStroke.playerId,
+      keyPointsCount: optimizedStroke.keyPoints?.length || 0,
+      hasModelRef: !!modelRef.current
+    });
+
     // Prevent duplicate processing with better key
     const strokeKey = `${optimizedStroke.id}-${optimizedStroke.playerId}`;
     if (processedStrokes.current.has(strokeKey)) {
+      console.log('⚠️ Stroke already processed, skipping:', strokeKey);
       return;
     }
     
@@ -40,14 +47,22 @@ export const useStrokeHandlers = ({
     try {
       const modelGroup = modelRef.current;
       if (!modelGroup || !optimizedStroke?.keyPoints?.length) {
+        console.log('❌ Missing model or keypoints:', {
+          hasModel: !!modelGroup,
+          keyPointsLength: optimizedStroke?.keyPoints?.length || 0
+        });
         return;
       }
 
+      console.log('🔄 Reconstructing stroke with', optimizedStroke.keyPoints.length, 'key points');
       const reconstructedPoints = multiplayer.reconstructStroke(optimizedStroke);
       
       if (reconstructedPoints.length === 0) {
+        console.log('❌ No reconstructed points generated');
         return;
       }
+
+      console.log('✅ Reconstructed', reconstructedPoints.length, 'points from', optimizedStroke.keyPoints.length, 'key points');
 
       const marks: DrawingMark[] = reconstructedPoints.map((worldPos, index) => {
         const localPos = new THREE.Vector3();
@@ -75,6 +90,13 @@ export const useStrokeHandlers = ({
         userId: optimizedStroke.playerId || 'unknown'
       };
       
+      console.log('📝 Adding multiplayer stroke to action history:', {
+        strokeId: completeStroke.id,
+        marksCount: completeStroke.marks.length,
+        color: completeStroke.color,
+        userId: completeStroke.userId
+      });
+
       addAction({
         type: 'draw',
         data: {
@@ -87,6 +109,8 @@ export const useStrokeHandlers = ({
           playerId: optimizedStroke.playerId
         }
       });
+      
+      console.log('✅ Successfully processed optimized stroke:', optimizedStroke.id);
       
     } catch (error) {
       console.error('❌ Error processing optimized stroke:', error);
@@ -176,15 +200,19 @@ export const useStrokeHandlers = ({
   }, [modelRef, addAction]);
 
   const handleDrawingStrokeStart = useCallback(() => {
+    console.log('🎨 Starting drawing stroke (with multiplayer)');
     handleStartDrawing();
     if (multiplayer.isConnected) {
+      console.log('📡 Starting multiplayer stroke broadcast');
       multiplayer.startDrawingStroke(selectedColor, brushSize[0]);
     }
   }, [handleStartDrawing, multiplayer, selectedColor, brushSize]);
 
   const handleDrawingStrokeComplete = useCallback(() => {
+    console.log('🎨 Completing drawing stroke (with multiplayer)');
     handleFinishDrawing();
     if (multiplayer.isConnected) {
+      console.log('📡 Finishing multiplayer stroke broadcast');
       multiplayer.finishDrawingStroke();
     }
   }, [handleFinishDrawing, multiplayer]);

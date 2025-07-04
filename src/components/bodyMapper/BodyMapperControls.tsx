@@ -1,8 +1,5 @@
-
 import React, { useState, useEffect, forwardRef } from 'react';
 import { TabContainer } from './TabContainer';
-import { FeelingsTabContent } from './FeelingsTabContent';
-import { SensationSelector } from './SensationSelector';
 import { BodyMapperMode, SelectedSensation } from '@/types/bodyMapperTypes';
 
 interface CustomEmotion {
@@ -154,33 +151,24 @@ export const BodyMapperControls = React.forwardRef<
   }, []);
 
   return (
-    <TabContainer activeTab={activeTab} onTabChange={setActiveTab}>
-      {/* Color by Feelings Tab Content */}
-      <div className={`tab-content ${activeTab === 'feelings' ? 'active' : ''}`}>
-        <FeelingsTabContent
-          mode={mode}
-          selectedColor={selectedColor}
-          brushSize={brushSize}
-          emotions={emotions}
-          onModeChange={onModeChange}
-          onEmotionColorChange={handleEmotionColorChange}
-          onEmotionNameChange={handleEmotionNameChange}
-          onEmotionSelect={handleEmotionSelect}
-          onAddColor={handleAddColor}
-          onDeleteColor={handleDeleteColor}
-          onBrushSizeChange={onBrushSizeChange}
-        />
-      </div>
-
-      {/* Body Sensations and Signals Tab Content */}
-      <div className={`tab-content ${activeTab === 'sensations' ? 'active' : ''}`}>
-        <SensationSelector
-          mode={mode}
-          selectedSensation={selectedSensation}
-          onModeChange={onModeChange}
-          onSensationChange={onSensationChange}
-        />
-      </div>
+    <TabContainer 
+      activeTab={activeTab} 
+      onTabChange={setActiveTab}
+      mode={mode}
+      selectedColor={selectedColor}
+      brushSize={brushSize}
+      emotions={emotions}
+      onModeChange={onModeChange}
+      onEmotionColorChange={handleEmotionColorChange}
+      onEmotionNameChange={handleEmotionNameChange}
+      onEmotionSelect={handleEmotionSelect}
+      onAddColor={handleAddColor}
+      onDeleteColor={handleDeleteColor}
+      onBrushSizeChange={onBrushSizeChange}
+      selectedSensation={selectedSensation}
+      onSensationChange={onSensationChange}
+    >
+      {/* Empty children as tabs are now handled internally */}
     </TabContainer>
   );
 });
