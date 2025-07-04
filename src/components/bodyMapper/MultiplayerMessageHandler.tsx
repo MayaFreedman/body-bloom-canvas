@@ -32,8 +32,8 @@ export const MultiplayerMessageHandler = ({
   onIncomingUndo,
   onIncomingRedo
 }: MultiplayerMessageHandlerProps) => {
-  // Store the handler reference to ensure proper cleanup
-  const handlerRef = useRef<((message: any) => void) | null>(null);
+  // Store the unsubscribe function returned by onMessage
+  const unsubscribeRef = useRef<(() => void) | null>(null);
   
   useEffect(() => {
     if (!room) return;
@@ -170,29 +170,25 @@ export const MultiplayerMessageHandler = ({
       }
     };
 
-    // Store the handler reference for proper cleanup
-    handlerRef.current = handleBroadcast;
-
-    // Add the listener
-    room.onMessage('broadcast', handleBroadcast);
+    // Store the unsubscribe function returned by onMessage
+    unsubscribeRef.current = room.onMessage('broadcast', handleBroadcast);
     console.log('✅ Added broadcast listener to room');
     
     return () => {
       console.log('🧹 Cleaning up multiplayer message handler');
       
-      // Remove the specific handler we added
-      if (handlerRef.current && room) {
+      // Call the unsubscribe function to remove the listener
+      if (unsubscribeRef.current) {
         try {
-          // Use the correct Colyseus.js API - off method to remove specific listener
-          room.off('broadcast', handlerRef.current);
+          unsubscribeRef.current();
           console.log('✅ Removed broadcast listener from room');
         } catch (error) {
           console.error('❌ Error removing broadcast listener:', error);
         }
       }
       
-      // Clear the handler reference
-      handlerRef.current = null;
+      // Clear the unsubscribe reference
+      unsubscribeRef.current = null;
     };
   }, [room, setDrawingMarks, setSensationMarks, setBodyPartColors, setRotation, clearAll, modelRef, controlsRef, onIncomingOptimizedStroke, onIncomingUndo, onIncomingRedo]);
 
