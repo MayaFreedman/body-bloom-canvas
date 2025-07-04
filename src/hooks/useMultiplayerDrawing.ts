@@ -12,6 +12,7 @@ export const useMultiplayerDrawing = (
 ) => {
   const optimizedProcessing = useOptimizedStrokeProcessing();
   const currentStrokeMetadata = useRef<{ color: string; size: number } | null>(null);
+  const localStrokePoints = useRef<WorldDrawingPoint[]>([]);
 
   const broadcastDrawingStroke = useCallback((stroke: Omit<OptimizedDrawingStroke, 'playerId'>) => {
     if (room && isConnected) {
@@ -24,13 +25,19 @@ export const useMultiplayerDrawing = (
   }, [room, isConnected, currentPlayerId]);
 
   const startDrawingStroke = useCallback((color: string, size: number) => {
-    console.log('🎨 Starting optimized drawing stroke');
+    console.log('🎨 Starting optimized drawing stroke with batching');
     currentStrokeMetadata.current = { color, size };
+    localStrokePoints.current = [];
     optimizedProcessing.resetStroke();
   }, [optimizedProcessing]);
 
   const addToDrawingStroke = useCallback((worldPoint: WorldDrawingPoint) => {
-    console.log('🎨 Adding key point to optimized stroke:', worldPoint);
+    console.log('🎨 Adding point to local stroke batch:', worldPoint);
+    
+    // Add to local collection for batching
+    localStrokePoints.current.push(worldPoint);
+    
+    // Also add to optimized processing for key point extraction
     const worldPosition = new THREE.Vector3(
       worldPoint.worldPosition.x,
       worldPoint.worldPosition.y,
@@ -43,14 +50,20 @@ export const useMultiplayerDrawing = (
     if (!currentStrokeMetadata.current) return;
     
     const { color, size } = currentStrokeMetadata.current;
+    
+    console.log('🎨 Finishing stroke with', localStrokePoints.current.length, 'local points');
+    
+    // Create optimized stroke from collected points
     const optimizedStroke = optimizedProcessing.finalizeStroke(color, size);
     
     if (optimizedStroke) {
-      console.log('🎨 Finishing optimized stroke with', optimizedStroke.keyPoints.length, 'key points');
+      console.log('🎨 Broadcasting complete stroke with', optimizedStroke.keyPoints.length, 'key points');
       broadcastDrawingStroke(optimizedStroke);
     }
     
+    // Reset for next stroke
     currentStrokeMetadata.current = null;
+    localStrokePoints.current = [];
   }, [optimizedProcessing, broadcastDrawingStroke]);
 
   // Legacy support for existing DrawingStroke format

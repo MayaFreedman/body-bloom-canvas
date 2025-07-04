@@ -39,7 +39,6 @@ export const useDrawingEvents = ({
     selectedColor,
     brushSize,
     onAddMark,
-    onAddToStroke,
     modelRef,
     getBodyPartAtPosition: intersectionUtils.getBodyPartAtPosition
   });
@@ -48,6 +47,7 @@ export const useDrawingEvents = ({
     isDrawing,
     onStrokeStart,
     onStrokeComplete,
+    onAddToStroke, // Pass through for stroke-level batching
     getIntersectedObjects: intersectionUtils.getIntersectedObjects,
     addMarkAtPosition: drawingMarks.addMarkAtPosition,
     interpolateMarks: drawingMarks.interpolateMarks

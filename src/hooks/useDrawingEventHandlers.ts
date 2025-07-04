@@ -1,13 +1,14 @@
 
-
 import { useRef, useCallback } from 'react';
 import { useThree } from '@react-three/fiber';
+import { WorldDrawingPoint } from '@/types/multiplayerTypes';
 import * as THREE from 'three';
 
 interface UseDrawingEventHandlersProps {
   isDrawing: boolean;
   onStrokeStart?: () => void;
   onStrokeComplete?: () => void;
+  onAddToStroke?: (worldPoint: WorldDrawingPoint) => void;
   getIntersectedObjects: () => THREE.Mesh[];
   addMarkAtPosition: (worldPosition: THREE.Vector3, intersect?: THREE.Intersection) => void;
   interpolateMarks: (start: THREE.Vector3, end: THREE.Vector3, startBodyPart: string, endBodyPart: string, endIntersect?: THREE.Intersection) => void;
@@ -17,6 +18,7 @@ export const useDrawingEventHandlers = ({
   isDrawing,
   onStrokeStart,
   onStrokeComplete,
+  onAddToStroke,
   getIntersectedObjects,
   addMarkAtPosition,
   interpolateMarks
@@ -51,14 +53,31 @@ export const useDrawingEventHandlers = ({
           strokeStarted.current = true;
         }
         
-        // Place mark immediately - no throttling for primary marks
+        // Place mark immediately for local display
         addMarkAtPosition(intersect.point, intersect);
+        
+        // Add to stroke for batching
+        if (onAddToStroke && intersect.object instanceof THREE.Mesh) {
+          const worldPoint: WorldDrawingPoint = {
+            id: `point-${Date.now()}-${Math.random()}`,
+            worldPosition: {
+              x: intersect.point.x,
+              y: intersect.point.y,
+              z: intersect.point.z
+            },
+            bodyPart: intersect.object.userData.bodyPart,
+            color: '',
+            size: 0
+          };
+          onAddToStroke(worldPoint);
+        }
+        
         lastPosition.current = intersect.point.clone();
         lastBodyPart.current = intersect.object.userData.bodyPart;
         lastMarkTime.current = Date.now();
       }
     }
-  }, [isDrawing, addMarkAtPosition, onStrokeStart, camera, gl, raycaster, mouse, getIntersectedObjects]);
+  }, [isDrawing, addMarkAtPosition, onStrokeStart, onAddToStroke, camera, gl, raycaster, mouse, getIntersectedObjects]);
 
   const handlePointerMove = useCallback((event: PointerEvent) => {
     if (!isDrawing || !isMouseDown.current) return;
@@ -85,10 +104,26 @@ export const useDrawingEventHandlers = ({
         const currentPosition = intersect.point;
         const currentBodyPart = intersect.object.userData.bodyPart;
         
-        // Place primary mark immediately
+        // Place primary mark for local display
         addMarkAtPosition(currentPosition, intersect);
         
-        // Do interpolation if we have a previous position
+        // Add to stroke for batching
+        if (onAddToStroke && intersect.object instanceof THREE.Mesh) {
+          const worldPoint: WorldDrawingPoint = {
+            id: `point-${Date.now()}-${Math.random()}`,
+            worldPosition: {
+              x: currentPosition.x,
+              y: currentPosition.y,
+              z: currentPosition.z
+            },
+            bodyPart: currentBodyPart,
+            color: '',
+            size: 0
+          };
+          onAddToStroke(worldPoint);
+        }
+        
+        // Do interpolation for local smoothness
         if (lastPosition.current && lastBodyPart.current) {
           interpolateMarks(lastPosition.current, currentPosition, lastBodyPart.current, currentBodyPart, intersect);
         }
@@ -98,7 +133,7 @@ export const useDrawingEventHandlers = ({
         lastMarkTime.current = now;
       }
     }
-  }, [isDrawing, addMarkAtPosition, interpolateMarks, camera, gl, raycaster, mouse, getIntersectedObjects]);
+  }, [isDrawing, addMarkAtPosition, onAddToStroke, interpolateMarks, camera, gl, raycaster, mouse, getIntersectedObjects]);
 
   const handlePointerUp = useCallback(() => {
     if (isMouseDown.current && strokeStarted.current) {
@@ -119,4 +154,3 @@ export const useDrawingEventHandlers = ({
     handlePointerUp
   };
 };
-
