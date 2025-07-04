@@ -31,6 +31,7 @@ interface BodyMapperLayoutProps {
   onAddToDrawingStroke: (worldPoint: WorldDrawingPoint) => void;
   onBodyPartClick: (partName: string, color: string) => void;
   onSensationClick: (position: THREE.Vector3, sensation: SelectedSensation) => void;
+  onErase: (center: THREE.Vector3, radius: number) => void;
   onRotateLeft: () => void;
   onRotateRight: () => void;
   onResetAll: () => void;
@@ -63,6 +64,7 @@ export const BodyMapperLayout = ({
   onAddToDrawingStroke,
   onBodyPartClick,
   onSensationClick,
+  onErase,
   onRotateLeft,
   onRotateRight,
   onResetAll,
@@ -91,6 +93,7 @@ export const BodyMapperLayout = ({
             onAddToDrawingStroke={onAddToDrawingStroke}
             onBodyPartClick={onBodyPartClick}
             onSensationClick={onSensationClick}
+            onErase={onErase}
             onRotateLeft={onRotateLeft}
             onRotateRight={onRotateRight}
           />

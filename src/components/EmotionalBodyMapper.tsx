@@ -3,7 +3,6 @@ import React, { useRef } from 'react';
 import { TopBanner } from './bodyMapper/TopBanner';
 import { MultiplayerMessageHandler } from './bodyMapper/MultiplayerMessageHandler';
 import { BodyMapperLayout } from './bodyMapper/BodyMapperLayout';
-import { ModelEraser } from './ModelEraser';
 import { useEnhancedBodyMapperState } from '@/hooks/useEnhancedBodyMapperState';
 import { useMultiplayer } from '@/hooks/useMultiplayer';
 import { useMultiplayerDrawingHandlers } from '@/hooks/useMultiplayerDrawingHandlers';
@@ -148,19 +147,13 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
         onAddToDrawingStroke={handleAddToDrawingStroke}
         onBodyPartClick={handleBodyPartClick}
         onSensationClick={combinedSensationClick}
+        onErase={handleMultiplayerErase}
         onRotateLeft={handleRotateLeft}
         onRotateRight={handleRotateRight}
         onResetAll={handleResetAll}
         onUndo={handleUndo}
         onRedo={handleRedo}
         onEmotionsUpdate={handleEmotionsUpdate}
-      />
-
-      <ModelEraser
-        isErasing={mode === 'erase'}
-        eraserRadius={brushSize[0] / 100} // Convert brush size to world units
-        onErase={handleMultiplayerErase}
-        modelRef={modelRef}
       />
 
       <MultiplayerMessageHandler

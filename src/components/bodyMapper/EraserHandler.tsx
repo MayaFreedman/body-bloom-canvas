@@ -1,23 +1,38 @@
 
-import { useCallback, useRef } from 'react';
+import React, { useCallback, useRef } from 'react';
 import { useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 
-interface UseEraserInteractionsProps {
+interface EraserHandlerProps {
   isErasing: boolean;
   eraserRadius: number;
   onErase: (center: THREE.Vector3, radius: number) => void;
-  getIntersectedObjects: () => THREE.Mesh[];
+  modelRef?: React.RefObject<THREE.Group>;
 }
 
-export const useEraserInteractions = ({
-  isErasing,
-  eraserRadius,
+export const EraserHandler = ({ 
+  isErasing, 
+  eraserRadius, 
   onErase,
-  getIntersectedObjects
-}: UseEraserInteractionsProps) => {
+  modelRef 
+}: EraserHandlerProps) => {
   const { camera, gl, raycaster, mouse } = useThree();
   const isMouseDown = useRef(false);
+
+  const getIntersectedObjects = useCallback(() => {
+    const meshes: THREE.Mesh[] = [];
+    const modelGroup = modelRef?.current;
+    
+    if (modelGroup) {
+      modelGroup.traverse((child) => {
+        if (child instanceof THREE.Mesh && child.userData.bodyPart) {
+          meshes.push(child);
+        }
+      });
+    }
+    
+    return meshes;
+  }, [modelRef]);
 
   const handlePointerDown = useCallback((event: PointerEvent) => {
     if (!isErasing) return;
@@ -60,9 +75,26 @@ export const useEraserInteractions = ({
     isMouseDown.current = false;
   }, []);
 
-  return {
-    handlePointerDown,
-    handlePointerMove,
-    handlePointerUp
-  };
+  React.useEffect(() => {
+    if (isErasing) {
+      gl.domElement.addEventListener('pointerdown', handlePointerDown);
+      gl.domElement.addEventListener('pointermove', handlePointerMove);
+      gl.domElement.addEventListener('pointerup', handlePointerUp);
+      gl.domElement.addEventListener('pointerleave', handlePointerUp);
+      
+      gl.domElement.style.cursor = 'crosshair';
+      
+      return () => {
+        gl.domElement.removeEventListener('pointerdown', handlePointerDown);
+        gl.domElement.removeEventListener('pointermove', handlePointerMove);
+        gl.domElement.removeEventListener('pointerup', handlePointerUp);
+        gl.domElement.removeEventListener('pointerleave', handlePointerUp);
+        gl.domElement.style.cursor = 'default';
+      };
+    } else {
+      gl.domElement.style.cursor = 'default';
+    }
+  }, [isErasing, handlePointerDown, handlePointerMove, handlePointerUp, gl]);
+
+  return null;
 };

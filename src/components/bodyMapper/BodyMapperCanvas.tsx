@@ -9,6 +9,7 @@ import { EffectsRenderer } from '@/components/EffectsRenderer';
 import { ModelDrawing } from '@/components/ModelDrawing';
 import SensationParticles from '@/components/SensationParticles';
 import { ClickHandler } from './ClickHandler';
+import { EraserHandler } from './EraserHandler';
 import { DrawingMark, SensationMark, Effect, BodyPartColors, BodyMapperMode, SelectedSensation } from '@/types/bodyMapperTypes';
 import { WorldDrawingPoint } from '@/types/multiplayerTypes';
 import * as THREE from 'three';
@@ -30,6 +31,7 @@ interface BodyMapperCanvasProps {
   onAddToDrawingStroke: (worldPoint: WorldDrawingPoint) => void;
   onBodyPartClick: (partName: string, color: string) => void;
   onSensationClick: (position: THREE.Vector3, sensation: SelectedSensation) => void;
+  onErase: (center: THREE.Vector3, radius: number) => void;
   onRotateLeft: () => void;
   onRotateRight: () => void;
 }
@@ -51,6 +53,7 @@ export const BodyMapperCanvas = ({
   onAddToDrawingStroke,
   onBodyPartClick,
   onSensationClick,
+  onErase,
   onRotateLeft,
   onRotateRight
 }: BodyMapperCanvasProps) => {
@@ -118,6 +121,13 @@ export const BodyMapperCanvas = ({
           modelRef={modelRef}
         />
         
+        <EraserHandler
+          isErasing={mode === 'erase'}
+          eraserRadius={brushSize / 100}
+          onErase={onErase}
+          modelRef={modelRef}
+        />
+        
         <EffectsRenderer effects={effects} />
         
         <ClickHandler 
@@ -135,7 +145,7 @@ export const BodyMapperCanvas = ({
           maxDistance={6}
           maxPolarAngle={Math.PI}
           minPolarAngle={0}
-          enabled={mode !== 'draw'}
+          enabled={mode !== 'draw' && mode !== 'erase'}
         />
       </Canvas>
     </div>
