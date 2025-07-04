@@ -28,26 +28,6 @@ export class ServerClass {
     console.log("📋 Room ID:", colyseusRoomID);
     console.log("👑 Is Moderator:", isModerator);
 
-    // First, test server connectivity
-    try {
-      console.log("🌐 Testing server connectivity...");
-      const testResponse = await fetch(
-        "https://ca-yto-8b3f79b2.colyseus.cloud",
-        {
-          method: "GET",
-          signal: AbortSignal.timeout(5000),
-        }
-      );
-      console.log("✅ Server is reachable, status:", testResponse.status);
-    } catch (fetchError) {
-      console.error("❌ Server connectivity test failed:", fetchError);
-      throw new Error(
-        `Cannot reach Colyseus server. Is the server running? Error: ${
-          fetchError?.message || "Unknown network error"
-        }`
-      );
-    }
-
     try {
       console.log("🔍 Joining room by ID...");
       console.log("📡 Client state before join:", {
