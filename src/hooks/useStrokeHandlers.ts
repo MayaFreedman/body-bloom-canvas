@@ -1,4 +1,3 @@
-
 import { useCallback } from 'react';
 import { useMultiplayer } from './useMultiplayer';
 import { DrawingMark } from '@/types/actionHistoryTypes';
@@ -106,10 +105,11 @@ export const useStrokeHandlers = ({
         userId: optimizedStroke.playerId || 'unknown'
       };
       
-      // Restore stroke visually
+      // Restore stroke visually ONLY - no action history here
       restoreStroke(completeStroke);
       
       // Add to action history for global undo/redo consistency - ONE action per complete stroke
+      console.log('🎨 Adding SINGLE action to history for incoming optimized stroke:', completeStroke.id);
       addAction({
         type: 'draw',
         data: {
@@ -247,10 +247,11 @@ export const useStrokeHandlers = ({
         userId: stroke.playerId || 'unknown'
       };
       
-      // Restore stroke visually
+      // Restore stroke visually ONLY - no action history here
       restoreStroke(completeStroke);
       
       // Add to action history for global undo/redo consistency - ONE action per complete stroke
+      console.log('🎨 Adding SINGLE action to history for incoming legacy stroke:', completeStroke.id);
       addAction({
         type: 'draw',
         data: {
