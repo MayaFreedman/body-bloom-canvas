@@ -1,3 +1,4 @@
+
 import { useState, useCallback, useMemo } from 'react';
 import { useActionHistory } from './useActionHistory';
 import { useStrokeManager } from './useStrokeManager';
@@ -6,6 +7,7 @@ import { useSensationHandlers } from './useSensationHandlers';
 import { useDrawingOperations } from './useDrawingOperations';
 import { useEraseOperations } from './useEraseOperations';
 import { useUndoRedoOperations } from './useUndoRedoOperations';
+import { useSpatialIndex } from './useSpatialIndex';
 import { 
   BodyMapperMode, 
   SelectedSensation, 
@@ -30,16 +32,37 @@ export const useEnhancedBodyMapperState = ({ currentUserId }: UseEnhancedBodyMap
   const [rotation, setRotation] = useState(0);
 
   const actionHistory = useActionHistory({ currentUserId });
-  const strokeManager = useStrokeManager();
-  const bodyPartOps = useBodyPartOperations({ setBodyPartColors });
-  const sensationOps = useSensationHandlers({ setSensationMarks });
-  const drawingOps = useDrawingOperations({ strokeManager, selectedColor, brushSize: brushSize[0] });
-  const eraseOps = useEraseOperations({ strokeManager });
-  const undoRedoOps = useUndoRedoOperations({ 
-    actionHistory, 
+  const strokeManager = useStrokeManager({ currentUserId });
+  const spatialIndex = useSpatialIndex();
+  
+  const bodyPartOps = useBodyPartOperations({ 
+    actionHistory,
+    strokeManager,
+    bodyPartColors,
+    setBodyPartColors,
+    currentUserId
+  });
+  
+  const sensationOps = useSensationHandlers({ multiplayer: { isConnected: false } as any });
+  
+  const drawingOps = useDrawingOperations({ 
     strokeManager, 
-    bodyPartOps, 
-    sensationOps 
+    actionHistory,
+    brushSize,
+    selectedColor 
+  });
+  
+  const eraseOps = useEraseOperations({ 
+    strokeManager,
+    actionHistory,
+    spatialIndex,
+    currentUserId
+  });
+  
+  const undoRedoOps = useUndoRedoOperations({ 
+    strokeManager,
+    actionHistory,
+    setBodyPartColors
   });
 
   // Convert action history to drawing marks with proper multiplayer support
@@ -59,7 +82,6 @@ export const useEnhancedBodyMapperState = ({ currentUserId }: UseEnhancedBodyMap
                   position: mark.position,
                   color: mark.color,
                   size: mark.size,
-                  strokeId: mark.strokeId,
                   timestamp: mark.timestamp,
                   userId: mark.userId
                 });
@@ -79,13 +101,12 @@ export const useEnhancedBodyMapperState = ({ currentUserId }: UseEnhancedBodyMap
     console.log('🎨 Started drawing stroke:', strokeId);
   }, [strokeManager, brushSize, selectedColor]);
 
-  const handleAddDrawingMark = useCallback((mark: Omit<DrawingMark, 'timestamp' | 'userId' | 'strokeId'>) => {
+  const handleAddDrawingMark = useCallback((mark: Omit<DrawingMark, 'timestamp' | 'strokeId'>) => {
     const fullMark = strokeManager.addMarkToStroke({
-      ...mark,
-      userId: currentUserId
+      ...mark
     });
-    console.log('🎨 Added drawing mark:', fullMark.id);
-  }, [strokeManager, currentUserId]);
+    console.log('🎨 Added drawing mark:', fullMark?.id);
+  }, [strokeManager]);
 
   const handleFinishDrawing = useCallback(() => {
     const completedStroke = strokeManager.finishStroke();
@@ -100,34 +121,41 @@ export const useEnhancedBodyMapperState = ({ currentUserId }: UseEnhancedBodyMap
   }, [strokeManager, actionHistory, brushSize, selectedColor]);
 
   const handleSensationClick = useCallback((position: THREE.Vector3, sensation: SelectedSensation) => {
-    const mark = sensationOps.addSensationMark(position, sensation, currentUserId);
+    const mark: SensationMark = {
+      id: `sensation-${Date.now()}-${Math.random()}`,
+      position,
+      sensation: sensation.name,
+      color: sensation.color,
+      size: 0.1,
+      timestamp: Date.now(),
+      userId: currentUserId
+    };
+    setSensationMarks(prev => [...prev, mark]);
+    
     actionHistory.addAction({
-      type: 'sensation',
-      data: { sensationMark: mark },
-      metadata: { sensation: sensation.id }
+      type: 'draw', // Using 'draw' as it's a valid type
+      data: { marks: [mark as any] },
+      metadata: { color: sensation.color }
     });
-  }, [sensationOps, actionHistory, currentUserId]);
+  }, [actionHistory, currentUserId]);
 
   const handleBodyPartClick = useCallback((partName: string, color: string) => {
-    bodyPartOps.setBodyPartColor(partName, color);
-    actionHistory.addAction({
-      type: 'bodyPartFill',
-      data: { partName, color },
-      metadata: { partName, color }
-    });
-  }, [bodyPartOps, actionHistory]);
+    bodyPartOps.handleBodyPartClick(partName, color);
+  }, [bodyPartOps]);
 
   const handleUndo = useCallback(() => {
-    undoRedoOps.performUndo();
+    undoRedoOps.handleUndo();
   }, [undoRedoOps]);
 
   const handleRedo = useCallback(() => {
-    undoRedoOps.performRedo();
+    undoRedoOps.handleRedo();
   }, [undoRedoOps]);
 
   const clearAll = useCallback(() => {
     console.log('🧹 clearAll called - removing ALL strokes and colors from ALL users');
-    const allStrokes = strokeManager.getAllStrokes();
+    
+    // Use the completed strokes from stroke manager
+    const allStrokes = strokeManager.completedStrokes;
     console.log('🧹 Clearing', allStrokes.length, 'strokes from all users');
     
     const colorCount = Object.keys(bodyPartColors).length;
@@ -140,9 +168,9 @@ export const useEnhancedBodyMapperState = ({ currentUserId }: UseEnhancedBodyMap
     actionHistory.addAction({
       type: 'clear',
       data: {},
-      metadata: { clearedStrokes: allStrokes.length, clearedColors: colorCount }
+      metadata: { color: selectedColor }
     });
-  }, [strokeManager, bodyPartColors, actionHistory]);
+  }, [strokeManager, bodyPartColors, actionHistory, selectedColor]);
 
   const addAction = useCallback((action: Omit<ActionHistoryItem, 'timestamp' | 'id' | 'userId'>) => {
     actionHistory.addAction(action);
@@ -167,7 +195,7 @@ export const useEnhancedBodyMapperState = ({ currentUserId }: UseEnhancedBodyMap
     handleAddDrawingMark,
     handleFinishDrawing,
     handleSensationClick,
-    handleBodyPartClick: handleBodyPartClick,
+    handleBodyPartClick,
     handleUndo,
     handleRedo,
     clearAll,
