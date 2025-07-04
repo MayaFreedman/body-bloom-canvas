@@ -1,3 +1,4 @@
+
 import { useCallback } from 'react';
 import { useMultiplayer } from './useMultiplayer';
 import { DrawingMark } from '@/types/actionHistoryTypes';
@@ -108,7 +109,7 @@ export const useStrokeHandlers = ({
       // Restore stroke visually
       restoreStroke(completeStroke);
       
-      // Add to action history for global undo/redo consistency
+      // Add to action history for global undo/redo consistency - ONE action per complete stroke
       addAction({
         type: 'draw',
         data: {
@@ -249,7 +250,7 @@ export const useStrokeHandlers = ({
       // Restore stroke visually
       restoreStroke(completeStroke);
       
-      // Add to action history for global undo/redo consistency
+      // Add to action history for global undo/redo consistency - ONE action per complete stroke
       addAction({
         type: 'draw',
         data: {
@@ -283,6 +284,7 @@ export const useStrokeHandlers = ({
   }, [handleStartDrawing, multiplayer, selectedColor, brushSize]);
 
   const handleDrawingStrokeComplete = useCallback(() => {
+    console.log('🎨 Completing drawing stroke - this should add ONE action to history');
     handleFinishDrawing();
     if (multiplayer.isConnected) {
       multiplayer.finishDrawingStroke();
