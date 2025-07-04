@@ -19,27 +19,43 @@ export const useEraseOperations = ({
   currentUserId
 }: UseEraseOperationsProps) => {
   const handleErase = useCallback((center: THREE.Vector3, radius: number) => {
+    console.log('🧹 ERASE OPERATION: Starting erase at', center, 'with radius', radius);
+    console.log('🧹 ERASE OPERATION: Current user ID:', currentUserId);
+    
     const marksToErase = spatialIndex.queryRadius(center, radius);
+    console.log('🧹 ERASE OPERATION: Found', marksToErase.length, 'marks in radius');
     
     // Only erase marks created by the current user
-    const userMarksToErase = marksToErase.filter(mark => mark.userId === currentUserId);
+    const userMarksToErase = marksToErase.filter(mark => {
+      const isUserMark = mark.userId === currentUserId;
+      console.log('🧹 ERASE OPERATION: Mark', mark.id, 'user:', mark.userId, 'current user:', currentUserId, 'should erase:', isUserMark);
+      return isUserMark;
+    });
+    
+    console.log('🧹 ERASE OPERATION: Will erase', userMarksToErase.length, 'user marks out of', marksToErase.length, 'total marks');
     
     if (userMarksToErase.length > 0) {
       // Get the full strokes that contain erased marks
       const strokesToRemove = new Set<string>();
       const strokesBeingErased: any[] = [];
       
-      userMarksToErase.forEach(mark => strokesToRemove.add(mark.strokeId));
+      userMarksToErase.forEach(mark => {
+        console.log('🧹 ERASE OPERATION: Adding stroke', mark.strokeId, 'to removal list');
+        strokesToRemove.add(mark.strokeId);
+      });
       
       // Store the complete strokes before removing them
       strokesToRemove.forEach(strokeId => {
         const stroke = strokeManager.completedStrokes.find(s => s.id === strokeId);
         if (stroke) {
+          console.log('🧹 ERASE OPERATION: Found stroke to erase:', stroke.id, 'with', stroke.marks.length, 'marks');
           strokesBeingErased.push(stroke);
         }
+        console.log('🧹 ERASE OPERATION: Removing stroke', strokeId, 'from stroke manager');
         strokeManager.removeStroke(strokeId);
       });
 
+      console.log('🧹 ERASE OPERATION: Adding erase action to history with', strokesBeingErased.length, 'strokes');
       actionHistory.addAction({
         type: 'erase',
         data: {
@@ -48,8 +64,11 @@ export const useEraseOperations = ({
           affectedArea: { center, radius }
         }
       });
+    } else {
+      console.log('🧹 ERASE OPERATION: No user marks to erase');
     }
     
+    console.log('🧹 ERASE OPERATION: Returning', userMarksToErase.length, 'erased marks');
     return userMarksToErase;
   }, [spatialIndex, strokeManager, actionHistory, currentUserId]);
 

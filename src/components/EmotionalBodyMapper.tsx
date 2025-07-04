@@ -1,4 +1,3 @@
-
 import React, { useRef } from 'react';
 import { TopBanner } from './bodyMapper/TopBanner';
 import { MultiplayerMessageHandler } from './bodyMapper/MultiplayerMessageHandler';
@@ -90,14 +89,24 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
 
   // Handle multiplayer erasing
   const handleMultiplayerErase = (center: THREE.Vector3, radius: number) => {
-    handleErase(center, radius);
+    console.log('🧹 MULTIPLAYER ERASE: Local erase requested at', center, 'with radius', radius);
+    console.log('🧹 MULTIPLAYER ERASE: Is connected:', multiplayer.isConnected);
+    
+    const erasedMarks = handleErase(center, radius);
+    console.log('🧹 MULTIPLAYER ERASE: Local erase completed, erased', erasedMarks.length, 'marks');
+    
     if (multiplayer.isConnected) {
+      console.log('🧹 MULTIPLAYER ERASE: Broadcasting erase to multiplayer');
       multiplayer.broadcastErase(center, radius);
+    } else {
+      console.log('🧹 MULTIPLAYER ERASE: Not connected, skipping broadcast');
     }
   };
 
   const handleIncomingErase = (center: THREE.Vector3, radius: number) => {
-    handleErase(center, radius);
+    console.log('🧹 INCOMING ERASE: Received multiplayer erase at', center, 'with radius', radius);
+    const erasedMarks = handleErase(center, radius);
+    console.log('🧹 INCOMING ERASE: Processed incoming erase, erased', erasedMarks.length, 'marks');
   };
 
   // Combine local and multiplayer sensation handling
