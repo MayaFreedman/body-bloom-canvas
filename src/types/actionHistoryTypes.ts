@@ -11,6 +11,14 @@ export interface DrawingMark {
   userId?: string; // Track which user created this mark
 }
 
+export interface SensationMark {
+  id: string;
+  position: THREE.Vector3;
+  icon: string;
+  color: string;
+  size: number;
+}
+
 export interface DrawingStroke {
   id: string;
   marks: DrawingMark[];
@@ -30,6 +38,7 @@ export interface ActionHistoryItem {
   data: {
     strokes?: DrawingStroke[];
     marks?: DrawingMark[];
+    sensationMarks?: SensationMark[];
     bodyPartColors?: Record<string, string>;
     previousBodyPartColors?: Record<string, string>;
     erasedMarks?: DrawingMark[];
@@ -42,6 +51,7 @@ export interface ActionHistoryItem {
     brushSize?: number;
     color?: string;
     bodyPart?: string;
+    sensation?: string;
   };
 }
 
