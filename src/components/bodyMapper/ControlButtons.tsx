@@ -52,12 +52,17 @@ export const ControlButtons = ({
     }
   };
 
+  const handleResetAll = () => {
+    console.log('YAY!');
+    onResetAll();
+  };
+
   return (
     <>
       {/* Reset Button Container */}
       <div className="reset-button-container">
         <button 
-          onClick={onResetAll} 
+          onClick={handleResetAll} 
           className="main-reset-button"
           aria-label="Reset all changes to the body model" 
           title="Click to reset all changes"
