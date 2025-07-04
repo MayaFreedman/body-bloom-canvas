@@ -4,6 +4,7 @@ import { useDrawingOptimization } from './useDrawingOptimization';
 import { useStrokeManager } from './useStrokeManager';
 import { useActionHistory } from './useActionHistory';
 import { useSpatialIndex } from './useSpatialIndex';
+import { useEraseOperations } from './useEraseOperations';
 import * as THREE from 'three';
 
 interface UseEnhancedBodyMapperStateProps {
@@ -35,6 +36,14 @@ export const useEnhancedBodyMapperState = ({
 
   // Add performance optimization
   const optimization = useDrawingOptimization();
+
+  // Initialize erase operations hook
+  const eraseOperations = useEraseOperations({
+    strokeManager,
+    actionHistory,
+    spatialIndex,
+    currentUserId
+  });
 
   // Initialize spatial index and rebuild it whenever marks change
   useEffect(() => {
@@ -90,13 +99,8 @@ export const useEnhancedBodyMapperState = ({
 
   const handleErase = useCallback((center: THREE.Vector3, radius: number) => {
     console.log('Erasing marks at', center, 'with radius', radius);
-    return useEraseOperations({
-      strokeManager,
-      actionHistory,
-      spatialIndex,
-      currentUserId
-    }).handleErase(center, radius);
-  }, [strokeManager, actionHistory, spatialIndex, currentUserId]);
+    return eraseOperations.handleErase(center, radius);
+  }, [eraseOperations]);
 
   const handleUndo = useCallback(() => {
     console.log('Undoing last action');
