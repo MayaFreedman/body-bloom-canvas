@@ -27,7 +27,7 @@ export const useStrokeHandlers = ({
   addAction
 }: UseStrokeHandlersProps) => {
   const handleIncomingOptimizedStroke = useCallback((optimizedStroke: OptimizedDrawingStroke) => {
-    console.log('📨 Handling incoming optimized stroke - TREATED IDENTICALLY TO LOCAL:', {
+    console.log('📨 Handling incoming optimized stroke - VISUAL ONLY:', {
       id: optimizedStroke.id,
       keyPointsCount: optimizedStroke.keyPoints.length,
       color: optimizedStroke.metadata.color,
@@ -80,11 +80,11 @@ export const useStrokeHandlers = ({
         }
         
         return {
-          id: `reconstructed-${optimizedStroke.id}-${index}`, // No special prefix
+          id: `reconstructed-${optimizedStroke.id}-${index}`,
           position: localPos,
           color: metadata.color || '#ff6b6b',
           size: Math.max(0.001, Math.min(0.1, metadata.size / 200)),
-          strokeId: `${optimizedStroke.id}`, // No special prefix
+          strokeId: `${optimizedStroke.id}`,
           timestamp: Date.now() + index,
           userId: optimizedStroke.playerId || 'unknown'
         };
@@ -96,7 +96,7 @@ export const useStrokeHandlers = ({
       }
 
       const completeStroke = {
-        id: `${optimizedStroke.id}`, // No special prefix
+        id: `${optimizedStroke.id}`,
         marks: marks,
         startTime: metadata.startTime || Date.now() - 1000,
         endTime: metadata.endTime || Date.now(),
@@ -106,21 +106,10 @@ export const useStrokeHandlers = ({
         userId: optimizedStroke.playerId || 'unknown'
       };
       
-      // Restore stroke AND add to action history like local strokes
+      // Only restore stroke visually - DO NOT add to action history for multiplayer strokes
       restoreStroke(completeStroke);
-      addAction({
-        type: 'draw',
-        data: {
-          strokes: [completeStroke]
-        },
-        metadata: {
-          brushSize: completeStroke.brushSize,
-          color: completeStroke.color,
-          isMultiplayer: true
-        }
-      });
       
-      console.log('✅ Successfully restored optimized stroke WITH history recording:', {
+      console.log('✅ Successfully restored optimized stroke (visual only):', {
         marksCount: marks.length,
         color: completeStroke.color,
         size: completeStroke.brushSize
@@ -128,10 +117,10 @@ export const useStrokeHandlers = ({
     } catch (error) {
       console.error('❌ Error processing optimized stroke:', error, optimizedStroke);
     }
-  }, [modelRef, restoreStroke, multiplayer, addAction]);
+  }, [modelRef, restoreStroke, multiplayer]);
 
   const handleIncomingDrawingStroke = useCallback((stroke: any) => {
-    console.log('📨 Handling incoming legacy drawing stroke - TREATED IDENTICALLY TO LOCAL:', {
+    console.log('📨 Handling incoming legacy drawing stroke - VISUAL ONLY:', {
       id: stroke.id,
       pointsCount: stroke.points?.length,
       firstPointColor: stroke.points?.[0]?.color,
@@ -178,11 +167,11 @@ export const useStrokeHandlers = ({
         }
         
         const mark: DrawingMark = {
-          id: `legacy-${i}`, // No special prefix
+          id: `legacy-${i}`,
           position: localPos,
           color: currentPoint.color || '#ff6b6b',
           size: Math.max(0.001, Math.min(0.1, (currentPoint.size || 3) / 200)),
-          strokeId: `${stroke.id}`, // No special prefix
+          strokeId: `${stroke.id}`,
           timestamp: Date.now() + i,
           userId: stroke.playerId || 'unknown'
         };
@@ -212,11 +201,11 @@ export const useStrokeHandlers = ({
                   modelGroup.worldToLocal(interpolatedLocalPos.copy(interpolatedWorldPos));
                   
                   const interpolatedMark: DrawingMark = {
-                    id: `interpolated-${currentPoint.id}-${j}`, // No special prefix
+                    id: `interpolated-${currentPoint.id}-${j}`,
                     position: interpolatedLocalPos,
                     color: currentPoint.color || '#ff6b6b',
                     size: Math.max(0.001, Math.min(0.1, (currentPoint.size || 3) / 200)),
-                    strokeId: `${stroke.id}`, // No special prefix
+                    strokeId: `${stroke.id}`,
                     timestamp: Date.now() + i * 100 + j,
                     userId: stroke.playerId || 'unknown'
                   };
@@ -236,7 +225,7 @@ export const useStrokeHandlers = ({
       }
 
       const completeStroke = {
-        id: `${stroke.id}`, // No special prefix
+        id: `${stroke.id}`,
         marks: marks,
         startTime: Date.now() - 1000,
         endTime: Date.now(),
@@ -246,21 +235,10 @@ export const useStrokeHandlers = ({
         userId: stroke.playerId || 'unknown'
       };
       
-      // Restore stroke AND add to action history like local strokes
+      // Only restore stroke visually - DO NOT add to action history for multiplayer strokes
       restoreStroke(completeStroke);
-      addAction({
-        type: 'draw',
-        data: {
-          strokes: [completeStroke]
-        },
-        metadata: {
-          brushSize: completeStroke.brushSize,
-          color: completeStroke.color,
-          isMultiplayer: true
-        }
-      });
       
-      console.log('✅ Successfully restored legacy stroke WITH history recording:', {
+      console.log('✅ Successfully restored legacy stroke (visual only):', {
         marksCount: marks.length,
         color: completeStroke.color,
         size: completeStroke.brushSize
@@ -268,7 +246,7 @@ export const useStrokeHandlers = ({
     } catch (error) {
       console.error('❌ Error processing legacy stroke:', error, stroke);
     }
-  }, [modelRef, restoreStroke, addAction]);
+  }, [modelRef, restoreStroke]);
 
   const handleDrawingStrokeStart = useCallback(() => {
     handleStartDrawing();
