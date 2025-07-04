@@ -48,41 +48,49 @@ export const useActionHistory = ({ maxHistorySize = 50 }: UseActionHistoryProps 
   const undo = useCallback((): ActionHistoryItem | null => {
     console.log('Global undo called');
     
-    if (history.currentIndex < 0) {
-      console.log('Cannot undo - no history or at beginning');
-      return null;
-    }
+    let actionToUndo: ActionHistoryItem | null = null;
     
-    const actionToUndo = history.items[history.currentIndex];
-    console.log('Action to undo:', actionToUndo);
-    
-    setHistory(prev => ({
-      ...prev,
-      currentIndex: prev.currentIndex - 1
-    }));
+    setHistory(prev => {
+      if (prev.currentIndex < 0) {
+        console.log('Cannot undo - no history or at beginning');
+        return prev;
+      }
+      
+      actionToUndo = prev.items[prev.currentIndex];
+      console.log('Action to undo:', actionToUndo);
+      
+      return {
+        ...prev,
+        currentIndex: prev.currentIndex - 1
+      };
+    });
     
     return actionToUndo;
-  }, [history]);
+  }, []);
 
   const redo = useCallback((): ActionHistoryItem | null => {
     console.log('Global redo called');
     
-    if (history.currentIndex >= history.items.length - 1) {
-      console.log('Cannot redo - no history or at end');
-      return null;
-    }
+    let actionToRedo: ActionHistoryItem | null = null;
     
-    const newIndex = history.currentIndex + 1;
-    const actionToRedo = history.items[newIndex];
-    console.log('Action to redo:', actionToRedo);
-    
-    setHistory(prev => ({
-      ...prev,
-      currentIndex: newIndex
-    }));
+    setHistory(prev => {
+      if (prev.currentIndex >= prev.items.length - 1) {
+        console.log('Cannot redo - no history or at end');
+        return prev;
+      }
+      
+      const newIndex = prev.currentIndex + 1;
+      actionToRedo = prev.items[newIndex];
+      console.log('Action to redo:', actionToRedo);
+      
+      return {
+        ...prev,
+        currentIndex: newIndex
+      };
+    });
     
     return actionToRedo;
-  }, [history]);
+  }, []);
 
   const canUndo = history.currentIndex >= 0;
   const canRedo = history.currentIndex < history.items.length - 1;
