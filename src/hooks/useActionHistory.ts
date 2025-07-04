@@ -36,18 +36,16 @@ export const useActionHistory = ({ maxHistorySize = 100, currentUserId }: UseAct
       if (newItems.length > maxHistorySize) {
         const trimmedItems = newItems.slice(-maxHistorySize);
         console.log('📊 Trimmed history (reached 100+ items), new length:', trimmedItems.length);
+        // Set currentIndex to point to the last item in trimmed array
+        setCurrentIndex(trimmedItems.length - 1);
+        console.log('📊 Set global index to:', trimmedItems.length - 1, 'after trimming');
         return trimmedItems;
       }
 
+      // Normal case - set index to point to the newly added item (last item)
+      setCurrentIndex(newItems.length - 1);
+      console.log('📊 Set global index to:', newItems.length - 1, 'for', newItems.length, 'items');
       return newItems;
-    });
-
-    // Set the index separately to avoid race conditions
-    // Use a function to ensure we get the most up-to-date items length
-    setCurrentIndex(prev => {
-      const newIndex = Math.max(0, Math.min(prev + 1, maxHistorySize - 1));
-      console.log('📊 Updated global index from', prev, 'to:', newIndex);
-      return newIndex;
     });
   }, [maxHistorySize, currentUserId, currentIndex]);
 
