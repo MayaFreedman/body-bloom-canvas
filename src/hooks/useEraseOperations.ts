@@ -22,8 +22,14 @@ export const useEraseOperations = ({
     console.log('🧹 ERASE OPERATION: Starting erase at', center, 'with radius', radius);
     console.log('🧹 ERASE OPERATION: Current user ID:', currentUserId);
     
+    // Get all marks from stroke manager for debugging
+    const allMarks = strokeManager.getAllMarks();
+    console.log('🧹 ERASE OPERATION: Total marks in stroke manager:', allMarks.length);
+    console.log('🧹 ERASE OPERATION: Sample marks:', allMarks.slice(0, 3));
+    
     const marksToErase = spatialIndex.queryRadius(center, radius);
     console.log('🧹 ERASE OPERATION: Found', marksToErase.length, 'marks in radius');
+    console.log('🧹 ERASE OPERATION: Marks to erase:', marksToErase.map(m => ({ id: m.id, userId: m.userId, strokeId: m.strokeId })));
     
     // Only erase marks created by the current user
     const userMarksToErase = marksToErase.filter(mark => {
