@@ -22,8 +22,8 @@ export const useEnhancedBodyMapperState = ({ currentUserId }: UseEnhancedBodyMap
   const [sensationMarks, setSensationMarks] = useState<SensationMark[]>([]);
   const [rotation, setRotation] = useState(0);
 
-  // Enhanced state management with user ID
-  const actionHistory = useActionHistory({ currentUserId });
+  // Simplified global state management
+  const actionHistory = useActionHistory();
   const strokeManager = useStrokeManager({ currentUserId });
   const spatialIndex = useSpatialIndex();
 
@@ -125,9 +125,9 @@ export const useEnhancedBodyMapperState = ({ currentUserId }: UseEnhancedBodyMap
     queryMarksInRadius: spatialIndex.queryRadius,
     queryMarksInBox: spatialIndex.queryBox,
     
-    // User-specific functions
+    // User-specific functions (kept for drawing functionality)
     getUserMarks: strokeManager.getMarksByUser,
-    clearUserHistory: actionHistory.clearUserHistory,
+    clearUserHistory: actionHistory.clearHistory,
     
     // Expose restoreStroke for multiplayer
     restoreStroke: strokeManager.restoreStroke,
