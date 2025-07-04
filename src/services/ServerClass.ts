@@ -1,3 +1,4 @@
+
 import { Client } from "colyseus.js";
 
 export class ServerClass {
@@ -6,7 +7,11 @@ export class ServerClass {
   public server: any = {};
 
   private constructor() {
-    this.client = new Client("https://ca-yto-8b3f79b2.colyseus.cloud");
+    // Try to create client with explicit options to avoid credentials
+    this.client = new Client("https://ca-yto-8b3f79b2.colyseus.cloud", {
+      // Disable credentials to avoid CORS preflight issues
+      withCredentials: false
+    });
   }
 
   public static getInstance(): ServerClass {
@@ -140,6 +145,13 @@ export class ServerClass {
             console.error("🔍 Error message:", error.message || "no message");
             console.error("🔍 Error stack:", error.stack);
 
+            // Check for CORS-specific errors
+            if (String(error.message || error).includes("CORS") || 
+                String(error.message || error).includes("Access-Control")) {
+              console.error("🚨 CORS ERROR DETECTED!");
+              console.error("💡 This is likely due to credentials being sent with the request");
+            }
+
             // Check for refId error in the join error
             if (String(error.message || error).includes("refId")) {
               console.error("🚨 REFID ERROR DETECTED IN JOIN PROCESS!");
@@ -163,9 +175,17 @@ export class ServerClass {
         hasTimeout: errorString.includes("timeout"),
         hasSchema: errorString.includes("schema"),
         hasDecode: errorString.includes("decode"),
+        hasCORS: errorString.includes("CORS") || errorString.includes("Access-Control"),
         errorType: typeof error,
         errorConstructor: error.constructor.name,
       });
+
+      // Check for CORS-related errors
+      if (errorString.includes("CORS") || errorString.includes("Access-Control")) {
+        throw new Error(
+          "CORS error: The browser is blocking the request due to credentials being sent. This suggests the client and server CORS configuration mismatch."
+        );
+      }
 
       // Check for schema-related errors
       if (errorString.includes("refId")) {
