@@ -1,5 +1,5 @@
 
-import React, { useRef } from 'react';
+import React, { useRef, useState, useCallback } from 'react';
 import { TopBanner } from './bodyMapper/TopBanner';
 import { MultiplayerMessageHandler } from './bodyMapper/MultiplayerMessageHandler';
 import { BodyMapperLayout } from './bodyMapper/BodyMapperLayout';
@@ -13,12 +13,16 @@ interface EmotionalBodyMapperProps {
   roomId: string | null;
 }
 
+// Generate stable user ID outside component to prevent re-generation
+const generateStableUserId = () => `user-${Date.now()}-${Math.random()}`;
+
 const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
   const canvasRef = useRef<HTMLDivElement>(null);
   const modelRef = useRef<THREE.Group>(null);
   const controlsRef = useRef<any>(null);
 
-  const currentUserId = React.useMemo(() => `user-${Date.now()}-${Math.random()}`, []);
+  // Use useState to ensure stable user ID across renders
+  const [currentUserId] = useState(() => generateStableUserId());
 
   const {
     mode,
@@ -81,10 +85,10 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
   });
 
   // Combine local and multiplayer sensation handling
-  const combinedSensationClick = (position: THREE.Vector3, sensation: any) => {
+  const combinedSensationClick = useCallback((position: THREE.Vector3, sensation: any) => {
     localHandleSensationClick(position, sensation);
     handleSensationClick(position, sensation);
-  };
+  }, [localHandleSensationClick, handleSensationClick]);
 
   const legacyDrawingMarks = drawingMarks.map(mark => ({
     id: mark.id,

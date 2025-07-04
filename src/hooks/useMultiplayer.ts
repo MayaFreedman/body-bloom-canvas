@@ -14,7 +14,7 @@ export const useMultiplayer = (roomId: string | null) => {
   }, []);
 
   useEffect(() => {
-    if (roomId) {
+    if (roomId && !connection.isConnected && !connection.isConnecting) {
       connection.connectToRoom(roomId).then(room => {
         if (room) {
           // Setup message handlers
@@ -26,12 +26,12 @@ export const useMultiplayer = (roomId: string | null) => {
     }
 
     return () => {
-      if (connection.room) {
+      if (connection.room && connection.isConnected) {
         connection.room.leave();
       }
       broadcast.cleanup();
     };
-  }, [roomId, connection.connectToRoom, handleBroadcastMessage, broadcast.cleanup]);
+  }, [roomId, connection.isConnected, connection.isConnecting, connection.connectToRoom, handleBroadcastMessage, broadcast.cleanup, connection.room]);
 
   return {
     ...connection,

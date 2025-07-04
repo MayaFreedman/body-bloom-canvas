@@ -17,7 +17,7 @@ export const useRotationHandlers = ({ setRotation, multiplayer }: UseRotationHan
         data: { direction: 'left' }
       });
     }
-  }, [setRotation, multiplayer]);
+  }, [setRotation, multiplayer.isConnected, multiplayer.room]);
 
   const handleRotateRight = useCallback(() => {
     setRotation(prev => prev + Math.PI / 2);
@@ -28,7 +28,7 @@ export const useRotationHandlers = ({ setRotation, multiplayer }: UseRotationHan
         data: { direction: 'right' }
       });
     }
-  }, [setRotation, multiplayer]);
+  }, [setRotation, multiplayer.isConnected, multiplayer.room]);
 
   return {
     handleRotateLeft,
