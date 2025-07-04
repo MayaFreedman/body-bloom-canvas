@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 import { useMultiplayer } from './useMultiplayer';
 import { DrawingMark } from '@/types/actionHistoryTypes';
 import { WorldDrawingPoint, OptimizedDrawingStroke } from '@/types/multiplayerTypes';
@@ -25,6 +25,9 @@ export const useStrokeHandlers = ({
   brushSize,
   addAction
 }: UseStrokeHandlersProps) => {
+  // Track processed stroke IDs to prevent duplicates
+  const processedStrokeIds = useRef(new Set<string>());
+
   const handleIncomingOptimizedStroke = useCallback((optimizedStroke: OptimizedDrawingStroke) => {
     console.log('📨 Handling incoming optimized stroke - VISUAL + HISTORY:', {
       id: optimizedStroke.id,
@@ -33,6 +36,22 @@ export const useStrokeHandlers = ({
       size: optimizedStroke.metadata.size,
       playerId: optimizedStroke.playerId
     });
+    
+    // Check if we've already processed this stroke
+    if (processedStrokeIds.current.has(optimizedStroke.id)) {
+      console.log('⚠️ Stroke already processed, skipping:', optimizedStroke.id);
+      return;
+    }
+    
+    // Mark this stroke as processed
+    processedStrokeIds.current.add(optimizedStroke.id);
+    
+    // Clean up old processed IDs (keep only last 100)
+    if (processedStrokeIds.current.size > 100) {
+      const idsArray = Array.from(processedStrokeIds.current);
+      processedStrokeIds.current.clear();
+      idsArray.slice(-50).forEach(id => processedStrokeIds.current.add(id));
+    }
     
     try {
       const modelGroup = modelRef.current;
@@ -129,7 +148,7 @@ export const useStrokeHandlers = ({
     } catch (error) {
       console.error('❌ Error processing optimized stroke:', error, optimizedStroke);
     }
-  }, [modelRef, restoreStroke, multiplayer, addAction]);
+  }, [modelRef, restoreStroke, multiplayer.reconstructStroke, addAction]);
 
   const handleIncomingDrawingStroke = useCallback((stroke: any) => {
     console.log('📨 Handling incoming legacy drawing stroke - VISUAL + HISTORY:', {
@@ -139,6 +158,15 @@ export const useStrokeHandlers = ({
       firstPointSize: stroke.points?.[0]?.size,
       playerId: stroke.playerId
     });
+    
+    // Check if we've already processed this stroke
+    if (processedStrokeIds.current.has(stroke.id)) {
+      console.log('⚠️ Legacy stroke already processed, skipping:', stroke.id);
+      return;
+    }
+    
+    // Mark this stroke as processed
+    processedStrokeIds.current.add(stroke.id);
     
     try {
       if (!stroke || !stroke.points || !Array.isArray(stroke.points)) {
@@ -282,7 +310,7 @@ export const useStrokeHandlers = ({
       });
       multiplayer.startDrawingStroke(selectedColor, brushSize[0]);
     }
-  }, [handleStartDrawing, multiplayer, selectedColor, brushSize]);
+  }, [handleStartDrawing, multiplayer.isConnected, multiplayer.startDrawingStroke, selectedColor, brushSize]);
 
   const handleDrawingStrokeComplete = useCallback(() => {
     console.log('🎨 Completing drawing stroke - this should add ONE action to history');
@@ -290,13 +318,13 @@ export const useStrokeHandlers = ({
     if (multiplayer.isConnected) {
       multiplayer.finishDrawingStroke();
     }
-  }, [handleFinishDrawing, multiplayer]);
+  }, [handleFinishDrawing, multiplayer.isConnected, multiplayer.finishDrawingStroke]);
 
   const handleAddToDrawingStroke = useCallback((worldPoint: WorldDrawingPoint) => {
     if (multiplayer.isConnected) {
       multiplayer.addToDrawingStroke(worldPoint);
     }
-  }, [multiplayer]);
+  }, [multiplayer.isConnected, multiplayer.addToDrawingStroke]);
 
   return {
     handleIncomingOptimizedStroke,

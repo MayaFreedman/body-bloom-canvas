@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react';
+
+import React, { useEffect, useRef } from 'react';
 import { Room } from 'colyseus.js';
 import { DrawingMark, SensationMark } from '@/types/bodyMapperTypes';
 import { WorldDrawingPoint, OptimizedDrawingStroke } from '@/types/multiplayerTypes';
@@ -31,8 +32,13 @@ export const MultiplayerMessageHandler = ({
   onIncomingUndo,
   onIncomingRedo
 }: MultiplayerMessageHandlerProps) => {
+  // Store the handler reference to ensure proper cleanup
+  const handlerRef = useRef<((message: any) => void) | null>(null);
+  
   useEffect(() => {
     if (!room) return;
+
+    console.log('🔧 Setting up multiplayer message handler for room');
 
     const handleBroadcast = (message: any) => {
       try {
@@ -164,14 +170,29 @@ export const MultiplayerMessageHandler = ({
       }
     };
 
+    // Store the handler reference for proper cleanup
+    handlerRef.current = handleBroadcast;
+
+    // Add the listener
     room.onMessage('broadcast', handleBroadcast);
+    console.log('✅ Added broadcast listener to room');
     
     return () => {
-      try {
-        room?.onMessage('broadcast', () => {});
-      } catch (error) {
-        console.error('❌ Error cleaning up broadcast listener:', error);
+      console.log('🧹 Cleaning up multiplayer message handler');
+      
+      // Remove the specific handler we added
+      if (handlerRef.current && room) {
+        try {
+          // Remove the specific listener using the stored reference
+          room.removeAllListeners('broadcast');
+          console.log('✅ Removed broadcast listeners from room');
+        } catch (error) {
+          console.error('❌ Error removing broadcast listener:', error);
+        }
       }
+      
+      // Clear the handler reference
+      handlerRef.current = null;
     };
   }, [room, setDrawingMarks, setSensationMarks, setBodyPartColors, setRotation, clearAll, modelRef, controlsRef, onIncomingOptimizedStroke, onIncomingUndo, onIncomingRedo]);
 
