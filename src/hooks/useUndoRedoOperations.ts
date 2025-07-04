@@ -49,13 +49,17 @@ export const useUndoRedoOperations = ({
         }
         break;
       case 'clear':
+        console.log('♻️ Undoing clear - restoring all content');
+        // Restore all strokes
         if (actionToUndo.data.strokes) {
           actionToUndo.data.strokes.forEach(stroke => {
-            console.log('♻️ Undoing clear - restoring stroke:', stroke.id);
+            console.log('♻️ Restoring stroke:', stroke.id);
             strokeManager.addStroke(stroke);
           });
         }
+        // Restore body part colors
         if (actionToUndo.data.previousBodyPartColors !== undefined) {
+          console.log('🎨 Restoring body part colors');
           setBodyPartColors(actionToUndo.data.previousBodyPartColors);
         }
         break;
@@ -104,13 +108,17 @@ export const useUndoRedoOperations = ({
         }
         break;
       case 'clear':
+        console.log('🧹 Redoing clear - removing all content');
+        // Clear all strokes
         if (actionToRedo.data.strokes) {
           actionToRedo.data.strokes.forEach(stroke => {
-            console.log('🗑️ Redoing clear - removing stroke:', stroke.id);
+            console.log('🗑️ Removing stroke:', stroke.id);
             strokeManager.removeStroke(stroke.id);
           });
         }
+        // Clear body part colors
         if (actionToRedo.data.bodyPartColors !== undefined) {
+          console.log('🎨 Clearing body part colors');
           setBodyPartColors({});
         }
         break;

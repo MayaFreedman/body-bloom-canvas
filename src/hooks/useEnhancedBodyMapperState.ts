@@ -141,33 +141,78 @@ export const useEnhancedBodyMapperState = ({ currentUserId }: UseEnhancedBodyMap
   }, [bodyPartOps]);
 
   const handleUndo = useCallback(() => {
-    undoRedoOps.handleUndo();
-  }, [undoRedoOps]);
+    console.log('🔄 Undo requested, can undo:', actionHistory.canUndo);
+    if (!actionHistory.canUndo) {
+      console.log('❌ Cannot undo - no actions available');
+      return;
+    }
+    
+    const undoResult = undoRedoOps.handleUndo();
+    if (undoResult) {
+      console.log('✅ Undo completed for action:', undoResult.type);
+      
+      // Handle sensation marks for undo
+      if (undoResult.type === 'draw' && undoResult.data.marks) {
+        setSensationMarks(prev => {
+          const marksToRemove = undoResult.data.marks || [];
+          return prev.filter(mark => !marksToRemove.some(m => m.id === mark.id));
+        });
+      }
+    }
+  }, [undoRedoOps, actionHistory.canUndo]);
 
   const handleRedo = useCallback(() => {
-    undoRedoOps.handleRedo();
-  }, [undoRedoOps]);
+    console.log('🔄 Redo requested, can redo:', actionHistory.canRedo);
+    if (!actionHistory.canRedo) {
+      console.log('❌ Cannot redo - no actions available');
+      return;
+    }
+    
+    const redoResult = undoRedoOps.handleRedo();
+    if (redoResult) {
+      console.log('✅ Redo completed for action:', redoResult.type);
+      
+      // Handle sensation marks for redo
+      if (redoResult.type === 'draw' && redoResult.data.marks) {
+        const marksToAdd = redoResult.data.marks || [];
+        marksToAdd.forEach(mark => {
+          if (mark.icon) { // It's a sensation mark
+            setSensationMarks(prev => [...prev, mark as SensationMark]);
+          }
+        });
+      }
+    }
+  }, [undoRedoOps, actionHistory.canRedo]);
 
   const clearAll = useCallback(() => {
     console.log('🧹 clearAll called - removing ALL strokes and colors from ALL users');
     
-    // Use the completed strokes from stroke manager
+    // Store current state for undo
     const allStrokes = strokeManager.completedStrokes;
+    const previousColors = { ...bodyPartColors };
+    const previousSensations = [...sensationMarks];
+    
     console.log('🧹 Clearing', allStrokes.length, 'strokes from all users');
+    console.log('🧹 Clearing colors:', Object.keys(previousColors).length, 'body parts');
+    console.log('🧹 Clearing sensations:', previousSensations.length, 'sensation marks');
     
-    const colorCount = Object.keys(bodyPartColors).length;
-    console.log('🧹 Clearing colors:', colorCount, 'body parts');
-    
+    // Clear everything
     strokeManager.clearAllStrokes();
     setBodyPartColors({});
     setSensationMarks([]);
     
+    // Add clear action to history with all previous state
     actionHistory.addAction({
       type: 'clear',
-      data: {},
+      data: {
+        strokes: allStrokes,
+        bodyPartColors: {},
+        previousBodyPartColors: previousColors,
+        marks: previousSensations as any[]
+      },
       metadata: { color: selectedColor }
     });
-  }, [strokeManager, bodyPartColors, actionHistory, selectedColor]);
+  }, [strokeManager, bodyPartColors, sensationMarks, actionHistory, selectedColor]);
 
   const addAction = useCallback((action: Omit<ActionHistoryItem, 'timestamp' | 'id' | 'userId'>) => {
     actionHistory.addAction(action);
