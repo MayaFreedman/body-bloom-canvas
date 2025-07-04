@@ -17,9 +17,16 @@ export const useUndoRedoOperations = ({
   const handleUndo = useCallback(() => {
     console.log('🔄 handleUndo called');
     const actionToUndo = actionHistory.undo();
+    
+    // If there's no action to undo for this user, return early
+    if (!actionToUndo) {
+      console.log('❌ No action to undo for current user');
+      return null;
+    }
+    
     console.log('🔄 Action to undo:', actionToUndo?.type, actionToUndo?.id);
     
-    if (actionToUndo) {
+    try {
       switch (actionToUndo.type) {
         case 'draw':
           console.log('↩️ Undoing draw action with strokes:', actionToUndo.data.strokes?.length);
@@ -59,9 +66,14 @@ export const useUndoRedoOperations = ({
             setBodyPartColors(actionToUndo.data.previousBodyPartColors);
           }
           break;
+        default:
+          console.log('⚠️ Unknown action type to undo:', actionToUndo.type);
       }
-    } else {
-      console.log('❌ No action to undo for current user');
+    } catch (error) {
+      console.error('❌ Error during undo operation:', error);
+      // If undo fails, we should restore the action to history
+      console.log('🔄 Restoring action to history due to error');
+      actionHistory.redo(); // This will put the action back
     }
     
     return actionToUndo;
@@ -70,9 +82,16 @@ export const useUndoRedoOperations = ({
   const handleRedo = useCallback(() => {
     console.log('🔄 handleRedo called');
     const actionToRedo = actionHistory.redo();
+    
+    // If there's no action to redo for this user, return early
+    if (!actionToRedo) {
+      console.log('❌ No action to redo for current user');
+      return null;
+    }
+    
     console.log('🔄 Action to redo:', actionToRedo?.type, actionToRedo?.id);
     
-    if (actionToRedo) {
+    try {
       switch (actionToRedo.type) {
         case 'draw':
           console.log('↪️ Redoing draw action');
@@ -115,9 +134,14 @@ export const useUndoRedoOperations = ({
             setBodyPartColors({});
           }
           break;
+        default:
+          console.log('⚠️ Unknown action type to redo:', actionToRedo.type);
       }
-    } else {
-      console.log('❌ No action to redo for current user');
+    } catch (error) {
+      console.error('❌ Error during redo operation:', error);
+      // If redo fails, we should undo it back
+      console.log('🔄 Undoing failed redo operation');
+      actionHistory.undo(); // This will put the action back to undone state
     }
     
     return actionToRedo;

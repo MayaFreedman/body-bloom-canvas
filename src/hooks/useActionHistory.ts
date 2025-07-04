@@ -1,3 +1,4 @@
+
 import { useState, useCallback } from 'react';
 import { ActionHistory, ActionHistoryItem, UserActionHistory } from '@/types/actionHistoryTypes';
 
@@ -80,16 +81,28 @@ export const useActionHistory = ({ maxHistorySize = 50, currentUserId }: UseActi
     const actionToUndo = userHistory.items[userHistory.currentIndex];
     console.log('↩️ Undoing action:', actionToUndo.type, 'with id:', actionToUndo.id);
     
+    // Validate that the current index is within bounds
+    if (userHistory.currentIndex >= userHistory.items.length) {
+      console.error('❌ Invalid currentIndex state in undo:', userHistory.currentIndex, 'items:', userHistory.items.length);
+      return null;
+    }
+    
     setHistory(prev => {
       const newUserHistories = new Map(prev.userHistories);
-      const currentUserHistory = newUserHistories.get(currentUserId)!;
+      const currentUserHistory = newUserHistories.get(currentUserId);
+      
+      if (!currentUserHistory) {
+        console.error('❌ User history disappeared during undo');
+        return prev;
+      }
+      
+      const newIndex = currentUserHistory.currentIndex - 1;
+      console.log('📊 Setting new currentIndex:', newIndex);
       
       newUserHistories.set(currentUserId, {
         ...currentUserHistory,
-        currentIndex: currentUserHistory.currentIndex - 1
+        currentIndex: newIndex
       });
-
-      console.log('📊 After undo - new currentIndex:', currentUserHistory.currentIndex - 1);
 
       return {
         ...prev,
@@ -116,19 +129,31 @@ export const useActionHistory = ({ maxHistorySize = 50, currentUserId }: UseActi
     }
     
     const newIndex = userHistory.currentIndex + 1;
+    
+    // Validate that the new index is within bounds
+    if (newIndex >= userHistory.items.length) {
+      console.error('❌ Invalid newIndex state in redo:', newIndex, 'items:', userHistory.items.length);
+      return null;
+    }
+    
     const actionToRedo = userHistory.items[newIndex];
     console.log('↪️ Redoing action:', actionToRedo.type, 'with id:', actionToRedo.id);
     
     setHistory(prev => {
       const newUserHistories = new Map(prev.userHistories);
-      const currentUserHistory = newUserHistories.get(currentUserId)!;
+      const currentUserHistory = newUserHistories.get(currentUserId);
+      
+      if (!currentUserHistory) {
+        console.error('❌ User history disappeared during redo');
+        return prev;
+      }
+      
+      console.log('📊 Setting new currentIndex:', newIndex);
       
       newUserHistories.set(currentUserId, {
         ...currentUserHistory,
         currentIndex: newIndex
       });
-
-      console.log('📊 After redo - new currentIndex:', newIndex);
 
       return {
         ...prev,
@@ -147,7 +172,7 @@ export const useActionHistory = ({ maxHistorySize = 50, currentUserId }: UseActi
   const canUndo = currentUserId ? (getCurrentUserHistory()?.currentIndex || -1) >= 0 : false;
   const canRedo = currentUserId ? (getCurrentUserHistory()?.currentIndex || -1) < ((getCurrentUserHistory()?.items.length || 1) - 1) : false;
 
-  console.log('🎛️ Action history state - canUndo:', canUndo, 'canRedo:', canRedo, 'currentUserId:', currentUserId);
+  console.log('🎛️ Action history state for user', currentUserId, '- canUndo:', canUndo, 'canRedo:', canRedo);
 
   const clearHistory = useCallback(() => {
     setHistory({
