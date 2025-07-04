@@ -3,6 +3,7 @@ import React, { useRef } from 'react';
 import { TopBanner } from './bodyMapper/TopBanner';
 import { MultiplayerMessageHandler } from './bodyMapper/MultiplayerMessageHandler';
 import { BodyMapperLayout } from './bodyMapper/BodyMapperLayout';
+import { ModelEraser } from './ModelEraser';
 import { useEnhancedBodyMapperState } from '@/hooks/useEnhancedBodyMapperState';
 import { useMultiplayer } from '@/hooks/useMultiplayer';
 import { useMultiplayerDrawingHandlers } from '@/hooks/useMultiplayerDrawingHandlers';
@@ -42,6 +43,7 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     handleFinishDrawing,
     handleSensationClick: localHandleSensationClick,
     handleBodyPartClick: baseHandleBodyPartClick,
+    handleErase,
     handleUndo,
     handleRedo,
     handleIncomingUndo,
@@ -86,6 +88,18 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     setRotation, 
     multiplayer 
   });
+
+  // Handle multiplayer erasing
+  const handleMultiplayerErase = (center: THREE.Vector3, radius: number) => {
+    handleErase(center, radius);
+    if (multiplayer.isConnected) {
+      multiplayer.broadcastErase(center, radius);
+    }
+  };
+
+  const handleIncomingErase = (center: THREE.Vector3, radius: number) => {
+    handleErase(center, radius);
+  };
 
   // Combine local and multiplayer sensation handling
   const combinedSensationClick = (position: THREE.Vector3, sensation: any) => {
@@ -142,6 +156,13 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
         onEmotionsUpdate={handleEmotionsUpdate}
       />
 
+      <ModelEraser
+        isErasing={mode === 'erase'}
+        eraserRadius={brushSize[0] / 100} // Convert brush size to world units
+        onErase={handleMultiplayerErase}
+        modelRef={modelRef}
+      />
+
       <MultiplayerMessageHandler
         room={multiplayer.room}
         modelRef={modelRef}
@@ -154,6 +175,7 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
         onIncomingOptimizedStroke={handleIncomingOptimizedStroke}
         onIncomingUndo={handleIncomingUndo}
         onIncomingRedo={handleIncomingRedo}
+        onIncomingErase={handleIncomingErase}
       />
     </div>
   );

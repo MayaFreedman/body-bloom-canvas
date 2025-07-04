@@ -2,6 +2,7 @@
 import { useCallback, useRef } from 'react';
 import { ServerClass } from '../services/ServerClass';
 import { SensationData, BodyPartFill } from '@/types/multiplayerTypes';
+import * as THREE from 'three';
 
 export const useMultiplayerBroadcast = (
   room: any,
@@ -27,6 +28,20 @@ export const useMultiplayerBroadcast = (
       server.sendEvent({
         type: 'bodyPartFill',
         action: { ...fill, playerId: currentPlayerId }
+      });
+    }
+  }, [room, isConnected, currentPlayerId]);
+
+  const broadcastErase = useCallback((center: THREE.Vector3, radius: number) => {
+    if (room && isConnected) {
+      const server = ServerClass.getInstance();
+      server.sendEvent({
+        type: 'eraseAction',
+        action: { 
+          center: { x: center.x, y: center.y, z: center.z },
+          radius,
+          playerId: currentPlayerId 
+        }
       });
     }
   }, [room, isConnected, currentPlayerId]);
@@ -93,6 +108,7 @@ export const useMultiplayerBroadcast = (
   return {
     broadcastSensation,
     broadcastBodyPartFill,
+    broadcastErase,
     broadcastUndo,
     broadcastRedo,
     broadcastReset,

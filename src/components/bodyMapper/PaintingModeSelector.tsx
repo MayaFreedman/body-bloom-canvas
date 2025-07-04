@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Brush, Palette } from 'lucide-react';
+import { Brush, Palette, Eraser } from 'lucide-react';
 import { BodyMapperMode } from '@/types/bodyMapperTypes';
 
 interface PaintingModeSelectorProps {
@@ -26,6 +26,13 @@ export const PaintingModeSelector = ({ mode, onModeChange }: PaintingModeSelecto
         >
           <Palette className="w-4 h-4 mr-2" />
           Fill Mode
+        </button>
+        <button
+          className={`game-button-primary ${mode === 'erase' ? 'opacity-100' : 'opacity-70'}`}
+          onClick={() => onModeChange('erase')}
+        >
+          <Eraser className="w-4 h-4 mr-2" />
+          Erase Mode
         </button>
       </div>
     </div>

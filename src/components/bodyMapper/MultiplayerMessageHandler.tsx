@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef } from 'react';
 import { Room } from 'colyseus.js';
 import { DrawingMark, SensationMark } from '@/types/bodyMapperTypes';
@@ -17,6 +16,7 @@ interface MultiplayerMessageHandlerProps {
   onIncomingOptimizedStroke?: (stroke: OptimizedDrawingStroke) => void;
   onIncomingUndo?: () => void;
   onIncomingRedo?: () => void;
+  onIncomingErase?: (center: THREE.Vector3, radius: number) => void;
 }
 
 export const MultiplayerMessageHandler = ({
@@ -30,7 +30,8 @@ export const MultiplayerMessageHandler = ({
   controlsRef,
   onIncomingOptimizedStroke,
   onIncomingUndo,
-  onIncomingRedo
+  onIncomingRedo,
+  onIncomingErase
 }: MultiplayerMessageHandlerProps) => {
   // Store the unsubscribe function returned by onMessage
   const unsubscribeRef = useRef<(() => void) | null>(null);
@@ -56,6 +57,18 @@ export const MultiplayerMessageHandler = ({
         }
 
         switch (message.type) {
+          case 'eraseAction': {
+            console.log('🧹 Processing incoming erase action');
+            if (onIncomingErase && messageData.center && messageData.radius) {
+              const center = new THREE.Vector3(
+                messageData.center.x,
+                messageData.center.y,
+                messageData.center.z
+              );
+              onIncomingErase(center, messageData.radius);
+            }
+            break;
+          }
           case 'undoAction': {
             console.log('🔄 Processing incoming undo action');
             if (onIncomingUndo) {
@@ -190,7 +203,7 @@ export const MultiplayerMessageHandler = ({
       // Clear the unsubscribe reference
       unsubscribeRef.current = null;
     };
-  }, [room, setDrawingMarks, setSensationMarks, setBodyPartColors, setRotation, clearAll, modelRef, controlsRef, onIncomingOptimizedStroke, onIncomingUndo, onIncomingRedo]);
+  }, [room, setDrawingMarks, setSensationMarks, setBodyPartColors, setRotation, clearAll, modelRef, controlsRef, onIncomingOptimizedStroke, onIncomingUndo, onIncomingRedo, onIncomingErase]);
 
   return null;
 };
