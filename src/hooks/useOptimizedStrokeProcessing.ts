@@ -40,9 +40,9 @@ export const useOptimizedStrokeProcessing = () => {
           Math.pow(point.worldPosition.z - lastPoint.worldPosition.z, 2)
         );
         
-        const significantDistance = distance > 0.015; // Slightly tighter threshold for better optimization
+        const significantDistance = distance > 0.015;
         const bodyPartChange = point.bodyPart !== lastPoint.bodyPart;
-        const timeGap = point.timestamp - lastPoint.timestamp > 80; // Reduced time gap
+        const timeGap = point.timestamp - lastPoint.timestamp > 80;
         
         return significantDistance || bodyPartChange || timeGap;
       };
@@ -119,6 +119,41 @@ export const useOptimizedStrokeProcessing = () => {
     }
   }, []);
 
+  // Enhanced reconstruction that matches local smoothing exactly
+  const getInterpolationStepCount = useCallback((brushSize: number, distance: number): number => {
+    // This matches the exact logic from useDrawingMarks.ts
+    let baseMultiplier;
+    if (brushSize <= 3) {
+      baseMultiplier = 150; // Tiny brushes get massive interpolation
+    } else if (brushSize <= 5) {
+      baseMultiplier = 120; // Small brushes get very high interpolation
+    } else if (brushSize <= 8) {
+      baseMultiplier = 90;  // Medium brushes get high interpolation
+    } else if (brushSize <= 12) {
+      baseMultiplier = 70;  // Larger brushes get good interpolation
+    } else {
+      baseMultiplier = 50;  // Largest brushes get moderate interpolation
+    }
+    
+    const calculatedSteps = Math.floor(distance * baseMultiplier);
+    
+    // Match maximum limits exactly
+    let maxSteps;
+    if (brushSize <= 3) {
+      maxSteps = 80;  // Tiny brushes can have up to 80 steps
+    } else if (brushSize <= 5) {
+      maxSteps = 60;  // Small brushes can have up to 60 steps
+    } else if (brushSize <= 8) {
+      maxSteps = 45;  // Medium brushes can have up to 45 steps
+    } else if (brushSize <= 12) {
+      maxSteps = 35;  // Larger brushes can have up to 35 steps
+    } else {
+      maxSteps = 25;  // Largest brushes can have up to 25 steps
+    }
+    
+    return Math.max(1, Math.min(maxSteps, calculatedSteps));
+  }, []);
+
   const reconstructStroke = useCallback((stroke: OptimizedDrawingStroke): THREE.Vector3[] => {
     try {
       if (!stroke || !stroke.keyPoints || !Array.isArray(stroke.keyPoints)) {
@@ -131,7 +166,7 @@ export const useOptimizedStrokeProcessing = () => {
         return [];
       }
 
-      console.log('🎨 Reconstructing stroke with metadata:', {
+      console.log('🎨 Reconstructing stroke with enhanced smoothing:', {
         keyPoints: stroke.keyPoints.length,
         color: stroke.metadata.color,
         size: stroke.metadata.size
@@ -151,10 +186,7 @@ export const useOptimizedStrokeProcessing = () => {
       }
 
       const reconstructedPoints: THREE.Vector3[] = [];
-      
-      // Enhanced reconstruction with better smoothing based on stroke metadata
       const strokeSize = stroke.metadata.size || 3;
-      const densityFactor = Math.max(40, Math.min(120, 80 / Math.max(1, strokeSize))); // Adjust density based on stroke size
       
       for (let i = 0; i < stroke.keyPoints.length - 1; i++) {
         const currentKeyPoint = stroke.keyPoints[i];
@@ -178,15 +210,18 @@ export const useOptimizedStrokeProcessing = () => {
 
         reconstructedPoints.push(current);
 
+        // Only interpolate between points on the same body part
         if (currentKeyPoint.bodyPart === nextKeyPoint.bodyPart) {
           const distance = current.distanceTo(next);
-          const steps = Math.max(1, Math.min(25, Math.floor(distance * densityFactor)));
+          const steps = this.getInterpolationStepCount(strokeSize, distance);
+          
+          console.log(`🎨 Interpolating ${steps} steps between key points (distance: ${distance.toFixed(3)}, size: ${strokeSize})`);
           
           if (steps > 1) {
             for (let j = 1; j < steps; j++) {
               const t = j / steps;
-              // Use smooth interpolation for better stroke quality
-              const smoothT = t * t * (3 - 2 * t); // Smoothstep function
+              // Use smoothstep function for identical smoothing to local version
+              const smoothT = t * t * (3 - 2 * t);
               const interpolated = new THREE.Vector3().lerpVectors(current, next, smoothT);
               reconstructedPoints.push(interpolated);
             }
@@ -194,6 +229,7 @@ export const useOptimizedStrokeProcessing = () => {
         }
       }
       
+      // Add the final point
       const lastPoint = stroke.keyPoints[stroke.keyPoints.length - 1];
       if (lastPoint?.worldPosition) {
         reconstructedPoints.push(new THREE.Vector3(
@@ -203,9 +239,10 @@ export const useOptimizedStrokeProcessing = () => {
         ));
       }
 
-      console.log('✅ Successfully reconstructed stroke:', {
+      console.log('✅ Enhanced reconstruction complete:', {
         originalKeyPoints: stroke.keyPoints.length,
         reconstructedPoints: reconstructedPoints.length,
+        smoothingRatio: (reconstructedPoints.length / stroke.keyPoints.length).toFixed(2),
         color: stroke.metadata.color,
         size: stroke.metadata.size
       });
@@ -214,7 +251,7 @@ export const useOptimizedStrokeProcessing = () => {
       console.error('❌ Error reconstructing stroke:', error);
       return [];
     }
-  }, []);
+  }, [getInterpolationStepCount]);
 
   const resetStroke = useCallback(() => {
     currentStrokePoints.current = [];
