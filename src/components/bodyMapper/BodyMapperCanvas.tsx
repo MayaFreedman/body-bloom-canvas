@@ -84,14 +84,14 @@ export const BodyMapperCanvas = ({
       </Button>
 
       <Canvas 
-        camera={{ position: [0, 0, 3.5], fov: 50 }}
+        camera={{ position: [0, 0, 4], fov: 45 }}
         style={{ width: '100%', height: '100%' }}
       >
-        <ambientLight intensity={1.0} />
-        <directionalLight position={[10, 10, 5]} intensity={0.5} />
-        <directionalLight position={[-10, -10, -5]} intensity={0.2} />
+        <ambientLight intensity={1.2} />
+        <directionalLight position={[10, 10, 5]} intensity={0.8} />
+        <directionalLight position={[-10, -10, -5]} intensity={0.3} />
         
-        <group ref={modelRef} rotation={[0, rotation, 0]}>
+        <group ref={modelRef} rotation={[0, rotation, 0]} scale={[1.2, 1.2, 1.2]}>
           <HumanModel bodyPartColors={bodyPartColors} />
           
           {/* Render drawing marks as children of the model group so they rotate with it */}
@@ -131,8 +131,8 @@ export const BodyMapperCanvas = ({
         <OrbitControls 
           enableRotate={false}
           enablePan={false}
-          minDistance={2.5}
-          maxDistance={6}
+          minDistance={2}
+          maxDistance={8}
           maxPolarAngle={Math.PI}
           minPolarAngle={0}
           enabled={mode !== 'draw'}
