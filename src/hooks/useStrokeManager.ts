@@ -25,6 +25,7 @@ export const useStrokeManager = ({ currentUserId }: UseStrokeManagerProps) => {
       userId: currentUserId
     };
     
+    console.log('🎨 Starting new stroke:', newStroke.id, 'for user:', currentUserId);
     setCurrentStroke(newStroke);
     return newStroke.id;
   }, [currentUserId]);
@@ -59,6 +60,7 @@ export const useStrokeManager = ({ currentUserId }: UseStrokeManagerProps) => {
       isComplete: true
     };
 
+    console.log('✅ Finishing stroke:', completedStroke.id, 'with', completedStroke.marks.length, 'marks');
     setCompletedStrokes(prev => [...prev, completedStroke]);
     setCurrentStroke(null);
     
@@ -66,30 +68,46 @@ export const useStrokeManager = ({ currentUserId }: UseStrokeManagerProps) => {
   }, [currentStroke]);
 
   const removeStroke = useCallback((strokeId: string) => {
-    setCompletedStrokes(prev => prev.filter(stroke => stroke.id !== strokeId));
+    console.log('🗑️ Removing stroke:', strokeId);
+    setCompletedStrokes(prev => {
+      const filtered = prev.filter(stroke => stroke.id !== strokeId);
+      console.log('🗑️ Strokes after removal:', filtered.length, '(was', prev.length, ')');
+      return filtered;
+    });
   }, []);
 
   const restoreStroke = useCallback((stroke: DrawingStroke) => {
-    console.log('Restoring stroke:', stroke.id);
+    console.log('♻️ Restoring stroke:', stroke.id, 'with', stroke.marks?.length, 'marks');
     setCompletedStrokes(prev => {
-      // Check if stroke already exists to avoid duplicates
       const exists = prev.some(s => s.id === stroke.id);
       if (exists) {
-        console.log('Stroke already exists, skipping restore');
+        console.log('♻️ Stroke already exists, skipping restore');
         return prev;
       }
+      console.log('♻️ Stroke restored successfully');
       return [...prev, stroke];
     });
   }, []);
 
   const removeStrokesByUser = useCallback((userId: string) => {
-    setCompletedStrokes(prev => prev.filter(stroke => stroke.userId !== userId));
+    console.log('🗑️ Removing strokes for user:', userId);
+    setCompletedStrokes(prev => {
+      const filtered = prev.filter(stroke => stroke.userId !== userId);
+      console.log('🗑️ Removed', prev.length - filtered.length, 'strokes for user:', userId);
+      return filtered;
+    });
+  }, []);
+
+  const clearAllStrokes = useCallback(() => {
+    console.log('🧹 Clearing ALL strokes from ALL users');
+    setCompletedStrokes([]);
+    setCurrentStroke(null);
   }, []);
 
   const getAllMarks = useCallback((): DrawingMark[] => {
-    const allMarks = completedStrokes.flatMap(stroke => stroke.marks);
+    const allMarks = completedStrokes.flatMap(stroke => stroke.marks || []);
     if (currentStroke) {
-      allMarks.push(...currentStroke.marks);
+      allMarks.push(...(currentStroke.marks || []));
     }
     return allMarks.sort((a, b) => a.timestamp - b.timestamp);
   }, [completedStrokes, currentStroke]);
@@ -107,6 +125,7 @@ export const useStrokeManager = ({ currentUserId }: UseStrokeManagerProps) => {
     removeStroke,
     restoreStroke,
     removeStrokesByUser,
+    clearAllStrokes,
     getAllMarks,
     getMarksByUser
   };

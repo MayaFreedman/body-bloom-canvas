@@ -40,21 +40,30 @@ export const useBodyPartOperations = ({
   }, [bodyPartColors, actionHistory, setBodyPartColors]);
 
   const clearAll = useCallback(() => {
-    // Only clear user's own strokes and store them for undo
-    const userStrokes = strokeManager.completedStrokes.filter(stroke => stroke.userId === currentUserId);
+    console.log('🧹 clearAll called - removing ALL strokes and colors from ALL users');
+    
+    // Get all strokes from all users for potential undo
+    const allStrokes = strokeManager.completedStrokes;
     const previousColors = { ...bodyPartColors };
     
-    strokeManager.removeStrokesByUser(currentUserId || '');
+    console.log('🧹 Clearing', allStrokes.length, 'strokes from all users');
+    console.log('🧹 Clearing colors:', Object.keys(previousColors).length, 'body parts');
+    
+    // Clear everything regardless of user
+    strokeManager.clearAllStrokes();
     setBodyPartColors({});
 
-    actionHistory.addAction({
-      type: 'clear',
-      data: {
-        strokes: userStrokes,
-        bodyPartColors: {},
-        previousBodyPartColors: previousColors
-      }
-    });
+    // Only record action for current user (for their undo history)
+    if (currentUserId) {
+      actionHistory.addAction({
+        type: 'clear',
+        data: {
+          strokes: allStrokes,
+          bodyPartColors: {},
+          previousBodyPartColors: previousColors
+        }
+      });
+    }
   }, [strokeManager, bodyPartColors, actionHistory, currentUserId, setBodyPartColors]);
 
   return {

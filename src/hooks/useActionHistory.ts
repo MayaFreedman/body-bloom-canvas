@@ -71,6 +71,7 @@ export const useActionHistory = ({ maxHistorySize = 50, currentUserId }: UseActi
     
     const userHistory = history.userHistories.get(currentUserId);
     console.log('📚 User history:', userHistory ? `${userHistory.items.length} items, index ${userHistory.currentIndex}` : 'none');
+    
     if (!userHistory || userHistory.currentIndex < 0) {
       console.log('❌ Cannot undo - no history or at beginning');
       return null;
@@ -108,6 +109,7 @@ export const useActionHistory = ({ maxHistorySize = 50, currentUserId }: UseActi
     
     const userHistory = history.userHistories.get(currentUserId);
     console.log('📚 User history:', userHistory ? `${userHistory.items.length} items, index ${userHistory.currentIndex}` : 'none');
+    
     if (!userHistory || userHistory.currentIndex >= userHistory.items.length - 1) {
       console.log('❌ Cannot redo - no history or at end');
       return null;
