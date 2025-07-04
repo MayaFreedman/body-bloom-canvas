@@ -106,6 +106,7 @@ export const useStrokeHandlers = ({
         userId: optimizedStroke.playerId || 'unknown'
       };
       
+      // Add action to history - this will handle the stroke storage
       addAction({
         type: 'draw',
         data: {
@@ -119,8 +120,7 @@ export const useStrokeHandlers = ({
         }
       });
       
-      restoreStroke(completeStroke);
-      console.log('✅ Successfully restored optimized stroke with correct metadata:', {
+      console.log('✅ Successfully processed optimized stroke with correct metadata:', {
         marksCount: marks.length,
         color: completeStroke.color,
         size: completeStroke.brushSize
@@ -128,7 +128,7 @@ export const useStrokeHandlers = ({
     } catch (error) {
       console.error('❌ Error processing optimized stroke:', error, optimizedStroke);
     }
-  }, [modelRef, restoreStroke, multiplayer, addAction]);
+  }, [modelRef, multiplayer, addAction]);
 
   const handleIncomingDrawingStroke = useCallback((stroke: any) => {
     console.log('📨 Handling incoming legacy drawing stroke with metadata:', {
@@ -246,6 +246,7 @@ export const useStrokeHandlers = ({
         userId: stroke.playerId || 'unknown'
       };
       
+      // Add action to history - this will handle the stroke storage
       addAction({
         type: 'draw',
         data: {
@@ -259,8 +260,7 @@ export const useStrokeHandlers = ({
         }
       });
       
-      restoreStroke(completeStroke);
-      console.log('✅ Successfully restored legacy stroke with correct metadata:', {
+      console.log('✅ Successfully processed legacy stroke with correct metadata:', {
         marksCount: marks.length,
         color: completeStroke.color,
         size: completeStroke.brushSize
@@ -268,7 +268,7 @@ export const useStrokeHandlers = ({
     } catch (error) {
       console.error('❌ Error processing legacy stroke:', error, stroke);
     }
-  }, [modelRef, restoreStroke, addAction]);
+  }, [modelRef, addAction]);
 
   const handleDrawingStrokeStart = useCallback(() => {
     handleStartDrawing();

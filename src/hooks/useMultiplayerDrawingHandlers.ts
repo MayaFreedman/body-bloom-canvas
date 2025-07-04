@@ -38,7 +38,7 @@ export const useMultiplayerDrawingHandlers = ({
     multiplayer,
     handleStartDrawing,
     handleFinishDrawing,
-    restoreStroke,
+    restoreStroke, // Keep parameter for interface compatibility but it won't be used
     modelRef,
     selectedColor,
     brushSize,
