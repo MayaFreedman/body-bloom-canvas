@@ -110,17 +110,9 @@ export const useUndoRedoOperations = ({
       case 'clear':
         console.log('🧹 Redoing clear - removing all content');
         // Clear all strokes
-        if (actionToRedo.data.strokes) {
-          actionToRedo.data.strokes.forEach(stroke => {
-            console.log('🗑️ Removing stroke:', stroke.id);
-            strokeManager.removeStroke(stroke.id);
-          });
-        }
-        // Clear body part colors
-        if (actionToRedo.data.bodyPartColors !== undefined) {
-          console.log('🎨 Clearing body part colors');
-          setBodyPartColors({});
-        }
+        strokeManager.clearAllStrokes();
+        // Clear body part colors  
+        setBodyPartColors({});
         break;
       default:
         console.log('⚠️ Unknown redo action:', actionToRedo.type);

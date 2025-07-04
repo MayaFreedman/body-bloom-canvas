@@ -65,34 +65,45 @@ export const useEnhancedBodyMapperState = ({ currentUserId }: UseEnhancedBodyMap
     setBodyPartColors
   });
 
-  // Convert action history to drawing marks with proper multiplayer support
+  // FIXED: Get drawing marks directly from stroke manager, not action history
   const drawingMarks = useMemo(() => {
-    console.log('🎨 Converting action history to drawing marks, items:', actionHistory.items.length);
+    console.log('🎨 Getting drawing marks from stroke manager, strokes:', strokeManager.completedStrokes.length);
     const marks: DrawingMark[] = [];
     
-    actionHistory.items.forEach((item: ActionHistoryItem) => {
-      if (item.type === 'draw' && item.data.strokes) {
-        item.data.strokes.forEach((stroke: any) => {
-          if (stroke.marks && Array.isArray(stroke.marks)) {
-            console.log('🎨 Processing stroke with', stroke.marks.length, 'marks, color:', stroke.color, 'from user:', stroke.userId);
-            stroke.marks.forEach((mark: any) => {
-              if (mark.position && mark.color && mark.size) {
-                marks.push({
-                  id: mark.id,
-                  position: mark.position,
-                  color: mark.color,
-                  size: mark.size
-                });
-              }
+    // Get marks from all completed strokes in stroke manager
+    strokeManager.completedStrokes.forEach(stroke => {
+      if (stroke.marks && Array.isArray(stroke.marks)) {
+        console.log('🎨 Processing stroke', stroke.id, 'with', stroke.marks.length, 'marks, color:', stroke.color);
+        stroke.marks.forEach(mark => {
+          if (mark.position && mark.color && mark.size) {
+            marks.push({
+              id: mark.id,
+              position: mark.position,
+              color: mark.color,
+              size: mark.size
             });
           }
         });
       }
     });
     
+    // Also include marks from current stroke if drawing
+    if (strokeManager.currentStroke && strokeManager.currentStroke.marks) {
+      strokeManager.currentStroke.marks.forEach(mark => {
+        if (mark.position && mark.color && mark.size) {
+          marks.push({
+            id: mark.id,
+            position: mark.position,
+            color: mark.color,
+            size: mark.size
+          });
+        }
+      });
+    }
+    
     console.log('🎨 Final drawing marks count:', marks.length);
     return marks;
-  }, [actionHistory.items]);
+  }, [strokeManager.completedStrokes, strokeManager.currentStroke]); // FIXED: Proper dependencies
 
   const handleStartDrawing = useCallback(() => {
     const strokeId = strokeManager.startStroke(brushSize[0], selectedColor);
@@ -129,7 +140,7 @@ export const useEnhancedBodyMapperState = ({ currentUserId }: UseEnhancedBodyMap
     };
     setSensationMarks(prev => [...prev, mark]);
     
-    // Store sensation marks separately in action history
+    // Store sensation marks in action history
     actionHistory.addAction({
       type: 'draw',
       data: { sensationMarks: [mark] },
@@ -152,8 +163,8 @@ export const useEnhancedBodyMapperState = ({ currentUserId }: UseEnhancedBodyMap
     if (undoResult) {
       console.log('✅ Undo completed for action:', undoResult.type);
       
-      // Handle sensation marks for undo - check for sensationMarks in data
-      if (undoResult.type === 'draw' && undoResult.data.sensationMarks) {
+      // Handle sensation marks for undo
+      if (undoResult.data.sensationMarks) {
         setSensationMarks(prev => {
           const marksToRemove = undoResult.data.sensationMarks || [];
           return prev.filter(mark => !marksToRemove.some((m: SensationMark) => m.id === mark.id));
@@ -173,8 +184,8 @@ export const useEnhancedBodyMapperState = ({ currentUserId }: UseEnhancedBodyMap
     if (redoResult) {
       console.log('✅ Redo completed for action:', redoResult.type);
       
-      // Handle sensation marks for redo - check for sensationMarks in data
-      if (redoResult.type === 'draw' && redoResult.data.sensationMarks) {
+      // Handle sensation marks for redo
+      if (redoResult.data.sensationMarks) {
         const marksToAdd = redoResult.data.sensationMarks || [];
         marksToAdd.forEach((mark: SensationMark) => {
           setSensationMarks(prev => [...prev, mark]);
