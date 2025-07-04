@@ -1,3 +1,4 @@
+
 import { useCallback } from 'react';
 import { useMultiplayer } from './useMultiplayer';
 import { DrawingMark } from '@/types/actionHistoryTypes';
@@ -79,11 +80,11 @@ export const useStrokeHandlers = ({
         }
         
         return {
-          id: `reconstructed-${optimizedStroke.id}-${index}`,
+          id: `mp-reconstructed-${optimizedStroke.id}-${index}`, // MP prefix for multiplayer
           position: localPos,
           color: metadata.color || '#ff6b6b',
           size: Math.max(0.001, Math.min(0.1, metadata.size / 200)),
-          strokeId: optimizedStroke.id,
+          strokeId: `mp-${optimizedStroke.id}`, // MP prefix for multiplayer stroke
           timestamp: Date.now() + index,
           userId: optimizedStroke.playerId || 'unknown'
         };
@@ -95,7 +96,7 @@ export const useStrokeHandlers = ({
       }
 
       const completeStroke = {
-        id: optimizedStroke.id,
+        id: `mp-${optimizedStroke.id}`, // MP prefix for multiplayer stroke
         marks: marks,
         startTime: metadata.startTime || Date.now() - 1000,
         endTime: metadata.endTime || Date.now(),
@@ -105,8 +106,8 @@ export const useStrokeHandlers = ({
         userId: optimizedStroke.playerId || 'unknown'
       };
       
-      // CRITICAL FIX: Only restore stroke visually, DO NOT add to action history
-      // Incoming multiplayer strokes should not be recorded in local history
+      // CRITICAL: Only restore stroke visually, DO NOT add to action history
+      // Multiplayer strokes should never be in local history
       restoreStroke(completeStroke);
       console.log('✅ Successfully restored optimized stroke VISUALLY ONLY (no history recording):', {
         marksCount: marks.length,
@@ -166,11 +167,11 @@ export const useStrokeHandlers = ({
         }
         
         const mark: DrawingMark = {
-          id: currentPoint.id || `legacy-${i}`,
+          id: `mp-legacy-${i}`, // MP prefix for multiplayer
           position: localPos,
           color: currentPoint.color || '#ff6b6b',
           size: Math.max(0.001, Math.min(0.1, (currentPoint.size || 3) / 200)),
-          strokeId: stroke.id,
+          strokeId: `mp-${stroke.id}`, // MP prefix for multiplayer stroke
           timestamp: Date.now() + i,
           userId: stroke.playerId || 'unknown'
         };
@@ -200,11 +201,11 @@ export const useStrokeHandlers = ({
                   modelGroup.worldToLocal(interpolatedLocalPos.copy(interpolatedWorldPos));
                   
                   const interpolatedMark: DrawingMark = {
-                    id: `interpolated-${currentPoint.id}-${j}`,
+                    id: `mp-interpolated-${currentPoint.id}-${j}`, // MP prefix for multiplayer
                     position: interpolatedLocalPos,
                     color: currentPoint.color || '#ff6b6b',
                     size: Math.max(0.001, Math.min(0.1, (currentPoint.size || 3) / 200)),
-                    strokeId: stroke.id,
+                    strokeId: `mp-${stroke.id}`, // MP prefix for multiplayer stroke
                     timestamp: Date.now() + i * 100 + j,
                     userId: stroke.playerId || 'unknown'
                   };
@@ -224,7 +225,7 @@ export const useStrokeHandlers = ({
       }
 
       const completeStroke = {
-        id: stroke.id,
+        id: `mp-${stroke.id}`, // MP prefix for multiplayer stroke
         marks: marks,
         startTime: Date.now() - 1000,
         endTime: Date.now(),
@@ -234,8 +235,8 @@ export const useStrokeHandlers = ({
         userId: stroke.playerId || 'unknown'
       };
       
-      // CRITICAL FIX: Only restore stroke visually, DO NOT add to action history
-      // Incoming multiplayer strokes should not be recorded in local history
+      // CRITICAL: Only restore stroke visually, DO NOT add to action history
+      // Multiplayer strokes should never be in local history
       restoreStroke(completeStroke);
       console.log('✅ Successfully restored legacy stroke VISUALLY ONLY (no history recording):', {
         marksCount: marks.length,

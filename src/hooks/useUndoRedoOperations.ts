@@ -30,8 +30,13 @@ export const useUndoRedoOperations = ({
         console.log('Undoing draw action with strokes:', actionToUndo.data.strokes?.map(s => s.id));
         if (actionToUndo.data.strokes) {
           actionToUndo.data.strokes.forEach((stroke: any) => {
-            console.log('Removing stroke:', stroke.id);
-            strokeManager.removeStroke(stroke.id);
+            // Only remove local strokes (not multiplayer strokes with mp- prefix)
+            if (!stroke.id.startsWith('mp-')) {
+              console.log('Removing LOCAL stroke:', stroke.id);
+              strokeManager.removeStroke(stroke.id);
+            } else {
+              console.log('Skipping MULTIPLAYER stroke:', stroke.id);
+            }
           });
         }
         break;
@@ -39,7 +44,13 @@ export const useUndoRedoOperations = ({
         console.log('Undoing erase action by restoring strokes');
         if (actionToUndo.data.strokes) {
           actionToUndo.data.strokes.forEach((stroke: any) => {
-            strokeManager.restoreStroke(stroke);
+            // Only restore local strokes
+            if (!stroke.id.startsWith('mp-')) {
+              console.log('Restoring LOCAL stroke:', stroke.id);
+              strokeManager.restoreStroke(stroke);
+            } else {
+              console.log('Skipping restore of MULTIPLAYER stroke:', stroke.id);
+            }
           });
         }
         break;
@@ -54,7 +65,13 @@ export const useUndoRedoOperations = ({
         console.log('Undoing clear action by restoring all cleared content');
         if (actionToUndo.data.strokes) {
           actionToUndo.data.strokes.forEach((stroke: any) => {
-            strokeManager.restoreStroke(stroke);
+            // Only restore local strokes
+            if (!stroke.id.startsWith('mp-')) {
+              console.log('Restoring LOCAL stroke from clear:', stroke.id);
+              strokeManager.restoreStroke(stroke);
+            } else {
+              console.log('Skipping restore of MULTIPLAYER stroke from clear:', stroke.id);
+            }
           });
         }
         if (actionToUndo.data.previousBodyPartColors !== undefined) {
@@ -74,7 +91,13 @@ export const useUndoRedoOperations = ({
         console.log('Redoing draw action');
         if (actionToRedo.data.strokes) {
           actionToRedo.data.strokes.forEach((stroke: any) => {
-            strokeManager.restoreStroke(stroke);
+            // Only restore local strokes
+            if (!stroke.id.startsWith('mp-')) {
+              console.log('Restoring LOCAL stroke for redo:', stroke.id);
+              strokeManager.restoreStroke(stroke);
+            } else {
+              console.log('Skipping MULTIPLAYER stroke for redo:', stroke.id);
+            }
           });
         }
         break;
@@ -82,7 +105,13 @@ export const useUndoRedoOperations = ({
         console.log('Redoing erase action');
         if (actionToRedo.data.strokes) {
           actionToRedo.data.strokes.forEach((stroke: any) => {
-            strokeManager.removeStroke(stroke.id);
+            // Only remove local strokes
+            if (!stroke.id.startsWith('mp-')) {
+              console.log('Removing LOCAL stroke for redo:', stroke.id);
+              strokeManager.removeStroke(stroke.id);
+            } else {
+              console.log('Skipping MULTIPLAYER stroke removal for redo:', stroke.id);
+            }
           });
         }
         break;
@@ -100,7 +129,13 @@ export const useUndoRedoOperations = ({
         console.log('Redoing clear action');
         if (actionToRedo.data.strokes) {
           actionToRedo.data.strokes.forEach((stroke: any) => {
-            strokeManager.removeStroke(stroke.id);
+            // Only remove local strokes
+            if (!stroke.id.startsWith('mp-')) {
+              console.log('Removing LOCAL stroke for clear redo:', stroke.id);
+              strokeManager.removeStroke(stroke.id);
+            } else {
+              console.log('Skipping MULTIPLAYER stroke removal for clear redo:', stroke.id);
+            }
           });
         }
         if (actionToRedo.data.bodyPartColors) {
