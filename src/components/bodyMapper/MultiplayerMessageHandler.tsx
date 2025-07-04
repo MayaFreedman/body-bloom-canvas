@@ -183,9 +183,9 @@ export const MultiplayerMessageHandler = ({
       // Remove the specific handler we added
       if (handlerRef.current && room) {
         try {
-          // Remove the specific listener using the stored reference
-          room.removeAllListeners('broadcast');
-          console.log('✅ Removed broadcast listeners from room');
+          // Use the correct Colyseus.js API - off method to remove specific listener
+          room.off('broadcast', handlerRef.current);
+          console.log('✅ Removed broadcast listener from room');
         } catch (error) {
           console.error('❌ Error removing broadcast listener:', error);
         }
