@@ -1,3 +1,4 @@
+
 import { useState, useCallback } from 'react';
 import { ActionHistoryItem } from '@/types/actionHistoryTypes';
 
@@ -34,16 +35,19 @@ export const useActionHistory = ({ maxHistorySize = 100, currentUserId }: UseAct
       // Only trim history if it gets reasonably long (100+ items)
       if (newItems.length > maxHistorySize) {
         const trimmedItems = newItems.slice(-maxHistorySize);
-        // Update currentIndex to point to the last item in trimmed array
-        setCurrentIndex(trimmedItems.length - 1);
-        console.log('📊 Trimmed history (reached 100+ items), updated global index to:', trimmedItems.length - 1);
+        console.log('📊 Trimmed history (reached 100+ items), new length:', trimmedItems.length);
         return trimmedItems;
       }
 
-      // Normal case - set index to point to the newly added item
-      setCurrentIndex(newItems.length - 1);
-      console.log('📊 Updated global index to:', newItems.length - 1);
       return newItems;
+    });
+
+    // Set the index separately to avoid race conditions
+    // Use a function to ensure we get the most up-to-date items length
+    setCurrentIndex(prev => {
+      const newIndex = Math.max(0, Math.min(prev + 1, maxHistorySize - 1));
+      console.log('📊 Updated global index from', prev, 'to:', newIndex);
+      return newIndex;
     });
   }, [maxHistorySize, currentUserId, currentIndex]);
 
@@ -61,7 +65,7 @@ export const useActionHistory = ({ maxHistorySize = 100, currentUserId }: UseAct
     
     setCurrentIndex(prev => {
       const newIndex = prev - 1;
-      console.log('📊 Setting global index to:', newIndex);
+      console.log('📊 Setting global index from', prev, 'to:', newIndex);
       return newIndex;
     });
     
