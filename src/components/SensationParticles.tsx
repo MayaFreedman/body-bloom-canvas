@@ -180,9 +180,11 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
 
   // Create particle system for each sensation mark
   const particleSystems = useMemo(() => {
+    console.log('🦋 SensationParticles - Creating particle systems for marks:', sensationMarks);
     const systems: { [key: string]: SensationParticle[] } = {};
     
     sensationMarks.forEach((mark) => {
+      console.log('🦋 SensationParticles - Processing mark:', mark.id, 'name:', mark.name, 'icon:', mark.icon);
       if (!particleSystemsRef.current.has(mark.id)) {
         const particles: SensationParticle[] = [];
         
@@ -464,6 +466,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
 
   const renderParticleSystem = (mark: typeof sensationMarks[0]) => {
     const particles = particleSystems[mark.id];
+    console.log('🦋 SensationParticles - Rendering particle system for mark:', mark.id, 'particles:', particles?.length);
     if (!particles) return null;
 
     // Store mesh refs for this mark
