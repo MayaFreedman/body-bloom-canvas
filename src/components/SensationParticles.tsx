@@ -61,6 +61,7 @@ interface SensationParticlesProps {
 }
 
 const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks }) => {
+  console.log('🦋 SensationParticles - Received sensation marks:', sensationMarks);
   const particleSystemsRef = useRef<Map<string, SensationParticle[]>>(new Map());
   const meshRefsRef = useRef<Map<string, THREE.Object3D[]>>(new Map());
   
@@ -101,6 +102,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
 
   // Map sensation names to textures
   const getSensationTexture = (sensationName: string) => {
+    console.log('🦋 SensationParticles - Getting texture for sensation:', sensationName);
     const textureMapping: { [key: string]: keyof typeof textureMap } = {
       'Nerves': 'butterfly',
       'Pain': 'pain',
