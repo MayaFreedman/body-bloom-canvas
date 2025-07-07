@@ -40,8 +40,14 @@ export const useDrawingEventListeners = ({
       });
       
       if (shouldShowCrosshair) {
-        console.log('🎯 useDrawingEventListeners: Setting crosshair cursor');
-        gl.domElement.style.setProperty('cursor', 'crosshair', 'important');
+        // Check if cursor is already set to not-allowed by CustomCursor
+        const currentCursor = getComputedStyle(gl.domElement).cursor;
+        if (currentCursor !== 'not-allowed') {
+          console.log('🎯 useDrawingEventListeners: Setting crosshair cursor');
+          gl.domElement.style.setProperty('cursor', 'crosshair', 'important');
+        } else {
+          console.log('🎯 useDrawingEventListeners: NOT setting crosshair - not-allowed is active');
+        }
       } else {
         console.log('🎯 useDrawingEventListeners: NOT setting crosshair (restricted state)');
       }
