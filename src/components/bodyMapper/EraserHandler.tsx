@@ -95,8 +95,19 @@ export const EraserHandler = ({
       
       // Only set crosshair cursor if we're not in a "restricted" state (whiteboard mode hovering body)
       const shouldShowCrosshair = !(drawingTarget === 'whiteboard' && !isActivelyDrawing);
+      
+      console.log('🎯 EraserHandler Debug:', {
+        isErasing,
+        drawingTarget,
+        isActivelyDrawing,
+        shouldShowCrosshair
+      });
+      
       if (shouldShowCrosshair) {
+        console.log('🎯 EraserHandler: Setting crosshair cursor');
         gl.domElement.style.cursor = 'crosshair';
+      } else {
+        console.log('🎯 EraserHandler: NOT setting crosshair (restricted state)');
       }
       
       return () => {
@@ -105,10 +116,12 @@ export const EraserHandler = ({
         gl.domElement.removeEventListener('pointerup', handlePointerUp);
         gl.domElement.removeEventListener('pointerleave', handlePointerUp);
         if (shouldShowCrosshair) {
+          console.log('🎯 EraserHandler: Cleanup - resetting cursor');
           gl.domElement.style.cursor = 'default';
         }
       };
     } else {
+      console.log('🎯 EraserHandler: Not erasing - setting default cursor');
       gl.domElement.style.cursor = 'default';
     }
   }, [isErasing, drawingTarget, isActivelyDrawing, handlePointerDown, handlePointerMove, handlePointerUp, gl]);
