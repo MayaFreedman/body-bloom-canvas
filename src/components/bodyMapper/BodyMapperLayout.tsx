@@ -115,6 +115,8 @@ export const BodyMapperLayout = ({
           canUndo={canUndo}
           canRedo={canRedo}
           canvasRef={canvasRef}
+          drawingTarget={drawingTarget}
+          mode={mode}
         />
       </div>
 

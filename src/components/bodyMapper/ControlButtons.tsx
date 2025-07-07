@@ -9,6 +9,8 @@ interface ControlButtonsProps {
   canUndo?: boolean;
   canRedo?: boolean;
   canvasRef: React.RefObject<HTMLDivElement>;
+  drawingTarget?: 'body' | 'whiteboard';
+  mode?: string;
 }
 
 export const ControlButtons = ({ 
@@ -17,7 +19,9 @@ export const ControlButtons = ({
   onRedo, 
   canUndo = false, 
   canRedo = false, 
-  canvasRef 
+  canvasRef,
+  drawingTarget = 'body',
+  mode = 'draw'
 }: ControlButtonsProps) => {
   const captureScreenshot = async () => {
     if (!canvasRef.current) return;
@@ -57,10 +61,16 @@ export const ControlButtons = ({
     onResetAll();
   };
 
+  // Disable pointer events when drawing on whiteboard to allow drawing "through" the buttons
+  const shouldDisablePointerEvents = drawingTarget === 'whiteboard' && mode === 'draw';
+
   return (
     <>
       {/* Reset Button Container */}
-      <div className="reset-button-container">
+      <div 
+        className="reset-button-container"
+        style={{ pointerEvents: shouldDisablePointerEvents ? 'none' : 'auto' }}
+      >
         <button 
           onClick={handleResetAll} 
           className="main-reset-button"
@@ -72,7 +82,10 @@ export const ControlButtons = ({
       </div>
 
       {/* Undo/Redo Container */}
-      <div className="undo-redo-container">
+      <div 
+        className="undo-redo-container"
+        style={{ pointerEvents: shouldDisablePointerEvents ? 'none' : 'auto' }}
+      >
         <button 
           onClick={handleUndo}
           disabled={!canUndo}
