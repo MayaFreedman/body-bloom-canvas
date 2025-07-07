@@ -67,13 +67,6 @@ export const CustomCursor: React.FC<CustomCursorProps> = ({ selectedSensation, i
             filter: isHoveringBody ? 'drop-shadow(2px 2px 4px rgba(0,0,0,0.3))' : 'drop-shadow(1px 1px 2px rgba(0,0,0,0.2))'
           }}
         />
-        
-        {/* Tooltip showing sensation name */}
-        {!isHoveringBody && (
-          <div className="absolute top-10 left-1/2 transform -translate-x-1/2 bg-black text-white text-xs px-2 py-1 rounded whitespace-nowrap">
-            {selectedSensation.name}
-          </div>
-        )}
       </div>
     </div>
   );
