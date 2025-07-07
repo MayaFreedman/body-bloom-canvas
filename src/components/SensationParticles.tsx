@@ -470,14 +470,48 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
         // Reset particle if it's dead
         if (particle.life >= particle.maxLife) {
           particle.life = 0;
-          particle.position.copy(mark.position);
-          // Use the same dispersion level for respawn as initial spawn
-          const respawnDispersion = getDispersionLevel(mark.name || mark.icon);
-          particle.position.add(new THREE.Vector3(
-            (Math.random() - 0.5) * respawnDispersion,
-            (Math.random() - 0.5) * respawnDispersion,
-            (Math.random() - 0.5) * respawnDispersion
-          ));
+          
+          // Find a spawn position that avoids clustering with other particles
+          const findAvailableSpawnPosition = () => {
+            const baseDispersion = getDispersionLevel(mark.name || mark.icon);
+            const minDistance = baseDispersion * 0.3; // Minimum distance between particles
+            let attempts = 0;
+            const maxAttempts = 10;
+            
+            while (attempts < maxAttempts) {
+              const candidatePosition = mark.position.clone().add(new THREE.Vector3(
+                (Math.random() - 0.5) * baseDispersion,
+                (Math.random() - 0.5) * baseDispersion,
+                (Math.random() - 0.5) * baseDispersion
+              ));
+              
+              // Check distance to other particles (except current one)
+              let tooClose = false;
+              for (let i = 0; i < particles.length; i++) {
+                if (i === index) continue; // Skip self
+                const otherParticle = particles[i];
+                const distance = candidatePosition.distanceTo(otherParticle.position);
+                if (distance < minDistance) {
+                  tooClose = true;
+                  break;
+                }
+              }
+              
+              if (!tooClose) {
+                return candidatePosition;
+              }
+              attempts++;
+            }
+            
+            // Fallback: if can't find good spot, use a position with larger dispersion
+            return mark.position.clone().add(new THREE.Vector3(
+              (Math.random() - 0.5) * baseDispersion * 1.5,
+              (Math.random() - 0.5) * baseDispersion * 1.5,
+              (Math.random() - 0.5) * baseDispersion * 1.5
+            ));
+          };
+          
+          particle.position.copy(findAvailableSpawnPosition());
           
           // Reset animation properties
           particle.rotation = Math.random() * Math.PI * 2;
@@ -488,25 +522,25 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             particle.electricalPulse = Math.random() * Math.PI * 2;
             particle.sparkIntensity = Math.random();
             
-            // Reset velocity for nerves
+            // Reset velocity for nerves with more variation
             particle.velocity.set(
-              (Math.random() - 0.5) * 0.0005, // Reduced from 0.001 by 50%
-              (Math.random() - 0.5) * 0.0005, // Reduced from 0.001 by 50%
-              (Math.random() - 0.5) * 0.0005  // Reduced from 0.001 by 50%
+              (Math.random() - 0.5) * 0.001,
+              (Math.random() - 0.5) * 0.0008,
+              (Math.random() - 0.5) * 0.001
             );
           } else if (mark.icon === 'butterfly') {
-            // Reset butterfly velocity
+            // Reset butterfly velocity with more natural variation
             particle.velocity.set(
-              (Math.random() - 0.5) * 0.0004, // Reduced from 0.0008 by 50%
-              (Math.random() - 0.5) * 0.0004, // Reduced from 0.0008 by 50%
-              (Math.random() - 0.5) * 0.0004  // Reduced from 0.0008 by 50%
+              (Math.random() - 0.5) * 0.0008,
+              Math.random() * 0.0006, // Slight upward bias
+              (Math.random() - 0.5) * 0.0008
             );
           } else {
-            // Default reset
+            // Default reset with natural variation
             particle.velocity.set(
-              (Math.random() - 0.5) * 0.00025, // Reduced from 0.0005 by 50%
-              Math.random() * 0.0005, // Reduced from 0.001 by 50%
-              (Math.random() - 0.5) * 0.00025  // Reduced from 0.0005 by 50%
+              (Math.random() - 0.5) * 0.0006,
+              Math.random() * 0.0008, // Natural floating tendency
+              (Math.random() - 0.5) * 0.0006
             );
           }
         }
