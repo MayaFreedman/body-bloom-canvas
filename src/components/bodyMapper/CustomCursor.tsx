@@ -1,0 +1,80 @@
+import React, { useEffect, useState } from 'react';
+import { SelectedSensation } from '@/types/bodyMapperTypes';
+import { getSensationImage } from './SensationSelector';
+
+interface CustomCursorProps {
+  selectedSensation: SelectedSensation | null;
+  isHoveringBody: boolean;
+}
+
+
+export const CustomCursor: React.FC<CustomCursorProps> = ({ selectedSensation, isHoveringBody }) => {
+  const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const updateCursorPosition = (e: MouseEvent) => {
+      setCursorPosition({ x: e.clientX, y: e.clientY });
+    };
+
+    document.addEventListener('mousemove', updateCursorPosition);
+    return () => document.removeEventListener('mousemove', updateCursorPosition);
+  }, []);
+
+  // Set the document cursor style based on state
+  useEffect(() => {
+    if (selectedSensation) {
+      if (isHoveringBody) {
+        // Grabby hand when hovering over body with sensation selected
+        document.body.style.cursor = 'grab';
+      } else {
+        // Hide default cursor when sensation is selected but not hovering body
+        document.body.style.cursor = 'none';
+      }
+    } else {
+      // Default cursor when no sensation selected
+      document.body.style.cursor = 'default';
+    }
+
+    return () => {
+      document.body.style.cursor = 'default';
+    };
+  }, [selectedSensation, isHoveringBody]);
+
+  // Don't render custom cursor if no sensation is selected
+  if (!selectedSensation) {
+    return null;
+  }
+
+  const sensationImage = getSensationImage(selectedSensation.name);
+
+  return (
+    <div
+      className="fixed pointer-events-none z-[9999] transition-opacity duration-150"
+      style={{
+        left: cursorPosition.x,
+        top: cursorPosition.y,
+        transform: isHoveringBody ? 'translate(-12px, -12px)' : 'translate(-16px, -16px)',
+        opacity: isHoveringBody ? 0.8 : 1
+      }}
+    >
+      <div className="relative">
+        {/* Sensation icon */}
+        <img
+          src={sensationImage}
+          alt={selectedSensation.name}
+          className={`w-8 h-8 object-contain ${isHoveringBody ? 'w-6 h-6' : ''} transition-all duration-150`}
+          style={{
+            filter: isHoveringBody ? 'drop-shadow(2px 2px 4px rgba(0,0,0,0.3))' : 'drop-shadow(1px 1px 2px rgba(0,0,0,0.2))'
+          }}
+        />
+        
+        {/* Tooltip showing sensation name */}
+        {!isHoveringBody && (
+          <div className="absolute top-10 left-1/2 transform -translate-x-1/2 bg-black text-white text-xs px-2 py-1 rounded whitespace-nowrap">
+            {selectedSensation.name}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};

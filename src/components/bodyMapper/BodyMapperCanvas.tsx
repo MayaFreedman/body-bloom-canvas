@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -8,7 +8,9 @@ import { HumanModel } from '@/components/HumanModel';
 import { EffectsRenderer } from '@/components/EffectsRenderer';
 import { ModelDrawing } from '@/components/ModelDrawing';
 import SensationParticles from '@/components/SensationParticles';
+import { CustomCursor } from './CustomCursor';
 import { ClickHandler } from './ClickHandler';
+import { HoverDetector } from './HoverDetector';
 import { EraserHandler } from './EraserHandler';
 import { DrawingMark, SensationMark, Effect, BodyPartColors, BodyMapperMode, SelectedSensation } from '@/types/bodyMapperTypes';
 import { WorldDrawingPoint } from '@/types/multiplayerTypes';
@@ -31,6 +33,7 @@ interface BodyMapperCanvasProps {
   onAddToDrawingStroke: (worldPoint: WorldDrawingPoint) => void;
   onBodyPartClick: (partName: string, color: string) => void;
   onSensationClick: (position: THREE.Vector3, sensation: SelectedSensation) => void;
+  onSensationDeselect: () => void;
   onErase: (center: THREE.Vector3, radius: number) => void;
   onRotateLeft: () => void;
   onRotateRight: () => void;
@@ -53,11 +56,19 @@ export const BodyMapperCanvas = ({
   onAddToDrawingStroke,
   onBodyPartClick,
   onSensationClick,
+  onSensationDeselect,
   onErase,
   onRotateLeft,
   onRotateRight
 }: BodyMapperCanvasProps) => {
   console.log('BodyMapperCanvas rendering with sensation marks:', sensationMarks);
+  const [isHoveringBody, setIsHoveringBody] = useState(false);
+  
+  // Handle sensation click with auto-deselect
+  const handleSensationClick = (position: THREE.Vector3, sensation: SelectedSensation) => {
+    onSensationClick(position, sensation);
+    onSensationDeselect(); // Auto-deselect after placing
+  };
   
   return (
     <div style={{ 
@@ -135,8 +146,10 @@ export const BodyMapperCanvas = ({
           selectedColor={selectedColor}
           selectedSensation={selectedSensation}
           onBodyPartClick={onBodyPartClick}
-          onSensationClick={onSensationClick}
+          onSensationClick={handleSensationClick}
         />
+        
+        <HoverDetector onHoverChange={setIsHoveringBody} />
         
         <OrbitControls 
           enableRotate={false}
@@ -148,6 +161,12 @@ export const BodyMapperCanvas = ({
           enabled={mode !== 'draw' && mode !== 'erase'}
         />
       </Canvas>
+      
+      {/* Custom cursor outside Canvas for global mouse tracking */}
+      <CustomCursor 
+        selectedSensation={selectedSensation}
+        isHoveringBody={isHoveringBody}
+      />
     </div>
   );
 };

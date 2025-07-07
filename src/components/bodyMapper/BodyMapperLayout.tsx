@@ -94,6 +94,7 @@ export const BodyMapperLayout = ({
             onAddToDrawingStroke={onAddToDrawingStroke}
             onBodyPartClick={onBodyPartClick}
             onSensationClick={onSensationClick}
+            onSensationDeselect={() => setSelectedSensation(null)}
             onErase={onErase}
             onRotateLeft={onRotateLeft}
             onRotateRight={onRotateRight}

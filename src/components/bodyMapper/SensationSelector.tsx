@@ -46,7 +46,7 @@ const iconComponents = {
 };
 
 // Map sensation names to their corresponding images
-const getSensationImage = (sensationName: string) => {
+export const getSensationImage = (sensationName: string) => {
   const imageMapping: { [key: string]: string } = {
     'Nerves': butterflyImg,
     'Pain': painImg,
