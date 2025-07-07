@@ -7,7 +7,6 @@ interface EraserHandlerProps {
   isErasing: boolean;
   eraserRadius: number;
   drawingTarget: 'body' | 'whiteboard';
-  isActivelyDrawing?: boolean;
   onErase: (center: THREE.Vector3, radius: number, surface: 'body' | 'whiteboard') => void;
   modelRef?: React.RefObject<THREE.Group>;
 }
@@ -16,7 +15,6 @@ export const EraserHandler = ({
   isErasing, 
   eraserRadius, 
   drawingTarget,
-  isActivelyDrawing = false,
   onErase,
   modelRef 
 }: EraserHandlerProps) => {
@@ -93,38 +91,19 @@ export const EraserHandler = ({
       gl.domElement.addEventListener('pointerup', handlePointerUp);
       gl.domElement.addEventListener('pointerleave', handlePointerUp);
       
-      // Only set crosshair cursor if we're not in a "restricted" state (whiteboard mode hovering body)
-      const shouldShowCrosshair = !(drawingTarget === 'whiteboard' && !isActivelyDrawing);
-      
-      console.log('🎯 EraserHandler Debug:', {
-        isErasing,
-        drawingTarget,
-        isActivelyDrawing,
-        shouldShowCrosshair
-      });
-      
-      if (shouldShowCrosshair) {
-        console.log('🎯 EraserHandler: Setting crosshair cursor');
-        gl.domElement.style.cursor = 'crosshair';
-      } else {
-        console.log('🎯 EraserHandler: NOT setting crosshair (restricted state)');
-      }
+      gl.domElement.style.cursor = 'crosshair';
       
       return () => {
         gl.domElement.removeEventListener('pointerdown', handlePointerDown);
         gl.domElement.removeEventListener('pointermove', handlePointerMove);
         gl.domElement.removeEventListener('pointerup', handlePointerUp);
         gl.domElement.removeEventListener('pointerleave', handlePointerUp);
-        if (shouldShowCrosshair) {
-          console.log('🎯 EraserHandler: Cleanup - resetting cursor');
-          gl.domElement.style.cursor = 'default';
-        }
+        gl.domElement.style.cursor = 'default';
       };
     } else {
-      console.log('🎯 EraserHandler: Not erasing - setting default cursor');
       gl.domElement.style.cursor = 'default';
     }
-  }, [isErasing, drawingTarget, isActivelyDrawing, handlePointerDown, handlePointerMove, handlePointerUp, gl]);
+  }, [isErasing, handlePointerDown, handlePointerMove, handlePointerUp, gl]);
 
   return null;
 };

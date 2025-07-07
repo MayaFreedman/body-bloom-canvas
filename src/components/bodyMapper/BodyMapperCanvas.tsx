@@ -140,7 +140,6 @@ export const BodyMapperCanvas = ({
           selectedColor={selectedColor}
           brushSize={brushSize}
           drawingTarget={drawingTarget}
-          isActivelyDrawing={isActivelyDrawing}
           onAddMark={onAddDrawingMark}
           onStrokeStart={onDrawingStrokeStart}
           onStrokeComplete={onDrawingStrokeComplete}
@@ -152,7 +151,6 @@ export const BodyMapperCanvas = ({
           isErasing={mode === 'erase'}
           eraserRadius={brushSize / 100}
           drawingTarget={drawingTarget}
-          isActivelyDrawing={isActivelyDrawing}
           onErase={onErase}
           modelRef={modelRef}
         />

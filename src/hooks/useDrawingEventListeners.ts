@@ -4,8 +4,6 @@ import { useThree } from '@react-three/fiber';
 
 interface UseDrawingEventListenersProps {
   isDrawing: boolean;
-  drawingTarget?: 'body' | 'whiteboard';
-  isActivelyDrawing?: boolean;
   handlePointerDown: (event: PointerEvent) => void;
   handlePointerMove: (event: PointerEvent) => void;
   handlePointerUp: () => void;
@@ -13,8 +11,6 @@ interface UseDrawingEventListenersProps {
 
 export const useDrawingEventListeners = ({
   isDrawing,
-  drawingTarget = 'body',
-  isActivelyDrawing = false,
   handlePointerDown,
   handlePointerMove,
   handlePointerUp
@@ -28,43 +24,17 @@ export const useDrawingEventListeners = ({
       gl.domElement.addEventListener('pointerup', handlePointerUp);
       gl.domElement.addEventListener('pointerleave', handlePointerUp);
       
-      // Only set crosshair cursor if we're not in a "restricted" state (whiteboard mode hovering body)
-      const shouldShowCrosshair = !(drawingTarget === 'whiteboard' && !isActivelyDrawing);
-      
-      console.log('🎯 useDrawingEventListeners Debug:', {
-        isDrawing,
-        drawingTarget,
-        isActivelyDrawing,
-        shouldShowCrosshair,
-        currentCursor: gl.domElement.style.cursor
-      });
-      
-      if (shouldShowCrosshair) {
-        // Check if cursor is already set to not-allowed by CustomCursor
-        const currentCursor = getComputedStyle(gl.domElement).cursor;
-        if (currentCursor !== 'not-allowed') {
-          console.log('🎯 useDrawingEventListeners: Setting crosshair cursor');
-          gl.domElement.style.setProperty('cursor', 'crosshair', 'important');
-        } else {
-          console.log('🎯 useDrawingEventListeners: NOT setting crosshair - not-allowed is active');
-        }
-      } else {
-        console.log('🎯 useDrawingEventListeners: NOT setting crosshair (restricted state)');
-      }
+      gl.domElement.style.cursor = 'crosshair';
       
       return () => {
         gl.domElement.removeEventListener('pointerdown', handlePointerDown);
         gl.domElement.removeEventListener('pointermove', handlePointerMove);
         gl.domElement.removeEventListener('pointerup', handlePointerUp);
         gl.domElement.removeEventListener('pointerleave', handlePointerUp);
-        if (shouldShowCrosshair) {
-          console.log('🎯 useDrawingEventListeners: Cleanup - resetting cursor');
-          gl.domElement.style.cursor = 'default';
-        }
+        gl.domElement.style.cursor = 'default';
       };
     } else {
-      console.log('🎯 useDrawingEventListeners: Not drawing - setting default cursor');
       gl.domElement.style.cursor = 'default';
     }
-  }, [isDrawing, drawingTarget, isActivelyDrawing, handlePointerDown, handlePointerMove, handlePointerUp, gl]);
+  }, [isDrawing, handlePointerDown, handlePointerMove, handlePointerUp, gl]);
 };

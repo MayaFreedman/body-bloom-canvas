@@ -30,54 +30,45 @@ export const CustomCursor: React.FC<CustomCursorProps> = ({
     return () => document.removeEventListener('mousemove', updateCursorPosition);
   }, []);
 
-  // Show not-allowed cursor when in whiteboard mode and hovering body
-  const showNotAllowed = drawingTarget === 'whiteboard' && isHoveringBody && !isActivelyDrawing && !selectedSensation;
-  
-  console.log('🎯 CustomCursor Debug:', {
-    mode,
-    drawingTarget, 
-    isHoveringBody, 
-    isActivelyDrawing, 
-    showNotAllowed,
-    selectedSensation: !!selectedSensation
-  });
+  // Check if we should show a "not allowed" cursor (drawing on body when in whiteboard mode, but not actively drawing)
+  const showNotAllowed = mode === 'draw' && drawingTarget === 'whiteboard' && isHoveringBody && !isActivelyDrawing;
 
   // Set the document cursor style based on state
   useEffect(() => {
+    // Also override any canvas cursor styles that might conflict
     const canvas = document.querySelector('canvas');
     
     if (showNotAllowed) {
-      // Show native browser not-allowed cursor
-      console.log('🚫 Setting native not-allowed cursor');
+      // Show "not allowed" cursor when trying to draw on body in whiteboard mode (but not while actively drawing)
       document.body.style.setProperty('cursor', 'not-allowed', 'important');
       if (canvas) canvas.style.setProperty('cursor', 'not-allowed', 'important');
-      
+      console.log('🚫 Setting not-allowed cursor - whiteboard mode on body');
     } else if (selectedSensation) {
       if (isHoveringBody) {
+        // Force grabby hand when hovering over body with sensation selected - use !important override
         document.body.style.setProperty('cursor', 'grab', 'important');
         if (canvas) canvas.style.setProperty('cursor', 'grab', 'important');
         console.log('🖱️ Setting grab cursor - hovering body with sensation');
       } else {
+        // Hide default cursor when sensation is selected but not hovering body
         document.body.style.setProperty('cursor', 'none', 'important');
         if (canvas) canvas.style.setProperty('cursor', 'none', 'important');
         console.log('🖱️ Setting none cursor - sensation selected but not hovering');
       }
     } else {
-      // Allow other cursor handlers to take precedence
-      document.body.style.removeProperty('cursor');
-      if (canvas) canvas.style.removeProperty('cursor');
-      console.log('🖱️ Removing cursor override - letting other handlers control');
+      // Default cursor when no sensation selected
+      document.body.style.setProperty('cursor', 'default', 'important');
+      if (canvas) canvas.style.setProperty('cursor', 'default', 'important');
+      console.log('🖱️ Setting default cursor - no sensation selected');
     }
 
     return () => {
-      if (showNotAllowed || selectedSensation) {
-        document.body.style.cursor = 'default';
-        if (canvas) canvas.style.cursor = 'default';
-      }
+      document.body.style.cursor = 'default';
+      if (canvas) canvas.style.cursor = 'default';
     };
   }, [selectedSensation, isHoveringBody, showNotAllowed]);
 
-  // Show custom cursor only for sensations (let native browser handle not-allowed)
+  // Show custom cursor only for sensations (let browser handle not-allowed cursor)
   if (!selectedSensation) {
     return null;
   }
