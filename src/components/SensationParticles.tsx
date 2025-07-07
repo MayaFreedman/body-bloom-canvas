@@ -481,6 +481,8 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       const opacity = 1 - (particle.life / particle.maxLife);
       const finalScale = particle.size * 1.5 * normalizedScale;
       
+      console.log('🦋 SensationParticles - Rendering particle', index, 'position:', particle.position, 'finalScale:', finalScale, 'opacity:', opacity);
+      
       // Use sprites for all sensation types with their appropriate textures
       return (
         <sprite 
