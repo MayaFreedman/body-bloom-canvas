@@ -55,7 +55,7 @@ export const ClickHandler = ({
           return;
         }
         
-        if (mode === 'sensations' && selectedSensation) {
+        if (selectedSensation) {
           // Convert world position to local position relative to the model
           const modelGroup = scene.children.find(child => child.type === 'Group');
           if (modelGroup) {
