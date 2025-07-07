@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { BodyMapperMode, SelectedSensation, SensationMark } from '@/types/bodyMapperTypes';
+import { BodyMapperMode, SelectedSensation, SensationMark, DrawingTarget } from '@/types/bodyMapperTypes';
 import { useActionHistory } from './useActionHistory';
 import { useStrokeManager } from './useStrokeManager';
 import { useSpatialIndex } from './useSpatialIndex';
@@ -25,6 +25,7 @@ export const useEnhancedBodyMapperState = ({
   const [mode, setMode] = useState<BodyMapperMode>('draw');
   const [selectedColor, setSelectedColor] = useState('#ffeb3b'); // Changed from '#ff6b6b' to '#ffeb3b' (yellow)
   const [brushSize, setBrushSize] = useState([3]);
+  const [drawingTarget, setDrawingTarget] = useState<DrawingTarget>('body');
   const [selectedSensation, setSelectedSensation] = useState<SelectedSensation | null>(null);
   const [bodyPartColors, setBodyPartColors] = useState<Record<string, string>>({});
   const [sensationMarks, setSensationMarks] = useState<SensationMark[]>([]);
@@ -145,6 +146,8 @@ export const useEnhancedBodyMapperState = ({
     setSelectedColor,
     brushSize,
     setBrushSize,
+    drawingTarget,
+    setDrawingTarget,
     selectedSensation,
     setSelectedSensation,
     drawingMarks, // Legacy compatibility

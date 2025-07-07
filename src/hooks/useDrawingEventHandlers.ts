@@ -68,6 +68,7 @@ export const useDrawingEventHandlers = ({
               z: intersect.point.z
             },
             bodyPart: intersect.object.userData.bodyPart,
+            surface: 'body',
             color: '',
             size: 0
           };
@@ -121,6 +122,7 @@ export const useDrawingEventHandlers = ({
               z: currentPosition.z
             },
             bodyPart: currentBodyPart,
+            surface: 'body',
             color: '',
             size: 0
           };

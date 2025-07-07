@@ -4,6 +4,8 @@ import { BodyMapperCanvas } from './BodyMapperCanvas';
 import { BodyMapperControls } from './BodyMapperControls';
 import { ControlButtons } from './ControlButtons';
 import { SensationPlacementPopup } from './SensationPlacementPopup';
+import { DrawingTargetSelector } from './DrawingTargetSelector';
+import { WhiteboardPlane } from './WhiteboardPlane';
 import { BodyMapperMode, SelectedSensation, SensationMark } from '@/types/bodyMapperTypes';
 import { WorldDrawingPoint } from '@/types/multiplayerTypes';
 import * as THREE from 'three';
@@ -12,6 +14,7 @@ interface BodyMapperLayoutProps {
   mode: BodyMapperMode;
   selectedColor: string;
   brushSize: number[];
+  drawingTarget: 'body' | 'whiteboard';
   selectedSensation: SelectedSensation | null;
   drawingMarks: any[];
   sensationMarks: SensationMark[];
@@ -25,6 +28,7 @@ interface BodyMapperLayoutProps {
   setMode: (mode: BodyMapperMode) => void;
   setSelectedColor: (color: string) => void;
   setBrushSize: (size: number[]) => void;
+  setDrawingTarget: (target: 'body' | 'whiteboard') => void;
   setSelectedSensation: (sensation: SelectedSensation | null) => void;
   onAddDrawingMark: (mark: any) => void;
   onDrawingStrokeStart: () => void;
@@ -45,6 +49,7 @@ export const BodyMapperLayout = ({
   mode,
   selectedColor,
   brushSize,
+  drawingTarget,
   selectedSensation,
   drawingMarks,
   sensationMarks,
@@ -58,6 +63,7 @@ export const BodyMapperLayout = ({
   setMode,
   setSelectedColor,
   setBrushSize,
+  setDrawingTarget,
   setSelectedSensation,
   onAddDrawingMark,
   onDrawingStrokeStart,
@@ -81,6 +87,7 @@ export const BodyMapperLayout = ({
             mode={mode}
             selectedColor={selectedColor}
             brushSize={brushSize[0]}
+            drawingTarget={drawingTarget}
             selectedSensation={selectedSensation}
             drawingMarks={drawingMarks}
             sensationMarks={sensationMarks}
@@ -113,6 +120,10 @@ export const BodyMapperLayout = ({
 
       <div className="controls-container">
         <div id="rightColumn">
+          <DrawingTargetSelector
+            drawingTarget={drawingTarget}
+            onTargetChange={setDrawingTarget}
+          />
           <BodyMapperControls
             ref={controlsRef}
             mode={mode}

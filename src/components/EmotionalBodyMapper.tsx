@@ -29,6 +29,8 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     setSelectedColor,
     brushSize,
     setBrushSize,
+    drawingTarget,
+    setDrawingTarget,
     selectedSensation,
     setSelectedSensation,
     drawingMarks,
@@ -173,6 +175,7 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
         mode={mode}
         selectedColor={selectedColor}
         brushSize={brushSize}
+        drawingTarget={drawingTarget}
         selectedSensation={selectedSensation}
         drawingMarks={legacyDrawingMarks}
         sensationMarks={sensationMarks}
@@ -186,6 +189,7 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
         setMode={setMode}
         setSelectedColor={setSelectedColor}
         setBrushSize={setBrushSize}
+        setDrawingTarget={setDrawingTarget}
         setSelectedSensation={setSelectedSensation}
         onAddDrawingMark={handleAddDrawingMark}
         onDrawingStrokeStart={handleDrawingStrokeStart}

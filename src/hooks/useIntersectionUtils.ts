@@ -7,20 +7,33 @@ interface UseIntersectionUtilsProps {
 }
 
 export const useIntersectionUtils = ({ modelRef }: UseIntersectionUtilsProps) => {
-  const getIntersectedObjects = useCallback(() => {
+  const getIntersectedObjects = useCallback((includeWhiteboard: boolean = false) => {
     const meshes: THREE.Mesh[] = [];
     const modelGroup = modelRef?.current;
     
     if (modelGroup) {
       modelGroup.traverse((child) => {
-        if (child instanceof THREE.Mesh && child.userData.bodyPart) {
-          meshes.push(child);
+        if (child instanceof THREE.Mesh) {
+          if (child.userData.bodyPart || (includeWhiteboard && child.userData.isWhiteboard)) {
+            meshes.push(child);
+          }
         }
       });
     }
     
     return meshes;
   }, [modelRef]);
+
+  const getWhiteboardRegion = useCallback((position: THREE.Vector3): string => {
+    // Simple quadrant system for whiteboard regions
+    const x = position.x;
+    const y = position.y;
+    
+    if (x >= 0 && y >= 0) return 'top-right';
+    if (x < 0 && y >= 0) return 'top-left';
+    if (x >= 0 && y < 0) return 'bottom-right';
+    return 'bottom-left';
+  }, []);
 
   const getBodyPartAtPosition = useCallback((worldPosition: THREE.Vector3): string | null => {
     const modelGroup = modelRef?.current;
@@ -84,6 +97,7 @@ export const useIntersectionUtils = ({ modelRef }: UseIntersectionUtilsProps) =>
 
   return {
     getIntersectedObjects,
-    getBodyPartAtPosition
+    getBodyPartAtPosition,
+    getWhiteboardRegion
   };
 };

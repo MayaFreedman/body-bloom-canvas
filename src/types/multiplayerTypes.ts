@@ -5,7 +5,9 @@ import { Room } from 'colyseus.js';
 export interface WorldDrawingPoint {
   id: string;
   worldPosition: { x: number; y: number; z: number };
-  bodyPart: string;
+  bodyPart?: string; // Optional for whiteboard drawings
+  whiteboardRegion?: string; // For whiteboard surface identification
+  surface: 'body' | 'whiteboard';
   color: string;
   size: number;
 }

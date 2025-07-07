@@ -32,6 +32,8 @@ export interface BodyPartColors {
 
 export type BodyMapperMode = 'draw' | 'fill' | 'erase';
 
+export type DrawingTarget = 'body' | 'whiteboard';
+
 export interface SelectedSensation {
   icon: string;
   color: string;

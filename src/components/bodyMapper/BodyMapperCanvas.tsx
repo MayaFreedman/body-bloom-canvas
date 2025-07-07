@@ -12,6 +12,7 @@ import { CustomCursor } from './CustomCursor';
 import { ClickHandler } from './ClickHandler';
 import { HoverDetector } from './HoverDetector';
 import { EraserHandler } from './EraserHandler';
+import { WhiteboardPlane } from './WhiteboardPlane';
 import { DrawingMark, SensationMark, Effect, BodyPartColors, BodyMapperMode, SelectedSensation } from '@/types/bodyMapperTypes';
 import { WorldDrawingPoint } from '@/types/multiplayerTypes';
 import * as THREE from 'three';
@@ -20,6 +21,7 @@ interface BodyMapperCanvasProps {
   mode: BodyMapperMode;
   selectedColor: string;
   brushSize: number;
+  drawingTarget: 'body' | 'whiteboard';
   selectedSensation: SelectedSensation | null;
   drawingMarks: DrawingMark[];
   sensationMarks: SensationMark[];
@@ -43,6 +45,7 @@ export const BodyMapperCanvas = ({
   mode,
   selectedColor,
   brushSize,
+  drawingTarget,
   selectedSensation,
   drawingMarks,
   sensationMarks,
@@ -107,6 +110,7 @@ export const BodyMapperCanvas = ({
         
         <group ref={modelRef} rotation={[0, rotation, 0]}>
           <HumanModel bodyPartColors={bodyPartColors} />
+          <WhiteboardPlane visible={drawingTarget === 'whiteboard'} />
           
           {/* Render drawing marks as children of the model group so they rotate with it */}
           {drawingMarks.map((mark) => (
@@ -125,6 +129,7 @@ export const BodyMapperCanvas = ({
           drawingMarks={drawingMarks}
           selectedColor={selectedColor}
           brushSize={brushSize}
+          drawingTarget={drawingTarget}
           onAddMark={onAddDrawingMark}
           onStrokeStart={onDrawingStrokeStart}
           onStrokeComplete={onDrawingStrokeComplete}

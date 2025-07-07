@@ -17,6 +17,7 @@ interface ModelDrawingProps {
   drawingMarks: DrawingMark[];
   selectedColor: string;
   brushSize: number;
+  drawingTarget: 'body' | 'whiteboard';
   onAddMark: (mark: DrawingMark) => void;
   onStrokeStart?: () => void;
   onStrokeComplete?: () => void;
@@ -29,6 +30,7 @@ export const ModelDrawing = ({
   drawingMarks, 
   selectedColor, 
   brushSize, 
+  drawingTarget,
   onAddMark,
   onStrokeStart,
   onStrokeComplete,
@@ -39,6 +41,7 @@ export const ModelDrawing = ({
     isDrawing,
     selectedColor,
     brushSize,
+    drawingTarget,
     onAddMark,
     onStrokeStart,
     onStrokeComplete,
