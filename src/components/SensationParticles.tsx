@@ -348,7 +348,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             
             // MEDIUM-SLOW = medium count
             'Tears': 8,                 // Droplets
-            'Sweat': 10,                // Drips
+            'Sweat': 8,                 // Reduced from 10 - fewer particles
             'Pain': 12,                 // Visible pain
             'Ache': 10,                 // Persistent aches
             'Tight': 8,                 // Tension areas
