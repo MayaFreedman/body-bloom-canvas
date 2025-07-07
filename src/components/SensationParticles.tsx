@@ -592,7 +592,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
         const getAnimationProfile = (sensationName: string) => {
           const profiles: { [key: string]: { speed: number; intensity: number; pattern: string; gravity?: number; drift?: THREE.Vector3 } } = {
             // ELECTRICAL/ACTIVE effects
-            'Nerves': { speed: 0.8, intensity: 0.6, pattern: 'electrical', gravity: 0.0002 },
+            'Nerves': { speed: 0.5, intensity: 0.4, pattern: 'electrical', gravity: 0.0002 },
             'Tingling': { speed: 1.8, intensity: 1.2, pattern: 'electrical', gravity: 0.0001 }, // Use electrical pattern for sparkly movement
             'Change in Energy': { speed: 1.5, intensity: 1.0, pattern: 'burst', gravity: 0.0001, drift: new THREE.Vector3(0, 0.3, 0) },
             
