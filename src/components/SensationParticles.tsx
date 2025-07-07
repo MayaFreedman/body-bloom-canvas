@@ -211,6 +211,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       // MEDIUM-SLOW = moderate spread
       'Tears': 0.04,             // Face area for tears
       'Sweat': 0.10,             // Wider spread for sweating
+      'Decreased Temperature': 0.12, // Wider spread for snow-like falling
       'Tight': 0.04,             // Tension area
       'Dry Mouth': 0.03,         // Mouth/throat area
       
@@ -285,6 +286,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       // SLOW = long lifespan
       'Relaxed': { min: 180, max: 280 }, // Calm, persistent
       'Decreased Heart Rate': { min: 160, max: 250 }, // Slow rhythm
+      'Decreased Temperature': { min: 120, max: 200 }, // Snow particles last medium time
       'Statue': { min: 200, max: 300 }, // Very still
       
       // MEDIUM-SLOW = medium-long lifespan - LONGER for drips
@@ -345,6 +347,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             // SLOW = fewer particles, longer lasting
             'Relaxed': 6,               // Calm, fewer particles
             'Decreased Heart Rate': 5,  // Slow, large beats
+            'Decreased Temperature': 12, // Snow particles - medium count for dispersed effect
             
             // MEDIUM-SLOW = medium count
             'Tears': 8,                 // Droplets
@@ -389,12 +392,13 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
           // Create initial velocity that matches the sensation's animation pattern
           let initialVelocity;
           
-          if (mark.name === 'Tears' || mark.name === 'Sweat') {
-            // Dripping particles start with downward movement
+          if (mark.name === 'Tears' || mark.name === 'Sweat' || mark.name === 'Decreased Temperature') {
+            // Dripping/snow particles start with downward movement
+            const isSnow = mark.name === 'Decreased Temperature';
             initialVelocity = new THREE.Vector3(
-              (Math.random() - 0.5) * 0.0003, // Small horizontal variation
-              -0.0008 - Math.random() * 0.0004, // Consistent downward movement  
-              (Math.random() - 0.5) * 0.0002  // Minimal depth movement
+              (Math.random() - 0.5) * (isSnow ? 0.0005 : 0.0003), // Snow has more horizontal drift
+              -0.0003 - Math.random() * (isSnow ? 0.0002 : 0.0004), // Snow falls more gently
+              (Math.random() - 0.5) * (isSnow ? 0.0004 : 0.0002)  // Snow has more depth movement
             );
           } else if (mark.name === 'Increased Heart Rate' || mark.name === 'Decreased Heart Rate') {
             // Heart rate particles start with gentle pulsing movement
@@ -564,12 +568,13 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
               (Math.random() - 0.5) * 0.0008,
               (Math.random() - 0.5) * 0.001
             );
-          } else if (mark.name === 'Tears' || mark.name === 'Sweat') {
-            // Reset velocity for tears and sweat - consistent with lifecycle movement  
+          } else if (mark.name === 'Tears' || mark.name === 'Sweat' || mark.name === 'Decreased Temperature') {
+            // Reset velocity for dripping particles - consistent with lifecycle movement
+            const isSnow = mark.name === 'Decreased Temperature';
             particle.velocity.set(
-              (Math.random() - 0.5) * 0.0003, // Small horizontal variation
-              -0.0008 - Math.random() * 0.0004, // Consistent downward movement
-              (Math.random() - 0.5) * 0.0002  // Minimal depth movement
+              (Math.random() - 0.5) * (isSnow ? 0.0005 : 0.0003), // Snow has more horizontal drift
+              -0.0003 - Math.random() * (isSnow ? 0.0002 : 0.0004), // Snow falls more gently
+              (Math.random() - 0.5) * (isSnow ? 0.0004 : 0.0002)  // Snow has more depth movement
             );
           } else if (mark.icon === 'butterfly') {
             // Reset butterfly velocity with more natural variation
@@ -609,6 +614,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             // FLOW effects - dripping with strong downward movement (negative Y = down)
             'Tears': { speed: 0.2, intensity: 0.4, pattern: 'drip', gravity: 0.0002, drift: new THREE.Vector3(0, -0.15, 0) },
             'Sweat': { speed: 0.3, intensity: 0.5, pattern: 'drip', gravity: 0.00015, drift: new THREE.Vector3(0, -0.12, 0) },
+            'Decreased Temperature': { speed: 0.1, intensity: 0.3, pattern: 'drip', gravity: 0.0001, drift: new THREE.Vector3(0, -0.08, 0) },
             'Change in Breathing': { speed: 0.8, intensity: 0.7, pattern: 'wave', gravity: 0.0001, drift: new THREE.Vector3(0.1, 0.3, 0) },
             'Nausea': { speed: 1.2, intensity: 1.0, pattern: 'swirl', gravity: 0.0002 },
             
