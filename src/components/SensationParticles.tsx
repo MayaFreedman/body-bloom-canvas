@@ -210,7 +210,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       
       // MEDIUM-SLOW = moderate spread
       'Tears': 0.04,             // Face area for tears
-      'Sweat': 0.06,             // Body area for sweating
+      'Sweat': 0.10,             // Wider spread for sweating
       'Tight': 0.04,             // Tension area
       'Dry Mouth': 0.03,         // Mouth/throat area
       
