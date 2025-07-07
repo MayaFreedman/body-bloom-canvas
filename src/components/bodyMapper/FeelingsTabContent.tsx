@@ -45,15 +45,15 @@ export const FeelingsTabContent = ({
 }: FeelingsTabContentProps) => {
   
   return (
-    <div>
-      <h3 className="text-xl font-semibold text-gray-800 mb-4">Colors & Emotions</h3>
-      <div className="subtext-box">
-        <p>Identify the feelings you are experiencing, then choose a color that best represents each feeling for you. Use those colors to fill in the body outline.</p>
-        <p><strong>Tip:</strong> You can use the colors to show where you feel each emotion or how big or strong that feeling is for you.</p>
+    <div className="space-y-4">
+      <div className="space-y-2">
+        <h3 className="font-medium text-sm text-muted-foreground">Colors & Emotions</h3>
+        <p className="text-xs text-muted-foreground leading-relaxed">
+          Choose colors that represent your feelings and use them to fill in the body outline.
+        </p>
       </div>
 
       <PaintingModeSelector mode={mode} onModeChange={onModeChange} title="Tools" />
-      
       {/* Brush Size Control - Only visible in Draw mode */}
       {mode === 'draw' && (
         <BrushSizeControl
@@ -65,15 +65,13 @@ export const FeelingsTabContent = ({
 
       {/* Text Controls - Only visible in Text mode */}
       {mode === 'text' && textSettings && onTextSettingsChange && (
-        <div className="mt-4">
-          <TextControls
-            mode={mode}
-            textSettings={textSettings}
-            selectedColor={selectedColor}
-            onModeChange={onModeChange}
-            onTextSettingsChange={onTextSettingsChange}
-          />
-        </div>
+        <TextControls
+          mode={mode}
+          textSettings={textSettings}
+          selectedColor={selectedColor}
+          onModeChange={onModeChange}
+          onTextSettingsChange={onTextSettingsChange}
+        />
       )}
 
       <EmotionColorManager
