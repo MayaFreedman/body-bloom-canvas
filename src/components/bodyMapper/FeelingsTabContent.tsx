@@ -4,6 +4,8 @@ import { PaintingModeSelector } from './PaintingModeSelector';
 import { EmotionColorManager } from './EmotionColorManager';
 import { BrushSizeControl } from './BrushSizeControl';
 import { BodyMapperMode, SelectedSensation } from '@/types/bodyMapperTypes';
+import { TextControls } from './TextControls';
+import { TextSettings } from '@/types/textTypes';
 
 interface CustomEmotion {
   color: string;
@@ -15,6 +17,7 @@ interface FeelingsTabContentProps {
   selectedColor: string;
   brushSize: number[];
   emotions: CustomEmotion[];
+  textSettings?: TextSettings;
   onModeChange: (mode: BodyMapperMode) => void;
   onEmotionColorChange: (index: number, color: string) => void;
   onEmotionNameChange: (index: number, name: string) => void;
@@ -22,6 +25,7 @@ interface FeelingsTabContentProps {
   onAddColor: () => void;
   onDeleteColor: (index: number) => void;
   onBrushSizeChange: (size: number[]) => void;
+  onTextSettingsChange?: (settings: Partial<TextSettings>) => void;
 }
 
 export const FeelingsTabContent = ({
@@ -29,13 +33,15 @@ export const FeelingsTabContent = ({
   selectedColor,
   brushSize,
   emotions,
+  textSettings,
   onModeChange,
   onEmotionColorChange,
   onEmotionNameChange,
   onEmotionSelect,
   onAddColor,
   onDeleteColor,
-  onBrushSizeChange
+  onBrushSizeChange,
+  onTextSettingsChange
 }: FeelingsTabContentProps) => {
   return (
     <div>
@@ -45,7 +51,7 @@ export const FeelingsTabContent = ({
         <p><strong>Tip:</strong> You can use the colors to show where you feel each emotion or how big or strong that feeling is for you.</p>
       </div>
 
-      <PaintingModeSelector mode={mode} onModeChange={onModeChange} />
+      <PaintingModeSelector mode={mode} onModeChange={onModeChange} title="Tools" />
       
       {/* Brush Size Control - Only visible in Draw mode */}
       {mode === 'draw' && (
@@ -65,6 +71,19 @@ export const FeelingsTabContent = ({
         onAddColor={onAddColor}
         onDeleteColor={onDeleteColor}
       />
+      
+      {/* Text Controls */}
+      {textSettings && onTextSettingsChange && (
+        <div className="mt-6">
+          <TextControls
+            mode={mode}
+            textSettings={textSettings}
+            selectedColor={selectedColor}
+            onModeChange={onModeChange}
+            onTextSettingsChange={onTextSettingsChange}
+          />
+        </div>
+      )}
     </div>
   );
 };

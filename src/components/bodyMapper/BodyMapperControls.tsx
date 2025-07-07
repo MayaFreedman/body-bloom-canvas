@@ -174,6 +174,7 @@ export const BodyMapperControls = React.forwardRef<
           selectedColor={selectedColor}
           brushSize={brushSize}
           emotions={emotions}
+          textSettings={textSettings}
           onModeChange={(newMode) => {
             console.log('🎯 BodyMapperControls - Mode changing to:', newMode, 'clearing sensation');
             onModeChange(newMode);
@@ -186,20 +187,8 @@ export const BodyMapperControls = React.forwardRef<
           onAddColor={handleAddColor}
           onDeleteColor={handleDeleteColor}
           onBrushSizeChange={onBrushSizeChange}
+          onTextSettingsChange={onTextSettingsChange}
         />
-        
-        {/* Text Controls in Feelings Tab */}
-        {textSettings && onTextSettingsChange && (
-          <div className="mt-6">
-            <TextControls
-              mode={mode}
-              textSettings={textSettings}
-              selectedColor={selectedColor}
-              onModeChange={onModeChange}
-              onTextSettingsChange={onTextSettingsChange}
-            />
-          </div>
-        )}
       </div>
 
       {/* Body Sensations and Signals Tab Content */}
