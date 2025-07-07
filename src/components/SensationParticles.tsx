@@ -137,7 +137,10 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
     };
     
     const textureKey = textureMapping[sensationName] || 'star';
-    return textureMap[textureKey];
+    console.log('🦋 SensationParticles - Sensation:', sensationName, 'mapped to texture key:', textureKey);
+    const texture = textureMap[textureKey];
+    console.log('🦋 SensationParticles - Texture object:', texture, 'loaded:', texture?.image?.complete);
+    return texture;
   };
 
   // Get normalized scale for different textures
