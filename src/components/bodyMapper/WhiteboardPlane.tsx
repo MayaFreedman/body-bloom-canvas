@@ -6,9 +6,11 @@ interface WhiteboardPlaneProps {
 }
 
 export const WhiteboardPlane = ({ visible = false }: WhiteboardPlaneProps) => {
+  console.log('🖼️ WhiteboardPlane rendering, visible:', visible);
+  
   return (
     <mesh
-      position={[0, 0, -1]} // Behind the body model
+      position={[0, 0, -0.5]} // Closer to camera for better intersection
       userData={{ isWhiteboard: true }}
       visible={visible}
     >
@@ -16,7 +18,7 @@ export const WhiteboardPlane = ({ visible = false }: WhiteboardPlaneProps) => {
       <meshBasicMaterial 
         color="white" 
         transparent 
-        opacity={0.1}
+        opacity={0.2}
         side={THREE.DoubleSide}
       />
     </mesh>

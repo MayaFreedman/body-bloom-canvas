@@ -28,9 +28,9 @@ export const EraserHandler = ({
     if (modelGroup) {
       modelGroup.traverse((child) => {
         if (child instanceof THREE.Mesh) {
-          // Include body parts for body erasing, whiteboard for whiteboard erasing
-          if ((drawingTarget === 'body' && child.userData.bodyPart) ||
-              (drawingTarget === 'whiteboard' && child.userData.isWhiteboard)) {
+          if (drawingTarget === 'body' && child.userData.bodyPart) {
+            meshes.push(child);
+          } else if (drawingTarget === 'whiteboard' && child.userData.isWhiteboard) {
             meshes.push(child);
           }
         }
@@ -55,8 +55,10 @@ export const EraserHandler = ({
 
     if (intersects.length > 0) {
       const intersect = intersects[0];
-      console.log('🧽 Erasing on', drawingTarget, 'at point:', intersect.point);
+      console.log('🧽 Erasing on', drawingTarget, 'at point:', intersect.point, 'intersected object:', intersect.object.userData);
       onErase(intersect.point, eraserRadius, drawingTarget);
+    } else {
+      console.log('🧽 No intersection found for', drawingTarget, 'mode. Available meshes:', meshes.length);
     }
   }, [isErasing, eraserRadius, onErase, camera, gl, raycaster, mouse, getIntersectedObjects]);
 
