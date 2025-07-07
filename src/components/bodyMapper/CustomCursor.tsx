@@ -33,33 +33,45 @@ export const CustomCursor: React.FC<CustomCursorProps> = ({
   // Check if we should show a "not allowed" cursor (any mode when whiteboard is selected and hovering body, but not actively drawing)
   const showNotAllowed = drawingTarget === 'whiteboard' && isHoveringBody && !isActivelyDrawing;
   
+  // TEMP: Force show not-allowed when in whiteboard mode (regardless of hover) to test
+  const forceNotAllowed = drawingTarget === 'whiteboard' && !isActivelyDrawing && !selectedSensation;
+  
   console.log('🎯 CustomCursor Debug:', {
     mode,
     drawingTarget, 
     isHoveringBody, 
     isActivelyDrawing, 
     showNotAllowed,
+    forceNotAllowed,
     selectedSensation: !!selectedSensation
   });
 
   // Set the document cursor style based on state
   useEffect(() => {
-    // Also override any canvas cursor styles that might conflict
     const canvas = document.querySelector('canvas');
     
-    if (showNotAllowed) {
-      // Show "not allowed" cursor when trying to draw on body in whiteboard mode (but not while actively drawing)
-      document.body.style.setProperty('cursor', 'not-allowed', 'important');
-      if (canvas) canvas.style.setProperty('cursor', 'not-allowed', 'important');
-      console.log('🚫 Setting not-allowed cursor - whiteboard mode on body');
+    if (forceNotAllowed) {
+      // NUCLEAR OPTION: Clear ALL cursor styles first
+      console.log('🚫 CLEARING ALL CURSORS AND SETTING NOT-ALLOWED');
+      document.body.style.cursor = '';
+      document.body.style.removeProperty('cursor');
+      if (canvas) {
+        canvas.style.cursor = '';
+        canvas.style.removeProperty('cursor');
+      }
+      
+      // Now set not-allowed
+      setTimeout(() => {
+        document.body.style.setProperty('cursor', 'not-allowed', 'important');
+        if (canvas) canvas.style.setProperty('cursor', 'not-allowed', 'important');
+      }, 10);
+      
     } else if (selectedSensation) {
       if (isHoveringBody) {
-        // Force grabby hand when hovering over body with sensation selected
         document.body.style.setProperty('cursor', 'grab', 'important');
         if (canvas) canvas.style.setProperty('cursor', 'grab', 'important');
         console.log('🖱️ Setting grab cursor - hovering body with sensation');
       } else {
-        // Hide default cursor when sensation is selected but not hovering body
         document.body.style.setProperty('cursor', 'none', 'important');
         if (canvas) canvas.style.setProperty('cursor', 'none', 'important');
         console.log('🖱️ Setting none cursor - sensation selected but not hovering');
@@ -72,12 +84,12 @@ export const CustomCursor: React.FC<CustomCursorProps> = ({
     }
 
     return () => {
-      if (showNotAllowed || selectedSensation) {
+      if (forceNotAllowed || selectedSensation) {
         document.body.style.cursor = 'default';
         if (canvas) canvas.style.cursor = 'default';
       }
     };
-  }, [selectedSensation, isHoveringBody, showNotAllowed]);
+  }, [selectedSensation, isHoveringBody, forceNotAllowed]);
 
   // Show custom cursor only for sensations (let browser handle not-allowed cursor)
   if (!selectedSensation) {
