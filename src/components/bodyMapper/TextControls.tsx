@@ -45,19 +45,9 @@ export const TextControls = ({
   const currentText = onTextToPlaceChange ? (textToPlace || localTextToPlace) : localTextToPlace;
 
   return (
-    <div className="space-y-4">
-      {/* Text Mode Button */}
-      <Button
-        variant={mode === 'text' ? 'default' : 'outline'}
-        className="w-full justify-start gap-2"
-        onClick={() => onModeChange(mode === 'text' ? 'draw' : 'text')}
-      >
-        <Type className="w-4 h-4" />
-        Text Tool
-      </Button>
-
+    <>
       {mode === 'text' && (
-        <div className="space-y-4 pl-4 border-l-2 border-border">
+        <div className="space-y-4">
           {/* Text Input */}
           <div className="space-y-2">
             <label className="text-sm font-medium">Text to Place</label>
@@ -151,6 +141,6 @@ export const TextControls = ({
 
         </div>
       )}
-    </div>
+    </>
   );
 };
