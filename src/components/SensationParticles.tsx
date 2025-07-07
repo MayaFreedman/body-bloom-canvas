@@ -287,9 +287,9 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       'Decreased Heart Rate': { min: 160, max: 250 }, // Slow rhythm
       'Statue': { min: 200, max: 300 }, // Very still
       
-      // MEDIUM-SLOW = medium-long lifespan  
-      'Tears': { min: 120, max: 200 }, // Droplets last a while
-      'Sweat': { min: 100, max: 180 }, // Drips persist
+      // MEDIUM-SLOW = medium-long lifespan - LONGER for drips
+      'Tears': { min: 200, max: 350 }, // Tears last much longer for realistic dripping
+      'Sweat': { min: 180, max: 300 }, // Sweat beads last longer for dripping
       'Pain': { min: 100, max: 160 }, // Pain lingers
       'Ache': { min: 110, max: 170 }, // Aches persist
       'Tight': { min: 120, max: 180 }, // Tension holds
@@ -528,6 +528,13 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
               (Math.random() - 0.5) * 0.0008,
               (Math.random() - 0.5) * 0.001
             );
+          } else if (mark.name === 'Tears' || mark.name === 'Sweat') {
+            // Reset velocity for tears and sweat - primarily downward movement
+            particle.velocity.set(
+              (Math.random() - 0.5) * 0.0002, // Very minimal horizontal movement
+              -Math.random() * 0.0003,        // Slight downward start
+              (Math.random() - 0.5) * 0.0001  // Minimal depth movement
+            );
           } else if (mark.icon === 'butterfly') {
             // Reset butterfly velocity with more natural variation
             particle.velocity.set(
@@ -563,9 +570,9 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             'Pacing': { speed: 1.5, intensity: 1.0, pattern: 'wave' }, // Rhythmic movement
             'Stomping': { speed: 1.8, intensity: 1.3, pattern: 'shake' }, // Heavy movement
             
-            // FLOW effects
-            'Tears': { speed: 0.3, intensity: 0.5, pattern: 'drop', gravity: 0.0008, drift: new THREE.Vector3(0, -0.5, 0) },
-            'Sweat': { speed: 0.4, intensity: 0.6, pattern: 'drip', gravity: 0.0006, drift: new THREE.Vector3(0, -0.5, 0) },
+            // FLOW effects - dripping with strong downward movement
+            'Tears': { speed: 0.2, intensity: 0.4, pattern: 'drip', gravity: 0.002, drift: new THREE.Vector3(0, -1.5, 0) },
+            'Sweat': { speed: 0.3, intensity: 0.5, pattern: 'drip', gravity: 0.0015, drift: new THREE.Vector3(0, -1.2, 0) },
             'Change in Breathing': { speed: 0.8, intensity: 0.7, pattern: 'wave', gravity: 0.0001, drift: new THREE.Vector3(0.1, 0.3, 0) },
             'Nausea': { speed: 1.2, intensity: 1.0, pattern: 'swirl', gravity: 0.0002 },
             
@@ -661,6 +668,29 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
           particle.velocity.y += (animProfile.gravity || 0.0002) * delta;
           particle.position.add(particle.velocity);
           particle.velocity.multiplyScalar(0.93);
+          
+        } else if (animProfile.pattern === 'drip') {
+          // Tears and Sweat: realistic dripping with minimal horizontal movement
+          
+          // Apply strong downward drift and gravity
+          if (animProfile.drift) {
+            const driftForce = animProfile.drift.clone().multiplyScalar(0.002 * animProfile.intensity * delta);
+            particle.velocity.add(driftForce);
+          }
+          
+          if (animProfile.gravity) {
+            particle.velocity.y += animProfile.gravity * delta;
+          }
+          
+          // Very minimal side-to-side oscillation for natural drip variation
+          const gentleSway = Math.sin(particle.oscillationPhase * animProfile.speed * 0.5) * 0.0002 * animProfile.intensity;
+          particle.velocity.x += gentleSway * delta;
+          
+          // Apply movement
+          particle.position.add(particle.velocity);
+          
+          // Minimal damping - let gravity do the work
+          particle.velocity.multiplyScalar(0.998);
           
         } else if (mark.icon === 'butterfly') {
           // Butterfly: natural fluttering with fluid movement
