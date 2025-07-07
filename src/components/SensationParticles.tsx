@@ -476,6 +476,8 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
     // Get the appropriate texture for this sensation mark
     const sensationTexture = getSensationTexture(mark.name || mark.icon);
     const normalizedScale = getNormalizedScale(mark.name || mark.icon);
+    
+    console.log('🦋 SensationParticles - About to render', particles.length, 'particles with texture:', sensationTexture, 'scale:', normalizedScale);
 
     return particles.map((particle, index) => {
       const opacity = 1 - (particle.life / particle.maxLife);
