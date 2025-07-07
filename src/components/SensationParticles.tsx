@@ -359,11 +359,12 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
           
           // Update scale and opacity based on particle properties
           const opacity = 1 - (particle.life / particle.maxLife);
+          const normalizedScale = getNormalizedScale(mark.name || mark.icon);
           
           if (mark.icon === 'Activity') {
             const flickerIntensity = 0.4 + Math.sin(particle.flickerPhase!) * 0.5;
             const pulseScale = 1 + Math.sin(particle.electricalPulse!) * 0.8;
-            mesh.scale.setScalar(pulseScale);
+            mesh.scale.setScalar(particle.size * normalizedScale * pulseScale);
             
             // Update material properties for electrical effect
             const material = (mesh as THREE.Mesh).material as THREE.MeshStandardMaterial;
@@ -373,12 +374,21 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             }
           } else if (mark.icon === 'butterfly') {
             const wingScale = 1 + Math.sin(particle.oscillationPhase * 3) * 0.4;
-            mesh.scale.setScalar(particle.size * 1.75 * wingScale); // Reduced from 3.5 to 1.75 (50% reduction)
+            mesh.scale.setScalar(particle.size * normalizedScale * wingScale);
             
             // Update sprite material opacity
             const material = (mesh as any).material;
             if (material) {
               material.opacity = opacity * (0.7 + Math.sin(particle.oscillationPhase * 3) * 0.2);
+            }
+          } else {
+            // Apply normalized scale to all other sensations
+            mesh.scale.setScalar(particle.size * normalizedScale);
+            
+            // Update sprite material opacity
+            const material = (mesh as any).material;
+            if (material) {
+              material.opacity = opacity;
             }
           }
         }
