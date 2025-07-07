@@ -182,46 +182,46 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
     return scaleMapping[sensationName] || 1.0;
   };
 
-  // Get dispersion level based on sensation type (larger for fast-regenerating to avoid overlap)
+  // Get dispersion level based on sensation type (much larger areas for natural spread)
   const getDispersionLevel = (sensationName: string) => {
     const dispersionMap: { [key: string]: number } = {
-      // FAST/JERKY = MUCH larger dispersion to avoid nauseating overlap
-      'Nerves': 0.045,           // Huge dispersion - spreads way out
-      'Shaky': 0.035,            // Large dispersion for rapid trembling
-      'Tingling': 0.030,         // Large dispersion for quick sparkles
-      'Goosebumps': 0.025,       // Medium-large for brief bumps
-      'Fidgety': 0.028,          // Large for restless movement
+      // FAST/JERKY = very large spread across body areas
+      'Nerves': 0.15,            // Spread across entire body region
+      'Shaky': 0.12,             // Large area for trembling
+      'Tingling': 0.10,          // Wide sparkle coverage
+      'Goosebumps': 0.08,        // Goosebumps spread naturally
+      'Fidgety': 0.11,           // Restless across area
       
-      // ACTIVE = larger dispersion for movement visibility
-      'Change in Energy': 0.022, // Large dispersion for energy bursts
-      'Pacing': 0.018,           // Medium-large for movement
-      'Stomping': 0.016,         // Medium for forceful steps
-      'Avoiding Eye Contact': 0.020, // Larger for nervous behavior
-      'Scrunched Face': 0.018,   // Medium-large for facial tension
+      // ACTIVE = large spread for movement visibility
+      'Change in Energy': 0.09,  // Energy across body part
+      'Pacing': 0.07,            // Movement patterns
+      'Stomping': 0.06,          // Foot/leg area coverage
+      'Avoiding Eye Contact': 0.08, // Face/head area
+      'Scrunched Face': 0.06,    // Facial area
       
-      // MEDIUM SPEED = moderate dispersion 
-      'Nausea': 0.014,           // Keep some swirling dispersion
-      'Increased Heart Rate': 0.012, // Medium for fast pulse (but not too spread)
-      'Pain': 0.010,             // Medium dispersion
-      'Change in Breathing': 0.015, // Medium-high for air movement
-      'Ache': 0.009,             // Medium for aches
-      'Clenched': 0.012,         // Medium for muscle tension
-      'Change in Appetite': 0.010, // Medium for appetite changes
+      // MEDIUM SPEED = good spread across body parts
+      'Nausea': 0.08,            // Stomach/torso area
+      'Increased Heart Rate': 0.07, // Chest area coverage
+      'Pain': 0.06,              // Pain area coverage
+      'Change in Breathing': 0.08, // Chest/torso breathing
+      'Ache': 0.05,              // Localized but spread
+      'Clenched': 0.05,          // Muscle area
+      'Change in Appetite': 0.06, // Stomach area
       
-      // MEDIUM-SLOW = smaller dispersion but still spread
-      'Tears': 0.008,            // Moderate for flowing down
-      'Sweat': 0.008,            // Moderate for dripping
-      'Tight': 0.006,            // Smaller for tension
-      'Dry Mouth': 0.006,        // Smaller for persistent dryness
+      // MEDIUM-SLOW = moderate spread
+      'Tears': 0.04,             // Face area for tears
+      'Sweat': 0.06,             // Body area for sweating
+      'Tight': 0.04,             // Tension area
+      'Dry Mouth': 0.03,         // Mouth/throat area
       
-      // VERY SLOW = smallest dispersion (concentrated, slow stamping effect)
-      'Frozen/Stiff': 0.003,     // Small but not overlapping
-      'Heaviness': 0.004,        // Small for weighted feeling
-      'Lump in Throat': 0.005,   // Small for persistent blockage
-      'Relaxed': 0.005,          // Small for calm
-      'Decreased Heart Rate': 0.006 // Small for slow rhythm
+      // VERY SLOW = still spread but smaller
+      'Frozen/Stiff': 0.03,      // Small but visible area
+      'Heaviness': 0.04,         // Weight across area
+      'Lump in Throat': 0.02,    // Throat area
+      'Relaxed': 0.05,           // Calm across area
+      'Decreased Heart Rate': 0.04 // Chest area
     };
-    return dispersionMap[sensationName] || 0.012;
+    return dispersionMap[sensationName] || 0.06;
   };
 
   // Get particle size based on sensation movement type
