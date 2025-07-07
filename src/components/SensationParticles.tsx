@@ -151,7 +151,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       'Pain': 0.8,
       'Nausea': 1.0,
       'Tears': 0.6,
-      'Decreased Temperature': 1.0,
+      'Decreased Temperature': 0.6, // Smaller snowflakes
       'Increased Temperature': 0.9,
       'Increased Heart Rate': 0.8,
       'Decreased Heart Rate': 0.8,
@@ -211,7 +211,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       // MEDIUM-SLOW = moderate spread
       'Tears': 0.04,             // Face area for tears
       'Sweat': 0.10,             // Wider spread for sweating
-      'Decreased Temperature': 0.12, // Wider spread for snow-like falling
+      'Decreased Temperature': 0.15, // Even wider spread for more dispersed snow
       'Tight': 0.04,             // Tension area
       'Dry Mouth': 0.03,         // Mouth/throat area
       
@@ -347,7 +347,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             // SLOW = fewer particles, longer lasting
             'Relaxed': 6,               // Calm, fewer particles
             'Decreased Heart Rate': 5,  // Slow, large beats
-            'Decreased Temperature': 12, // Snow particles - medium count for dispersed effect
+            'Decreased Temperature': 16, // More snow particles for better coverage
             
             // MEDIUM-SLOW = medium count
             'Tears': 8,                 // Droplets
@@ -614,7 +614,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             // FLOW effects - dripping with strong downward movement (negative Y = down)
             'Tears': { speed: 0.2, intensity: 0.4, pattern: 'drip', gravity: 0.0002, drift: new THREE.Vector3(0, -0.15, 0) },
             'Sweat': { speed: 0.3, intensity: 0.5, pattern: 'drip', gravity: 0.00015, drift: new THREE.Vector3(0, -0.12, 0) },
-            'Decreased Temperature': { speed: 0.1, intensity: 0.3, pattern: 'drip', gravity: 0.0001, drift: new THREE.Vector3(0, -0.08, 0) },
+            'Decreased Temperature': { speed: 0.4, intensity: 0.5, pattern: 'drip', gravity: 0.0002, drift: new THREE.Vector3(0, -0.12, 0) },
             'Change in Breathing': { speed: 0.8, intensity: 0.7, pattern: 'wave', gravity: 0.0001, drift: new THREE.Vector3(0.1, 0.3, 0) },
             'Nausea': { speed: 1.2, intensity: 1.0, pattern: 'swirl', gravity: 0.0002 },
             
