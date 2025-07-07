@@ -51,20 +51,10 @@ export const CustomCursor: React.FC<CustomCursorProps> = ({
     const canvas = document.querySelector('canvas');
     
     if (forceNotAllowed) {
-      // NUCLEAR OPTION: Clear ALL cursor styles first
-      console.log('🚫 CLEARING ALL CURSORS AND SETTING NOT-ALLOWED');
-      document.body.style.cursor = '';
-      document.body.style.removeProperty('cursor');
-      if (canvas) {
-        canvas.style.cursor = '';
-        canvas.style.removeProperty('cursor');
-      }
-      
-      // Now set not-allowed
-      setTimeout(() => {
-        document.body.style.setProperty('cursor', 'not-allowed', 'important');
-        if (canvas) canvas.style.setProperty('cursor', 'not-allowed', 'important');
-      }, 10);
+      // HIDE browser cursor entirely and show custom not-allowed cursor
+      console.log('🚫 HIDING BROWSER CURSOR - showing custom not-allowed');
+      document.body.style.setProperty('cursor', 'none', 'important');
+      if (canvas) canvas.style.setProperty('cursor', 'none', 'important');
       
     } else if (selectedSensation) {
       if (isHoveringBody) {
@@ -91,12 +81,12 @@ export const CustomCursor: React.FC<CustomCursorProps> = ({
     };
   }, [selectedSensation, isHoveringBody, forceNotAllowed]);
 
-  // Show custom cursor only for sensations (let browser handle not-allowed cursor)
-  if (!selectedSensation) {
+  // Show custom cursor for sensations OR not-allowed state
+  if (!selectedSensation && !forceNotAllowed) {
     return null;
   }
 
-  const sensationImage = getSensationImage(selectedSensation.name);
+  const sensationImage = selectedSensation ? getSensationImage(selectedSensation.name) : null;
 
   return (
     <div
@@ -104,20 +94,27 @@ export const CustomCursor: React.FC<CustomCursorProps> = ({
       style={{
         left: cursorPosition.x,
         top: cursorPosition.y,
-        transform: isHoveringBody ? 'translate(-12px, -12px)' : 'translate(-16px, -16px)',
-        opacity: isHoveringBody ? 0.8 : 1
+        transform: (isHoveringBody || forceNotAllowed) ? 'translate(-12px, -12px)' : 'translate(-16px, -16px)',
+        opacity: (isHoveringBody || forceNotAllowed) ? 0.8 : 1
       }}
     >
       <div className="relative">
-        {/* Sensation icon */}
-        <img
-          src={sensationImage}
-          alt={selectedSensation.name}
-          className={`w-8 h-8 object-contain ${isHoveringBody ? 'w-6 h-6' : ''} transition-all duration-150`}
-          style={{
-            filter: isHoveringBody ? 'drop-shadow(2px 2px 4px rgba(0,0,0,0.3))' : 'drop-shadow(1px 1px 2px rgba(0,0,0,0.2))'
-          }}
-        />
+        {forceNotAllowed ? (
+          // Custom "Not allowed" cursor - circle with cross
+          <div className="w-6 h-6 bg-destructive/90 rounded-full flex items-center justify-center border-2 border-destructive backdrop-blur-sm shadow-lg">
+            <X className="w-3 h-3 text-destructive-foreground" strokeWidth={3} />
+          </div>
+        ) : selectedSensation && sensationImage ? (
+          // Sensation icon
+          <img
+            src={sensationImage}
+            alt={selectedSensation.name}
+            className={`w-8 h-8 object-contain ${isHoveringBody ? 'w-6 h-6' : ''} transition-all duration-150`}
+            style={{
+              filter: isHoveringBody ? 'drop-shadow(2px 2px 4px rgba(0,0,0,0.3))' : 'drop-shadow(1px 1px 2px rgba(0,0,0,0.2))'
+            }}
+          />
+        ) : null}
       </div>
     </div>
   );
