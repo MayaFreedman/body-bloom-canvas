@@ -30,7 +30,15 @@ export const HoverDetector = ({ onHoverChange }: HoverDetectorProps) => {
     const bodyMeshes = getBodyMeshes();
     const intersects = raycaster.intersectObjects(bodyMeshes, false);
 
-    onHoverChange(intersects.length > 0);
+    const isHovering = intersects.length > 0;
+    console.log('🎯 HoverDetector:', {
+      bodyMeshesCount: bodyMeshes.length,
+      intersectsCount: intersects.length,
+      isHovering,
+      mousePos: { x: mouse.x, y: mouse.y }
+    });
+
+    onHoverChange(isHovering);
   }, [camera, gl, raycaster, mouse, getBodyMeshes, onHoverChange]);
 
   useEffect(() => {
