@@ -4,6 +4,36 @@ import { Sparkles, Activity, Zap, Wind, Droplet, Snowflake, Thermometer, Heart, 
 import { bodySensations } from '@/constants/bodyMapperConstants';
 import { BodyMapperMode, SelectedSensation } from '@/types/bodyMapperTypes';
 
+// Import particle effect images for previews
+import butterflyImg from '@/Assets/particleEffects/butterfly.png';
+import painImg from '@/Assets/particleEffects/pain.png';
+import swirlImg from '@/Assets/particleEffects/swirl.png';
+import waterImg from '@/Assets/particleEffects/water.png';
+import snowflakesImg from '@/Assets/particleEffects/snowflakes.png';
+import fireImg from '@/Assets/particleEffects/fire.png';
+import heartImg from '@/Assets/particleEffects/heart.png';
+import zzzImg from '@/Assets/particleEffects/zzz.png';
+import windImg from '@/Assets/particleEffects/wind.png';
+import starImg from '@/Assets/particleEffects/star.png';
+import shakeImg from '@/Assets/particleEffects/shake.png';
+import feetImg from '@/Assets/particleEffects/feet.png';
+import feetredImg from '@/Assets/particleEffects/feetred.png';
+import nauticalKnotImg from '@/Assets/particleEffects/nautical-knot.png';
+import frogImg from '@/Assets/particleEffects/frog.png';
+import plateImg from '@/Assets/particleEffects/plate.png';
+import stoneImg from '@/Assets/particleEffects/stone.png';
+import fidgetSpinnerImg from '@/Assets/particleEffects/fidget-spinner.png';
+import statueImg from '@/Assets/particleEffects/statue.png';
+import snailImg from '@/Assets/particleEffects/snail.png';
+import desertImg from '@/Assets/particleEffects/desert.png';
+import clenchedFistImg from '@/Assets/particleEffects/clenched-fist.png';
+import lightbulbImg from '@/Assets/particleEffects/lightbulb.png';
+import monkeyImg from '@/Assets/particleEffects/monkey.png';
+import wavyImg from '@/Assets/particleEffects/wavy.png';
+import goosebumpImg from '@/Assets/particleEffects/goosebump.png';
+import relaxImg from '@/Assets/particleEffects/relax.png';
+import sweatImg from '@/Assets/particleEffects/sweat.png';
+
 interface SensationSelectorProps {
   mode: BodyMapperMode;
   selectedSensation: SelectedSensation | null;
@@ -13,6 +43,44 @@ interface SensationSelectorProps {
 
 const iconComponents = {
   Activity, Zap, Wind, Droplet, Snowflake, Thermometer, Heart, Star, Sparkles
+};
+
+// Map sensation names to their corresponding images
+const getSensationImage = (sensationName: string) => {
+  const imageMapping: { [key: string]: string } = {
+    'Nerves': butterflyImg,
+    'Pain': painImg,
+    'Nausea': swirlImg,
+    'Tears': waterImg,
+    'Decreased Temperature': snowflakesImg,
+    'Increased Temperature': fireImg,
+    'Increased Heart Rate': heartImg,
+    'Decreased Heart Rate': heartImg,
+    'Tired': zzzImg,
+    'Change in Breathing': windImg,
+    'Tingling': starImg,
+    'Shaky': shakeImg,
+    'Pacing': feetImg,
+    'Stomping': feetredImg,
+    'Tight': nauticalKnotImg,
+    'Lump in Throat': frogImg,
+    'Change in Appetite': plateImg,
+    'Heaviness': stoneImg,
+    'Fidgety': fidgetSpinnerImg,
+    'Frozen/Stiff': statueImg,
+    'Ache': painImg,
+    'Feeling Small': snailImg,
+    'Dry Mouth': desertImg,
+    'Clenched': clenchedFistImg,
+    'Change in Energy': lightbulbImg,
+    'Avoiding Eye Contact': monkeyImg,
+    'Scrunched Face': wavyImg,
+    'Goosebumps': goosebumpImg,
+    'Relaxed': relaxImg,
+    'Sweat': sweatImg
+  };
+  
+  return imageMapping[sensationName] || starImg;
 };
 
 export const SensationSelector = ({ mode, selectedSensation, onModeChange, onSensationChange }: SensationSelectorProps) => {
@@ -56,23 +124,11 @@ export const SensationSelector = ({ mode, selectedSensation, onModeChange, onSen
                 onModeChange('sensations');
               }}
             >
-              {sensation.icon === 'butterfly' ? (
-                <img 
-                  src="/lovable-uploads/b0a2add0-f14a-40a7-add9-b5efdb14a891.png" 
-                  alt="Butterfly"
-                  className={`w-6 h-6 mb-2 ${isSelected ? 'opacity-100' : 'opacity-80'}`}
-                />
-              ) : (
-                (() => {
-                  const IconComponent = iconComponents[sensation.icon as keyof typeof iconComponents];
-                  return IconComponent ? (
-                    <IconComponent 
-                      className={`w-6 h-6 mb-2 ${isSelected ? 'text-green-600' : ''}`} 
-                      style={{ color: isSelected ? '#16a34a' : sensation.color }} 
-                    />
-                  ) : null;
-                })()
-              )}
+              <img 
+                src={getSensationImage(sensation.name)} 
+                alt={sensation.name}
+                className={`w-6 h-6 mb-2 object-contain ${isSelected ? 'opacity-100' : 'opacity-80'}`}
+              />
               <span className={`text-xs text-center ${isSelected ? 'text-green-600 font-medium' : 'text-gray-600'}`}>
                 {sensation.name}
               </span>

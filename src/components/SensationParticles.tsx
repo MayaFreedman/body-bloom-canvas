@@ -138,6 +138,44 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
     return textureMap[textureKey];
   };
 
+  // Get normalized scale for different textures
+  const getNormalizedScale = (sensationName: string) => {
+    const scaleMapping: { [key: string]: number } = {
+      'Nerves': 1.2,
+      'Pain': 0.8,
+      'Nausea': 1.0,
+      'Tears': 0.6,
+      'Decreased Temperature': 1.0,
+      'Increased Temperature': 0.9,
+      'Increased Heart Rate': 0.8,
+      'Decreased Heart Rate': 0.8,
+      'Tired': 1.1,
+      'Change in Breathing': 1.0,
+      'Tingling': 0.7,
+      'Shaky': 1.0,
+      'Pacing': 1.2,
+      'Stomping': 1.2,
+      'Tight': 1.0,
+      'Lump in Throat': 1.0,
+      'Change in Appetite': 1.0,
+      'Heaviness': 0.9,
+      'Fidgety': 1.0,
+      'Frozen/Stiff': 1.1,
+      'Ache': 0.8,
+      'Feeling Small': 0.9,
+      'Dry Mouth': 1.0,
+      'Clenched': 0.9,
+      'Change in Energy': 0.9,
+      'Avoiding Eye Contact': 1.0,
+      'Scrunched Face': 1.0,
+      'Goosebumps': 1.0,
+      'Relaxed': 1.0,
+      'Sweat': 0.8
+    };
+    
+    return scaleMapping[sensationName] || 1.0;
+  };
+
   // Create particle system for each sensation mark
   const particleSystems = useMemo(() => {
     const systems: { [key: string]: SensationParticle[] } = {};
@@ -358,9 +396,11 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
 
     // Get the appropriate texture for this sensation mark
     const sensationTexture = getSensationTexture(mark.name || mark.icon);
+    const normalizedScale = getNormalizedScale(mark.name || mark.icon);
 
     return particles.map((particle, index) => {
       const opacity = 1 - (particle.life / particle.maxLife);
+      const finalScale = particle.size * 1.5 * normalizedScale;
       
       // Use sprites for all sensation types with their appropriate textures
       return (
@@ -368,7 +408,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
           key={`${mark.id}-${index}`}
           ref={(ref) => { if (ref) meshes[index] = ref; }}
           position={particle.position} 
-          scale={[particle.size * 1.5, particle.size * 1.5, 1]}
+          scale={[finalScale, finalScale, 1]}
           rotation={[0, 0, particle.rotation]}
         >
           <spriteMaterial 
