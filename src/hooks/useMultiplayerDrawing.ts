@@ -43,7 +43,7 @@ export const useMultiplayerDrawing = (
       worldPoint.worldPosition.y,
       worldPoint.worldPosition.z
     );
-    optimizedProcessing.addStrokePoint(worldPosition, worldPoint.bodyPart);
+    optimizedProcessing.addStrokePoint(worldPosition, worldPoint.bodyPart, worldPoint.whiteboardRegion);
   }, [optimizedProcessing]);
 
   const finishDrawingStroke = useCallback(() => {

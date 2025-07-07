@@ -10,9 +10,22 @@ export const useOptimizedStrokeProcessing = () => {
   const currentStrokePoints = useRef<StrokeKeyPoint[]>([]);
   const lastPointRef = useRef<StrokeKeyPoint | null>(null);
 
-  const addStrokePoint = useCallback((worldPosition: THREE.Vector3, bodyPart: string) => {
-    const validatedPoint = validateStrokePoint(worldPosition, bodyPart);
-    if (!validatedPoint) return;
+  const addStrokePoint = useCallback((worldPosition: THREE.Vector3, bodyPart?: string, whiteboardRegion?: string) => {
+    // Create point based on surface type
+    const surface: 'body' | 'whiteboard' = bodyPart ? 'body' : 'whiteboard';
+    
+    const validatedPoint: StrokeKeyPoint = {
+      id: `key-${Date.now()}-${Math.random()}`,
+      worldPosition: {
+        x: worldPosition.x,
+        y: worldPosition.y,
+        z: worldPosition.z
+      },
+      bodyPart: bodyPart,
+      whiteboardRegion: whiteboardRegion,
+      surface: surface,
+      timestamp: Date.now()
+    };
 
     if (shouldIncludePoint(validatedPoint, lastPointRef.current)) {
       currentStrokePoints.current.push(validatedPoint);

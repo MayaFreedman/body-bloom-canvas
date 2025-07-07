@@ -113,7 +113,7 @@ export const BodyMapperCanvas = ({
           <WhiteboardPlane visible={drawingTarget === 'whiteboard'} />
           
           {/* Render drawing marks as children of the model group so they rotate with it */}
-          {drawingMarks.map((mark) => (
+          {drawingMarks.filter(mark => mark.surface !== 'whiteboard').map((mark) => (
             <mesh key={mark.id} position={mark.position}>
               <sphereGeometry args={[mark.size, 8, 8]} />
               <meshBasicMaterial color={mark.color} />      
@@ -123,6 +123,14 @@ export const BodyMapperCanvas = ({
           {/* Render sensation particles as children of the model group */}
           <SensationParticles sensationMarks={sensationMarks} />
         </group>
+        
+        {/* Render whiteboard marks outside the model group so they don't rotate */}
+        {drawingMarks.filter(mark => mark.surface === 'whiteboard').map((mark) => (
+          <mesh key={mark.id} position={mark.position}>
+            <sphereGeometry args={[mark.size, 8, 8]} />
+            <meshBasicMaterial color={mark.color} />      
+          </mesh>
+        ))}
         
         <ModelDrawing
           isDrawing={mode === 'draw'}

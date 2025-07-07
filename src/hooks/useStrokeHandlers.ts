@@ -75,6 +75,12 @@ export const useStrokeHandlers = ({
         console.warn('⚠️ Missing stroke metadata, using defaults:', metadata);
       }
 
+      // Determine surface type from first key point
+      const firstKeyPoint = optimizedStroke.keyPoints[0];
+      const surface = firstKeyPoint.surface || 'body'; // Fallback to body for legacy strokes
+      
+      console.log('🎨 Processing', surface, 'stroke with', optimizedStroke.keyPoints.length, 'key points');
+
       const reconstructedPoints = multiplayer.reconstructStroke(optimizedStroke);
       console.log('🎨 Reconstructed', reconstructedPoints.length, 'points from', optimizedStroke.keyPoints.length, 'key points');
       
@@ -89,11 +95,18 @@ export const useStrokeHandlers = ({
           return null;
         }
 
-        const localPos = new THREE.Vector3();
+        let localPos = new THREE.Vector3();
+        
         try {
-          modelGroup.worldToLocal(localPos.copy(worldPos));
+          if (surface === 'whiteboard') {
+            // For whiteboard, use world coordinates directly
+            localPos.copy(worldPos);
+          } else {
+            // For body, convert to model local space
+            modelGroup.worldToLocal(localPos.copy(worldPos));
+          }
         } catch (error) {
-          console.error('❌ Error converting world to local position:', error);
+          console.error('❌ Error converting position for', surface, ':', error);
           return null;
         }
         
@@ -104,7 +117,8 @@ export const useStrokeHandlers = ({
           size: Math.max(0.001, Math.min(0.1, metadata.size / 200)),
           strokeId: `${optimizedStroke.id}`,
           timestamp: Date.now() + index,
-          userId: optimizedStroke.playerId || 'unknown'
+          userId: optimizedStroke.playerId || 'unknown',
+          surface: surface, // Add surface information to mark
         };
       }).filter(mark => mark !== null) as DrawingMark[];
       
@@ -116,6 +130,7 @@ export const useStrokeHandlers = ({
       const completeStroke = {
         id: `${optimizedStroke.id}`,
         marks: marks,
+        surface: surface, // Add surface information to stroke
         startTime: metadata.startTime || Date.now() - 1000,
         endTime: metadata.endTime || Date.now(),
         brushSize: Math.max(1, Math.min(20, metadata.size || 3)),
@@ -184,6 +199,12 @@ export const useStrokeHandlers = ({
       
       const marks: DrawingMark[] = [];
       
+      // Determine surface from first point
+      const firstPoint: WorldDrawingPoint = stroke.points[0];
+      const surface = firstPoint?.surface || 'body'; // Fallback to body for legacy strokes
+      
+      console.log('🎨 Processing legacy', surface, 'stroke with', stroke.points.length, 'points');
+      
       for (let i = 0; i < stroke.points.length; i++) {
         const currentPoint: WorldDrawingPoint = stroke.points[i];
         
@@ -198,11 +219,17 @@ export const useStrokeHandlers = ({
           currentPoint.worldPosition.z || 0
         );
         
-        const localPos = new THREE.Vector3();
+        let localPos = new THREE.Vector3();
         try {
-          modelGroup.worldToLocal(localPos.copy(worldPos));
+          if (surface === 'whiteboard') {
+            // For whiteboard, use world coordinates directly
+            localPos.copy(worldPos);
+          } else {
+            // For body, convert to model local space
+            modelGroup.worldToLocal(localPos.copy(worldPos));
+          }
         } catch (error) {
-          console.error('❌ Error converting world to local position:', error);
+          console.error('❌ Error converting position for', surface, ':', error);
           continue;
         }
         
@@ -213,12 +240,14 @@ export const useStrokeHandlers = ({
           size: Math.max(0.001, Math.min(0.1, (currentPoint.size || 3) / 200)),
           strokeId: `${stroke.id}`,
           timestamp: Date.now() + i,
-          userId: stroke.playerId || 'unknown'
+          userId: stroke.playerId || 'unknown',
+          surface: surface
         };
         
         marks.push(mark);
         
-        if (i < stroke.points.length - 1) {
+        // For legacy strokes, only interpolate on body surface (skip whiteboard interpolation for legacy)
+        if (surface === 'body' && i < stroke.points.length - 1) {
           const nextPoint: WorldDrawingPoint = stroke.points[i + 1];
           if (nextPoint && nextPoint.worldPosition && currentPoint.bodyPart === nextPoint.bodyPart) {
             const nextWorldPos = new THREE.Vector3(
@@ -247,7 +276,8 @@ export const useStrokeHandlers = ({
                     size: Math.max(0.001, Math.min(0.1, (currentPoint.size || 3) / 200)),
                     strokeId: `${stroke.id}`,
                     timestamp: Date.now() + i * 100 + j,
-                    userId: stroke.playerId || 'unknown'
+                    userId: stroke.playerId || 'unknown',
+                    surface: surface
                   };
                   marks.push(interpolatedMark);
                 } catch (error) {
@@ -267,6 +297,7 @@ export const useStrokeHandlers = ({
       const completeStroke = {
         id: `${stroke.id}`,
         marks: marks,
+        surface: surface,
         startTime: Date.now() - 1000,
         endTime: Date.now(),
         brushSize: Math.max(1, Math.min(20, stroke.points[0]?.size || 3)),

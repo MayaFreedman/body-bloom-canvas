@@ -6,6 +6,10 @@ export interface DrawingMark {
   position: THREE.Vector3;
   color: string;
   size: number;
+  surface?: 'body' | 'whiteboard';
+  strokeId?: string;
+  timestamp?: number;
+  userId?: string;
 }
 
 export interface SensationMark {

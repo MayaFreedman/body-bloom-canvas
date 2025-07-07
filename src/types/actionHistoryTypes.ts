@@ -8,12 +8,14 @@ export interface DrawingMark {
   size: number;
   timestamp: number;
   strokeId: string;
+  surface?: 'body' | 'whiteboard';
   userId?: string; // Keep for drawing tracking but not for undo/redo
 }
 
 export interface DrawingStroke {
   id: string;
   marks: DrawingMark[];
+  surface?: 'body' | 'whiteboard';
   startTime: number;
   endTime: number;
   brushSize: number;

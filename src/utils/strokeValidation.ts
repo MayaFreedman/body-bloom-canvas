@@ -22,6 +22,7 @@ export const validateStrokePoint = (worldPosition: THREE.Vector3, bodyPart: stri
         z: worldPosition.z
       },
       bodyPart,
+      surface: 'body', // Default to body for existing validation
       timestamp: Date.now()
     };
   } catch (error) {

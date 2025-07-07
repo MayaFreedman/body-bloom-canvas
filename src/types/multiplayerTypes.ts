@@ -15,7 +15,9 @@ export interface WorldDrawingPoint {
 export interface StrokeKeyPoint {
   id: string;
   worldPosition: { x: number; y: number; z: number };
-  bodyPart: string;
+  bodyPart?: string;
+  whiteboardRegion?: string;
+  surface: 'body' | 'whiteboard';
   timestamp: number;
   isDirectionChange?: boolean;
 }
