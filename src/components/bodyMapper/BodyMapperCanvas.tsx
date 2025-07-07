@@ -35,6 +35,8 @@ interface BodyMapperCanvasProps {
   isActivelyDrawing?: boolean;
   textMarks?: TextMark[];
   editingTextId?: string | null;
+  textToPlace?: string;
+  textSettings?: any;
   modelRef: React.RefObject<THREE.Group>;
   onAddDrawingMark: (mark: DrawingMark) => void;
   onDrawingStrokeStart: () => void;
@@ -67,6 +69,8 @@ export const BodyMapperCanvas = ({
   isActivelyDrawing = false,
   textMarks = [],
   editingTextId,
+  textToPlace = '',
+  textSettings,
   modelRef,
   onAddDrawingMark,
   onDrawingStrokeStart,
@@ -225,6 +229,9 @@ export const BodyMapperCanvas = ({
         mode={mode}
         drawingTarget={drawingTarget}
         isActivelyDrawing={isActivelyDrawing}
+        textToPlace={textToPlace}
+        textSettings={textSettings}
+        selectedColor={selectedColor}
       />
       
       {/* Inline Text Editor */}

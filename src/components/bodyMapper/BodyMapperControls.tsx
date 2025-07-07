@@ -26,6 +26,7 @@ interface BodyMapperControlsProps {
   brushSize: number[];
   selectedSensation: SelectedSensation | null;
   textSettings?: TextSettings;
+  textToPlace?: string;
   onModeChange: (mode: BodyMapperMode) => void;
   onColorChange: (color: string) => void;
   onBrushSizeChange: (size: number[]) => void;
@@ -186,6 +187,19 @@ export const BodyMapperControls = React.forwardRef<
           onDeleteColor={handleDeleteColor}
           onBrushSizeChange={onBrushSizeChange}
         />
+        
+        {/* Text Controls in Feelings Tab */}
+        {textSettings && onTextSettingsChange && (
+          <div className="mt-6">
+            <TextControls
+              mode={mode}
+              textSettings={textSettings}
+              selectedColor={selectedColor}
+              onModeChange={onModeChange}
+              onTextSettingsChange={onTextSettingsChange}
+            />
+          </div>
+        )}
       </div>
 
       {/* Body Sensations and Signals Tab Content */}
@@ -198,18 +212,6 @@ export const BodyMapperControls = React.forwardRef<
         />
       </div>
 
-      {/* Text Tab Content */}
-      <div className={`tab-content ${activeTab === 'text' ? 'active' : ''}`}>
-        {textSettings && onTextSettingsChange && (
-          <TextControls
-            mode={mode}
-            textSettings={textSettings}
-            selectedColor={selectedColor}
-            onModeChange={onModeChange}
-            onTextSettingsChange={onTextSettingsChange}
-          />
-        )}
-      </div>
     </TabContainer>
   );
 });

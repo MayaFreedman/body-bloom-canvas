@@ -6,12 +6,13 @@ import { BodyMapperMode } from '@/types/bodyMapperTypes';
 interface PaintingModeSelectorProps {
   mode: BodyMapperMode;
   onModeChange: (mode: BodyMapperMode) => void;
+  title?: string;
 }
 
-export const PaintingModeSelector = ({ mode, onModeChange }: PaintingModeSelectorProps) => {
+export const PaintingModeSelector = ({ mode, onModeChange, title = "Painting Mode" }: PaintingModeSelectorProps) => {
   return (
     <div className="mb-6">
-      <h4 className="font-semibold text-gray-800 mb-3">Painting Mode</h4>
+      <h4 className="font-semibold text-gray-800 mb-3">{title}</h4>
       <div className="flex space-x-2">
         <button
           className={`game-button-primary ${mode === 'draw' ? 'opacity-100' : 'opacity-70'}`}

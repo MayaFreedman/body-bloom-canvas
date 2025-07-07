@@ -9,15 +9,20 @@ interface CustomCursorProps {
   mode?: string;
   drawingTarget?: 'body' | 'whiteboard';
   isActivelyDrawing?: boolean;
+  textToPlace?: string;
+  textSettings?: any;
+  selectedColor?: string;
 }
-
 
 export const CustomCursor: React.FC<CustomCursorProps> = ({ 
   selectedSensation, 
   isHoveringBody, 
   mode = 'select', 
   drawingTarget = 'body',
-  isActivelyDrawing = false
+  isActivelyDrawing = false,
+  textToPlace = '',
+  textSettings,
+  selectedColor = '#000000'
 }) => {
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
 
@@ -56,10 +61,10 @@ export const CustomCursor: React.FC<CustomCursorProps> = ({
         console.log('🖱️ Setting none cursor - sensation selected but not hovering');
       }
     } else if (mode === 'text') {
-      // Show text cursor when in text mode
-      document.body.style.setProperty('cursor', 'text', 'important');
-      if (canvas) canvas.style.setProperty('cursor', 'text', 'important');
-      console.log('🖱️ Setting text cursor - text mode');
+      // Hide default cursor when in text mode (we show custom cursor)
+      document.body.style.setProperty('cursor', 'none', 'important');
+      if (canvas) canvas.style.setProperty('cursor', 'none', 'important');
+      console.log('🖱️ Setting none cursor - text mode');
     } else {
       // Default cursor when no sensation selected
       document.body.style.setProperty('cursor', 'default', 'important');
@@ -73,34 +78,66 @@ export const CustomCursor: React.FC<CustomCursorProps> = ({
     };
   }, [selectedSensation, isHoveringBody, showNotAllowed, mode]);
 
-  // Show custom cursor only for sensations (let browser handle not-allowed cursor)
-  if (!selectedSensation) {
+  // Show custom cursor for sensations OR text mode
+  if (!selectedSensation && mode !== 'text') {
     return null;
   }
 
-  const sensationImage = getSensationImage(selectedSensation.name);
-
-  return (
-    <div
-      className="fixed pointer-events-none z-[9999] transition-opacity duration-150"
-      style={{
-        left: cursorPosition.x,
-        top: cursorPosition.y,
-        transform: isHoveringBody ? 'translate(-12px, -12px)' : 'translate(-16px, -16px)',
-        opacity: isHoveringBody ? 0.8 : 1
-      }}
-    >
-      <div className="relative">
-        {/* Sensation icon */}
-        <img
-          src={sensationImage}
-          alt={selectedSensation.name}
-          className={`w-8 h-8 object-contain ${isHoveringBody ? 'w-6 h-6' : ''} transition-all duration-150`}
+  // For text mode, show text preview
+  if (mode === 'text' && textToPlace.trim()) {
+    return (
+      <div
+        className="fixed pointer-events-none z-[9999] transition-opacity duration-150"
+        style={{
+          left: cursorPosition.x,
+          top: cursorPosition.y,
+          transform: 'translate(-50%, -100%)',
+          opacity: isHoveringBody ? 0.8 : 1
+        }}
+      >
+        <div 
+          className="bg-background border border-border rounded px-2 py-1 shadow-lg text-sm max-w-[200px] truncate"
           style={{
-            filter: isHoveringBody ? 'drop-shadow(2px 2px 4px rgba(0,0,0,0.3))' : 'drop-shadow(1px 1px 2px rgba(0,0,0,0.2))'
+            fontFamily: textSettings?.fontFamily || 'Arial',
+            fontSize: '12px',
+            fontWeight: textSettings?.fontWeight || 'normal',
+            fontStyle: textSettings?.fontStyle || 'normal',
+            color: selectedColor
           }}
-        />
+        >
+          {textToPlace}
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
+
+  // For sensations, show the sensation icon
+  if (selectedSensation) {
+    const sensationImage = getSensationImage(selectedSensation.name);
+
+    return (
+      <div
+        className="fixed pointer-events-none z-[9999] transition-opacity duration-150"
+        style={{
+          left: cursorPosition.x,
+          top: cursorPosition.y,
+          transform: isHoveringBody ? 'translate(-12px, -12px)' : 'translate(-16px, -16px)',
+          opacity: isHoveringBody ? 0.8 : 1
+        }}
+      >
+        <div className="relative">
+          <img
+            src={sensationImage}
+            alt={selectedSensation.name}
+            className={`w-8 h-8 object-contain ${isHoveringBody ? 'w-6 h-6' : ''} transition-all duration-150`}
+            style={{
+              filter: isHoveringBody ? 'drop-shadow(2px 2px 4px rgba(0,0,0,0.3))' : 'drop-shadow(1px 1px 2px rgba(0,0,0,0.2))'
+            }}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  return null;
 };
