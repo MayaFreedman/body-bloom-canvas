@@ -31,9 +31,9 @@ export const HumanModel = ({ bodyPartColors = {} }: HumanModelProps) => {
   const { scene } = useGLTF('/body.glb');
   const originalColors = useRef<{ [key: string]: string }>({});
 
-  // Subtle breathing animation
+  // Subtle breathing animation - slower and more gentle
   useFrame((state) => {
-    const breathe = Math.sin(state.clock.elapsedTime * 0.5) * 0.02 + 1;
+    const breathe = Math.sin(state.clock.elapsedTime * 0.15) * 0.008 + 1;
     if (groupRef.current) {
       groupRef.current.scale.setScalar(breathe);
     }
