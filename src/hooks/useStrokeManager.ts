@@ -94,6 +94,14 @@ export const useStrokeManager = ({ currentUserId }: UseStrokeManagerProps) => {
     return allMarks.sort((a, b) => a.timestamp - b.timestamp);
   }, [completedStrokes, currentStroke]);
 
+  const getAllStrokes = useCallback((): DrawingStroke[] => {
+    const allStrokes = [...completedStrokes];
+    if (currentStroke) {
+      allStrokes.push(currentStroke);
+    }
+    return allStrokes;
+  }, [completedStrokes, currentStroke]);
+
   const getMarksByUser = useCallback((userId: string): DrawingMark[] => {
     return getAllMarks().filter(mark => mark.userId === userId);
   }, [getAllMarks]);
@@ -108,6 +116,7 @@ export const useStrokeManager = ({ currentUserId }: UseStrokeManagerProps) => {
     restoreStroke,
     removeStrokesByUser,
     getAllMarks,
+    getAllStrokes,
     getMarksByUser
   };
 };
