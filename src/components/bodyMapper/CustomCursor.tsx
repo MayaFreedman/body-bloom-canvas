@@ -40,6 +40,7 @@ export const CustomCursor: React.FC<CustomCursorProps> = ({
     
     if (showNotAllowed) {
       // Show "not allowed" cursor when trying to draw on body in whiteboard mode (but not while actively drawing)
+      // Use !important to override any other cursor settings (like crosshair from drawing handlers)
       document.body.style.setProperty('cursor', 'not-allowed', 'important');
       if (canvas) canvas.style.setProperty('cursor', 'not-allowed', 'important');
       console.log('🚫 Setting not-allowed cursor - whiteboard mode on body');
@@ -56,15 +57,18 @@ export const CustomCursor: React.FC<CustomCursorProps> = ({
         console.log('🖱️ Setting none cursor - sensation selected but not hovering');
       }
     } else {
-      // Default cursor when no sensation selected
-      document.body.style.setProperty('cursor', 'default', 'important');
-      if (canvas) canvas.style.setProperty('cursor', 'default', 'important');
-      console.log('🖱️ Setting default cursor - no sensation selected');
+      // Allow other cursor handlers to take precedence when no sensation selected and not showing not-allowed
+      document.body.style.removeProperty('cursor');
+      if (canvas) canvas.style.removeProperty('cursor');
+      console.log('🖱️ Removing cursor override - letting other handlers control');
     }
 
     return () => {
-      document.body.style.cursor = 'default';
-      if (canvas) canvas.style.cursor = 'default';
+      // Only reset if we were controlling the cursor
+      if (showNotAllowed || selectedSensation) {
+        document.body.style.cursor = 'default';
+        if (canvas) canvas.style.cursor = 'default';
+      }
     };
   }, [selectedSensation, isHoveringBody, showNotAllowed]);
 
