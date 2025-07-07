@@ -17,6 +17,7 @@ interface MultiplayerMessageHandlerProps {
   onIncomingUndo?: () => void;
   onIncomingRedo?: () => void;
   onIncomingErase?: (center: THREE.Vector3, radius: number) => void;
+  onIncomingSensation?: (sensationMark: SensationMark) => void;
 }
 
 export const MultiplayerMessageHandler = ({
@@ -31,7 +32,8 @@ export const MultiplayerMessageHandler = ({
   onIncomingOptimizedStroke,
   onIncomingUndo,
   onIncomingRedo,
-  onIncomingErase
+  onIncomingErase,
+  onIncomingSensation
 }: MultiplayerMessageHandlerProps) => {
   // Store the unsubscribe function returned by onMessage
   const unsubscribeRef = useRef<(() => void) | null>(null);
@@ -147,7 +149,13 @@ export const MultiplayerMessageHandler = ({
                 size: sensation.size || 0.1
               };
               console.log('✨ Adding sensation mark:', newSensationMark);
-              setSensationMarks(prev => [...prev, newSensationMark]);
+              
+              // Use the new handler if available, otherwise fall back to direct state update
+              if (onIncomingSensation) {
+                onIncomingSensation(newSensationMark);
+              } else {
+                setSensationMarks(prev => [...prev, newSensationMark]);
+              }
             } catch (sensationError) {
               console.error('❌ Error processing sensation:', sensationError, sensation);
             }
@@ -203,7 +211,7 @@ export const MultiplayerMessageHandler = ({
       // Clear the unsubscribe reference
       unsubscribeRef.current = null;
     };
-  }, [room, setDrawingMarks, setSensationMarks, setBodyPartColors, setRotation, clearAll, modelRef, controlsRef, onIncomingOptimizedStroke, onIncomingUndo, onIncomingRedo, onIncomingErase]);
+  }, [room, setDrawingMarks, setSensationMarks, setBodyPartColors, setRotation, clearAll, modelRef, controlsRef, onIncomingOptimizedStroke, onIncomingUndo, onIncomingRedo, onIncomingErase, onIncomingSensation]);
 
   return null;
 };

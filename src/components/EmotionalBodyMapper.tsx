@@ -122,6 +122,28 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     }
   };
 
+  // Handle incoming sensation from other users - add to both state and action history
+  const handleIncomingSensation = (sensationMark: any) => {
+    console.log('✨ INCOMING SENSATION: Received multiplayer sensation', sensationMark);
+    
+    // Add to visual state
+    setSensationMarks(prev => [...prev, sensationMark]);
+    
+    // Add to action history for undo/redo
+    addAction({
+      type: 'sensation',
+      data: {
+        sensationMark: sensationMark,
+        previousSensationMarks: sensationMarks
+      },
+      metadata: {
+        sensationType: sensationMark.icon
+      }
+    });
+    
+    console.log('✨ INCOMING SENSATION: Added to state and action history');
+  };
+
   // Combine local and multiplayer sensation handling
   const combinedSensationClick = (position: THREE.Vector3, sensation: any) => {
     localHandleSensationClick(position, sensation);
@@ -191,6 +213,7 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
         onIncomingUndo={handleIncomingUndo}
         onIncomingRedo={handleIncomingRedo}
         onIncomingErase={handleIncomingErase}
+        onIncomingSensation={handleIncomingSensation}
       />
     </div>
   );
