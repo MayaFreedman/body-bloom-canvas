@@ -515,9 +515,9 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
         const getAnimationProfile = (sensationName: string) => {
           const profiles: { [key: string]: { speed: number; intensity: number; pattern: string; gravity?: number; drift?: THREE.Vector3 } } = {
             // ELECTRICAL/ACTIVE effects
-            'Nerves': { speed: 1.2, intensity: 1.0, pattern: 'electrical' },
-            'Tingling': { speed: 1.8, intensity: 1.2, pattern: 'sparkle' },
-            'Change in Energy': { speed: 1.5, intensity: 1.0, pattern: 'burst', drift: new THREE.Vector3(0, 1, 0) },
+            'Nerves': { speed: 1.2, intensity: 1.0, pattern: 'electrical', gravity: 0.0002 },
+            'Tingling': { speed: 1.8, intensity: 1.2, pattern: 'sparkle', gravity: 0.0001 },
+            'Change in Energy': { speed: 1.5, intensity: 1.0, pattern: 'burst', gravity: 0.0001, drift: new THREE.Vector3(0, 0.3, 0) },
             
             // HEART RATE effects  
             'Increased Heart Rate': { speed: 2.5, intensity: 1.2, pattern: 'pulse' }, // Fast pulsing
@@ -530,114 +530,156 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             'Stomping': { speed: 1.8, intensity: 1.3, pattern: 'shake' }, // Heavy movement
             
             // FLOW effects
-            'Tears': { speed: 0.3, intensity: 0.5, pattern: 'drop', gravity: 0.0008, drift: new THREE.Vector3(0, -1, 0) },
-            'Sweat': { speed: 0.4, intensity: 0.6, pattern: 'drip', gravity: 0.0006, drift: new THREE.Vector3(0, -1, 0) },
-            'Change in Breathing': { speed: 0.8, intensity: 0.7, pattern: 'wave', drift: new THREE.Vector3(0.3, 0.8, 0) },
-            'Nausea': { speed: 1.2, intensity: 1.0, pattern: 'swirl' },
+            'Tears': { speed: 0.3, intensity: 0.5, pattern: 'drop', gravity: 0.0008, drift: new THREE.Vector3(0, -0.5, 0) },
+            'Sweat': { speed: 0.4, intensity: 0.6, pattern: 'drip', gravity: 0.0006, drift: new THREE.Vector3(0, -0.5, 0) },
+            'Change in Breathing': { speed: 0.8, intensity: 0.7, pattern: 'wave', gravity: 0.0001, drift: new THREE.Vector3(0.1, 0.3, 0) },
+            'Nausea': { speed: 1.2, intensity: 1.0, pattern: 'swirl', gravity: 0.0002 },
             
             // PAIN effects
-            'Pain': { speed: 0.6, intensity: 0.8, pattern: 'throb' },
-            'Ache': { speed: 0.5, intensity: 0.7, pattern: 'throb' },
+            'Pain': { speed: 0.6, intensity: 0.8, pattern: 'throb', gravity: 0.0001 },
+            'Ache': { speed: 0.5, intensity: 0.7, pattern: 'throb', gravity: 0.0001 },
             
             // STATIC/SLOW effects
-            'Frozen/Stiff': { speed: 0.1, intensity: 0.3, pattern: 'minimal' }, // Barely moving
-            'Heaviness': { speed: 0.2, intensity: 0.4, pattern: 'sink', gravity: 0.0004, drift: new THREE.Vector3(0, -1, 0) },
-            'Relaxed': { speed: 0.4, intensity: 0.5, pattern: 'gentle' },
+            'Frozen/Stiff': { speed: 0.1, intensity: 0.3, pattern: 'minimal', gravity: 0.0001 }, // Barely moving
+            'Heaviness': { speed: 0.2, intensity: 0.4, pattern: 'sink', gravity: 0.0006, drift: new THREE.Vector3(0, -0.8, 0) },
+            'Relaxed': { speed: 0.4, intensity: 0.5, pattern: 'gentle', gravity: 0.0001 },
             
             // TENSION effects
-            'Tight': { speed: 0.8, intensity: 0.9, pattern: 'constrain' },
-            'Clenched': { speed: 1.0, intensity: 1.1, pattern: 'tense' },
-            'Lump in Throat': { speed: 0.6, intensity: 0.8, pattern: 'stuck' }
+            'Tight': { speed: 0.8, intensity: 0.9, pattern: 'constrain', gravity: 0.0001 },
+            'Clenched': { speed: 1.0, intensity: 1.1, pattern: 'tense', gravity: 0.0001 },
+            'Lump in Throat': { speed: 0.6, intensity: 0.8, pattern: 'stuck', gravity: 0.0001 }
           };
-          return profiles[sensationName] || { speed: 0.8, intensity: 0.6, pattern: 'flow', drift: new THREE.Vector3(0, 0.5, 0) };
+          return profiles[sensationName] || { speed: 0.8, intensity: 0.6, pattern: 'flow', gravity: 0.0002, drift: new THREE.Vector3(0, 0.2, 0) };
         };
         
         const animProfile = getAnimationProfile(mark.name || mark.icon);
 
-        // Update position based on animation profile
+        // Update position based on animation profile with natural physics
         if (animProfile.pattern === 'electrical' || mark.icon === 'Activity' || mark.name === 'Nerves') {
-          // Nerves: smoother electrical sparking (less nauseating)
-          const electricalJitter = Math.sin(particle.electricalPulse! * 2 * animProfile.speed) * 0.0002 * animProfile.intensity;
-          const sparkJump = Math.sin(time * 8 * animProfile.speed + particle.life * 0.3) * 0.0002 * animProfile.intensity;
-          const gentleOscillation = Math.sin(particle.oscillationPhase * 2 * animProfile.speed) * 0.0002 * animProfile.intensity;
+          // Nerves: electrical sparking with fluid movement
+          const electricalJitter = Math.sin(particle.electricalPulse! * animProfile.speed) * 0.001 * animProfile.intensity;
+          const sparkDirection = Math.cos(time * 6 * animProfile.speed + particle.life * 0.2) * 0.0008 * animProfile.intensity;
           
-          // Much gentler random impulses
-          if (Math.random() < 0.02 * animProfile.speed) {
-            particle.velocity.multiplyScalar(0.8);
+          // Random electrical impulses for alive feeling
+          if (Math.random() < 0.05 * animProfile.speed) {
             particle.velocity.add(new THREE.Vector3(
-              (Math.random() - 0.5) * 0.0003 * animProfile.intensity,
-              (Math.random() - 0.5) * 0.0003 * animProfile.intensity,
-              (Math.random() - 0.5) * 0.0003 * animProfile.intensity
+              (Math.random() - 0.5) * 0.002 * animProfile.intensity,
+              (Math.random() - 0.5) * 0.001 * animProfile.intensity,
+              (Math.random() - 0.5) * 0.002 * animProfile.intensity
             ));
           }
           
+          // Apply gravity and movement
+          particle.velocity.y += (animProfile.gravity || 0.0002) * delta;
           particle.position.add(particle.velocity);
-          particle.position.x += electricalJitter + sparkJump + gentleOscillation;
-          particle.position.y += electricalJitter * 0.8 + Math.cos(particle.oscillationPhase * 1.5) * 0.0002 * animProfile.intensity;
-          particle.position.z += gentleOscillation + sparkJump * 0.6;
-          particle.velocity.multiplyScalar(0.97);
+          
+          // Add electrical jitter
+          particle.position.x += electricalJitter;
+          particle.position.y += sparkDirection;
+          particle.position.z += electricalJitter * 0.7;
+          
+          // Natural damping
+          particle.velocity.multiplyScalar(0.95);
           
         } else if (animProfile.pattern === 'shake') {
-          // Shaky: rapid trembling
-          const shakeX = Math.sin(time * 50 * animProfile.speed) * 0.0008 * animProfile.intensity;
-          const shakeY = Math.cos(time * 47 * animProfile.speed) * 0.0008 * animProfile.intensity;
-          const shakeZ = Math.sin(time * 53 * animProfile.speed) * 0.0006 * animProfile.intensity;
+          // Shaky: rapid trembling with fluid movement
+          const shakeForceX = Math.sin(time * 30 * animProfile.speed) * 0.003 * animProfile.intensity;
+          const shakeForceY = Math.cos(time * 27 * animProfile.speed) * 0.002 * animProfile.intensity;
+          const shakeForceZ = Math.sin(time * 33 * animProfile.speed) * 0.0025 * animProfile.intensity;
           
+          // Add shake forces to velocity
+          particle.velocity.x += shakeForceX * delta;
+          particle.velocity.y += shakeForceY * delta;
+          particle.velocity.z += shakeForceZ * delta;
+          
+          // Apply gravity and movement
+          particle.velocity.y += (animProfile.gravity || 0.0001) * delta;
           particle.position.add(particle.velocity);
-          particle.position.x += shakeX;
-          particle.position.y += shakeY;
-          particle.position.z += shakeZ;
+          particle.velocity.multiplyScalar(0.92);
           
         } else if (animProfile.pattern === 'pulse') {
-          // Heart rate: pulsing movement
-          const pulse = Math.sin(time * 12 * animProfile.speed) * 0.0005 * animProfile.intensity;
-          const beatPattern = Math.sin(time * 24 * animProfile.speed) * 0.0003 * animProfile.intensity;
+          // Heart rate: pulsing with rhythmic movement
+          const pulseForce = Math.sin(time * 10 * animProfile.speed) * 0.002 * animProfile.intensity;
+          const beatDirection = Math.cos(time * 20 * animProfile.speed) * 0.001 * animProfile.intensity;
           
+          // Add pulsing forces
+          particle.velocity.y += pulseForce * delta;
+          particle.velocity.x += beatDirection * delta * 0.5;
+          particle.velocity.z += beatDirection * delta * 0.3;
+          
+          // Apply movement
+          particle.velocity.y += (animProfile.gravity || 0.0001) * delta;
           particle.position.add(particle.velocity);
-          particle.position.y += pulse + beatPattern;
-          particle.position.x += beatPattern * 0.5;
+          particle.velocity.multiplyScalar(0.94);
           
         } else if (animProfile.pattern === 'swirl') {
-          // Nausea: swirling motion
-          const swirl = Math.sin(particle.oscillationPhase * animProfile.speed) * 0.0006 * animProfile.intensity;
-          const spiral = Math.cos(particle.oscillationPhase * animProfile.speed * 0.8) * 0.0004 * animProfile.intensity;
+          // Nausea: fluid swirling motion
+          const swirlForceX = Math.sin(particle.oscillationPhase * animProfile.speed) * 0.003 * animProfile.intensity;
+          const swirlForceZ = Math.cos(particle.oscillationPhase * animProfile.speed * 0.8) * 0.002 * animProfile.intensity;
+          const verticalSwirl = Math.sin(particle.oscillationPhase * animProfile.speed * 1.3) * 0.001 * animProfile.intensity;
           
+          // Add swirling forces
+          particle.velocity.x += swirlForceX * delta;
+          particle.velocity.z += swirlForceZ * delta;
+          particle.velocity.y += verticalSwirl * delta;
+          
+          // Apply movement
+          particle.velocity.y += (animProfile.gravity || 0.0002) * delta;
           particle.position.add(particle.velocity);
-          particle.position.x += swirl;
-          particle.position.z += spiral;
+          particle.velocity.multiplyScalar(0.93);
           
         } else if (mark.icon === 'butterfly') {
-          // Butterfly: enhanced fluttering
-          const wingBeat = Math.sin(time * 15 * animProfile.speed + particle.life) * 0.0005 * animProfile.intensity;
-          const flutter = Math.sin(particle.oscillationPhase * 2) * 0.0004 * animProfile.intensity;
-          const drift = Math.cos(time * 3 + particle.life * 0.1) * 0.0003 * animProfile.intensity;
+          // Butterfly: natural fluttering with fluid movement
+          const wingBeatX = Math.sin(time * 12 * animProfile.speed + particle.life) * 0.002 * animProfile.intensity;
+          const wingBeatY = Math.cos(time * 8 * animProfile.speed + particle.life) * 0.0015 * animProfile.intensity;
+          const flutterZ = Math.sin(particle.oscillationPhase * 2.5) * 0.001 * animProfile.intensity;
           
-          particle.position.add(particle.velocity);
-          particle.position.x += wingBeat * (Math.random() - 0.5) + flutter + drift;
-          particle.position.y += wingBeat * 0.8 + Math.cos(particle.oscillationPhase * 1.5) * 0.0004 * animProfile.intensity;
-          particle.position.z += flutter * 0.6 + drift * 0.5;
-          
-        } else {
-          // Apply gravity and drift for specific sensations
-          if (animProfile.gravity && animProfile.drift) {
-            particle.velocity.add(animProfile.drift.clone().multiplyScalar(animProfile.gravity * delta));
+          // Random direction changes for butterfly behavior
+          if (Math.random() < 0.03) {
+            particle.velocity.add(new THREE.Vector3(
+              (Math.random() - 0.5) * 0.001,
+              Math.random() * 0.0008,
+              (Math.random() - 0.5) * 0.001
+            ));
           }
           
-          // Apply general drift if defined
+          // Add wing forces
+          particle.velocity.x += wingBeatX * delta;
+          particle.velocity.y += wingBeatY * delta;
+          particle.velocity.z += flutterZ * delta;
+          
+          // Light upward tendency for butterflies
+          particle.velocity.y += 0.0003 * delta;
+          particle.position.add(particle.velocity);
+          particle.velocity.multiplyScalar(0.96);
+          
+        } else {
+          // Default fluid movement for all other sensations
+          
+          // Apply gravity and drift forces
+          if (animProfile.gravity) {
+            particle.velocity.y += animProfile.gravity * delta;
+          }
+          
           if (animProfile.drift) {
-            const driftForce = animProfile.drift.clone().multiplyScalar(0.0002 * animProfile.intensity * delta);
+            const driftForce = animProfile.drift.clone().multiplyScalar(0.001 * animProfile.intensity * delta);
             particle.velocity.add(driftForce);
           }
           
-          // Smooth easing curves instead of sharp sine/cosine
-          const t = particle.oscillationPhase * animProfile.speed;
-          const smoothFloat = (Math.sin(t) + Math.sin(t * 2.3) * 0.3 + Math.sin(t * 4.7) * 0.1) * 0.0001 * animProfile.intensity;
+          // Add natural floating movement
+          const floatX = Math.sin(particle.oscillationPhase * animProfile.speed) * 0.001 * animProfile.intensity;
+          const floatY = Math.cos(particle.oscillationPhase * animProfile.speed * 1.3) * 0.0008 * animProfile.intensity;
+          const floatZ = Math.sin(particle.oscillationPhase * animProfile.speed * 0.7) * 0.0006 * animProfile.intensity;
           
+          particle.velocity.x += floatX * delta;
+          particle.velocity.y += floatY * delta;
+          particle.velocity.z += floatZ * delta;
+          
+          // Apply movement
           particle.position.add(particle.velocity);
-          particle.position.y += smoothFloat;
           
-          // Add momentum damping for natural feel
-          particle.velocity.multiplyScalar(0.98);
+          // Natural damping
+          particle.velocity.multiplyScalar(0.97);
         }
 
         // Update the corresponding mesh
