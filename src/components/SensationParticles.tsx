@@ -288,7 +288,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       'Statue': { min: 200, max: 300 }, // Very still
       
       // MEDIUM-SLOW = medium-long lifespan - LONGER for drips
-      'Tears': { min: 200, max: 350 }, // Tears last much longer for realistic dripping
+      'Tears': { min: 40, max: 80 }, // Tears regenerate much faster for more droplets
       'Sweat': { min: 180, max: 300 }, // Sweat beads last longer for dripping
       'Pain': { min: 100, max: 160 }, // Pain lingers
       'Ache': { min: 110, max: 170 }, // Aches persist
@@ -583,8 +583,8 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             'Stomping': { speed: 1.8, intensity: 1.3, pattern: 'shake' }, // Heavy movement
             
             // FLOW effects - dripping with strong downward movement (negative Y = down)
-            'Tears': { speed: 0.2, intensity: 0.4, pattern: 'drip', gravity: 0.002, drift: new THREE.Vector3(0, -1.5, 0) },
-            'Sweat': { speed: 0.3, intensity: 0.5, pattern: 'drip', gravity: 0.0015, drift: new THREE.Vector3(0, -1.2, 0) },
+            'Tears': { speed: 0.2, intensity: 0.4, pattern: 'drip', gravity: 0.0002, drift: new THREE.Vector3(0, -0.15, 0) },
+            'Sweat': { speed: 0.3, intensity: 0.5, pattern: 'drip', gravity: 0.00015, drift: new THREE.Vector3(0, -0.12, 0) },
             'Change in Breathing': { speed: 0.8, intensity: 0.7, pattern: 'wave', gravity: 0.0001, drift: new THREE.Vector3(0.1, 0.3, 0) },
             'Nausea': { speed: 1.2, intensity: 1.0, pattern: 'swirl', gravity: 0.0002 },
             
