@@ -22,15 +22,25 @@ export interface DrawingStroke {
   userId?: string; // Keep for drawing tracking but not for undo/redo
 }
 
+export interface SensationMark {
+  id: string;
+  position: THREE.Vector3;
+  icon: string;
+  color: string;
+  size: number;
+}
+
 export interface ActionHistoryItem {
   id: string;
-  type: 'draw' | 'erase' | 'fill' | 'clear';
+  type: 'draw' | 'erase' | 'fill' | 'clear' | 'sensation';
   timestamp: number;
   data: {
     strokes?: DrawingStroke[];
     marks?: DrawingMark[];
     bodyPartColors?: Record<string, string>;
     previousBodyPartColors?: Record<string, string>;
+    sensationMark?: SensationMark;
+    previousSensationMarks?: SensationMark[];
     erasedMarks?: DrawingMark[];
     affectedArea?: {
       center: THREE.Vector3;
@@ -41,6 +51,7 @@ export interface ActionHistoryItem {
     brushSize?: number;
     color?: string;
     bodyPart?: string;
+    sensationType?: string;
   };
 }
 

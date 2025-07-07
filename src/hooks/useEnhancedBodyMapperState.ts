@@ -54,6 +54,7 @@ export const useEnhancedBodyMapperState = ({
     strokeManager, 
     actionHistory, 
     setBodyPartColors,
+    setSensationMarks,
     broadcastUndo,
     broadcastRedo,
     isMultiplayer
@@ -67,7 +68,7 @@ export const useEnhancedBodyMapperState = ({
     currentUserId 
   });
 
-  // Add sensation handling
+  // Enhanced sensation handling with action history tracking
   const handleSensationClick = (position: any, sensation: SelectedSensation) => {
     const newSensationMark: SensationMark = {
       id: `sensation-${Date.now()}-${Math.random()}`,
@@ -76,13 +77,42 @@ export const useEnhancedBodyMapperState = ({
       color: sensation.color,
       size: 0.1
     };
+    
+    // Update state
     setSensationMarks(prev => [...prev, newSensationMark]);
-    console.log('Added sensation mark:', newSensationMark);
+    
+    // Add to action history for undo/redo
+    actionHistory.addAction({
+      type: 'sensation',
+      data: {
+        sensationMark: newSensationMark,
+        previousSensationMarks: sensationMarks
+      },
+      metadata: {
+        sensationType: sensation.name || sensation.icon
+      }
+    });
+    
+    console.log('Added sensation mark to history:', newSensationMark);
   };
 
   const clearAll = () => {
+    const previousSensationMarks = [...sensationMarks];
+    
     bodyPartOps.clearAll();
     setSensationMarks([]);
+    
+    // Record clear action including sensation marks
+    if (previousSensationMarks.length > 0) {
+      actionHistory.addAction({
+        type: 'clear',
+        data: {
+          strokes: strokeManager.getAllStrokes(),
+          previousBodyPartColors: bodyPartColors,
+          previousSensationMarks: previousSensationMarks
+        }
+      });
+    }
   };
 
   // Update spatial index when marks change

@@ -2,11 +2,13 @@
 import { useCallback } from 'react';
 import { useStrokeManager } from './useStrokeManager';
 import { useActionHistory } from './useActionHistory';
+import { SensationMark } from '@/types/bodyMapperTypes';
 
 interface UseUndoRedoOperationsProps {
   strokeManager: ReturnType<typeof useStrokeManager>;
   actionHistory: ReturnType<typeof useActionHistory>;
   setBodyPartColors: React.Dispatch<React.SetStateAction<Record<string, string>>>;
+  setSensationMarks: React.Dispatch<React.SetStateAction<SensationMark[]>>;
   broadcastUndo?: () => void;
   broadcastRedo?: () => void;
   isMultiplayer?: boolean;
@@ -16,6 +18,7 @@ export const useUndoRedoOperations = ({
   strokeManager,
   actionHistory,
   setBodyPartColors,
+  setSensationMarks,
   broadcastUndo,
   broadcastRedo,
   isMultiplayer = false
@@ -51,6 +54,13 @@ export const useUndoRedoOperations = ({
           console.log('Restored previous body part colors:', actionToUndo.data.previousBodyPartColors);
         }
         break;
+      case 'sensation':
+        console.log('Undoing sensation action');
+        if (actionToUndo.data.previousSensationMarks !== undefined) {
+          setSensationMarks(actionToUndo.data.previousSensationMarks);
+          console.log('Restored previous sensation marks:', actionToUndo.data.previousSensationMarks);
+        }
+        break;
       case 'clear':
         console.log('Undoing clear action by restoring all cleared content');
         if (actionToUndo.data.strokes) {
@@ -62,9 +72,12 @@ export const useUndoRedoOperations = ({
         if (actionToUndo.data.previousBodyPartColors !== undefined) {
           setBodyPartColors(actionToUndo.data.previousBodyPartColors);
         }
+        if (actionToUndo.data.previousSensationMarks !== undefined) {
+          setSensationMarks(actionToUndo.data.previousSensationMarks);
+        }
         break;
     }
-  }, [strokeManager, setBodyPartColors]);
+  }, [strokeManager, setBodyPartColors, setSensationMarks]);
 
   const performRedo = useCallback((actionToRedo: any) => {
     if (!actionToRedo) return;
@@ -100,6 +113,13 @@ export const useUndoRedoOperations = ({
           console.log('Applied body part colors after redo:', actionToRedo.data.bodyPartColors);
         }
         break;
+      case 'sensation':
+        console.log('Redoing sensation action');
+        if (actionToRedo.data.sensationMark) {
+          setSensationMarks(prev => [...prev, actionToRedo.data.sensationMark]);
+          console.log('Added sensation mark after redo:', actionToRedo.data.sensationMark);
+        }
+        break;
       case 'clear':
         console.log('Redoing clear action');
         if (actionToRedo.data.strokes) {
@@ -111,9 +131,12 @@ export const useUndoRedoOperations = ({
         if (actionToRedo.data.bodyPartColors) {
           setBodyPartColors({});
         }
+        if (actionToRedo.data.previousSensationMarks !== undefined) {
+          setSensationMarks([]);
+        }
         break;
     }
-  }, [strokeManager, setBodyPartColors]);
+  }, [strokeManager, setBodyPartColors, setSensationMarks]);
 
   const handleUndo = useCallback(() => {
     console.log('handleUndo called - LOCAL ACTION');
