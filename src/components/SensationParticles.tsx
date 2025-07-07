@@ -550,7 +550,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
           const profiles: { [key: string]: { speed: number; intensity: number; pattern: string; gravity?: number; drift?: THREE.Vector3 } } = {
             // ELECTRICAL/ACTIVE effects
             'Nerves': { speed: 1.2, intensity: 1.0, pattern: 'electrical', gravity: 0.0002 },
-            'Tingling': { speed: 1.8, intensity: 1.2, pattern: 'sparkle', gravity: 0.0001 },
+            'Tingling': { speed: 1.8, intensity: 1.2, pattern: 'electrical', gravity: 0.0001 }, // Use electrical pattern for sparkly movement
             'Change in Energy': { speed: 1.5, intensity: 1.0, pattern: 'burst', gravity: 0.0001, drift: new THREE.Vector3(0, 0.3, 0) },
             
             // HEART RATE effects  
@@ -589,17 +589,17 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
         const animProfile = getAnimationProfile(mark.name || mark.icon);
 
         // Update position based on animation profile with natural physics
-        if (animProfile.pattern === 'electrical' || mark.icon === 'Activity' || mark.name === 'Nerves') {
-          // Nerves: electrical sparking with fluid movement
+        if (animProfile.pattern === 'electrical' || mark.icon === 'Activity' || mark.name === 'Nerves' || mark.name === 'Tingling') {
+          // Electrical effects: consistent sparking with fluid movement
           const electricalJitter = Math.sin(particle.electricalPulse! * animProfile.speed) * 0.001 * animProfile.intensity;
           const sparkDirection = Math.cos(time * 6 * animProfile.speed + particle.life * 0.2) * 0.0008 * animProfile.intensity;
           
-          // Random electrical impulses for alive feeling
-          if (Math.random() < 0.05 * animProfile.speed) {
+          // Continuous electrical impulses for alive feeling
+          if (Math.random() < 0.08 * animProfile.speed) {
             particle.velocity.add(new THREE.Vector3(
+              (Math.random() - 0.5) * 0.003 * animProfile.intensity,
               (Math.random() - 0.5) * 0.002 * animProfile.intensity,
-              (Math.random() - 0.5) * 0.001 * animProfile.intensity,
-              (Math.random() - 0.5) * 0.002 * animProfile.intensity
+              (Math.random() - 0.5) * 0.003 * animProfile.intensity
             ));
           }
           
@@ -612,8 +612,8 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
           particle.position.y += sparkDirection;
           particle.position.z += electricalJitter * 0.7;
           
-          // Natural damping
-          particle.velocity.multiplyScalar(0.95);
+          // Gentler damping to maintain movement
+          particle.velocity.multiplyScalar(0.988);
           
         } else if (animProfile.pattern === 'shake') {
           // Shaky: rapid trembling with fluid movement
@@ -629,7 +629,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
           // Apply gravity and movement
           particle.velocity.y += (animProfile.gravity || 0.0001) * delta;
           particle.position.add(particle.velocity);
-          particle.velocity.multiplyScalar(0.92);
+          particle.velocity.multiplyScalar(0.985); // Gentler damping
           
         } else if (animProfile.pattern === 'pulse') {
           // Heart rate: pulsing with rhythmic movement
@@ -644,7 +644,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
           // Apply movement
           particle.velocity.y += (animProfile.gravity || 0.0001) * delta;
           particle.position.add(particle.velocity);
-          particle.velocity.multiplyScalar(0.94);
+          particle.velocity.multiplyScalar(0.99); // Very gentle damping for hearts
           
         } else if (animProfile.pattern === 'swirl') {
           // Nausea: fluid swirling motion
@@ -712,8 +712,8 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
           // Apply movement
           particle.position.add(particle.velocity);
           
-          // Natural damping
-          particle.velocity.multiplyScalar(0.97);
+          // Natural damping - much gentler to maintain movement
+          particle.velocity.multiplyScalar(0.995);
         }
 
         // Update the corresponding mesh
