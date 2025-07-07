@@ -70,6 +70,8 @@ export const useEnhancedBodyMapperState = ({
 
   // Enhanced sensation handling with action history tracking
   const handleSensationClick = (position: any, sensation: SelectedSensation) => {
+    console.log('🎯 useEnhancedBodyMapperState - handleSensationClick called with:', sensation.name, 'at position:', position);
+    
     const newSensationMark: SensationMark = {
       id: `sensation-${Date.now()}-${Math.random()}`,
       position,
@@ -80,7 +82,13 @@ export const useEnhancedBodyMapperState = ({
     };
     
     // Update state
-    setSensationMarks(prev => [...prev, newSensationMark]);
+    console.log('🎯 useEnhancedBodyMapperState - About to add sensation mark:', newSensationMark);
+    setSensationMarks(prev => {
+      console.log('🎯 useEnhancedBodyMapperState - Previous sensation marks:', prev);
+      const newMarks = [...prev, newSensationMark];
+      console.log('🎯 useEnhancedBodyMapperState - New sensation marks:', newMarks);
+      return newMarks;
+    });
     
     // Add to action history for undo/redo
     actionHistory.addAction({

@@ -146,10 +146,12 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
 
   // Combine local and multiplayer sensation handling with auto-deselect
   const combinedSensationClick = (position: THREE.Vector3, sensation: any) => {
+    console.log('✨ EmotionalBodyMapper - combinedSensationClick called with:', sensation.name, 'at position:', position);
     localHandleSensationClick(position, sensation);
     handleSensationClick(position, sensation);
     
     // Auto-deselect the sensation after placement
+    console.log('✨ EmotionalBodyMapper - Auto-deselecting sensation and returning to draw mode');
     setSelectedSensation(null);
     setMode('draw'); // Return to default mode
   };

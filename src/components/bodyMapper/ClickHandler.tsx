@@ -32,6 +32,8 @@ export const ClickHandler = ({
   }, [scene]);
 
   const handleClick = useCallback((event: MouseEvent) => {
+    console.log('🖱️ ClickHandler - Click detected, mode:', mode, 'selectedSensation:', selectedSensation);
+    
     if (mode === 'draw') return; // Drawing is handled by ModelDrawing component
     
     const rect = gl.domElement.getBoundingClientRect();
@@ -56,13 +58,19 @@ export const ClickHandler = ({
         }
         
         if (selectedSensation) {
+          console.log('🎯 ClickHandler - Placing sensation:', selectedSensation.name, 'at body part:', intersectedObject.userData.bodyPart);
           // Convert world position to local position relative to the model
           const modelGroup = scene.children.find(child => child.type === 'Group');
           if (modelGroup) {
             const localPosition = new THREE.Vector3();
             modelGroup.worldToLocal(localPosition.copy(intersect.point));
+            console.log('🎯 ClickHandler - Calling onSensationClick with position:', localPosition);
             onSensationClick(localPosition, selectedSensation);
+          } else {
+            console.error('❌ ClickHandler - Could not find model group');
           }
+        } else {
+          console.log('⚠️ ClickHandler - No sensation selected');
         }
       }
     }
