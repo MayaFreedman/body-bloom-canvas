@@ -55,8 +55,18 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     canRedo,
     restoreStroke,
     addAction,
-    queryMarksInRadius
-  } = useEnhancedBodyMapperState({ 
+    queryMarksInRadius,
+    // Text functionality
+    textMarks,
+    textSettings,
+    editingTextId,
+    handleAddTextMark,
+    handleUpdateTextMark,
+    handleDeleteTextMark,
+    handleStartTextEditing,
+    handleStopTextEditing,
+    setTextSettings
+  } = useEnhancedBodyMapperState({
     currentUserId,
     isMultiplayer: multiplayer.isConnected,
     broadcastUndo: multiplayer.broadcastUndo,
@@ -181,6 +191,9 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
         selectedSensation={selectedSensation}
         drawingMarks={legacyDrawingMarks}
         sensationMarks={sensationMarks}
+        textMarks={textMarks}
+        textSettings={textSettings}
+        editingTextId={editingTextId}
         bodyPartColors={bodyPartColors}
         rotation={rotation}
         modelRef={modelRef}
@@ -193,6 +206,7 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
         setBrushSize={setBrushSize}
         setDrawingTarget={setDrawingTarget}
         setSelectedSensation={setSelectedSensation}
+        setTextSettings={(settings) => setTextSettings(prev => ({ ...prev, ...settings }))}
         onAddDrawingMark={handleAddDrawingMark}
         onDrawingStrokeStart={handleDrawingStrokeStart}
         onDrawingStrokeComplete={handleDrawingStrokeComplete}
@@ -200,6 +214,11 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
         onBodyPartClick={handleBodyPartClick}
         onSensationClick={combinedSensationClick}
         onErase={handleMultiplayerErase}
+        onTextPlace={(position, surface) => handleAddTextMark(position, 'Click to edit text', surface, selectedColor)}
+        onTextClick={(textMark) => handleStartTextEditing(textMark.id)}
+        onTextSave={(text) => editingTextId && handleUpdateTextMark(editingTextId, { text })}
+        onTextCancel={handleStopTextEditing}
+        onTextDelete={() => editingTextId && handleDeleteTextMark(editingTextId)}
         onRotateLeft={handleRotateLeft}
         onRotateRight={handleRotateRight}
         onResetAll={handleResetAll}
