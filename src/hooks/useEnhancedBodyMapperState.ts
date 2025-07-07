@@ -23,7 +23,7 @@ export const useEnhancedBodyMapperState = ({
   broadcastRedo
 }: UseEnhancedBodyMapperStateProps) => {
   const [mode, setMode] = useState<BodyMapperMode>('draw');
-  const [selectedColor, setSelectedColor] = useState('#ff6b6b');
+  const [selectedColor, setSelectedColor] = useState('#ffeb3b'); // Changed from '#ff6b6b' to '#ffeb3b' (yellow)
   const [brushSize, setBrushSize] = useState([3]);
   const [selectedSensation, setSelectedSensation] = useState<SelectedSensation | null>(null);
   const [bodyPartColors, setBodyPartColors] = useState<Record<string, string>>({});
