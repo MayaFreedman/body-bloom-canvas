@@ -185,21 +185,48 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
   // Get dispersion level based on sensation type
   const getDispersionLevel = (sensationName: string) => {
     const dispersionMap: { [key: string]: number } = {
-      'Nerves': 0.012,           // Very high dispersion for electrical effects
-      'Shaky': 0.010,            // High dispersion for trembling
-      'Tingling': 0.009,         // High dispersion for sparkles
-      'Change in Energy': 0.008, // High dispersion for energy bursts
-      'Nausea': 0.007,          // Medium-high dispersion for swirling
-      'Pain': 0.006,            // Medium dispersion
-      'Change in Breathing': 0.008, // High for air movement
-      'Increased Heart Rate': 0.005, // Medium for pulse
+      'Nerves': 0.025,           // WAY more dispersed for electrical effects
+      'Shaky': 0.015,            // High dispersion for trembling
+      'Tingling': 0.012,         // High dispersion for sparkles
+      'Change in Energy': 0.010, // High dispersion for energy bursts
+      'Nausea': 0.008,          // Medium-high dispersion for swirling
+      'Pain': 0.007,            // Medium dispersion
+      'Change in Breathing': 0.009, // High for air movement
+      'Increased Heart Rate': 0.006, // Medium for pulse
       'Tears': 0.004,           // Lower for flowing down
       'Sweat': 0.004,           // Lower for dripping
-      'Frozen/Stiff': 0.003,    // Lowest dispersion for static
-      'Heaviness': 0.003,       // Low for weighted feeling
-      'Relaxed': 0.005          // Medium-low for calm
+      'Frozen/Stiff': 0.002,    // Very low dispersion for static
+      'Heaviness': 0.0025,      // Low for weighted feeling
+      'Relaxed': 0.003          // Low for calm
     };
     return dispersionMap[sensationName] || 0.006;
+  };
+
+  // Get particle size based on sensation movement type
+  const getParticleSize = (sensationName: string) => {
+    const sizeMap: { [key: string]: { base: number; variance: number; multiplier: number } } = {
+      // Slow, smooth sensations = larger particles
+      'Frozen/Stiff': { base: 0.05, variance: 0.03, multiplier: 2.0 },
+      'Heaviness': { base: 0.04, variance: 0.025, multiplier: 1.8 },
+      'Relaxed': { base: 0.035, variance: 0.02, multiplier: 1.6 },
+      'Tears': { base: 0.03, variance: 0.02, multiplier: 1.4 },
+      'Sweat': { base: 0.03, variance: 0.02, multiplier: 1.4 },
+      
+      // Medium sensations
+      'Pain': { base: 0.025, variance: 0.015, multiplier: 1.2 },
+      'Nausea': { base: 0.025, variance: 0.015, multiplier: 1.2 },
+      'Increased Heart Rate': { base: 0.025, variance: 0.015, multiplier: 1.2 },
+      'Change in Breathing': { base: 0.025, variance: 0.015, multiplier: 1.2 },
+      
+      // Fast, jerky sensations = smaller particles
+      'Change in Energy': { base: 0.02, variance: 0.01, multiplier: 1.0 },
+      'Tingling': { base: 0.015, variance: 0.008, multiplier: 0.8 },
+      'Shaky': { base: 0.012, variance: 0.006, multiplier: 0.7 },
+      'Nerves': { base: 0.008, variance: 0.004, multiplier: 0.6 } // Smallest for maximum dispersion
+    };
+    
+    const config = sizeMap[sensationName] || { base: 0.025, variance: 0.015, multiplier: 1.0 };
+    return (config.base + Math.random() * config.variance) * config.multiplier;
   };
 
   // Create particle system for each sensation mark
@@ -247,7 +274,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             ),
             life: Math.random() * 100,
             maxLife: 80 + Math.random() * 40,
-            size: (0.02 + Math.random() * 0.04) * 1.2, // Even smaller for smoother look
+            size: getParticleSize(mark.name || mark.icon),
             rotation: Math.random() * Math.PI * 2,
             rotationSpeed: (Math.random() - 0.5) * 0.15,
             oscillationPhase: Math.random() * Math.PI * 2,
