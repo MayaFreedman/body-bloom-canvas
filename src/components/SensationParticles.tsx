@@ -214,18 +214,18 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
         for (let i = 0; i < particleCount; i++) {
           const baseParticle = {
             position: new THREE.Vector3(
-              mark.position.x + (Math.random() - 0.5) * 0.0015, // Reduced from 0.003 by 50%
-              mark.position.y + (Math.random() - 0.5) * 0.0015, // Reduced from 0.003 by 50%
-              mark.position.z + (Math.random() - 0.5) * 0.0015  // Reduced from 0.003 by 50%
+              mark.position.x + (Math.random() - 0.5) * 0.005, // Increased dispersion for flow
+              mark.position.y + (Math.random() - 0.5) * 0.005, // Increased dispersion for flow
+              mark.position.z + (Math.random() - 0.5) * 0.005  // Increased dispersion for flow
             ),
             velocity: new THREE.Vector3(
-              (Math.random() - 0.5) * 0.00025, // Reduced from 0.0005 by 50%
-              (Math.random() - 0.5) * 0.00025, // Reduced from 0.0005 by 50%
-              (Math.random() - 0.5) * 0.00025  // Reduced from 0.0005 by 50%
+              (Math.random() - 0.5) * 0.0012, // Increased for better flow
+              (Math.random() - 0.5) * 0.0012, // Increased for better flow
+              (Math.random() - 0.5) * 0.0012  // Increased for better flow
             ),
             life: Math.random() * 100,
             maxLife: 80 + Math.random() * 40,
-            size: (0.08 + Math.random() * 0.12) * 2.5, // Significantly increased base size
+            size: (0.03 + Math.random() * 0.05) * 1.5, // Smaller, more flowy particles
             rotation: Math.random() * Math.PI * 2,
             rotationSpeed: (Math.random() - 0.5) * 0.15,
             oscillationPhase: Math.random() * Math.PI * 2,
@@ -298,9 +298,9 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
           particle.life = 0;
           particle.position.copy(mark.position);
           particle.position.add(new THREE.Vector3(
-            (Math.random() - 0.5) * 0.0025, // Reduced from 0.005 by 50%
-            (Math.random() - 0.5) * 0.0025, // Reduced from 0.005 by 50%
-            (Math.random() - 0.5) * 0.0025  // Reduced from 0.005 by 50%
+            (Math.random() - 0.5) * 0.006, // Increased respawn dispersion
+            (Math.random() - 0.5) * 0.006, // Increased respawn dispersion
+            (Math.random() - 0.5) * 0.006  // Increased respawn dispersion
           ));
           
           // Reset animation properties
@@ -337,19 +337,19 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
         
         // Get animation intensity and speed for this sensation
         const getAnimationProfile = (sensationName: string) => {
-          const profiles: { [key: string]: { speed: number; intensity: number; pattern: string } } = {
-            'Nerves': { speed: 2.0, intensity: 1.5, pattern: 'electrical' },
-            'Pain': { speed: 0.5, intensity: 0.8, pattern: 'throb' },
-            'Nausea': { speed: 1.2, intensity: 1.0, pattern: 'swirl' },
-            'Tears': { speed: 0.3, intensity: 0.6, pattern: 'drop' },
-            'Tingling': { speed: 1.8, intensity: 1.2, pattern: 'sparkle' },
-            'Shaky': { speed: 3.0, intensity: 2.0, pattern: 'shake' },
-            'Change in Breathing': { speed: 0.8, intensity: 0.7, pattern: 'wave' },
-            'Increased Heart Rate': { speed: 2.5, intensity: 1.3, pattern: 'pulse' },
-            'Change in Energy': { speed: 1.5, intensity: 1.0, pattern: 'burst' },
-            'Sweat': { speed: 0.4, intensity: 0.5, pattern: 'drip' }
+          const profiles: { [key: string]: { speed: number; intensity: number; pattern: string; gravity?: number; drift?: THREE.Vector3 } } = {
+            'Nerves': { speed: 1.5, intensity: 1.2, pattern: 'electrical' },
+            'Pain': { speed: 0.4, intensity: 0.6, pattern: 'throb' },
+            'Nausea': { speed: 1.0, intensity: 0.8, pattern: 'swirl' },
+            'Tears': { speed: 0.2, intensity: 0.4, pattern: 'drop', gravity: 0.0008, drift: new THREE.Vector3(0, -1, 0) },
+            'Tingling': { speed: 1.4, intensity: 1.0, pattern: 'sparkle' },
+            'Shaky': { speed: 2.5, intensity: 1.5, pattern: 'shake' },
+            'Change in Breathing': { speed: 0.6, intensity: 0.5, pattern: 'wave', drift: new THREE.Vector3(0.3, 0.8, 0) },
+            'Increased Heart Rate': { speed: 2.0, intensity: 1.0, pattern: 'pulse' },
+            'Change in Energy': { speed: 1.2, intensity: 0.8, pattern: 'burst', drift: new THREE.Vector3(0, 1, 0) },
+            'Sweat': { speed: 0.3, intensity: 0.4, pattern: 'drip', gravity: 0.0006, drift: new THREE.Vector3(0, -1, 0) }
           };
-          return profiles[sensationName] || { speed: 1.0, intensity: 1.0, pattern: 'default' };
+          return profiles[sensationName] || { speed: 0.8, intensity: 0.6, pattern: 'flow', drift: new THREE.Vector3(0, 0.5, 0) };
         };
         
         const animProfile = getAnimationProfile(mark.name || mark.icon);
@@ -417,10 +417,26 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
           particle.position.z += flutter * 0.6 + drift * 0.5;
           
         } else {
-          // Default: gentle floating with profile adjustments
-          const gentleFloat = Math.sin(particle.oscillationPhase * animProfile.speed) * 0.0002 * animProfile.intensity;
+          // Apply gravity and drift for specific sensations
+          if (animProfile.gravity && animProfile.drift) {
+            particle.velocity.add(animProfile.drift.clone().multiplyScalar(animProfile.gravity * delta));
+          }
+          
+          // Apply general drift if defined
+          if (animProfile.drift) {
+            const driftForce = animProfile.drift.clone().multiplyScalar(0.0002 * animProfile.intensity * delta);
+            particle.velocity.add(driftForce);
+          }
+          
+          // Smooth easing curves instead of sharp sine/cosine
+          const t = particle.oscillationPhase * animProfile.speed;
+          const smoothFloat = (Math.sin(t) + Math.sin(t * 2.3) * 0.3 + Math.sin(t * 4.7) * 0.1) * 0.0001 * animProfile.intensity;
+          
           particle.position.add(particle.velocity);
-          particle.position.y += gentleFloat;
+          particle.position.y += smoothFloat;
+          
+          // Add momentum damping for natural feel
+          particle.velocity.multiplyScalar(0.98);
         }
 
         // Update the corresponding mesh
