@@ -121,7 +121,7 @@ export const SensationSelector = ({ mode, selectedSensation, onModeChange, onSen
                   color: sensation.color,
                   name: sensation.name
                 });
-                onModeChange('sensations');
+                // Don't auto-switch mode - let the popup handle the instruction
               }}
             >
               <img 

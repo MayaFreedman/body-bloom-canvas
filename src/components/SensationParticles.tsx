@@ -184,8 +184,24 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       if (!particleSystemsRef.current.has(mark.id)) {
         const particles: SensationParticle[] = [];
         
-        // Create particles based on icon type - increased particle count for butterfly/nerves
-        const particleCount = (mark.icon === 'butterfly' || mark.icon === 'Activity') ? 15 : 8;
+        // Create particles based on effect type with varied density
+        const getParticleCount = (sensationName: string) => {
+          const densityMapping: { [key: string]: number } = {
+            'Nerves': 25,
+            'Pain': 12,
+            'Nausea': 18,
+            'Tears': 8,
+            'Tingling': 20,
+            'Shaky': 30,
+            'Change in Breathing': 15,
+            'Increased Heart Rate': 10,
+            'Change in Energy': 25,
+            'Sweat': 15
+          };
+          return densityMapping[sensationName] || 12;
+        };
+        
+        const particleCount = getParticleCount(mark.name || mark.icon);
         
         for (let i = 0; i < particleCount; i++) {
           const baseParticle = {
@@ -201,7 +217,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             ),
             life: Math.random() * 100,
             maxLife: 80 + Math.random() * 40,
-            size: (0.015 + Math.random() * 0.025) * 0.9, // Reduced from 1.8 to 0.9 (50% reduction)
+            size: (0.08 + Math.random() * 0.12) * 2.5, // Significantly increased base size
             rotation: Math.random() * Math.PI * 2,
             rotationSpeed: (Math.random() - 0.5) * 0.15,
             oscillationPhase: Math.random() * Math.PI * 2,
@@ -311,44 +327,92 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
           }
         }
         
-        // Update position based on icon type with reduced movement range
-        if (mark.icon === 'Activity') {
-          // Nerves: electrical sparking with reduced movement range
-          const electricalJitter = Math.sin(particle.electricalPulse! * 4) * 0.0002; // Reduced from 0.0004 by 50%
-          const sparkJump = Math.sin(time * 25 + particle.life * 0.8) * 0.00015; // Reduced from 0.0003 by 50%
-          const rapidOscillation = Math.sin(particle.oscillationPhase * 4) * 0.0002; // Reduced from 0.0004 by 50%
+        // Get animation intensity and speed for this sensation
+        const getAnimationProfile = (sensationName: string) => {
+          const profiles: { [key: string]: { speed: number; intensity: number; pattern: string } } = {
+            'Nerves': { speed: 2.0, intensity: 1.5, pattern: 'electrical' },
+            'Pain': { speed: 0.5, intensity: 0.8, pattern: 'throb' },
+            'Nausea': { speed: 1.2, intensity: 1.0, pattern: 'swirl' },
+            'Tears': { speed: 0.3, intensity: 0.6, pattern: 'drop' },
+            'Tingling': { speed: 1.8, intensity: 1.2, pattern: 'sparkle' },
+            'Shaky': { speed: 3.0, intensity: 2.0, pattern: 'shake' },
+            'Change in Breathing': { speed: 0.8, intensity: 0.7, pattern: 'wave' },
+            'Increased Heart Rate': { speed: 2.5, intensity: 1.3, pattern: 'pulse' },
+            'Change in Energy': { speed: 1.5, intensity: 1.0, pattern: 'burst' },
+            'Sweat': { speed: 0.4, intensity: 0.5, pattern: 'drip' }
+          };
+          return profiles[sensationName] || { speed: 1.0, intensity: 1.0, pattern: 'default' };
+        };
+        
+        const animProfile = getAnimationProfile(mark.name || mark.icon);
+
+        // Update position based on animation profile
+        if (animProfile.pattern === 'electrical' || mark.icon === 'Activity') {
+          // Nerves: electrical sparking
+          const electricalJitter = Math.sin(particle.electricalPulse! * 4 * animProfile.speed) * 0.0004 * animProfile.intensity;
+          const sparkJump = Math.sin(time * 25 * animProfile.speed + particle.life * 0.8) * 0.0003 * animProfile.intensity;
+          const rapidOscillation = Math.sin(particle.oscillationPhase * 4 * animProfile.speed) * 0.0004 * animProfile.intensity;
           
-          // More frequent sudden direction changes for electrical effect
-          if (Math.random() < 0.08) { // 8% chance per frame
+          if (Math.random() < 0.08 * animProfile.speed) {
             particle.velocity.multiplyScalar(0.2);
             particle.velocity.add(new THREE.Vector3(
-              (Math.random() - 0.5) * 0.0004, // Reduced from 0.0008 by 50%
-              (Math.random() - 0.5) * 0.0004, // Reduced from 0.0008 by 50%
-              (Math.random() - 0.5) * 0.0004  // Reduced from 0.0008 by 50%
+              (Math.random() - 0.5) * 0.0008 * animProfile.intensity,
+              (Math.random() - 0.5) * 0.0008 * animProfile.intensity,
+              (Math.random() - 0.5) * 0.0008 * animProfile.intensity
             ));
           }
           
-          // Apply velocity and electrical effects
           particle.position.add(particle.velocity);
           particle.position.x += electricalJitter + sparkJump + rapidOscillation;
-          particle.position.y += electricalJitter * 1.2 + Math.cos(particle.oscillationPhase * 3) * 0.00015; // Reduced from 0.0003 by 50%
+          particle.position.y += electricalJitter * 1.2 + Math.cos(particle.oscillationPhase * 3) * 0.0003 * animProfile.intensity;
           particle.position.z += rapidOscillation + sparkJump * 0.8;
-          
-          // Less damping for more active movement
           particle.velocity.multiplyScalar(0.95);
+          
+        } else if (animProfile.pattern === 'shake') {
+          // Shaky: rapid trembling
+          const shakeX = Math.sin(time * 50 * animProfile.speed) * 0.0008 * animProfile.intensity;
+          const shakeY = Math.cos(time * 47 * animProfile.speed) * 0.0008 * animProfile.intensity;
+          const shakeZ = Math.sin(time * 53 * animProfile.speed) * 0.0006 * animProfile.intensity;
+          
+          particle.position.add(particle.velocity);
+          particle.position.x += shakeX;
+          particle.position.y += shakeY;
+          particle.position.z += shakeZ;
+          
+        } else if (animProfile.pattern === 'pulse') {
+          // Heart rate: pulsing movement
+          const pulse = Math.sin(time * 12 * animProfile.speed) * 0.0005 * animProfile.intensity;
+          const beatPattern = Math.sin(time * 24 * animProfile.speed) * 0.0003 * animProfile.intensity;
+          
+          particle.position.add(particle.velocity);
+          particle.position.y += pulse + beatPattern;
+          particle.position.x += beatPattern * 0.5;
+          
+        } else if (animProfile.pattern === 'swirl') {
+          // Nausea: swirling motion
+          const swirl = Math.sin(particle.oscillationPhase * animProfile.speed) * 0.0006 * animProfile.intensity;
+          const spiral = Math.cos(particle.oscillationPhase * animProfile.speed * 0.8) * 0.0004 * animProfile.intensity;
+          
+          particle.position.add(particle.velocity);
+          particle.position.x += swirl;
+          particle.position.z += spiral;
+          
         } else if (mark.icon === 'butterfly') {
-          // Butterfly: enhanced fluttering with wing-beat simulation
-          const wingBeat = Math.sin(time * 15 + particle.life) * 0.00025; // Reduced from 0.0005 by 50%
-          const flutter = Math.sin(particle.oscillationPhase * 2) * 0.0002; // Reduced from 0.0004 by 50%
-          const drift = Math.cos(time * 3 + particle.life * 0.1) * 0.00015; // Reduced from 0.0003 by 50%
+          // Butterfly: enhanced fluttering
+          const wingBeat = Math.sin(time * 15 * animProfile.speed + particle.life) * 0.0005 * animProfile.intensity;
+          const flutter = Math.sin(particle.oscillationPhase * 2) * 0.0004 * animProfile.intensity;
+          const drift = Math.cos(time * 3 + particle.life * 0.1) * 0.0003 * animProfile.intensity;
           
           particle.position.add(particle.velocity);
           particle.position.x += wingBeat * (Math.random() - 0.5) + flutter + drift;
-          particle.position.y += wingBeat * 0.8 + Math.cos(particle.oscillationPhase * 1.5) * 0.0002; // Reduced from 0.0004 by 50%
+          particle.position.y += wingBeat * 0.8 + Math.cos(particle.oscillationPhase * 1.5) * 0.0004 * animProfile.intensity;
           particle.position.z += flutter * 0.6 + drift * 0.5;
+          
         } else {
-          // Default: gentle floating
+          // Default: gentle floating with profile adjustments
+          const gentleFloat = Math.sin(particle.oscillationPhase * animProfile.speed) * 0.0002 * animProfile.intensity;
           particle.position.add(particle.velocity);
+          particle.position.y += gentleFloat;
         }
 
         // Update the corresponding mesh

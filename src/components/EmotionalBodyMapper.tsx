@@ -144,10 +144,14 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     console.log('✨ INCOMING SENSATION: Added to state and action history');
   };
 
-  // Combine local and multiplayer sensation handling
+  // Combine local and multiplayer sensation handling with auto-deselect
   const combinedSensationClick = (position: THREE.Vector3, sensation: any) => {
     localHandleSensationClick(position, sensation);
     handleSensationClick(position, sensation);
+    
+    // Auto-deselect the sensation after placement
+    setSelectedSensation(null);
+    setMode('draw'); // Return to default mode
   };
 
   const legacyDrawingMarks = drawingMarks.map(mark => ({

@@ -3,6 +3,7 @@ import React from 'react';
 import { BodyMapperCanvas } from './BodyMapperCanvas';
 import { BodyMapperControls } from './BodyMapperControls';
 import { ControlButtons } from './ControlButtons';
+import { SensationPlacementPopup } from './SensationPlacementPopup';
 import { BodyMapperMode, SelectedSensation, SensationMark } from '@/types/bodyMapperTypes';
 import { WorldDrawingPoint } from '@/types/multiplayerTypes';
 import * as THREE from 'three';
@@ -125,6 +126,12 @@ export const BodyMapperLayout = ({
           />
         </div>
       </div>
+      
+      {/* Sensation placement popup */}
+      <SensationPlacementPopup 
+        selectedSensation={selectedSensation}
+        isVisible={selectedSensation !== null}
+      />
     </div>
   );
 };
