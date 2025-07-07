@@ -150,24 +150,24 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       'Increased Heart Rate': 0.8,
       'Decreased Heart Rate': 0.8,
       'Tired': 1.1,
-      'Change in Breathing': 1.0,
+      'Change in Breathing': 0.4, // Reduced from 1.0 - wind image is small
       'Tingling': 0.7,
-      'Shaky': 1.0,
+      'Shaky': 0.3, // Reduced from 1.0 - shake image is small  
       'Pacing': 1.2,
-      'Stomping': 1.2,
+      'Stomping': 0.4, // Reduced from 1.2 - feetred image is small
       'Tight': 1.0,
       'Lump in Throat': 1.0,
-      'Change in Appetite': 1.0,
+      'Change in Appetite': 0.3, // Reduced from 1.0 - plate image is small
       'Heaviness': 0.9,
-      'Fidgety': 1.0,
+      'Fidgety': 0.3, // Reduced from 1.0 - fidget spinner image is small
       'Frozen/Stiff': 1.1,
       'Ache': 0.8,
       'Feeling Small': 0.9,
       'Dry Mouth': 1.0,
-      'Clenched': 0.9,
+      'Clenched': 0.3, // Reduced from 0.9 - clenched fist image is small
       'Change in Energy': 0.9,
-      'Avoiding Eye Contact': 1.0,
-      'Scrunched Face': 1.0,
+      'Avoiding Eye Contact': 0.4, // Reduced from 1.0 - monkey image is small
+      'Scrunched Face': 0.4, // Reduced from 1.0 - wavy image is small
       'Goosebumps': 1.0,
       'Relaxed': 1.0,
       'Sweat': 0.8
