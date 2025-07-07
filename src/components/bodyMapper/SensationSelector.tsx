@@ -116,11 +116,13 @@ export const SensationSelector = ({ mode, selectedSensation, onModeChange, onSen
                   : 'border-gray-200 hover:bg-gray-50 hover:border-gray-300'
               }`}
               onClick={() => {
+                console.log('🎯 SensationSelector - Sensation selected:', sensation.name);
                 onSensationChange({
                   icon: sensation.icon,
                   color: sensation.color,
                   name: sensation.name
                 });
+                console.log('🎯 SensationSelector - Sensation change called');
                 // Don't auto-switch mode - let the popup handle the instruction
               }}
             >
