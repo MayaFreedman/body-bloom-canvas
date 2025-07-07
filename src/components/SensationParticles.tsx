@@ -233,7 +233,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
           };
 
           // Add special properties for nerves/electrical particles
-          if (mark.icon === 'Activity') {
+          if (mark.icon === 'Activity' || mark.name === 'Nerves') {
             particles.push({
               ...baseParticle,
               sparkIntensity: Math.random(),
@@ -288,7 +288,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
         particle.oscillationPhase += particle.oscillationSpeed * delta;
         
         // Update electrical properties for nerves
-        if (mark.icon === 'Activity' && particle.electricalPulse !== undefined) {
+        if ((mark.icon === 'Activity' || mark.name === 'Nerves') && particle.electricalPulse !== undefined) {
           particle.electricalPulse += delta * 12;
           particle.flickerPhase! += delta * 20;
         }
@@ -307,7 +307,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
           particle.rotation = Math.random() * Math.PI * 2;
           particle.oscillationPhase = Math.random() * Math.PI * 2;
           
-          if (mark.icon === 'Activity') {
+          if (mark.icon === 'Activity' || mark.name === 'Nerves') {
             particle.flickerPhase = Math.random() * Math.PI * 2;
             particle.electricalPulse = Math.random() * Math.PI * 2;
             particle.sparkIntensity = Math.random();
@@ -355,7 +355,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
         const animProfile = getAnimationProfile(mark.name || mark.icon);
 
         // Update position based on animation profile
-        if (animProfile.pattern === 'electrical' || mark.icon === 'Activity') {
+        if (animProfile.pattern === 'electrical' || mark.icon === 'Activity' || mark.name === 'Nerves') {
           // Nerves: electrical sparking
           const electricalJitter = Math.sin(particle.electricalPulse! * 4 * animProfile.speed) * 0.0004 * animProfile.intensity;
           const sparkJump = Math.sin(time * 25 * animProfile.speed + particle.life * 0.8) * 0.0003 * animProfile.intensity;
@@ -433,16 +433,18 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
           const opacity = 1 - (particle.life / particle.maxLife);
           const normalizedScale = getNormalizedScale(mark.name || mark.icon);
           
-          if (mark.icon === 'Activity') {
-            const flickerIntensity = 0.4 + Math.sin(particle.flickerPhase!) * 0.5;
-            const pulseScale = 1 + Math.sin(particle.electricalPulse!) * 0.8;
+          if (mark.icon === 'Activity' || mark.name === 'Nerves') {
+            const flickerIntensity = particle.flickerPhase !== undefined ? 0.4 + Math.sin(particle.flickerPhase) * 0.5 : 1;
+            const pulseScale = particle.electricalPulse !== undefined ? 1 + Math.sin(particle.electricalPulse) * 0.8 : 1;
             mesh.scale.setScalar(particle.size * normalizedScale * pulseScale);
             
             // Update material properties for electrical effect
-            const material = (mesh as THREE.Mesh).material as THREE.MeshStandardMaterial;
+            const material = (mesh as any).material;
             if (material) {
               material.opacity = Math.max(0.1, opacity * flickerIntensity);
-              material.emissiveIntensity = flickerIntensity * 0.4;
+              if (material.emissiveIntensity !== undefined) {
+                material.emissiveIntensity = flickerIntensity * 0.4;
+              }
             }
           } else if (mark.icon === 'butterfly') {
             const wingScale = 1 + Math.sin(particle.oscillationPhase * 3) * 0.4;
@@ -487,7 +489,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       const opacity = 1 - (particle.life / particle.maxLife);
       const finalScale = particle.size * 1.5 * normalizedScale;
       
-      console.log('🦋 SensationParticles - Rendering particle', index, 'position:', particle.position, 'finalScale:', finalScale, 'opacity:', opacity);
+      console.log('🦋 SensationParticles - Rendering particle', index, 'position:', particle.position.x, particle.position.y, particle.position.z, 'finalScale:', finalScale, 'opacity:', opacity);
       
       // Use sprites for all sensation types with their appropriate textures
       return (
