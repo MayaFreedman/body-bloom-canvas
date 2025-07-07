@@ -11,6 +11,7 @@ interface ControlButtonsProps {
   canvasRef: React.RefObject<HTMLDivElement>;
   drawingTarget?: 'body' | 'whiteboard';
   mode?: string;
+  isActivelyDrawing?: boolean;
 }
 
 export const ControlButtons = ({ 
@@ -21,7 +22,8 @@ export const ControlButtons = ({
   canRedo = false, 
   canvasRef,
   drawingTarget = 'body',
-  mode = 'draw'
+  mode = 'draw',
+  isActivelyDrawing = false
 }: ControlButtonsProps) => {
   const captureScreenshot = async () => {
     if (!canvasRef.current) return;
@@ -61,8 +63,8 @@ export const ControlButtons = ({
     onResetAll();
   };
 
-  // Disable pointer events when drawing on whiteboard to allow drawing "through" the buttons
-  const shouldDisablePointerEvents = drawingTarget === 'whiteboard' && mode === 'draw';
+  // Only disable pointer events when actively drawing a stroke on whiteboard
+  const shouldDisablePointerEvents = drawingTarget === 'whiteboard' && mode === 'draw' && isActivelyDrawing;
 
   return (
     <>

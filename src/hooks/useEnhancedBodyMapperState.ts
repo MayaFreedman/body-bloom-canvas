@@ -30,6 +30,7 @@ export const useEnhancedBodyMapperState = ({
   const [bodyPartColors, setBodyPartColors] = useState<Record<string, string>>({});
   const [sensationMarks, setSensationMarks] = useState<SensationMark[]>([]);
   const [rotation, setRotation] = useState(0);
+  const [isActivelyDrawing, setIsActivelyDrawing] = useState(false);
 
   // Centralized state management
   const actionHistory = useActionHistory();
@@ -68,6 +69,17 @@ export const useEnhancedBodyMapperState = ({
     setBodyPartColors, 
     currentUserId 
   });
+
+  // Enhanced drawing handlers with state tracking
+  const handleStartDrawing = () => {
+    setIsActivelyDrawing(true);
+    drawingOps.handleStartDrawing();
+  };
+
+  const handleFinishDrawing = () => {
+    setIsActivelyDrawing(false);
+    drawingOps.handleFinishDrawing();
+  };
 
   // Enhanced sensation handling with action history tracking
   const handleSensationClick = (position: any, sensation: SelectedSensation) => {
@@ -148,6 +160,7 @@ export const useEnhancedBodyMapperState = ({
     setBrushSize,
     drawingTarget,
     setDrawingTarget,
+    isActivelyDrawing,
     selectedSensation,
     setSelectedSensation,
     drawingMarks, // Legacy compatibility
@@ -158,9 +171,9 @@ export const useEnhancedBodyMapperState = ({
     setRotation,
     
     // Enhanced functionality
-    handleStartDrawing: drawingOps.handleStartDrawing,
+    handleStartDrawing,
     handleAddDrawingMark: drawingOps.handleAddDrawingMark,
-    handleFinishDrawing: drawingOps.handleFinishDrawing,
+    handleFinishDrawing,
     handleSensationClick,
     handleErase: eraseOps.handleErase,
     handleUndo: undoRedoOps.handleUndo,

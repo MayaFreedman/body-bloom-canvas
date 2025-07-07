@@ -15,6 +15,7 @@ interface BodyMapperLayoutProps {
   selectedColor: string;
   brushSize: number[];
   drawingTarget: 'body' | 'whiteboard';
+  isActivelyDrawing: boolean;
   selectedSensation: SelectedSensation | null;
   drawingMarks: any[];
   sensationMarks: SensationMark[];
@@ -50,6 +51,7 @@ export const BodyMapperLayout = ({
   selectedColor,
   brushSize,
   drawingTarget,
+  isActivelyDrawing,
   selectedSensation,
   drawingMarks,
   sensationMarks,
@@ -117,6 +119,7 @@ export const BodyMapperLayout = ({
           canvasRef={canvasRef}
           drawingTarget={drawingTarget}
           mode={mode}
+          isActivelyDrawing={isActivelyDrawing}
         />
       </div>
 
