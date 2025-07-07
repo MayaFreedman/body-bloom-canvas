@@ -96,6 +96,7 @@ export const BodyMapperLayout = ({
             effects={[]}
             bodyPartColors={bodyPartColors}
             rotation={rotation}
+            isActivelyDrawing={isActivelyDrawing}
             modelRef={modelRef}
             onAddDrawingMark={onAddDrawingMark}
             onDrawingStrokeStart={onDrawingStrokeStart}

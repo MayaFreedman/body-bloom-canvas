@@ -28,6 +28,7 @@ interface BodyMapperCanvasProps {
   effects: Effect[];
   bodyPartColors: BodyPartColors;
   rotation: number;
+  isActivelyDrawing?: boolean;
   modelRef: React.RefObject<THREE.Group>;
   onAddDrawingMark: (mark: DrawingMark) => void;
   onDrawingStrokeStart: () => void;
@@ -52,6 +53,7 @@ export const BodyMapperCanvas = ({
   effects,
   bodyPartColors,
   rotation,
+  isActivelyDrawing = false,
   modelRef,
   onAddDrawingMark,
   onDrawingStrokeStart,
@@ -182,6 +184,7 @@ export const BodyMapperCanvas = ({
         isHoveringBody={isHoveringBody}
         mode={mode}
         drawingTarget={drawingTarget}
+        isActivelyDrawing={isActivelyDrawing}
       />
     </div>
   );
