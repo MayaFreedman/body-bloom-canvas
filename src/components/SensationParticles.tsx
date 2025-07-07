@@ -386,19 +386,43 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
         const dispersion = getDispersionLevel(mark.name || mark.icon);
         
         for (let i = 0; i < particleCount; i++) {
-          // Create base particle with proper initial velocity for tears/sweat
+          // Create initial velocity that matches the sensation's animation pattern
           let initialVelocity;
+          
           if (mark.name === 'Tears' || mark.name === 'Sweat') {
+            // Dripping particles start with downward movement
             initialVelocity = new THREE.Vector3(
               (Math.random() - 0.5) * 0.0003, // Small horizontal variation
               -0.0008 - Math.random() * 0.0004, // Consistent downward movement  
               (Math.random() - 0.5) * 0.0002  // Minimal depth movement
             );
-          } else {
+          } else if (mark.name === 'Increased Heart Rate' || mark.name === 'Decreased Heart Rate') {
+            // Heart rate particles start with gentle pulsing movement
             initialVelocity = new THREE.Vector3(
-              (Math.random() - 0.5) * (dispersion * 0.2),
-              (Math.random() - 0.5) * (dispersion * 0.2),
-              (Math.random() - 0.5) * (dispersion * 0.2)
+              (Math.random() - 0.5) * 0.0003, // Minimal horizontal
+              (Math.random() - 0.5) * 0.0008, // Gentle vertical for pulsing
+              (Math.random() - 0.5) * 0.0002  // Minimal depth
+            );
+          } else if (mark.name === 'Nerves' || mark.name === 'Tingling') {
+            // Electrical particles start with quick, small movements
+            initialVelocity = new THREE.Vector3(
+              (Math.random() - 0.5) * 0.001,
+              (Math.random() - 0.5) * 0.0008,
+              (Math.random() - 0.5) * 0.001
+            );
+          } else if (mark.name === 'Shaky' || mark.name === 'Fidgety') {
+            // Shaky particles start with trembling movement
+            initialVelocity = new THREE.Vector3(
+              (Math.random() - 0.5) * 0.0015,
+              (Math.random() - 0.5) * 0.001,
+              (Math.random() - 0.5) * 0.0015
+            );
+          } else {
+            // Default gentle floating movement for other sensations
+            initialVelocity = new THREE.Vector3(
+              (Math.random() - 0.5) * 0.0006,
+              Math.random() * 0.0008, // Natural floating tendency
+              (Math.random() - 0.5) * 0.0006
             );
           }
           
