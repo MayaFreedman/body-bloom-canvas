@@ -34,8 +34,6 @@ export const ClickHandler = ({
   const handleClick = useCallback((event: MouseEvent) => {
     console.log('🖱️ ClickHandler - Click detected, mode:', mode, 'selectedSensation:', selectedSensation);
     
-    if (mode === 'draw') return; // Drawing is handled by ModelDrawing component
-    
     const rect = gl.domElement.getBoundingClientRect();
     mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
     mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
@@ -51,12 +49,7 @@ export const ClickHandler = ({
       const intersect = intersects[0];
       
       if (intersectedObject.userData.bodyPart) {
-        if (mode === 'fill') {
-          console.log(`Filling body part: ${intersectedObject.userData.bodyPart} with color: ${selectedColor}`);
-          onBodyPartClick(intersectedObject.userData.bodyPart, selectedColor);
-          return;
-        }
-        
+        // PRIORITY 1: If a sensation is equipped, always place it (regardless of mode)
         if (selectedSensation) {
           console.log('🎯 ClickHandler - Placing sensation:', selectedSensation.name, 'at body part:', intersectedObject.userData.bodyPart);
           // Convert world position to local position relative to the model
@@ -69,19 +62,29 @@ export const ClickHandler = ({
           } else {
             console.error('❌ ClickHandler - Could not find model group');
           }
-        } else {
-          console.log('⚠️ ClickHandler - No sensation selected');
+          return; // Exit early after placing sensation
         }
+        
+        // PRIORITY 2: If no sensation equipped and mode is fill, do body part filling
+        if (mode === 'fill') {
+          console.log(`Filling body part: ${intersectedObject.userData.bodyPart} with color: ${selectedColor}`);
+          onBodyPartClick(intersectedObject.userData.bodyPart, selectedColor);
+          return;
+        }
+        
+        // PRIORITY 3: Drawing mode is handled by ModelDrawing component (no action needed here)
+        console.log('⚠️ ClickHandler - No sensation equipped and not in fill mode, letting other handlers process');
       }
     }
   }, [mode, selectedColor, selectedSensation, onBodyPartClick, onSensationClick, camera, gl, raycaster, mouse, getBodyMeshes, scene]);
 
   React.useEffect(() => {
-    if (mode !== 'draw') {
+    // Always listen for clicks if a sensation is equipped, OR if not in draw mode
+    if (selectedSensation || mode !== 'draw') {
       gl.domElement.addEventListener('click', handleClick);
       return () => gl.domElement.removeEventListener('click', handleClick);
     }
-  }, [handleClick, gl, mode]);
+  }, [handleClick, gl, mode, selectedSensation]);
 
   return null;
 };
