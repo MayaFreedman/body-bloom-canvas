@@ -568,7 +568,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
         const getAnimationProfile = (sensationName: string) => {
           const profiles: { [key: string]: { speed: number; intensity: number; pattern: string; gravity?: number; drift?: THREE.Vector3 } } = {
             // ELECTRICAL/ACTIVE effects
-            'Nerves': { speed: 1.2, intensity: 1.0, pattern: 'electrical', gravity: 0.0002 },
+            'Nerves': { speed: 0.8, intensity: 0.6, pattern: 'electrical', gravity: 0.0002 },
             'Tingling': { speed: 1.8, intensity: 1.2, pattern: 'electrical', gravity: 0.0001 }, // Use electrical pattern for sparkly movement
             'Change in Energy': { speed: 1.5, intensity: 1.0, pattern: 'burst', gravity: 0.0001, drift: new THREE.Vector3(0, 0.3, 0) },
             
@@ -609,16 +609,16 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
 
         // Update position based on animation profile with natural physics
         if (animProfile.pattern === 'electrical' || mark.icon === 'Activity' || mark.name === 'Nerves' || mark.name === 'Tingling') {
-          // Electrical effects: consistent sparking with fluid movement
-          const electricalJitter = Math.sin(particle.electricalPulse! * animProfile.speed) * 0.001 * animProfile.intensity;
-          const sparkDirection = Math.cos(time * 6 * animProfile.speed + particle.life * 0.2) * 0.0008 * animProfile.intensity;
+          // Electrical effects: gentler sparking with fluid movement
+          const electricalJitter = Math.sin(particle.electricalPulse! * animProfile.speed) * 0.0005 * animProfile.intensity;
+          const sparkDirection = Math.cos(time * 4 * animProfile.speed + particle.life * 0.1) * 0.0004 * animProfile.intensity;
           
-          // Continuous electrical impulses for alive feeling
-          if (Math.random() < 0.08 * animProfile.speed) {
+          // Less frequent electrical impulses for calmer feeling
+          if (Math.random() < 0.04 * animProfile.speed) {
             particle.velocity.add(new THREE.Vector3(
-              (Math.random() - 0.5) * 0.003 * animProfile.intensity,
-              (Math.random() - 0.5) * 0.002 * animProfile.intensity,
-              (Math.random() - 0.5) * 0.003 * animProfile.intensity
+              (Math.random() - 0.5) * 0.0015 * animProfile.intensity,
+              (Math.random() - 0.5) * 0.001 * animProfile.intensity,
+              (Math.random() - 0.5) * 0.0015 * animProfile.intensity
             ));
           }
           
@@ -626,13 +626,13 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
           particle.velocity.y += (animProfile.gravity || 0.0002) * delta;
           particle.position.add(particle.velocity);
           
-          // Add electrical jitter
+          // Add gentler electrical jitter
           particle.position.x += electricalJitter;
           particle.position.y += sparkDirection;
-          particle.position.z += electricalJitter * 0.7;
+          particle.position.z += electricalJitter * 0.5;
           
-          // Gentler damping to maintain movement
-          particle.velocity.multiplyScalar(0.988);
+          // More damping for smoother movement
+          particle.velocity.multiplyScalar(0.95);
           
         } else if (animProfile.pattern === 'shake') {
           // Shaky: rapid trembling with fluid movement
