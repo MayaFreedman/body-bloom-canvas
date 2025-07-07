@@ -35,12 +35,13 @@ export const useDrawingEventListeners = ({
         isDrawing,
         drawingTarget,
         isActivelyDrawing,
-        shouldShowCrosshair
+        shouldShowCrosshair,
+        currentCursor: gl.domElement.style.cursor
       });
       
       if (shouldShowCrosshair) {
         console.log('🎯 useDrawingEventListeners: Setting crosshair cursor');
-        gl.domElement.style.cursor = 'crosshair';
+        gl.domElement.style.setProperty('cursor', 'crosshair', 'important');
       } else {
         console.log('🎯 useDrawingEventListeners: NOT setting crosshair (restricted state)');
       }

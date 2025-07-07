@@ -49,28 +49,12 @@ export const CustomCursor: React.FC<CustomCursorProps> = ({
     
     if (showNotAllowed) {
       // Show "not allowed" cursor when trying to draw on body in whiteboard mode (but not while actively drawing)
-      // Use !important to override any other cursor settings (like crosshair from drawing handlers)
       document.body.style.setProperty('cursor', 'not-allowed', 'important');
       if (canvas) canvas.style.setProperty('cursor', 'not-allowed', 'important');
       console.log('🚫 Setting not-allowed cursor - whiteboard mode on body');
-      
-      // Set up a continuous override to prevent other components from changing the cursor
-      const interval = setInterval(() => {
-        if (document.body.style.cursor !== 'not-allowed') {
-          console.log('🚫 Re-enforcing not-allowed cursor - something tried to change it');
-          document.body.style.setProperty('cursor', 'not-allowed', 'important');
-          if (canvas) canvas.style.setProperty('cursor', 'not-allowed', 'important');
-        }
-      }, 50);
-      
-      return () => {
-        clearInterval(interval);
-        document.body.style.removeProperty('cursor');
-        if (canvas) canvas.style.removeProperty('cursor');
-      };
     } else if (selectedSensation) {
       if (isHoveringBody) {
-        // Force grabby hand when hovering over body with sensation selected - use !important override
+        // Force grabby hand when hovering over body with sensation selected
         document.body.style.setProperty('cursor', 'grab', 'important');
         if (canvas) canvas.style.setProperty('cursor', 'grab', 'important');
         console.log('🖱️ Setting grab cursor - hovering body with sensation');
@@ -81,14 +65,13 @@ export const CustomCursor: React.FC<CustomCursorProps> = ({
         console.log('🖱️ Setting none cursor - sensation selected but not hovering');
       }
     } else {
-      // Allow other cursor handlers to take precedence when no sensation selected and not showing not-allowed
+      // Allow other cursor handlers to take precedence
       document.body.style.removeProperty('cursor');
       if (canvas) canvas.style.removeProperty('cursor');
       console.log('🖱️ Removing cursor override - letting other handlers control');
     }
 
     return () => {
-      // Only reset if we were controlling the cursor
       if (showNotAllowed || selectedSensation) {
         document.body.style.cursor = 'default';
         if (canvas) canvas.style.cursor = 'default';
