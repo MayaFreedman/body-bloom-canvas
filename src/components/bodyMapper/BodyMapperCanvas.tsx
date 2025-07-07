@@ -140,6 +140,7 @@ export const BodyMapperCanvas = ({
           selectedColor={selectedColor}
           brushSize={brushSize}
           drawingTarget={drawingTarget}
+          isActivelyDrawing={isActivelyDrawing}
           onAddMark={onAddDrawingMark}
           onStrokeStart={onDrawingStrokeStart}
           onStrokeComplete={onDrawingStrokeComplete}
