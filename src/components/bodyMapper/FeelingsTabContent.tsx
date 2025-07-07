@@ -46,14 +46,15 @@ export const FeelingsTabContent = ({
   
   return (
     <div className="space-y-4">
+      {/* Tool Buttons - Above everything else */}
+      <PaintingModeSelector mode={mode} onModeChange={onModeChange} title="Tools" />
+      
       <div className="space-y-2">
         <h3 className="font-medium text-sm text-muted-foreground">Colors & Emotions</h3>
         <p className="text-xs text-muted-foreground leading-relaxed">
           Choose colors that represent your feelings and use them to fill in the body outline.
         </p>
       </div>
-
-      <PaintingModeSelector mode={mode} onModeChange={onModeChange} title="Tools" />
       {/* Brush Size Control - Only visible in Draw mode */}
       {mode === 'draw' && (
         <BrushSizeControl
