@@ -3,12 +3,14 @@ import { useCallback } from 'react';
 import { useStrokeManager } from './useStrokeManager';
 import { useActionHistory } from './useActionHistory';
 import { SensationMark } from '@/types/bodyMapperTypes';
+import { TextMark } from '@/types/textTypes';
 
 interface UseUndoRedoOperationsProps {
   strokeManager: ReturnType<typeof useStrokeManager>;
   actionHistory: ReturnType<typeof useActionHistory>;
   setBodyPartColors: React.Dispatch<React.SetStateAction<Record<string, string>>>;
   setSensationMarks: React.Dispatch<React.SetStateAction<SensationMark[]>>;
+  setTextMarks: React.Dispatch<React.SetStateAction<TextMark[]>>;
   broadcastUndo?: () => void;
   broadcastRedo?: () => void;
   isMultiplayer?: boolean;
@@ -19,6 +21,7 @@ export const useUndoRedoOperations = ({
   actionHistory,
   setBodyPartColors,
   setSensationMarks,
+  setTextMarks,
   broadcastUndo,
   broadcastRedo,
   isMultiplayer = false
@@ -75,9 +78,66 @@ export const useUndoRedoOperations = ({
         if (actionToUndo.data.previousSensationMarks !== undefined) {
           setSensationMarks(actionToUndo.data.previousSensationMarks);
         }
+        if (actionToUndo.data.previousTextMarks !== undefined) {
+          setTextMarks(actionToUndo.data.previousTextMarks);
+          console.log('Restored previous text marks from clear:', actionToUndo.data.previousTextMarks);
+        }
+        break;
+      case 'textPlace':
+        console.log('Undoing text place action');
+        if (actionToUndo.data.previousTextMarks !== undefined) {
+          setTextMarks(actionToUndo.data.previousTextMarks);
+          console.log('Restored previous text marks:', actionToUndo.data.previousTextMarks);
+        }
+        break;
+      case 'textEdit':
+        console.log('Undoing text edit action');
+        if (actionToUndo.data.textMark && actionToUndo.data.previousText !== undefined) {
+          setTextMarks(prev => prev.map(mark => 
+            mark.id === actionToUndo.data.textMark.id 
+              ? { ...mark, text: actionToUndo.data.previousText }
+              : mark
+          ));
+          console.log('Restored previous text content:', actionToUndo.data.previousText);
+        }
+        break;
+      case 'textDelete':
+        console.log('Undoing text delete action');
+        if (actionToUndo.data.previousTextMarks !== undefined) {
+          setTextMarks(actionToUndo.data.previousTextMarks);
+          console.log('Restored text marks after delete undo:', actionToUndo.data.previousTextMarks);
+        }
+        break;
+      case 'resetAll':
+        console.log('Undoing reset all action');
+        if (actionToUndo.data.drawingMarks) {
+          actionToUndo.data.drawingMarks.forEach((mark: any) => {
+            const stroke = {
+              id: mark.strokeId,
+              marks: [mark],
+              startTime: mark.timestamp,
+              endTime: mark.timestamp,
+              brushSize: mark.size,
+              color: mark.color,
+              isComplete: true,
+              userId: mark.userId
+            };
+            strokeManager.restoreStroke(stroke);
+          });
+        }
+        if (actionToUndo.data.sensationMarks !== undefined) {
+          setSensationMarks(actionToUndo.data.sensationMarks);
+        }
+        if (actionToUndo.data.bodyPartColors !== undefined) {
+          setBodyPartColors(actionToUndo.data.bodyPartColors);
+        }
+        if (actionToUndo.data.textMarks !== undefined) {
+          setTextMarks(actionToUndo.data.textMarks);
+          console.log('Restored text marks from reset:', actionToUndo.data.textMarks);
+        }
         break;
     }
-  }, [strokeManager, setBodyPartColors, setSensationMarks]);
+  }, [strokeManager, setBodyPartColors, setSensationMarks, setTextMarks]);
 
   const performRedo = useCallback((actionToRedo: any) => {
     if (!actionToRedo) return;
@@ -134,9 +194,51 @@ export const useUndoRedoOperations = ({
         if (actionToRedo.data.previousSensationMarks !== undefined) {
           setSensationMarks([]);
         }
+        if (actionToRedo.data.previousTextMarks !== undefined) {
+          setTextMarks([]);
+          console.log('Cleared text marks for clear redo');
+        }
+        break;
+      case 'textPlace':
+        console.log('Redoing text place action');
+        if (actionToRedo.data.textMark) {
+          setTextMarks(prev => [...prev, actionToRedo.data.textMark]);
+          console.log('Added text mark after redo:', actionToRedo.data.textMark);
+        }
+        break;
+      case 'textEdit':
+        console.log('Redoing text edit action');
+        if (actionToRedo.data.textMark) {
+          setTextMarks(prev => prev.map(mark => 
+            mark.id === actionToRedo.data.textMark.id 
+              ? { ...mark, text: actionToRedo.data.textMark.text }
+              : mark
+          ));
+          console.log('Applied text edit after redo:', actionToRedo.data.textMark.text);
+        }
+        break;
+      case 'textDelete':
+        console.log('Redoing text delete action');
+        if (actionToRedo.data.textMark) {
+          setTextMarks(prev => prev.filter(mark => mark.id !== actionToRedo.data.textMark.id));
+          console.log('Removed text mark after redo:', actionToRedo.data.textMark.id);
+        }
+        break;
+      case 'resetAll':
+        console.log('Redoing reset all action');
+        // Clear everything again
+        if (actionToRedo.data.drawingMarks) {
+          actionToRedo.data.drawingMarks.forEach((mark: any) => {
+            strokeManager.removeStroke(mark.strokeId);
+          });
+        }
+        setSensationMarks([]);
+        setBodyPartColors({});
+        setTextMarks([]);
+        console.log('Cleared all content after reset redo');
         break;
     }
-  }, [strokeManager, setBodyPartColors, setSensationMarks]);
+  }, [strokeManager, setBodyPartColors, setSensationMarks, setTextMarks]);
 
   const handleUndo = useCallback(() => {
     console.log('handleUndo called - LOCAL ACTION');

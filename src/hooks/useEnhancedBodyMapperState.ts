@@ -59,26 +59,8 @@ export const useEnhancedBodyMapperState = ({
     actionHistory, 
     spatialIndex, 
     currentUserId 
-  });
-  
-  const undoRedoOps = useUndoRedoOperations({ 
-    strokeManager, 
-    actionHistory, 
-    setBodyPartColors,
-    setSensationMarks,
-    broadcastUndo,
-    broadcastRedo,
-    isMultiplayer
-  });
-  
-  const bodyPartOps = useBodyPartOperations({ 
-    actionHistory, 
-    strokeManager, 
-    bodyPartColors, 
-    setBodyPartColors, 
-    currentUserId 
-  });
-
+   });
+   
   // Text Manager with multiplayer integration
   const textManager = useTextManager({
     currentUserId,
@@ -86,6 +68,25 @@ export const useEnhancedBodyMapperState = ({
     onBroadcastTextPlace,
     onBroadcastTextUpdate,
     onBroadcastTextDelete
+  });
+
+  const undoRedoOps = useUndoRedoOperations({
+    strokeManager,
+    actionHistory,
+    setBodyPartColors,
+    setSensationMarks,
+    setTextMarks: textManager.setTextMarks,
+    broadcastUndo,
+    broadcastRedo,
+    isMultiplayer
+  });
+   
+  const bodyPartOps = useBodyPartOperations({ 
+    actionHistory, 
+    strokeManager, 
+    bodyPartColors, 
+    setBodyPartColors, 
+    currentUserId 
   });
 
   // Enhanced drawing handlers with state tracking
@@ -166,18 +167,21 @@ export const useEnhancedBodyMapperState = ({
 
   const clearAll = () => {
     const previousSensationMarks = [...sensationMarks];
+    const previousTextMarks = [...textManager.textMarks];
     
     bodyPartOps.clearAll();
     setSensationMarks([]);
+    textManager.clearAllText();
     
-    // Record clear action including sensation marks
-    if (previousSensationMarks.length > 0) {
+    // Record clear action including sensation marks and text marks
+    if (previousSensationMarks.length > 0 || previousTextMarks.length > 0) {
       actionHistory.addAction({
         type: 'clear',
         data: {
           strokes: strokeManager.getAllStrokes(),
           previousBodyPartColors: bodyPartColors,
-          previousSensationMarks: previousSensationMarks
+          previousSensationMarks: previousSensationMarks,
+          previousTextMarks: previousTextMarks
         }
       });
     }
