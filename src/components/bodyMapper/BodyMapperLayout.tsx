@@ -20,9 +20,10 @@ interface BodyMapperLayoutProps {
   selectedSensation: SelectedSensation | null;
   drawingMarks: any[];
   sensationMarks: SensationMark[];
-  textMarks?: TextMark[];
+  textMarks: TextMark[];
   textSettings?: TextSettings;
-  editingTextId?: string | null;
+  textToPlace?: string;
+  editingTextId: string | null;
   bodyPartColors: Record<string, string>;
   rotation: number;
   modelRef: React.RefObject<THREE.Group>;
@@ -36,6 +37,7 @@ interface BodyMapperLayoutProps {
   setDrawingTarget: (target: 'body' | 'whiteboard') => void;
   setSelectedSensation: (sensation: SelectedSensation | null) => void;
   setTextSettings?: (settings: Partial<TextSettings>) => void;
+  setTextToPlace?: (text: string) => void;
   onAddDrawingMark: (mark: any) => void;
   onDrawingStrokeStart: () => void;
   onDrawingStrokeComplete: () => void;
@@ -67,6 +69,7 @@ export const BodyMapperLayout = ({
   sensationMarks,
   textMarks,
   textSettings,
+  textToPlace,
   editingTextId,
   bodyPartColors,
   rotation,
@@ -81,6 +84,7 @@ export const BodyMapperLayout = ({
   setDrawingTarget,
   setSelectedSensation,
   setTextSettings,
+  setTextToPlace,
   onAddDrawingMark,
   onDrawingStrokeStart,
   onDrawingStrokeComplete,
@@ -117,6 +121,8 @@ export const BodyMapperLayout = ({
             rotation={rotation}
             isActivelyDrawing={isActivelyDrawing}
             textMarks={textMarks}
+            textToPlace={textToPlace}
+            textSettings={textSettings}
             editingTextId={editingTextId}
             modelRef={modelRef}
             onAddDrawingMark={onAddDrawingMark}

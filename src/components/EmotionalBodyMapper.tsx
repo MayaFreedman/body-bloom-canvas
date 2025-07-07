@@ -60,6 +60,8 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     textMarks,
     textSettings,
     editingTextId,
+    textToPlace,
+    setTextToPlace,
     handleAddTextMark,
     handleUpdateTextMark,
     handleDeleteTextMark,
@@ -192,11 +194,12 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
         drawingMarks={legacyDrawingMarks}
         sensationMarks={sensationMarks}
         textMarks={textMarks}
-        textSettings={textSettings}
-        editingTextId={editingTextId}
+        modelRef={modelRef}
+        textToPlace={textToPlace}
         bodyPartColors={bodyPartColors}
         rotation={rotation}
-        modelRef={modelRef}
+        textSettings={textSettings}
+        editingTextId={editingTextId}
         controlsRef={controlsRef}
         canvasRef={canvasRef}
         canUndo={canUndo}
@@ -207,6 +210,7 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
         setDrawingTarget={setDrawingTarget}
         setSelectedSensation={setSelectedSensation}
         setTextSettings={(settings) => setTextSettings(prev => ({ ...prev, ...settings }))}
+        setTextToPlace={setTextToPlace}
         onAddDrawingMark={handleAddDrawingMark}
         onDrawingStrokeStart={handleDrawingStrokeStart}
         onDrawingStrokeComplete={handleDrawingStrokeComplete}
@@ -214,7 +218,7 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
         onBodyPartClick={handleBodyPartClick}
         onSensationClick={combinedSensationClick}
         onErase={handleMultiplayerErase}
-        onTextPlace={(position, surface) => handleAddTextMark(position, 'Click to edit text', surface, selectedColor)}
+        onTextPlace={(position, surface) => handleAddTextMark(position, textToPlace || 'Sample Text', surface, selectedColor)}
         onTextClick={(textMark) => handleStartTextEditing(textMark.id)}
         onTextSave={(text) => editingTextId && handleUpdateTextMark(editingTextId, { text })}
         onTextCancel={handleStopTextEditing}

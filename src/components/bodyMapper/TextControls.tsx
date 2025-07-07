@@ -42,7 +42,7 @@ export const TextControls = ({
     onTextToPlaceChange?.(text);
   };
 
-  const currentText = onTextToPlaceChange ? textToPlace : localTextToPlace;
+  const currentText = onTextToPlaceChange ? (textToPlace || localTextToPlace) : localTextToPlace;
 
   return (
     <div className="space-y-4">

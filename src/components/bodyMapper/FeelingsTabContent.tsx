@@ -18,6 +18,7 @@ interface FeelingsTabContentProps {
   brushSize: number[];
   emotions: CustomEmotion[];
   textSettings?: TextSettings;
+  textToPlace?: string;
   onModeChange: (mode: BodyMapperMode) => void;
   onEmotionColorChange: (index: number, color: string) => void;
   onEmotionNameChange: (index: number, name: string) => void;
@@ -26,6 +27,7 @@ interface FeelingsTabContentProps {
   onDeleteColor: (index: number) => void;
   onBrushSizeChange: (size: number[]) => void;
   onTextSettingsChange?: (settings: Partial<TextSettings>) => void;
+  onTextToPlaceChange?: (text: string) => void;
 }
 
 export const FeelingsTabContent = ({
@@ -34,6 +36,7 @@ export const FeelingsTabContent = ({
   brushSize,
   emotions,
   textSettings,
+  textToPlace,
   onModeChange,
   onEmotionColorChange,
   onEmotionNameChange,
@@ -41,7 +44,8 @@ export const FeelingsTabContent = ({
   onAddColor,
   onDeleteColor,
   onBrushSizeChange,
-  onTextSettingsChange
+  onTextSettingsChange,
+  onTextToPlaceChange
 }: FeelingsTabContentProps) => {
   
   return (
@@ -72,8 +76,10 @@ export const FeelingsTabContent = ({
           mode={mode}
           textSettings={textSettings}
           selectedColor={selectedColor}
+          textToPlace={textToPlace}
           onModeChange={onModeChange}
           onTextSettingsChange={onTextSettingsChange}
+          onTextToPlaceChange={onTextToPlaceChange}
         />
       )}
 

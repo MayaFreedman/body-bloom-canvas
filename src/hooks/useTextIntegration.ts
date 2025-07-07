@@ -34,7 +34,7 @@ export const useTextIntegration = ({
 
   const handleTextPlace = useCallback((position: THREE.Vector3, surface: 'body' | 'whiteboard') => {
     console.log('📝 Text placement requested at:', position, 'on surface:', surface);
-    if (textToPlace.trim()) {
+    if (textToPlace && textToPlace.trim()) {
       onAddTextMark(position, textToPlace.trim(), surface, selectedColor);
     }
   }, [onAddTextMark, selectedColor, textToPlace]);
