@@ -87,7 +87,7 @@ export const CustomCursor: React.FC<CustomCursorProps> = ({
 
   // For text mode, show text preview
   if (mode === 'text' && textToPlace.trim()) {
-    const fontSize = (textSettings?.fontSize || 16) / 100 * 20; // Match 3D scaling but make visible
+    const fontSize = (textSettings?.fontSize || 16); // Keep preview at normal size
     
     return (
       <div

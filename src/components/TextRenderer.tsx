@@ -25,7 +25,7 @@ const TextMarkComponent = ({
   };
 
   const fontStyle = useMemo(() => ({
-    fontSize: textMark.fontSize / 100, // Scale down for 3D space
+    fontSize: textMark.fontSize / 500, // Scale down much more to match preview
     color: textMark.color,
     fontFamily: textMark.fontFamily,
     fontWeight: textMark.fontWeight,
