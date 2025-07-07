@@ -68,6 +68,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
   // Load all particle textures
   const textureMap = useMemo(() => {
     const loader = new TextureLoader();
+    console.log('🦋 SensationParticles - Loading butterfly texture from:', butterflyTexture);
     return {
       butterfly: loader.load(butterflyTexture),
       pain: loader.load(painTexture),
