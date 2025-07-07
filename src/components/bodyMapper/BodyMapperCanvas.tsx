@@ -16,6 +16,7 @@ import { WhiteboardPlane } from './WhiteboardPlane';
 import { TextPlacementHandler } from './TextPlacementHandler';
 import { InlineTextEditor } from './InlineTextEditor';
 import { TextRenderer } from '@/components/TextRenderer';
+import { useSidebarHover } from '@/hooks/useSidebarHover';
 import { DrawingMark, SensationMark, Effect, BodyPartColors, BodyMapperMode, SelectedSensation } from '@/types/bodyMapperTypes';
 import { WorldDrawingPoint } from '@/types/multiplayerTypes';
 import { TextMark } from '@/types/textTypes';
@@ -90,6 +91,7 @@ export const BodyMapperCanvas = ({
 }: BodyMapperCanvasProps) => {
   console.log('BodyMapperCanvas rendering with sensation marks:', sensationMarks);
   const [isHoveringBody, setIsHoveringBody] = useState(false);
+  const isHoveringSidebar = useSidebarHover();
   
   // Handle sensation click with auto-deselect
   const handleSensationClick = (position: THREE.Vector3, sensation: SelectedSensation) => {
@@ -226,6 +228,7 @@ export const BodyMapperCanvas = ({
       <CustomCursor 
         selectedSensation={selectedSensation}
         isHoveringBody={isHoveringBody}
+        isHoveringSidebar={isHoveringSidebar}
         mode={mode}
         drawingTarget={drawingTarget}
         isActivelyDrawing={isActivelyDrawing}

@@ -49,6 +49,11 @@ export const useUndoRedoOperations = ({
             strokeManager.restoreStroke(stroke);
           });
         }
+        // Also restore any erased text marks
+        if (actionToUndo.data.erasedTextMarks) {
+          setTextMarks(prev => [...prev, ...actionToUndo.data.erasedTextMarks!]);
+          console.log('Restored erased text marks from erase:', actionToUndo.data.erasedTextMarks);
+        }
         break;
       case 'fill':
         console.log('Undoing fill action');
@@ -81,6 +86,11 @@ export const useUndoRedoOperations = ({
         if (actionToUndo.data.previousTextMarks !== undefined) {
           setTextMarks(actionToUndo.data.previousTextMarks);
           console.log('Restored previous text marks from clear:', actionToUndo.data.previousTextMarks);
+        }
+        // Also restore any erased text marks
+        if (actionToUndo.data.erasedTextMarks) {
+          setTextMarks(prev => [...prev, ...actionToUndo.data.erasedTextMarks!]);
+          console.log('Restored erased text marks:', actionToUndo.data.erasedTextMarks);
         }
         break;
       case 'textPlace':
@@ -162,6 +172,13 @@ export const useUndoRedoOperations = ({
             strokeManager.removeStroke(stroke.id);
           });
         }
+        // Also re-erase any text marks that were erased
+        if (actionToRedo.data.erasedTextMarks) {
+          actionToRedo.data.erasedTextMarks.forEach(textMark => {
+            setTextMarks(prev => prev.filter(mark => mark.id !== textMark.id));
+          });
+          console.log('Re-erased text marks for erase redo:', actionToRedo.data.erasedTextMarks);
+        }
         break;
       case 'fill':
         console.log('Redoing fill action');
@@ -197,6 +214,13 @@ export const useUndoRedoOperations = ({
         if (actionToRedo.data.previousTextMarks !== undefined) {
           setTextMarks([]);
           console.log('Cleared text marks for clear redo');
+        }
+        // Also re-erase any text marks that were erased
+        if (actionToRedo.data.erasedTextMarks) {
+          actionToRedo.data.erasedTextMarks.forEach(textMark => {
+            setTextMarks(prev => prev.filter(mark => mark.id !== textMark.id));
+          });
+          console.log('Re-erased text marks for clear redo:', actionToRedo.data.erasedTextMarks);
         }
         break;
       case 'textPlace':

@@ -46,6 +46,7 @@ export interface ActionHistoryItem {
     previousSensationMarks?: SensationMark[];
     textMark?: TextMark;
     previousTextMarks?: TextMark[];
+    erasedTextMarks?: TextMark[];
     previousText?: string;
     erasedMarks?: DrawingMark[];
     affectedArea?: {

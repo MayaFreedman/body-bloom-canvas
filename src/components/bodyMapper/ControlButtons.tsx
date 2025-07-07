@@ -70,7 +70,7 @@ export const ControlButtons = ({
     <>
       {/* Reset Button Container */}
       <div 
-        className="reset-button-container"
+        className="reset-button-container control-buttons"
         style={{ pointerEvents: shouldDisablePointerEvents ? 'none' : 'auto' }}
       >
         <button 
@@ -85,7 +85,7 @@ export const ControlButtons = ({
 
       {/* Undo/Redo Container */}
       <div 
-        className="undo-redo-container"
+        className="undo-redo-container control-buttons"
         style={{ pointerEvents: shouldDisablePointerEvents ? 'none' : 'auto' }}
       >
         <button 

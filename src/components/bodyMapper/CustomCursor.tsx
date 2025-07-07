@@ -6,6 +6,7 @@ import { getSensationImage } from './SensationSelector';
 interface CustomCursorProps {
   selectedSensation: SelectedSensation | null;
   isHoveringBody: boolean;
+  isHoveringSidebar?: boolean;
   mode?: string;
   drawingTarget?: 'body' | 'whiteboard';
   isActivelyDrawing?: boolean;
@@ -17,6 +18,7 @@ interface CustomCursorProps {
 export const CustomCursor: React.FC<CustomCursorProps> = ({ 
   selectedSensation, 
   isHoveringBody, 
+  isHoveringSidebar = false,
   mode = 'select', 
   drawingTarget = 'body',
   isActivelyDrawing = false,
@@ -78,13 +80,15 @@ export const CustomCursor: React.FC<CustomCursorProps> = ({
     };
   }, [selectedSensation, isHoveringBody, showNotAllowed, mode]);
 
-  // Show custom cursor for sensations OR text mode
-  if (!selectedSensation && mode !== 'text') {
+  // Show custom cursor for sensations OR text mode, but not when hovering sidebar
+  if ((!selectedSensation && mode !== 'text') || isHoveringSidebar) {
     return null;
   }
 
   // For text mode, show text preview
   if (mode === 'text' && textToPlace.trim()) {
+    const fontSize = (textSettings?.fontSize || 16) * 0.8; // Scale for preview
+    
     return (
       <div
         className="fixed pointer-events-none z-[9999] transition-opacity duration-150"
@@ -96,13 +100,16 @@ export const CustomCursor: React.FC<CustomCursorProps> = ({
         }}
       >
         <div 
-          className="bg-background border border-border rounded px-2 py-1 shadow-lg text-sm max-w-[200px] truncate"
           style={{
             fontFamily: textSettings?.fontFamily || 'Arial',
-            fontSize: '12px',
+            fontSize: `${fontSize}px`,
             fontWeight: textSettings?.fontWeight || 'normal',
             fontStyle: textSettings?.fontStyle || 'normal',
-            color: selectedColor
+            color: selectedColor,
+            textShadow: '1px 1px 2px rgba(0,0,0,0.5)',
+            maxWidth: '200px',
+            wordBreak: 'break-word',
+            lineHeight: 1.2
           }}
         >
           {textToPlace}

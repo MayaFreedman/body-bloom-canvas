@@ -10,6 +10,7 @@ import { useUndoRedoOperations } from './useUndoRedoOperations';
 import { useBodyPartOperations } from './useBodyPartOperations';
 import { useTextManager } from './useTextManager';
 import { TextSettings } from '@/types/textTypes';
+import * as THREE from 'three';
 
 interface UseEnhancedBodyMapperStateProps {
   currentUserId: string | null;
@@ -54,14 +55,7 @@ export const useEnhancedBodyMapperState = ({
     selectedColor 
   });
   
-  const eraseOps = useEraseOperations({ 
-    strokeManager, 
-    actionHistory, 
-    spatialIndex, 
-    currentUserId 
-   });
-   
-  // Text Manager with multiplayer integration
+  // Text Manager with multiplayer integration (moved up before eraseOps)
   const textManager = useTextManager({
     currentUserId,
     onAddAction: actionHistory.addAction,
@@ -69,6 +63,15 @@ export const useEnhancedBodyMapperState = ({
     onBroadcastTextUpdate,
     onBroadcastTextDelete
   });
+
+  const eraseOps = useEraseOperations({ 
+    strokeManager, 
+    actionHistory, 
+    spatialIndex, 
+    currentUserId,
+    textMarks: () => textManager.textMarks,
+    deleteTextMark: textManager.deleteTextMark
+   });
 
   const undoRedoOps = useUndoRedoOperations({
     strokeManager,
@@ -191,7 +194,7 @@ export const useEnhancedBodyMapperState = ({
   useEffect(() => {
     const allMarks = strokeManager.getAllMarks();
     spatialIndex.buildSpatialIndex(allMarks);
-  }, [strokeManager.completedStrokes, strokeManager.currentStroke]);
+  }, [strokeManager.completedStrokes, strokeManager.currentStroke, textManager.textMarks]);
 
   // Legacy compatibility - convert to old format for existing components
   const drawingMarks = strokeManager.getAllMarks().map(mark => ({
