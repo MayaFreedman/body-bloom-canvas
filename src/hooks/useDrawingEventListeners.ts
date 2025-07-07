@@ -4,6 +4,8 @@ import { useThree } from '@react-three/fiber';
 
 interface UseDrawingEventListenersProps {
   isDrawing: boolean;
+  drawingTarget?: 'body' | 'whiteboard';
+  isActivelyDrawing?: boolean;
   handlePointerDown: (event: PointerEvent) => void;
   handlePointerMove: (event: PointerEvent) => void;
   handlePointerUp: () => void;
@@ -11,6 +13,8 @@ interface UseDrawingEventListenersProps {
 
 export const useDrawingEventListeners = ({
   isDrawing,
+  drawingTarget = 'body',
+  isActivelyDrawing = false,
   handlePointerDown,
   handlePointerMove,
   handlePointerUp
@@ -24,17 +28,23 @@ export const useDrawingEventListeners = ({
       gl.domElement.addEventListener('pointerup', handlePointerUp);
       gl.domElement.addEventListener('pointerleave', handlePointerUp);
       
-      gl.domElement.style.cursor = 'crosshair';
+      // Only set crosshair cursor if we're not in a "restricted" state (whiteboard mode hovering body)
+      const shouldShowCrosshair = !(drawingTarget === 'whiteboard' && !isActivelyDrawing);
+      if (shouldShowCrosshair) {
+        gl.domElement.style.cursor = 'crosshair';
+      }
       
       return () => {
         gl.domElement.removeEventListener('pointerdown', handlePointerDown);
         gl.domElement.removeEventListener('pointermove', handlePointerMove);
         gl.domElement.removeEventListener('pointerup', handlePointerUp);
         gl.domElement.removeEventListener('pointerleave', handlePointerUp);
-        gl.domElement.style.cursor = 'default';
+        if (shouldShowCrosshair) {
+          gl.domElement.style.cursor = 'default';
+        }
       };
     } else {
       gl.domElement.style.cursor = 'default';
     }
-  }, [isDrawing, handlePointerDown, handlePointerMove, handlePointerUp, gl]);
+  }, [isDrawing, drawingTarget, isActivelyDrawing, handlePointerDown, handlePointerMove, handlePointerUp, gl]);
 };

@@ -151,6 +151,7 @@ export const BodyMapperCanvas = ({
           isErasing={mode === 'erase'}
           eraserRadius={brushSize / 100}
           drawingTarget={drawingTarget}
+          isActivelyDrawing={isActivelyDrawing}
           onErase={onErase}
           modelRef={modelRef}
         />

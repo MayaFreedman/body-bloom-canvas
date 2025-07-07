@@ -7,6 +7,7 @@ interface EraserHandlerProps {
   isErasing: boolean;
   eraserRadius: number;
   drawingTarget: 'body' | 'whiteboard';
+  isActivelyDrawing?: boolean;
   onErase: (center: THREE.Vector3, radius: number, surface: 'body' | 'whiteboard') => void;
   modelRef?: React.RefObject<THREE.Group>;
 }
@@ -15,6 +16,7 @@ export const EraserHandler = ({
   isErasing, 
   eraserRadius, 
   drawingTarget,
+  isActivelyDrawing = false,
   onErase,
   modelRef 
 }: EraserHandlerProps) => {
@@ -91,19 +93,25 @@ export const EraserHandler = ({
       gl.domElement.addEventListener('pointerup', handlePointerUp);
       gl.domElement.addEventListener('pointerleave', handlePointerUp);
       
-      gl.domElement.style.cursor = 'crosshair';
+      // Only set crosshair cursor if we're not in a "restricted" state (whiteboard mode hovering body)
+      const shouldShowCrosshair = !(drawingTarget === 'whiteboard' && !isActivelyDrawing);
+      if (shouldShowCrosshair) {
+        gl.domElement.style.cursor = 'crosshair';
+      }
       
       return () => {
         gl.domElement.removeEventListener('pointerdown', handlePointerDown);
         gl.domElement.removeEventListener('pointermove', handlePointerMove);
         gl.domElement.removeEventListener('pointerup', handlePointerUp);
         gl.domElement.removeEventListener('pointerleave', handlePointerUp);
-        gl.domElement.style.cursor = 'default';
+        if (shouldShowCrosshair) {
+          gl.domElement.style.cursor = 'default';
+        }
       };
     } else {
       gl.domElement.style.cursor = 'default';
     }
-  }, [isErasing, handlePointerDown, handlePointerMove, handlePointerUp, gl]);
+  }, [isErasing, drawingTarget, isActivelyDrawing, handlePointerDown, handlePointerMove, handlePointerUp, gl]);
 
   return null;
 };
