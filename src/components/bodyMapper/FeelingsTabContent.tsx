@@ -46,9 +46,7 @@ export const FeelingsTabContent = ({
   
   return (
     <div className="space-y-4">
-      {/* Tool Buttons - Above everything else */}
-      <PaintingModeSelector mode={mode} onModeChange={onModeChange} title="Tools" />
-      
+      {/* Colors & Emotions Header and Description */}
       <div>
         <h3 className="text-xl font-semibold text-gray-800 mb-4">Colors & Emotions</h3>
         <div className="subtext-box">
@@ -56,6 +54,9 @@ export const FeelingsTabContent = ({
           <p><strong>Tip:</strong> You can use the colors to show where you feel each emotion or how big or strong that feeling is for you.</p>
         </div>
       </div>
+      
+      {/* Tool Buttons */}
+      <PaintingModeSelector mode={mode} onModeChange={onModeChange} title="Tools" />
       {/* Brush Size Control - Only visible in Draw mode */}
       {mode === 'draw' && (
         <BrushSizeControl
