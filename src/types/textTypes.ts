@@ -10,7 +10,6 @@ export interface TextMark {
   rotation?: { x: number; y: number; z: number };
   surface: 'body' | 'whiteboard';
   backgroundColor?: string;
-  textAlign: 'left' | 'center' | 'right';
   fontWeight: 'normal' | 'bold';
   fontStyle: 'normal' | 'italic';
   isEditing?: boolean;
@@ -23,7 +22,6 @@ export interface TextSettings {
   fontFamily: string;
   fontWeight: 'normal' | 'bold';
   fontStyle: 'normal' | 'italic';
-  textAlign: 'left' | 'center' | 'right';
   backgroundColor?: string;
 }
 

@@ -14,7 +14,7 @@ import { HoverDetector } from './HoverDetector';
 import { EraserHandler } from './EraserHandler';
 import { WhiteboardPlane } from './WhiteboardPlane';
 import { TextPlacementHandler } from './TextPlacementHandler';
-import { TextEditor } from './TextEditor';
+import { InlineTextEditor } from './InlineTextEditor';
 import { TextRenderer } from '@/components/TextRenderer';
 import { DrawingMark, SensationMark, Effect, BodyPartColors, BodyMapperMode, SelectedSensation } from '@/types/bodyMapperTypes';
 import { WorldDrawingPoint } from '@/types/multiplayerTypes';
@@ -227,15 +227,18 @@ export const BodyMapperCanvas = ({
         isActivelyDrawing={isActivelyDrawing}
       />
       
-      {/* Text Editor Modal */}
-      {onTextSave && onTextCancel && (
-        <TextEditor
-          isOpen={editingTextId !== null}
-          textMark={textMarks.find(mark => mark.id === editingTextId)}
-          onSave={onTextSave}
-          onCancel={onTextCancel}
-          onDelete={onTextDelete}
-        />
+      {/* Inline Text Editor */}
+      {onTextSave && onTextCancel && editingTextId && (
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-auto">
+            <InlineTextEditor
+              textMark={textMarks.find(mark => mark.id === editingTextId)!}
+              onSave={onTextSave}
+              onCancel={onTextCancel}
+              onDelete={onTextDelete}
+            />
+          </div>
+        </div>
       )}
     </div>
   );

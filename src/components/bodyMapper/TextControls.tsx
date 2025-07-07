@@ -1,9 +1,8 @@
 import React from 'react';
-import { Type, Bold, Italic, AlignLeft, AlignCenter, AlignRight } from 'lucide-react';
+import { Type, Bold, Italic } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { TextSettings } from '@/types/textTypes';
 import { BodyMapperMode } from '@/types/bodyMapperTypes';
 
@@ -101,26 +100,6 @@ export const TextControls = ({
             </div>
           </div>
 
-          {/* Text Alignment */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Alignment</label>
-            <ToggleGroup
-              type="single"
-              value={textSettings.textAlign}
-              onValueChange={(value) => value && onTextSettingsChange({ textAlign: value as any })}
-              className="justify-start"
-            >
-              <ToggleGroupItem value="left" aria-label="Align left">
-                <AlignLeft className="h-4 w-4" />
-              </ToggleGroupItem>
-              <ToggleGroupItem value="center" aria-label="Align center">
-                <AlignCenter className="h-4 w-4" />
-              </ToggleGroupItem>
-              <ToggleGroupItem value="right" aria-label="Align right">
-                <AlignRight className="h-4 w-4" />
-              </ToggleGroupItem>
-            </ToggleGroup>
-          </div>
         </div>
       )}
     </div>

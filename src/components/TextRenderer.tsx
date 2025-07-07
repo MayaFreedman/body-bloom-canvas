@@ -15,7 +15,7 @@ const TextMarkComponent = ({
   textMark: TextMark; 
   onTextClick?: (textMark: TextMark) => void; 
 }) => {
-  const handleClick = (event: any) => {
+  const handleDoubleClick = (event: any) => {
     event.stopPropagation();
     onTextClick?.(textMark);
   };
@@ -25,17 +25,16 @@ const TextMarkComponent = ({
     color: textMark.color,
     fontFamily: textMark.fontFamily,
     fontWeight: textMark.fontWeight,
-    fontStyle: textMark.fontStyle,
-    textAlign: textMark.textAlign as any
+    fontStyle: textMark.fontStyle
   }), [textMark]);
 
   return (
-    <group position={textMark.position} onClick={handleClick}>
+    <group position={textMark.position} onDoubleClick={handleDoubleClick}>
       <Text
         {...fontStyle}
         maxWidth={2}
         lineHeight={1.2}
-        anchorX={textMark.textAlign}
+        anchorX="center"
         anchorY="middle"
       >
         {textMark.text}

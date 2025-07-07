@@ -16,8 +16,7 @@ export const useTextManager = ({
     fontSize: 16,
     fontFamily: 'Arial',
     fontWeight: 'normal',
-    fontStyle: 'normal',
-    textAlign: 'center'
+    fontStyle: 'normal'
   });
   const [editingTextId, setEditingTextId] = useState<string | null>(null);
 
@@ -35,7 +34,7 @@ export const useTextManager = ({
       fontFamily: textSettings.fontFamily,
       color,
       surface,
-      textAlign: textSettings.textAlign,
+      
       fontWeight: textSettings.fontWeight,
       fontStyle: textSettings.fontStyle,
       userId: currentUserId,
