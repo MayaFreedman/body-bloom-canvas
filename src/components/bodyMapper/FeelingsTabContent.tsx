@@ -74,6 +74,12 @@ export const FeelingsTabContent = ({
       />
       
       {/* Text Controls */}
+      <div className="mt-6 p-4 border-2 border-blue-500 bg-blue-50">
+        <h4 className="text-lg font-semibold mb-3">DEBUG: This should always show</h4>
+        <p>textSettings exists: {textSettings ? 'YES' : 'NO'}</p>
+        <p>onTextSettingsChange exists: {onTextSettingsChange ? 'YES' : 'NO'}</p>
+      </div>
+      
       {textSettings && onTextSettingsChange && (
         <div className="mt-6 p-4 border-2 border-green-500 bg-green-50">
           <h4 className="text-lg font-semibold mb-3">Text Tool</h4>
