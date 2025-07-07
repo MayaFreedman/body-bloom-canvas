@@ -14,6 +14,7 @@ export interface SensationMark {
   icon: string;
   color: string;
   size: number;
+  name?: string;
 }
 
 export interface Effect {

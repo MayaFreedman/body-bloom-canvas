@@ -75,7 +75,8 @@ export const useEnhancedBodyMapperState = ({
       position,
       icon: sensation.icon,
       color: sensation.color,
-      size: 0.1
+      size: 0.1,
+      name: sensation.name
     };
     
     // Update state

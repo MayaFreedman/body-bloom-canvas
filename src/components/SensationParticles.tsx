@@ -4,6 +4,36 @@ import { useFrame, useLoader } from '@react-three/fiber';
 import { TextureLoader } from 'three';
 import * as THREE from 'three';
 
+// Import particle effect textures
+import butterflyTexture from '@/Assets/particleEffects/butterfly.png';
+import painTexture from '@/Assets/particleEffects/pain.png';
+import swirlTexture from '@/Assets/particleEffects/swirl.png';
+import waterTexture from '@/Assets/particleEffects/water.png';
+import snowflakesTexture from '@/Assets/particleEffects/snowflakes.png';
+import fireTexture from '@/Assets/particleEffects/fire.png';
+import heartTexture from '@/Assets/particleEffects/heart.png';
+import zzzTexture from '@/Assets/particleEffects/zzz.png';
+import windTexture from '@/Assets/particleEffects/wind.png';
+import starTexture from '@/Assets/particleEffects/star.png';
+import shakeTexture from '@/Assets/particleEffects/shake.png';
+import feetTexture from '@/Assets/particleEffects/feet.png';
+import feetredTexture from '@/Assets/particleEffects/feetred.png';
+import nauticalKnotTexture from '@/Assets/particleEffects/nautical-knot.png';
+import frogTexture from '@/Assets/particleEffects/frog.png';
+import plateTexture from '@/Assets/particleEffects/plate.png';
+import stoneTexture from '@/Assets/particleEffects/stone.png';
+import fidgetSpinnerTexture from '@/Assets/particleEffects/fidget-spinner.png';
+import statueTexture from '@/Assets/particleEffects/statue.png';
+import snailTexture from '@/Assets/particleEffects/snail.png';
+import desertTexture from '@/Assets/particleEffects/desert.png';
+import clenchedFistTexture from '@/Assets/particleEffects/clenched-fist.png';
+import lightbulbTexture from '@/Assets/particleEffects/lightbulb.png';
+import monkeyTexture from '@/Assets/particleEffects/monkey.png';
+import wavyTexture from '@/Assets/particleEffects/wavy.png';
+import goosebumpTexture from '@/Assets/particleEffects/goosebump.png';
+import relaxTexture from '@/Assets/particleEffects/relax.png';
+import sweatTexture from '@/Assets/particleEffects/sweat.png';
+
 interface SensationParticle {
   position: THREE.Vector3;
   velocity: THREE.Vector3;
@@ -26,6 +56,7 @@ interface SensationParticlesProps {
     icon: string;
     color: string;
     size: number;
+    name?: string;
   }>;
 }
 
@@ -33,8 +64,79 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
   const particleSystemsRef = useRef<Map<string, SensationParticle[]>>(new Map());
   const meshRefsRef = useRef<Map<string, THREE.Object3D[]>>(new Map());
   
-  // Load butterfly texture
-  const butterflyTexture = useLoader(TextureLoader, '/lovable-uploads/b0a2add0-f14a-40a7-add9-b5efdb14a891.png');
+  // Load all particle textures
+  const textureMap = useMemo(() => {
+    const loader = new TextureLoader();
+    return {
+      butterfly: loader.load(butterflyTexture),
+      pain: loader.load(painTexture),
+      swirl: loader.load(swirlTexture),
+      water: loader.load(waterTexture),
+      snowflakes: loader.load(snowflakesTexture),
+      fire: loader.load(fireTexture),
+      heart: loader.load(heartTexture),
+      zzz: loader.load(zzzTexture),
+      wind: loader.load(windTexture),
+      star: loader.load(starTexture),
+      shake: loader.load(shakeTexture),
+      feet: loader.load(feetTexture),
+      feetred: loader.load(feetredTexture),
+      nauticalKnot: loader.load(nauticalKnotTexture),
+      frog: loader.load(frogTexture),
+      plate: loader.load(plateTexture),
+      stone: loader.load(stoneTexture),
+      fidgetSpinner: loader.load(fidgetSpinnerTexture),
+      statue: loader.load(statueTexture),
+      snail: loader.load(snailTexture),
+      desert: loader.load(desertTexture),
+      clenchedFist: loader.load(clenchedFistTexture),
+      lightbulb: loader.load(lightbulbTexture),
+      monkey: loader.load(monkeyTexture),
+      wavy: loader.load(wavyTexture),
+      goosebump: loader.load(goosebumpTexture),
+      relax: loader.load(relaxTexture),
+      sweat: loader.load(sweatTexture)
+    };
+  }, []);
+
+  // Map sensation names to textures
+  const getSensationTexture = (sensationName: string) => {
+    const textureMapping: { [key: string]: keyof typeof textureMap } = {
+      'Nerves': 'butterfly',
+      'Pain': 'pain',
+      'Nausea': 'swirl',
+      'Tears': 'water',
+      'Decreased Temperature': 'snowflakes',
+      'Increased Temperature': 'fire',
+      'Increased Heart Rate': 'heart',
+      'Decreased Heart Rate': 'heart',
+      'Tired': 'zzz',
+      'Change in Breathing': 'wind',
+      'Tingling': 'star',
+      'Shaky': 'shake',
+      'Pacing': 'feet',
+      'Stomping': 'feetred',
+      'Tight': 'nauticalKnot',
+      'Lump in Throat': 'frog',
+      'Change in Appetite': 'plate',
+      'Heaviness': 'stone',
+      'Fidgety': 'fidgetSpinner',
+      'Frozen/Stiff': 'statue',
+      'Ache': 'pain',
+      'Feeling Small': 'snail',
+      'Dry Mouth': 'desert',
+      'Clenched': 'clenchedFist',
+      'Change in Energy': 'lightbulb',
+      'Avoiding Eye Contact': 'monkey',
+      'Scrunched Face': 'wavy',
+      'Goosebumps': 'goosebump',
+      'Relaxed': 'relax',
+      'Sweat': 'sweat'
+    };
+    
+    const textureKey = textureMapping[sensationName] || 'star';
+    return textureMap[textureKey];
+  };
 
   // Create particle system for each sensation mark
   const particleSystems = useMemo(() => {
@@ -254,60 +356,28 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
     const meshes: THREE.Object3D[] = [];
     meshRefsRef.current.set(mark.id, meshes);
 
+    // Get the appropriate texture for this sensation mark
+    const sensationTexture = getSensationTexture(mark.name || mark.icon);
+
     return particles.map((particle, index) => {
       const opacity = 1 - (particle.life / particle.maxLife);
       
-      // Different shapes based on icon type
-      if (mark.icon === 'butterfly') {
-        return (
-          <sprite 
-            key={`${mark.id}-${index}`}
-            ref={(ref) => { if (ref) meshes[index] = ref; }}
-            position={particle.position} 
-            scale={[particle.size * 1.18, particle.size * 1.18, 1]}
-            rotation={[0, 0, particle.rotation]}
-          >
-            <spriteMaterial 
-              map={butterflyTexture} 
-              transparent 
-              opacity={opacity * 0.7}
-            />
-          </sprite>
-        );
-      } else if (mark.icon === 'Activity') {
-        return (
-          <mesh 
-            key={`${mark.id}-${index}`}
-            ref={(ref) => { if (ref) meshes[index] = ref; }}
-            position={particle.position}
-            rotation={[particle.rotation, particle.rotation * 1.3, particle.rotation * 0.8]}
-          >
-            <boxGeometry args={[particle.size, particle.size * 2.5, particle.size]} />
-            <meshStandardMaterial 
-              color={mark.color} 
-              transparent 
-              opacity={Math.max(0.1, opacity)}
-              emissive={mark.color}
-              emissiveIntensity={0.3}
-            />
-          </mesh>
-        );
-      } else {
-        return (
-          <mesh 
-            key={`${mark.id}-${index}`}
-            ref={(ref) => { if (ref) meshes[index] = ref; }}
-            position={particle.position}
-          >
-            <sphereGeometry args={[particle.size, 8, 8]} />
-            <meshBasicMaterial 
-              color={mark.color} 
-              transparent 
-              opacity={opacity * 0.7}
-            />
-          </mesh>
-        );
-      }
+      // Use sprites for all sensation types with their appropriate textures
+      return (
+        <sprite 
+          key={`${mark.id}-${index}`}
+          ref={(ref) => { if (ref) meshes[index] = ref; }}
+          position={particle.position} 
+          scale={[particle.size * 1.5, particle.size * 1.5, 1]}
+          rotation={[0, 0, particle.rotation]}
+        >
+          <spriteMaterial 
+            map={sensationTexture} 
+            transparent 
+            opacity={opacity * 0.8}
+          />
+        </sprite>
+      );
     });
   };
 
