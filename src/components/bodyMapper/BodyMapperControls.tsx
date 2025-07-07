@@ -26,11 +26,13 @@ interface BodyMapperControlsProps {
   brushSize: number[];
   selectedSensation: SelectedSensation | null;
   textSettings?: TextSettings;
+  textToPlace?: string;
   onModeChange: (mode: BodyMapperMode) => void;
   onColorChange: (color: string) => void;
   onBrushSizeChange: (size: number[]) => void;
   onSensationChange: (sensation: SelectedSensation | null) => void;
   onTextSettingsChange?: (settings: Partial<TextSettings>) => void;
+  onTextToPlaceChange?: (text: string) => void;
   onEmotionsUpdate?: (update: EmotionUpdate) => void;
 }
 
@@ -54,15 +56,16 @@ export const BodyMapperControls = React.forwardRef<
   brushSize,
   selectedSensation,
   textSettings,
+  textToPlace,
   onModeChange,
   onColorChange,
   onBrushSizeChange,
   onSensationChange,
   onTextSettingsChange,
+  onTextToPlaceChange,
   onEmotionsUpdate
 }, ref) => {
   const [activeTab, setActiveTab] = useState('feelings');
-  const [textToPlace, setTextToPlace] = useState('Sample Text');
   
   const handleTabChange = (tab: string) => {
     console.log('🎯 TabContainer - Switching to tab:', tab);
@@ -189,7 +192,7 @@ export const BodyMapperControls = React.forwardRef<
           onDeleteColor={handleDeleteColor}
           onBrushSizeChange={onBrushSizeChange}
           onTextSettingsChange={onTextSettingsChange}
-          onTextToPlaceChange={setTextToPlace}
+          onTextToPlaceChange={onTextToPlaceChange}
         />
       </div>
 

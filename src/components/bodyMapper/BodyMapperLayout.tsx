@@ -169,11 +169,13 @@ export const BodyMapperLayout = ({
             brushSize={brushSize}
             selectedSensation={selectedSensation}
             textSettings={textSettings}
+            textToPlace={textToPlace}
             onModeChange={setMode}
             onColorChange={setSelectedColor}
             onBrushSizeChange={setBrushSize}
             onSensationChange={setSelectedSensation}
             onTextSettingsChange={setTextSettings}
+            onTextToPlaceChange={setTextToPlace}
             onEmotionsUpdate={onEmotionsUpdate}
           />
         </div>
