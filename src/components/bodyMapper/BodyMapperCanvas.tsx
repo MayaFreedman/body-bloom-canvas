@@ -36,7 +36,7 @@ interface BodyMapperCanvasProps {
   onBodyPartClick: (partName: string, color: string) => void;
   onSensationClick: (position: THREE.Vector3, sensation: SelectedSensation) => void;
   onSensationDeselect: () => void;
-  onErase: (center: THREE.Vector3, radius: number) => void;
+  onErase: (center: THREE.Vector3, radius: number, surface: 'body' | 'whiteboard') => void;
   onRotateLeft: () => void;
   onRotateRight: () => void;
 }
@@ -148,6 +148,7 @@ export const BodyMapperCanvas = ({
         <EraserHandler
           isErasing={mode === 'erase'}
           eraserRadius={brushSize / 100}
+          drawingTarget={drawingTarget}
           onErase={onErase}
           modelRef={modelRef}
         />

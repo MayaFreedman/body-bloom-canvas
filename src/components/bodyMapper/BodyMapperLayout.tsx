@@ -37,7 +37,7 @@ interface BodyMapperLayoutProps {
   onAddToDrawingStroke: (worldPoint: WorldDrawingPoint) => void;
   onBodyPartClick: (partName: string, color: string) => void;
   onSensationClick: (position: THREE.Vector3, sensation: SelectedSensation) => void;
-  onErase: (center: THREE.Vector3, radius: number) => void;
+  onErase: (center: THREE.Vector3, radius: number, surface: 'body' | 'whiteboard') => void;
   onRotateLeft: () => void;
   onRotateRight: () => void;
   onResetAll: () => void;

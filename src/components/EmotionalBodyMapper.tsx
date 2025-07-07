@@ -93,17 +93,17 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
   });
 
   // Handle multiplayer erasing - broadcast to other users
-  const handleMultiplayerErase = (center: THREE.Vector3, radius: number) => {
-    console.log('🧹 MULTIPLAYER ERASE: Local erase requested at', center, 'with radius', radius);
+  const handleMultiplayerErase = (center: THREE.Vector3, radius: number, surface: 'body' | 'whiteboard' = 'body') => {
+    console.log('🧹 MULTIPLAYER ERASE: Local', surface, 'erase requested at', center, 'with radius', radius);
     console.log('🧹 MULTIPLAYER ERASE: Is connected:', multiplayer.isConnected);
     
-    const erasedMarks = handleErase(center, radius);
-    console.log('🧹 MULTIPLAYER ERASE: Local erase completed, erased', erasedMarks.length, 'marks');
+    const erasedMarks = handleErase(center, radius, surface);
+    console.log('🧹 MULTIPLAYER ERASE: Local erase completed, erased', erasedMarks.length, 'marks from', surface);
     
     // Always broadcast erase events so other users see the changes
     if (multiplayer.isConnected) {
-      console.log('🧹 MULTIPLAYER ERASE: Broadcasting erase to multiplayer');
-      multiplayer.broadcastErase(center, radius);
+      console.log('🧹 MULTIPLAYER ERASE: Broadcasting', surface, 'erase to multiplayer');
+      multiplayer.broadcastErase(center, radius, surface);
     }
   };
 

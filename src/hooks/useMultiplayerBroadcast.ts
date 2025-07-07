@@ -32,7 +32,7 @@ export const useMultiplayerBroadcast = (
     }
   }, [room, isConnected, currentPlayerId]);
 
-  const broadcastErase = useCallback((center: THREE.Vector3, radius: number) => {
+  const broadcastErase = useCallback((center: THREE.Vector3, radius: number, surface: 'body' | 'whiteboard' = 'body') => {
     if (room && isConnected) {
       const server = ServerClass.getInstance();
       server.sendEvent({
@@ -40,6 +40,7 @@ export const useMultiplayerBroadcast = (
         action: { 
           center: { x: center.x, y: center.y, z: center.z },
           radius,
+          surface,
           playerId: currentPlayerId 
         }
       });

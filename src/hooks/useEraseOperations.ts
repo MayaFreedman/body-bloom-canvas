@@ -18,11 +18,17 @@ export const useEraseOperations = ({
   spatialIndex,
   currentUserId
 }: UseEraseOperationsProps) => {
-  const handleErase = useCallback((center: THREE.Vector3, radius: number) => {
-    console.log('🧹 ERASE OPERATION: Starting global erase at', center, 'with radius', radius);
+  const handleErase = useCallback((center: THREE.Vector3, radius: number, surface: 'body' | 'whiteboard' = 'body') => {
+    console.log('🧹 ERASE OPERATION: Starting', surface, 'erase at', center, 'with radius', radius);
     
-    const marksToErase = spatialIndex.queryRadius(center, radius);
-    console.log('🧹 ERASE OPERATION: Found', marksToErase.length, 'marks in radius');
+    // Get all marks in radius, then filter by surface
+    const marksInRadius = spatialIndex.queryRadius(center, radius);
+    const marksToErase = marksInRadius.filter(mark => {
+      // Filter by surface - only erase marks from the current drawing target
+      return mark.surface === surface || (!mark.surface && surface === 'body'); // Fallback for legacy marks without surface
+    });
+    
+    console.log('🧹 ERASE OPERATION: Found', marksInRadius.length, 'total marks,', marksToErase.length, 'matching', surface, 'surface');
     
     // GLOBAL ERASING - Remove user filter to allow erasing any user's marks
     if (marksToErase.length > 0) {

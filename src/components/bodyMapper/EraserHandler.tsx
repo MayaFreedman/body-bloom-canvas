@@ -6,13 +6,15 @@ import * as THREE from 'three';
 interface EraserHandlerProps {
   isErasing: boolean;
   eraserRadius: number;
-  onErase: (center: THREE.Vector3, radius: number) => void;
+  drawingTarget: 'body' | 'whiteboard';
+  onErase: (center: THREE.Vector3, radius: number, surface: 'body' | 'whiteboard') => void;
   modelRef?: React.RefObject<THREE.Group>;
 }
 
 export const EraserHandler = ({ 
   isErasing, 
   eraserRadius, 
+  drawingTarget,
   onErase,
   modelRef 
 }: EraserHandlerProps) => {
@@ -25,14 +27,18 @@ export const EraserHandler = ({
     
     if (modelGroup) {
       modelGroup.traverse((child) => {
-        if (child instanceof THREE.Mesh && child.userData.bodyPart) {
-          meshes.push(child);
+        if (child instanceof THREE.Mesh) {
+          // Include body parts for body erasing, whiteboard for whiteboard erasing
+          if ((drawingTarget === 'body' && child.userData.bodyPart) ||
+              (drawingTarget === 'whiteboard' && child.userData.isWhiteboard)) {
+            meshes.push(child);
+          }
         }
       });
     }
     
     return meshes;
-  }, [modelRef]);
+  }, [modelRef, drawingTarget]);
 
   const handlePointerDown = useCallback((event: PointerEvent) => {
     if (!isErasing) return;
@@ -49,7 +55,8 @@ export const EraserHandler = ({
 
     if (intersects.length > 0) {
       const intersect = intersects[0];
-      onErase(intersect.point, eraserRadius);
+      console.log('🧽 Erasing on', drawingTarget, 'at point:', intersect.point);
+      onErase(intersect.point, eraserRadius, drawingTarget);
     }
   }, [isErasing, eraserRadius, onErase, camera, gl, raycaster, mouse, getIntersectedObjects]);
 
@@ -67,7 +74,7 @@ export const EraserHandler = ({
 
     if (intersects.length > 0) {
       const intersect = intersects[0];
-      onErase(intersect.point, eraserRadius);
+      onErase(intersect.point, eraserRadius, drawingTarget);
     }
   }, [isErasing, eraserRadius, onErase, camera, gl, raycaster, mouse, getIntersectedObjects]);
 
