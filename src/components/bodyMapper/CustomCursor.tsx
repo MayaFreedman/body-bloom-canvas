@@ -24,15 +24,18 @@ export const CustomCursor: React.FC<CustomCursorProps> = ({ selectedSensation, i
   useEffect(() => {
     if (selectedSensation) {
       if (isHoveringBody) {
-        // Grabby hand when hovering over body with sensation selected
-        document.body.style.cursor = 'grab';
+        // Force grabby hand when hovering over body with sensation selected - use !important override
+        document.body.style.setProperty('cursor', 'grab', 'important');
+        console.log('🖱️ Setting grab cursor - hovering body with sensation');
       } else {
         // Hide default cursor when sensation is selected but not hovering body
-        document.body.style.cursor = 'none';
+        document.body.style.setProperty('cursor', 'none', 'important');
+        console.log('🖱️ Setting none cursor - sensation selected but not hovering');
       }
     } else {
       // Default cursor when no sensation selected
-      document.body.style.cursor = 'default';
+      document.body.style.setProperty('cursor', 'default', 'important');
+      console.log('🖱️ Setting default cursor - no sensation selected');
     }
 
     return () => {
