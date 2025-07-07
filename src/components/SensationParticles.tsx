@@ -205,27 +205,43 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
   // Get particle size based on sensation movement type
   const getParticleSize = (sensationName: string) => {
     const sizeMap: { [key: string]: { base: number; variance: number; multiplier: number } } = {
-      // Slow, smooth sensations = larger particles
-      'Frozen/Stiff': { base: 0.05, variance: 0.03, multiplier: 2.0 },
-      'Heaviness': { base: 0.04, variance: 0.025, multiplier: 1.8 },
-      'Relaxed': { base: 0.035, variance: 0.02, multiplier: 1.6 },
-      'Tears': { base: 0.03, variance: 0.02, multiplier: 1.4 },
-      'Sweat': { base: 0.03, variance: 0.02, multiplier: 1.4 },
+      // STATIC/SLOW sensations = larger, more visible particles
+      'Frozen/Stiff': { base: 0.08, variance: 0.04, multiplier: 2.5 }, // Large, barely moving
+      'Heaviness': { base: 0.07, variance: 0.035, multiplier: 2.2 }, // Heavy, weighty
+      'Relaxed': { base: 0.06, variance: 0.03, multiplier: 2.0 }, // Calm, visible
+      'Decreased Heart Rate': { base: 0.065, variance: 0.03, multiplier: 2.1 }, // Slow, large beats
       
-      // Medium sensations
-      'Pain': { base: 0.025, variance: 0.015, multiplier: 1.2 },
-      'Nausea': { base: 0.025, variance: 0.015, multiplier: 1.2 },
-      'Increased Heart Rate': { base: 0.025, variance: 0.015, multiplier: 1.2 },
-      'Change in Breathing': { base: 0.025, variance: 0.015, multiplier: 1.2 },
+      // MEDIUM sensations = medium-large particles
+      'Tears': { base: 0.05, variance: 0.025, multiplier: 1.8 }, // Visible droplets
+      'Sweat': { base: 0.045, variance: 0.02, multiplier: 1.7 }, // Visible drips
+      'Pain': { base: 0.055, variance: 0.03, multiplier: 1.9 }, // Need to see pain clearly
+      'Nausea': { base: 0.05, variance: 0.025, multiplier: 1.8 }, // Visible swirling
+      'Increased Heart Rate': { base: 0.045, variance: 0.02, multiplier: 1.7 }, // Fast but visible beats
+      'Change in Breathing': { base: 0.04, variance: 0.02, multiplier: 1.6 }, // Air movement
+      'Ache': { base: 0.05, variance: 0.025, multiplier: 1.8 }, // Visible discomfort
       
-      // Fast, jerky sensations = smaller particles
-      'Change in Energy': { base: 0.02, variance: 0.01, multiplier: 1.0 },
-      'Tingling': { base: 0.015, variance: 0.008, multiplier: 0.8 },
-      'Shaky': { base: 0.012, variance: 0.006, multiplier: 0.7 },
-      'Nerves': { base: 0.008, variance: 0.004, multiplier: 0.6 } // Smallest for maximum dispersion
+      // ACTIVE sensations = medium particles for visibility
+      'Change in Energy': { base: 0.04, variance: 0.02, multiplier: 1.5 }, // Energy bursts
+      'Fidgety': { base: 0.035, variance: 0.015, multiplier: 1.4 }, // Restless movement
+      'Pacing': { base: 0.04, variance: 0.02, multiplier: 1.5 }, // Movement patterns
+      'Stomping': { base: 0.045, variance: 0.02, multiplier: 1.6 }, // Forceful steps
+      
+      // FAST/JERKY sensations = smaller but still visible
+      'Tingling': { base: 0.03, variance: 0.015, multiplier: 1.3 }, // Sparkle effect
+      'Shaky': { base: 0.035, variance: 0.015, multiplier: 1.4 }, // Trembling, needs visibility
+      'Nerves': { base: 0.025, variance: 0.012, multiplier: 1.2 }, // Electrical, dispersed but visible
+      
+      // SPECIAL cases
+      'Goosebumps': { base: 0.02, variance: 0.01, multiplier: 1.1 }, // Small bumps
+      'Dry Mouth': { base: 0.045, variance: 0.02, multiplier: 1.7 }, // Noticeable dryness
+      'Lump in Throat': { base: 0.055, variance: 0.025, multiplier: 1.9 }, // Significant feeling
+      'Tight': { base: 0.05, variance: 0.025, multiplier: 1.8 }, // Tension
+      'Clenched': { base: 0.045, variance: 0.02, multiplier: 1.6 }, // Muscle tension
+      'Feeling Small': { base: 0.025, variance: 0.01, multiplier: 1.1 }, // Appropriately small
+      'Change in Appetite': { base: 0.04, variance: 0.02, multiplier: 1.5 } // Noticeable change
     };
     
-    const config = sizeMap[sensationName] || { base: 0.025, variance: 0.015, multiplier: 1.0 };
+    const config = sizeMap[sensationName] || { base: 0.04, variance: 0.02, multiplier: 1.5 };
     return (config.base + Math.random() * config.variance) * config.multiplier;
   };
 
@@ -389,16 +405,40 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
         // Get animation intensity and speed for this sensation
         const getAnimationProfile = (sensationName: string) => {
           const profiles: { [key: string]: { speed: number; intensity: number; pattern: string; gravity?: number; drift?: THREE.Vector3 } } = {
-            'Nerves': { speed: 1.5, intensity: 1.2, pattern: 'electrical' },
-            'Pain': { speed: 0.4, intensity: 0.6, pattern: 'throb' },
-            'Nausea': { speed: 1.0, intensity: 0.8, pattern: 'swirl' },
-            'Tears': { speed: 0.2, intensity: 0.4, pattern: 'drop', gravity: 0.0008, drift: new THREE.Vector3(0, -1, 0) },
-            'Tingling': { speed: 1.4, intensity: 1.0, pattern: 'sparkle' },
-            'Shaky': { speed: 2.5, intensity: 1.5, pattern: 'shake' },
-            'Change in Breathing': { speed: 0.6, intensity: 0.5, pattern: 'wave', drift: new THREE.Vector3(0.3, 0.8, 0) },
-            'Increased Heart Rate': { speed: 2.0, intensity: 1.0, pattern: 'pulse' },
-            'Change in Energy': { speed: 1.2, intensity: 0.8, pattern: 'burst', drift: new THREE.Vector3(0, 1, 0) },
-            'Sweat': { speed: 0.3, intensity: 0.4, pattern: 'drip', gravity: 0.0006, drift: new THREE.Vector3(0, -1, 0) }
+            // ELECTRICAL/ACTIVE effects
+            'Nerves': { speed: 1.2, intensity: 1.0, pattern: 'electrical' },
+            'Tingling': { speed: 1.8, intensity: 1.2, pattern: 'sparkle' },
+            'Change in Energy': { speed: 1.5, intensity: 1.0, pattern: 'burst', drift: new THREE.Vector3(0, 1, 0) },
+            
+            // HEART RATE effects  
+            'Increased Heart Rate': { speed: 2.5, intensity: 1.2, pattern: 'pulse' }, // Fast pulsing
+            'Decreased Heart Rate': { speed: 0.8, intensity: 0.6, pattern: 'pulse' }, // Slow pulsing
+            
+            // MOVEMENT effects
+            'Shaky': { speed: 3.0, intensity: 1.8, pattern: 'shake' }, // Fast trembling
+            'Fidgety': { speed: 2.2, intensity: 1.4, pattern: 'shake' }, // Restless movement
+            'Pacing': { speed: 1.5, intensity: 1.0, pattern: 'wave' }, // Rhythmic movement
+            'Stomping': { speed: 1.8, intensity: 1.3, pattern: 'shake' }, // Heavy movement
+            
+            // FLOW effects
+            'Tears': { speed: 0.3, intensity: 0.5, pattern: 'drop', gravity: 0.0008, drift: new THREE.Vector3(0, -1, 0) },
+            'Sweat': { speed: 0.4, intensity: 0.6, pattern: 'drip', gravity: 0.0006, drift: new THREE.Vector3(0, -1, 0) },
+            'Change in Breathing': { speed: 0.8, intensity: 0.7, pattern: 'wave', drift: new THREE.Vector3(0.3, 0.8, 0) },
+            'Nausea': { speed: 1.2, intensity: 1.0, pattern: 'swirl' },
+            
+            // PAIN effects
+            'Pain': { speed: 0.6, intensity: 0.8, pattern: 'throb' },
+            'Ache': { speed: 0.5, intensity: 0.7, pattern: 'throb' },
+            
+            // STATIC/SLOW effects
+            'Frozen/Stiff': { speed: 0.1, intensity: 0.3, pattern: 'minimal' }, // Barely moving
+            'Heaviness': { speed: 0.2, intensity: 0.4, pattern: 'sink', gravity: 0.0004, drift: new THREE.Vector3(0, -1, 0) },
+            'Relaxed': { speed: 0.4, intensity: 0.5, pattern: 'gentle' },
+            
+            // TENSION effects
+            'Tight': { speed: 0.8, intensity: 0.9, pattern: 'constrain' },
+            'Clenched': { speed: 1.0, intensity: 1.1, pattern: 'tense' },
+            'Lump in Throat': { speed: 0.6, intensity: 0.8, pattern: 'stuck' }
           };
           return profiles[sensationName] || { speed: 0.8, intensity: 0.6, pattern: 'flow', drift: new THREE.Vector3(0, 0.5, 0) };
         };
