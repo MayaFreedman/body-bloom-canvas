@@ -38,7 +38,7 @@ interface SensationSelectorProps {
   mode: BodyMapperMode;
   selectedSensation: SelectedSensation | null;
   onModeChange: (mode: BodyMapperMode) => void;
-  onSensationChange: (sensation: SelectedSensation) => void;
+  onSensationChange: (sensation: SelectedSensation | null) => void;
 }
 
 const iconComponents = {
@@ -92,16 +92,7 @@ export const SensationSelector = ({ mode, selectedSensation, onModeChange, onSen
         <p><strong>Tip:</strong> Think about the signals your body gives you. Where do you feel tension, energy, or change when a big feeling shows up?</p>
       </div>
 
-      {/* Sensation Mode Button */}
-      <div className="mb-6">
-        <button
-          className={`game-button-primary w-full ${mode === 'sensations' ? 'opacity-100' : 'opacity-70'}`}
-          onClick={() => onModeChange('sensations')}
-        >
-          <Sparkles className="w-4 h-4 mr-2" />
-          Sensation Mode
-        </button>
-      </div>
+      {/* Remove the sensation mode button - sensations are now always available */}
 
       <div className="grid grid-cols-2 gap-3">
         {bodySensations.map((sensation, index) => {
@@ -116,14 +107,21 @@ export const SensationSelector = ({ mode, selectedSensation, onModeChange, onSen
                   : 'border-gray-200 hover:bg-gray-50 hover:border-gray-300'
               }`}
               onClick={() => {
-                console.log('🎯 SensationSelector - Sensation selected:', sensation.name);
-                onSensationChange({
-                  icon: sensation.icon,
-                  color: sensation.color,
-                  name: sensation.name
-                });
-                console.log('🎯 SensationSelector - Sensation change called');
-                // Don't auto-switch mode - let the popup handle the instruction
+                console.log('🎯 SensationSelector - Sensation clicked:', sensation.name, 'isCurrentlySelected:', isSelected);
+                
+                if (isSelected) {
+                  // Unequip if clicking the same sensation
+                  console.log('🎯 SensationSelector - Unequipping sensation');
+                  onSensationChange(null);
+                } else {
+                  // Equip the new sensation
+                  console.log('🎯 SensationSelector - Equipping sensation:', sensation.name);
+                  onSensationChange({
+                    icon: sensation.icon,
+                    color: sensation.color,
+                    name: sensation.name
+                  });
+                }
               }}
             >
               <img 

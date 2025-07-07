@@ -26,7 +26,7 @@ interface BodyMapperControlsProps {
   onModeChange: (mode: BodyMapperMode) => void;
   onColorChange: (color: string) => void;
   onBrushSizeChange: (size: number[]) => void;
-  onSensationChange: (sensation: SelectedSensation) => void;
+  onSensationChange: (sensation: SelectedSensation | null) => void;
   onEmotionsUpdate?: (update: EmotionUpdate) => void;
 }
 
@@ -167,7 +167,12 @@ export const BodyMapperControls = React.forwardRef<
           selectedColor={selectedColor}
           brushSize={brushSize}
           emotions={emotions}
-          onModeChange={onModeChange}
+          onModeChange={(newMode) => {
+            console.log('🎯 BodyMapperControls - Mode changing to:', newMode, 'clearing sensation');
+            onModeChange(newMode);
+            // Clear sensation when switching to draw/fill/erase modes
+            onSensationChange(null);
+          }}
           onEmotionColorChange={handleEmotionColorChange}
           onEmotionNameChange={handleEmotionNameChange}
           onEmotionSelect={handleEmotionSelect}

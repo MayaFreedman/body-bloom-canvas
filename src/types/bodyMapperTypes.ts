@@ -30,7 +30,7 @@ export interface BodyPartColors {
   [key: string]: string;
 }
 
-export type BodyMapperMode = 'draw' | 'fill' | 'sensations' | 'erase';
+export type BodyMapperMode = 'draw' | 'fill' | 'erase';
 
 export interface SelectedSensation {
   icon: string;
