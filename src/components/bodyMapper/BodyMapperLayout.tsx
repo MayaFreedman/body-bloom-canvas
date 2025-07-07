@@ -158,22 +158,20 @@ export const BodyMapperLayout = ({
 
       <div className="controls-container">
         <div id="rightColumn">
-          <DrawingTargetSelector
-            drawingTarget={drawingTarget}
-            onTargetChange={setDrawingTarget}
-          />
           <BodyMapperControls
             ref={controlsRef}
             mode={mode}
             selectedColor={selectedColor}
             brushSize={brushSize}
             selectedSensation={selectedSensation}
+            drawingTarget={drawingTarget}
             textSettings={textSettings}
             textToPlace={textToPlace}
             onModeChange={setMode}
             onColorChange={setSelectedColor}
             onBrushSizeChange={setBrushSize}
             onSensationChange={setSelectedSensation}
+            onDrawingTargetChange={setDrawingTarget}
             onTextSettingsChange={setTextSettings}
             onTextToPlaceChange={setTextToPlace}
             onEmotionsUpdate={onEmotionsUpdate}

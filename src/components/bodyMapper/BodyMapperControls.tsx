@@ -27,12 +27,14 @@ interface BodyMapperControlsProps {
   selectedSensation: SelectedSensation | null;
   textSettings?: TextSettings;
   textToPlace?: string;
+  drawingTarget?: 'body' | 'whiteboard';
   onModeChange: (mode: BodyMapperMode) => void;
   onColorChange: (color: string) => void;
   onBrushSizeChange: (size: number[]) => void;
   onSensationChange: (sensation: SelectedSensation | null) => void;
   onTextSettingsChange?: (settings: Partial<TextSettings>) => void;
   onTextToPlaceChange?: (text: string) => void;
+  onDrawingTargetChange?: (target: 'body' | 'whiteboard') => void;
   onEmotionsUpdate?: (update: EmotionUpdate) => void;
 }
 
@@ -57,12 +59,14 @@ export const BodyMapperControls = React.forwardRef<
   selectedSensation,
   textSettings,
   textToPlace,
+  drawingTarget,
   onModeChange,
   onColorChange,
   onBrushSizeChange,
   onSensationChange,
   onTextSettingsChange,
   onTextToPlaceChange,
+  onDrawingTargetChange,
   onEmotionsUpdate
 }, ref) => {
   const [activeTab, setActiveTab] = useState('feelings');
@@ -179,6 +183,7 @@ export const BodyMapperControls = React.forwardRef<
           emotions={emotions}
           textSettings={textSettings}
           textToPlace={textToPlace}
+          drawingTarget={drawingTarget}
           onModeChange={(newMode) => {
             console.log('🎯 BodyMapperControls - Mode changing to:', newMode, 'clearing sensation');
             onModeChange(newMode);
@@ -193,6 +198,7 @@ export const BodyMapperControls = React.forwardRef<
           onBrushSizeChange={onBrushSizeChange}
           onTextSettingsChange={onTextSettingsChange}
           onTextToPlaceChange={onTextToPlaceChange}
+          onDrawingTargetChange={onDrawingTargetChange}
         />
       </div>
 

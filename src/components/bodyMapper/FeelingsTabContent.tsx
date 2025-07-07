@@ -3,6 +3,7 @@ import React from 'react';
 import { PaintingModeSelector } from './PaintingModeSelector';
 import { EmotionColorManager } from './EmotionColorManager';
 import { BrushSizeControl } from './BrushSizeControl';
+import { DrawingTargetSelector } from './DrawingTargetSelector';
 import { BodyMapperMode, SelectedSensation } from '@/types/bodyMapperTypes';
 import { TextControls } from './TextControls';
 import { TextSettings } from '@/types/textTypes';
@@ -19,6 +20,7 @@ interface FeelingsTabContentProps {
   emotions: CustomEmotion[];
   textSettings?: TextSettings;
   textToPlace?: string;
+  drawingTarget?: 'body' | 'whiteboard';
   onModeChange: (mode: BodyMapperMode) => void;
   onEmotionColorChange: (index: number, color: string) => void;
   onEmotionNameChange: (index: number, name: string) => void;
@@ -28,6 +30,7 @@ interface FeelingsTabContentProps {
   onBrushSizeChange: (size: number[]) => void;
   onTextSettingsChange?: (settings: Partial<TextSettings>) => void;
   onTextToPlaceChange?: (text: string) => void;
+  onDrawingTargetChange?: (target: 'body' | 'whiteboard') => void;
 }
 
 export const FeelingsTabContent = ({
@@ -37,6 +40,7 @@ export const FeelingsTabContent = ({
   emotions,
   textSettings,
   textToPlace,
+  drawingTarget,
   onModeChange,
   onEmotionColorChange,
   onEmotionNameChange,
@@ -45,7 +49,8 @@ export const FeelingsTabContent = ({
   onDeleteColor,
   onBrushSizeChange,
   onTextSettingsChange,
-  onTextToPlaceChange
+  onTextToPlaceChange,
+  onDrawingTargetChange
 }: FeelingsTabContentProps) => {
   
   return (
@@ -58,6 +63,14 @@ export const FeelingsTabContent = ({
           <p><strong>Tip:</strong> You can use the colors to show where you feel each emotion or how big or strong that feeling is for you.</p>
         </div>
       </div>
+      
+      {/* Drawing Target Selector - placed above tools */}
+      {drawingTarget && onDrawingTargetChange && (
+        <DrawingTargetSelector
+          drawingTarget={drawingTarget}
+          onTargetChange={onDrawingTargetChange}
+        />
+      )}
       
       {/* Tool Buttons */}
       <PaintingModeSelector mode={mode} onModeChange={onModeChange} title="Tools" />
