@@ -185,19 +185,35 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
   // Get dispersion level based on sensation type
   const getDispersionLevel = (sensationName: string) => {
     const dispersionMap: { [key: string]: number } = {
+      // FAST/JERKY = highest dispersion
       'Nerves': 0.025,           // WAY more dispersed for electrical effects
       'Shaky': 0.015,            // High dispersion for trembling
       'Tingling': 0.012,         // High dispersion for sparkles
       'Change in Energy': 0.010, // High dispersion for energy bursts
+      'Fidgety': 0.012,          // High dispersion for restless movement
+      
+      // MEDIUM = medium dispersion
       'Nausea': 0.008,          // Medium-high dispersion for swirling
       'Pain': 0.007,            // Medium dispersion
       'Change in Breathing': 0.009, // High for air movement
       'Increased Heart Rate': 0.006, // Medium for pulse
+      'Ache': 0.006,            // Medium for aches
+      'Pacing': 0.008,          // Medium-high for movement
+      'Stomping': 0.007,        // Medium for forceful steps
+      
+      // SLOW FLOW = low dispersion 
       'Tears': 0.004,           // Lower for flowing down
       'Sweat': 0.004,           // Lower for dripping
-      'Frozen/Stiff': 0.002,    // Very low dispersion for static
-      'Heaviness': 0.0025,      // Low for weighted feeling
-      'Relaxed': 0.003          // Low for calm
+      
+      // VERY SLOW = very low dispersion (concentrated, slow stamping effect)
+      'Frozen/Stiff': 0.001,    // Extremely low - almost stamping in place
+      'Heaviness': 0.0015,      // Very low for weighted feeling
+      'Lump in Throat': 0.002,  // Low for persistent blockage
+      'Relaxed': 0.002,         // Low for calm
+      'Decreased Heart Rate': 0.0025, // Low for slow rhythm
+      'Tight': 0.003,           // Low for tension
+      'Dry Mouth': 0.003,       // Low for persistent dryness
+      'Clenched': 0.004         // Slightly higher for muscle tension
     };
     return dispersionMap[sensationName] || 0.006;
   };
@@ -205,44 +221,101 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
   // Get particle size based on sensation movement type
   const getParticleSize = (sensationName: string) => {
     const sizeMap: { [key: string]: { base: number; variance: number; multiplier: number } } = {
-      // STATIC/SLOW sensations = larger, more visible particles
-      'Frozen/Stiff': { base: 0.08, variance: 0.04, multiplier: 2.5 }, // Large, barely moving
-      'Heaviness': { base: 0.07, variance: 0.035, multiplier: 2.2 }, // Heavy, weighty
-      'Relaxed': { base: 0.06, variance: 0.03, multiplier: 2.0 }, // Calm, visible
-      'Decreased Heart Rate': { base: 0.065, variance: 0.03, multiplier: 2.1 }, // Slow, large beats
+      // VERY SLOW/STATIC = largest, regenerate least frequently
+      'Frozen/Stiff': { base: 0.09, variance: 0.045, multiplier: 3.0 }, // Biggest, almost static
+      'Heaviness': { base: 0.08, variance: 0.04, multiplier: 2.7 }, // Heavy, weighty feeling
+      'Lump in Throat': { base: 0.075, variance: 0.035, multiplier: 2.5 }, // Significant blockage feeling
       
-      // MEDIUM sensations = medium-large particles
-      'Tears': { base: 0.05, variance: 0.025, multiplier: 1.8 }, // Visible droplets
-      'Sweat': { base: 0.045, variance: 0.02, multiplier: 1.7 }, // Visible drips
-      'Pain': { base: 0.055, variance: 0.03, multiplier: 1.9 }, // Need to see pain clearly
-      'Nausea': { base: 0.05, variance: 0.025, multiplier: 1.8 }, // Visible swirling
+      // SLOW/CALM = large, infrequent regeneration  
+      'Relaxed': { base: 0.07, variance: 0.035, multiplier: 2.3 }, // Calm, visible
+      'Decreased Heart Rate': { base: 0.07, variance: 0.035, multiplier: 2.3 }, // Slow, large beats
+      'Statue': { base: 0.08, variance: 0.04, multiplier: 2.6 }, // Statue-like stillness
+      
+      // MEDIUM-SLOW = medium-large particles
+      'Tears': { base: 0.055, variance: 0.03, multiplier: 2.0 }, // Visible droplets
+      'Sweat': { base: 0.05, variance: 0.025, multiplier: 1.9 }, // Visible drips  
+      'Pain': { base: 0.06, variance: 0.03, multiplier: 2.1 }, // Need to see pain clearly
+      'Ache': { base: 0.055, variance: 0.03, multiplier: 2.0 }, // Visible discomfort
+      'Tight': { base: 0.055, variance: 0.025, multiplier: 2.0 }, // Tension
+      'Dry Mouth': { base: 0.05, variance: 0.025, multiplier: 1.9 }, // Noticeable dryness
+      
+      // MEDIUM = medium particles, moderate regeneration
+      'Nausea': { base: 0.045, variance: 0.025, multiplier: 1.7 }, // Visible swirling
       'Increased Heart Rate': { base: 0.045, variance: 0.02, multiplier: 1.7 }, // Fast but visible beats
       'Change in Breathing': { base: 0.04, variance: 0.02, multiplier: 1.6 }, // Air movement
-      'Ache': { base: 0.05, variance: 0.025, multiplier: 1.8 }, // Visible discomfort
+      'Change in Appetite': { base: 0.04, variance: 0.02, multiplier: 1.6 }, // Noticeable change
+      'Clenched': { base: 0.045, variance: 0.02, multiplier: 1.7 }, // Muscle tension
       
-      // ACTIVE sensations = medium particles for visibility
+      // ACTIVE = medium particles for visibility
       'Change in Energy': { base: 0.04, variance: 0.02, multiplier: 1.5 }, // Energy bursts
       'Fidgety': { base: 0.035, variance: 0.015, multiplier: 1.4 }, // Restless movement
       'Pacing': { base: 0.04, variance: 0.02, multiplier: 1.5 }, // Movement patterns
       'Stomping': { base: 0.045, variance: 0.02, multiplier: 1.6 }, // Forceful steps
+      'Avoiding Eye Contact': { base: 0.035, variance: 0.015, multiplier: 1.4 }, // Nervous behavior
+      'Scrunched Face': { base: 0.04, variance: 0.02, multiplier: 1.5 }, // Facial tension
       
-      // FAST/JERKY sensations = smaller but still visible
+      // FAST/JERKY = smaller but still visible, frequent regeneration
       'Tingling': { base: 0.03, variance: 0.015, multiplier: 1.3 }, // Sparkle effect
-      'Shaky': { base: 0.035, variance: 0.015, multiplier: 1.4 }, // Trembling, needs visibility
-      'Nerves': { base: 0.025, variance: 0.012, multiplier: 1.2 }, // Electrical, dispersed but visible
+      'Shaky': { base: 0.035, variance: 0.015, multiplier: 1.4 }, // Trembling
+      'Nerves': { base: 0.025, variance: 0.012, multiplier: 1.2 }, // Electrical, dispersed
+      'Goosebumps': { base: 0.025, variance: 0.012, multiplier: 1.2 }, // Small bumps
       
-      // SPECIAL cases
-      'Goosebumps': { base: 0.02, variance: 0.01, multiplier: 1.1 }, // Small bumps
-      'Dry Mouth': { base: 0.045, variance: 0.02, multiplier: 1.7 }, // Noticeable dryness
-      'Lump in Throat': { base: 0.055, variance: 0.025, multiplier: 1.9 }, // Significant feeling
-      'Tight': { base: 0.05, variance: 0.025, multiplier: 1.8 }, // Tension
-      'Clenched': { base: 0.045, variance: 0.02, multiplier: 1.6 }, // Muscle tension
-      'Feeling Small': { base: 0.025, variance: 0.01, multiplier: 1.1 }, // Appropriately small
-      'Change in Appetite': { base: 0.04, variance: 0.02, multiplier: 1.5 } // Noticeable change
+      // SMALLEST = appropriately tiny
+      'Feeling Small': { base: 0.02, variance: 0.01, multiplier: 1.0 } // Appropriately small
     };
     
     const config = sizeMap[sensationName] || { base: 0.04, variance: 0.02, multiplier: 1.5 };
     return (config.base + Math.random() * config.variance) * config.multiplier;
+  };
+
+  // Get particle lifespan based on sensation type (how often they regenerate)
+  const getParticleLifespan = (sensationName: string) => {
+    const lifespanMap: { [key: string]: { min: number; max: number } } = {
+      // VERY SLOW = very long lifespan (slow stamping effect)
+      'Frozen/Stiff': { min: 300, max: 500 }, // Almost never regenerates
+      'Heaviness': { min: 250, max: 400 }, // Very slow regeneration
+      'Lump in Throat': { min: 220, max: 350 }, // Persistent feeling
+      
+      // SLOW = long lifespan
+      'Relaxed': { min: 180, max: 280 }, // Calm, persistent
+      'Decreased Heart Rate': { min: 160, max: 250 }, // Slow rhythm
+      'Statue': { min: 200, max: 300 }, // Very still
+      
+      // MEDIUM-SLOW = medium-long lifespan  
+      'Tears': { min: 120, max: 200 }, // Droplets last a while
+      'Sweat': { min: 100, max: 180 }, // Drips persist
+      'Pain': { min: 100, max: 160 }, // Pain lingers
+      'Ache': { min: 110, max: 170 }, // Aches persist
+      'Tight': { min: 120, max: 180 }, // Tension holds
+      'Dry Mouth': { min: 140, max: 220 }, // Dryness persists
+      
+      // MEDIUM = normal lifespan
+      'Nausea': { min: 80, max: 140 }, // Swirling motion
+      'Increased Heart Rate': { min: 60, max: 120 }, // Faster rhythm
+      'Change in Breathing': { min: 70, max: 130 }, // Breathing cycles
+      'Change in Appetite': { min: 90, max: 150 }, // Moderate change
+      'Clenched': { min: 80, max: 140 }, // Tension comes and goes
+      
+      // ACTIVE = shorter lifespan, more dynamic
+      'Change in Energy': { min: 50, max: 100 }, // Energy bursts
+      'Fidgety': { min: 40, max: 80 }, // Restless, changing
+      'Pacing': { min: 60, max: 100 }, // Movement patterns
+      'Stomping': { min: 50, max: 90 }, // Forceful but brief
+      'Avoiding Eye Contact': { min: 45, max: 85 }, // Nervous behavior
+      'Scrunched Face': { min: 40, max: 80 }, // Facial expressions
+      
+      // FAST/JERKY = short lifespan, frequent regeneration
+      'Tingling': { min: 30, max: 60 }, // Quick sparkles
+      'Shaky': { min: 25, max: 50 }, // Rapid trembling
+      'Nerves': { min: 20, max: 45 }, // Electrical, quick
+      'Goosebumps': { min: 35, max: 70 }, // Brief bumps
+      
+      // SMALLEST = quick regeneration
+      'Feeling Small': { min: 40, max: 80 } // Brief moments
+    };
+    
+    const config = lifespanMap[sensationName] || { min: 80, max: 140 };
+    return config.min + Math.random() * (config.max - config.min);
   };
 
   // Create particle system for each sensation mark
@@ -258,16 +331,46 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
         // Create particles based on effect type with varied density
         const getParticleCount = (sensationName: string) => {
           const densityMapping: { [key: string]: number } = {
-            'Nerves': 25,
-            'Pain': 12,
-            'Nausea': 18,
-            'Tears': 8,
-            'Tingling': 20,
-            'Shaky': 30,
-            'Change in Breathing': 15,
-            'Increased Heart Rate': 10,
-            'Change in Energy': 25,
-            'Sweat': 15
+            // VERY SLOW = fewer particles since they last very long (slow stamping)
+            'Frozen/Stiff': 3,          // Very few, long-lasting particles
+            'Heaviness': 4,             // Few, heavy particles
+            'Lump in Throat': 5,        // Minimal, persistent blockage
+            
+            // SLOW = fewer particles, longer lasting
+            'Relaxed': 6,               // Calm, fewer particles
+            'Decreased Heart Rate': 5,  // Slow, large beats
+            
+            // MEDIUM-SLOW = medium count
+            'Tears': 8,                 // Droplets
+            'Sweat': 10,                // Drips
+            'Pain': 12,                 // Visible pain
+            'Ache': 10,                 // Persistent aches
+            'Tight': 8,                 // Tension areas
+            'Dry Mouth': 7,             // Dryness
+            
+            // MEDIUM = normal count
+            'Nausea': 15,               // Swirling
+            'Increased Heart Rate': 12, // Fast beats but visible
+            'Change in Breathing': 15,  // Air movement
+            'Change in Appetite': 10,   // Appetite changes
+            'Clenched': 12,             // Muscle tension
+            
+            // ACTIVE = higher count for movement
+            'Change in Energy': 20,     // Energy bursts
+            'Fidgety': 25,              // Restless movement
+            'Pacing': 18,               // Movement patterns
+            'Stomping': 15,             // Forceful steps
+            'Avoiding Eye Contact': 12, // Nervous behavior
+            'Scrunched Face': 10,       // Facial tension
+            
+            // FAST/JERKY = high count, short-lived
+            'Nerves': 30,               // Electrical, dispersed
+            'Tingling': 25,             // Sparkles
+            'Shaky': 35,                // Rapid trembling
+            'Goosebumps': 20,           // Small bumps
+            
+            // SPECIAL
+            'Feeling Small': 8          // Appropriately few
           };
           return densityMapping[sensationName] || 12;
         };
@@ -289,7 +392,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
               (Math.random() - 0.5) * (dispersion * 0.2)
             ),
             life: Math.random() * 100,
-            maxLife: 80 + Math.random() * 40,
+            maxLife: getParticleLifespan(mark.name || mark.icon),
             size: getParticleSize(mark.name || mark.icon),
             rotation: Math.random() * Math.PI * 2,
             rotationSpeed: (Math.random() - 0.5) * 0.15,
