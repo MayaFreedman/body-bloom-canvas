@@ -182,6 +182,26 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
     return scaleMapping[sensationName] || 1.0;
   };
 
+  // Get dispersion level based on sensation type
+  const getDispersionLevel = (sensationName: string) => {
+    const dispersionMap: { [key: string]: number } = {
+      'Nerves': 0.012,           // Very high dispersion for electrical effects
+      'Shaky': 0.010,            // High dispersion for trembling
+      'Tingling': 0.009,         // High dispersion for sparkles
+      'Change in Energy': 0.008, // High dispersion for energy bursts
+      'Nausea': 0.007,          // Medium-high dispersion for swirling
+      'Pain': 0.006,            // Medium dispersion
+      'Change in Breathing': 0.008, // High for air movement
+      'Increased Heart Rate': 0.005, // Medium for pulse
+      'Tears': 0.004,           // Lower for flowing down
+      'Sweat': 0.004,           // Lower for dripping
+      'Frozen/Stiff': 0.003,    // Lowest dispersion for static
+      'Heaviness': 0.003,       // Low for weighted feeling
+      'Relaxed': 0.005          // Medium-low for calm
+    };
+    return dispersionMap[sensationName] || 0.006;
+  };
+
   // Create particle system for each sensation mark
   const particleSystems = useMemo(() => {
     console.log('🦋 SensationParticles - Creating particle systems for marks:', sensationMarks);
@@ -211,21 +231,23 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
         
         const particleCount = getParticleCount(mark.name || mark.icon);
         
+        const dispersion = getDispersionLevel(mark.name || mark.icon);
+        
         for (let i = 0; i < particleCount; i++) {
           const baseParticle = {
             position: new THREE.Vector3(
-              mark.position.x + (Math.random() - 0.5) * 0.005, // Increased dispersion for flow
-              mark.position.y + (Math.random() - 0.5) * 0.005, // Increased dispersion for flow
-              mark.position.z + (Math.random() - 0.5) * 0.005  // Increased dispersion for flow
+              mark.position.x + (Math.random() - 0.5) * dispersion,
+              mark.position.y + (Math.random() - 0.5) * dispersion,
+              mark.position.z + (Math.random() - 0.5) * dispersion
             ),
             velocity: new THREE.Vector3(
-              (Math.random() - 0.5) * 0.0012, // Increased for better flow
-              (Math.random() - 0.5) * 0.0012, // Increased for better flow
-              (Math.random() - 0.5) * 0.0012  // Increased for better flow
+              (Math.random() - 0.5) * (dispersion * 0.2),
+              (Math.random() - 0.5) * (dispersion * 0.2),
+              (Math.random() - 0.5) * (dispersion * 0.2)
             ),
             life: Math.random() * 100,
             maxLife: 80 + Math.random() * 40,
-            size: (0.03 + Math.random() * 0.05) * 1.5, // Smaller, more flowy particles
+            size: (0.02 + Math.random() * 0.04) * 1.2, // Even smaller for smoother look
             rotation: Math.random() * Math.PI * 2,
             rotationSpeed: (Math.random() - 0.5) * 0.15,
             oscillationPhase: Math.random() * Math.PI * 2,
@@ -297,10 +319,12 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
         if (particle.life >= particle.maxLife) {
           particle.life = 0;
           particle.position.copy(mark.position);
+          // Use the same dispersion level for respawn as initial spawn
+          const respawnDispersion = getDispersionLevel(mark.name || mark.icon);
           particle.position.add(new THREE.Vector3(
-            (Math.random() - 0.5) * 0.006, // Increased respawn dispersion
-            (Math.random() - 0.5) * 0.006, // Increased respawn dispersion
-            (Math.random() - 0.5) * 0.006  // Increased respawn dispersion
+            (Math.random() - 0.5) * respawnDispersion,
+            (Math.random() - 0.5) * respawnDispersion,
+            (Math.random() - 0.5) * respawnDispersion
           ));
           
           // Reset animation properties
@@ -356,25 +380,26 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
 
         // Update position based on animation profile
         if (animProfile.pattern === 'electrical' || mark.icon === 'Activity' || mark.name === 'Nerves') {
-          // Nerves: electrical sparking
-          const electricalJitter = Math.sin(particle.electricalPulse! * 4 * animProfile.speed) * 0.0004 * animProfile.intensity;
-          const sparkJump = Math.sin(time * 25 * animProfile.speed + particle.life * 0.8) * 0.0003 * animProfile.intensity;
-          const rapidOscillation = Math.sin(particle.oscillationPhase * 4 * animProfile.speed) * 0.0004 * animProfile.intensity;
+          // Nerves: smoother electrical sparking (less nauseating)
+          const electricalJitter = Math.sin(particle.electricalPulse! * 2 * animProfile.speed) * 0.0002 * animProfile.intensity;
+          const sparkJump = Math.sin(time * 8 * animProfile.speed + particle.life * 0.3) * 0.0002 * animProfile.intensity;
+          const gentleOscillation = Math.sin(particle.oscillationPhase * 2 * animProfile.speed) * 0.0002 * animProfile.intensity;
           
-          if (Math.random() < 0.08 * animProfile.speed) {
-            particle.velocity.multiplyScalar(0.2);
+          // Much gentler random impulses
+          if (Math.random() < 0.02 * animProfile.speed) {
+            particle.velocity.multiplyScalar(0.8);
             particle.velocity.add(new THREE.Vector3(
-              (Math.random() - 0.5) * 0.0008 * animProfile.intensity,
-              (Math.random() - 0.5) * 0.0008 * animProfile.intensity,
-              (Math.random() - 0.5) * 0.0008 * animProfile.intensity
+              (Math.random() - 0.5) * 0.0003 * animProfile.intensity,
+              (Math.random() - 0.5) * 0.0003 * animProfile.intensity,
+              (Math.random() - 0.5) * 0.0003 * animProfile.intensity
             ));
           }
           
           particle.position.add(particle.velocity);
-          particle.position.x += electricalJitter + sparkJump + rapidOscillation;
-          particle.position.y += electricalJitter * 1.2 + Math.cos(particle.oscillationPhase * 3) * 0.0003 * animProfile.intensity;
-          particle.position.z += rapidOscillation + sparkJump * 0.8;
-          particle.velocity.multiplyScalar(0.95);
+          particle.position.x += electricalJitter + sparkJump + gentleOscillation;
+          particle.position.y += electricalJitter * 0.8 + Math.cos(particle.oscillationPhase * 1.5) * 0.0002 * animProfile.intensity;
+          particle.position.z += gentleOscillation + sparkJump * 0.6;
+          particle.velocity.multiplyScalar(0.97);
           
         } else if (animProfile.pattern === 'shake') {
           // Shaky: rapid trembling
