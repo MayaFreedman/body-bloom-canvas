@@ -9,9 +9,6 @@ interface BrushSizeControlProps {
 }
 
 export const BrushSizeControl = ({ brushSize, selectedColor, onBrushSizeChange }: BrushSizeControlProps) => {
-  // Simple scaling - make the preview smaller to better match actual drawing size
-  const actualVisualSize = Math.max(2, Math.min(30, brushSize[0] * 0.75));
-
   return (
     <div>
       <h4 className="font-semibold text-gray-800 mb-3">Brush Size</h4>
@@ -40,20 +37,6 @@ export const BrushSizeControl = ({ brushSize, selectedColor, onBrushSizeChange }
               +
             </button>
           </div>
-        </div>
-        {/* Visual size indicator */}
-        <div className="flex justify-center">
-          <div 
-            className="rounded-full border-2 border-gray-300"
-            style={{ 
-              width: `${actualVisualSize}px`, 
-              height: `${actualVisualSize}px`,
-              backgroundColor: selectedColor + '50'
-            }}
-          />
-        </div>
-        <div className="text-xs text-gray-500 text-center">
-          Preview shows actual drawing size
         </div>
       </div>
     </div>
