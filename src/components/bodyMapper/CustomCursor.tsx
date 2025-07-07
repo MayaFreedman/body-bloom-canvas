@@ -87,7 +87,7 @@ export const CustomCursor: React.FC<CustomCursorProps> = ({
 
   // For text mode, show text preview
   if (mode === 'text' && textToPlace.trim()) {
-    const fontSize = (textSettings?.fontSize || 16) * 0.8; // Scale for preview
+    const fontSize = ((textSettings?.fontSize || 16) / 100) * 100; // Match TextRenderer scaling
     
     return (
       <div
