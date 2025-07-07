@@ -204,6 +204,7 @@ export const BodyMapperControls = React.forwardRef<
           <TextControls
             mode={mode}
             textSettings={textSettings}
+            selectedColor={selectedColor}
             onModeChange={onModeChange}
             onTextSettingsChange={onTextSettingsChange}
           />

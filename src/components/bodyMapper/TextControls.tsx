@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Type, Bold, Italic } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { TextSettings } from '@/types/textTypes';
@@ -9,8 +10,11 @@ import { BodyMapperMode } from '@/types/bodyMapperTypes';
 interface TextControlsProps {
   mode: BodyMapperMode;
   textSettings: TextSettings;
+  selectedColor: string;
   onModeChange: (mode: BodyMapperMode) => void;
   onTextSettingsChange: (settings: Partial<TextSettings>) => void;
+  textToPlace?: string;
+  onTextToPlaceChange?: (text: string) => void;
 }
 
 const fontFamilies = [
@@ -25,9 +29,21 @@ const fontFamilies = [
 export const TextControls = ({
   mode,
   textSettings,
+  selectedColor,
   onModeChange,
-  onTextSettingsChange
+  onTextSettingsChange,
+  textToPlace = 'Sample Text',
+  onTextToPlaceChange
 }: TextControlsProps) => {
+  const [localTextToPlace, setLocalTextToPlace] = useState(textToPlace);
+
+  const handleTextChange = (text: string) => {
+    setLocalTextToPlace(text);
+    onTextToPlaceChange?.(text);
+  };
+
+  const currentText = onTextToPlaceChange ? textToPlace : localTextToPlace;
+
   return (
     <div className="space-y-4">
       {/* Text Mode Button */}
@@ -42,6 +58,34 @@ export const TextControls = ({
 
       {mode === 'text' && (
         <div className="space-y-4 pl-4 border-l-2 border-border">
+          {/* Text Input */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Text to Place</label>
+            <Input
+              value={currentText}
+              onChange={(e) => handleTextChange(e.target.value)}
+              placeholder="Enter text..."
+              className="w-full"
+            />
+          </div>
+
+          {/* Text Preview */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Preview</label>
+            <div 
+              className="min-h-[40px] border border-border rounded p-2 bg-background flex items-center justify-center"
+              style={{
+                fontFamily: textSettings.fontFamily,
+                fontSize: `${Math.min(textSettings.fontSize, 16)}px`,
+                fontWeight: textSettings.fontWeight,
+                fontStyle: textSettings.fontStyle,
+                color: selectedColor
+              }}
+            >
+              {currentText || 'Enter text above...'}
+            </div>
+          </div>
+
           {/* Font Size */}
           <div className="space-y-2">
             <label className="text-sm font-medium">Font Size: {textSettings.fontSize}px</label>
@@ -98,6 +142,11 @@ export const TextControls = ({
                 <Italic className="w-4 h-4" />
               </Button>
             </div>
+          </div>
+
+          {/* Instructions */}
+          <div className="text-xs text-muted-foreground p-2 bg-muted rounded">
+            Click anywhere on the body or whiteboard to place your text
           </div>
 
         </div>

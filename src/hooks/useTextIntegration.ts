@@ -7,6 +7,7 @@ interface UseTextIntegrationProps {
   editingTextId: string | null;
   selectedColor: string;
   drawingTarget: 'body' | 'whiteboard';
+  textToPlace: string;
   onAddTextMark: (position: THREE.Vector3, text: string, surface: 'body' | 'whiteboard', color: string) => TextMark;
   onUpdateTextMark: (id: string, updates: Partial<TextMark>) => void;
   onDeleteTextMark: (id: string) => void;
@@ -19,6 +20,7 @@ export const useTextIntegration = ({
   editingTextId,
   selectedColor,
   drawingTarget,
+  textToPlace,
   onAddTextMark,
   onUpdateTextMark,
   onDeleteTextMark,
@@ -32,46 +34,30 @@ export const useTextIntegration = ({
 
   const handleTextPlace = useCallback((position: THREE.Vector3, surface: 'body' | 'whiteboard') => {
     console.log('📝 Text placement requested at:', position, 'on surface:', surface);
-    setPendingTextPosition({ position: position.clone(), surface });
-    // Auto-start editing with a default text
-    const newMark = onAddTextMark(position, 'Click to edit text', surface, selectedColor);
-    onStartTextEditing(newMark.id);
-  }, [onAddTextMark, selectedColor, onStartTextEditing]);
+    if (textToPlace.trim()) {
+      onAddTextMark(position, textToPlace.trim(), surface, selectedColor);
+    }
+  }, [onAddTextMark, selectedColor, textToPlace]);
 
   const handleTextClick = useCallback((textMark: TextMark) => {
-    console.log('📝 Text clicked for editing:', textMark.id);
-    onStartTextEditing(textMark.id);
-  }, [onStartTextEditing]);
+    // For stamp mode, we don't need inline editing
+    console.log('📝 Text clicked:', textMark.id);
+  }, []);
 
   const handleTextSave = useCallback((text: string) => {
-    if (editingTextId) {
-      console.log('📝 Saving text:', text, 'for ID:', editingTextId);
-      onUpdateTextMark(editingTextId, { text });
-      onStopTextEditing();
-      setPendingTextPosition(null);
-    }
-  }, [editingTextId, onUpdateTextMark, onStopTextEditing]);
+    // Not needed for stamp mode
+    console.log('📝 Text save not needed in stamp mode');
+  }, []);
 
   const handleTextCancel = useCallback(() => {
-    if (editingTextId) {
-      // If this was a new text that was just placed, remove it
-      const editingMark = textMarks.find(mark => mark.id === editingTextId);
-      if (editingMark && editingMark.text === 'Click to edit text') {
-        onDeleteTextMark(editingTextId);
-      }
-      onStopTextEditing();
-      setPendingTextPosition(null);
-    }
-  }, [editingTextId, textMarks, onDeleteTextMark, onStopTextEditing]);
+    // Not needed for stamp mode
+    console.log('📝 Text cancel not needed in stamp mode');
+  }, []);
 
   const handleTextDelete = useCallback(() => {
-    if (editingTextId) {
-      console.log('📝 Deleting text with ID:', editingTextId);
-      onDeleteTextMark(editingTextId);
-      onStopTextEditing();
-      setPendingTextPosition(null);
-    }
-  }, [editingTextId, onDeleteTextMark, onStopTextEditing]);
+    // Not needed for stamp mode
+    console.log('📝 Text delete not needed in stamp mode');
+  }, []);
 
   return {
     handleTextPlace,
@@ -79,6 +65,6 @@ export const useTextIntegration = ({
     handleTextSave,
     handleTextCancel,
     handleTextDelete,
-    pendingTextPosition
+    pendingTextPosition: null // Not needed for stamp mode
   };
 };
