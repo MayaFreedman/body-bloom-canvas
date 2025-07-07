@@ -406,17 +406,17 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             oscillationSpeed: 0.8 + Math.random() * 2.2
           };
 
-          // Add special properties for nerves/electrical particles
-          if (mark.icon === 'Activity' || mark.name === 'Nerves') {
+          // Add special properties for nerves/electrical particles  
+          if (mark.icon === 'Activity' || mark.name === 'Nerves' || mark.name === 'Tingling') {
             particles.push({
               ...baseParticle,
               sparkIntensity: Math.random(),
               flickerPhase: Math.random() * Math.PI * 2,
               electricalPulse: Math.random() * Math.PI * 2,
               velocity: new THREE.Vector3(
-                (Math.random() - 0.5) * 0.0005, // Reduced from 0.001 by 50%
-                (Math.random() - 0.5) * 0.0005, // Reduced from 0.001 by 50%
-                (Math.random() - 0.5) * 0.0005  // Reduced from 0.001 by 50%
+                (Math.random() - 0.5) * 0.001,
+                (Math.random() - 0.5) * 0.0008,
+                (Math.random() - 0.5) * 0.001
               ),
               rotationSpeed: (Math.random() - 0.5) * 0.4,
               oscillationSpeed: 3 + Math.random() * 6
@@ -461,8 +461,8 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
         particle.rotation += particle.rotationSpeed * delta * 15;
         particle.oscillationPhase += particle.oscillationSpeed * delta;
         
-        // Update electrical properties for nerves
-        if ((mark.icon === 'Activity' || mark.name === 'Nerves') && particle.electricalPulse !== undefined) {
+        // Update electrical properties for nerves and tingling
+        if ((mark.icon === 'Activity' || mark.name === 'Nerves' || mark.name === 'Tingling') && particle.electricalPulse !== undefined) {
           particle.electricalPulse += delta * 12;
           particle.flickerPhase! += delta * 20;
         }
@@ -517,7 +517,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
           particle.rotation = Math.random() * Math.PI * 2;
           particle.oscillationPhase = Math.random() * Math.PI * 2;
           
-          if (mark.icon === 'Activity' || mark.name === 'Nerves') {
+          if (mark.icon === 'Activity' || mark.name === 'Nerves' || mark.name === 'Tingling') {
             particle.flickerPhase = Math.random() * Math.PI * 2;
             particle.electricalPulse = Math.random() * Math.PI * 2;
             particle.sparkIntensity = Math.random();
