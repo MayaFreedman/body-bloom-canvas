@@ -15,6 +15,10 @@ const TextMarkComponent = ({
   textMark: TextMark; 
   onTextClick?: (textMark: TextMark) => void; 
 }) => {
+  const handlePointerDown = (event: any) => {
+    event.stopPropagation();
+  };
+
   const handleDoubleClick = (event: any) => {
     event.stopPropagation();
     onTextClick?.(textMark);
@@ -29,20 +33,25 @@ const TextMarkComponent = ({
   }), [textMark]);
 
   return (
-    <group position={textMark.position} onDoubleClick={handleDoubleClick}>
+    <group position={textMark.position}>
       <Text
         {...fontStyle}
         maxWidth={2}
         lineHeight={1.2}
         anchorX="center"
         anchorY="middle"
+        onPointerDown={handlePointerDown}
+        onDoubleClick={handleDoubleClick}
       >
         {textMark.text}
       </Text>
       
-      {/* Invisible clickable area */}
-      <mesh>
-        <planeGeometry args={[textMark.text.length * 0.1, 0.2]} />
+      {/* Invisible clickable area for better interaction */}
+      <mesh
+        onPointerDown={handlePointerDown}
+        onDoubleClick={handleDoubleClick}
+      >
+        <planeGeometry args={[Math.max(textMark.text.length * 0.08, 0.5), 0.3]} />
         <meshBasicMaterial transparent opacity={0} />
       </mesh>
     </group>

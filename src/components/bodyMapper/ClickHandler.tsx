@@ -79,8 +79,8 @@ export const ClickHandler = ({
   }, [mode, selectedColor, selectedSensation, onBodyPartClick, onSensationClick, camera, gl, raycaster, mouse, getBodyMeshes, scene]);
 
   React.useEffect(() => {
-    // Always listen for clicks if a sensation is equipped, OR if not in draw mode
-    if (selectedSensation || mode !== 'draw') {
+    // Always listen for clicks if a sensation is equipped, OR if not in draw/text mode
+    if (selectedSensation || (mode !== 'draw' && mode !== 'text')) {
       gl.domElement.addEventListener('click', handleClick);
       return () => gl.domElement.removeEventListener('click', handleClick);
     }

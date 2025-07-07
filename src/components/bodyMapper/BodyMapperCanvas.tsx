@@ -214,7 +214,7 @@ export const BodyMapperCanvas = ({
           maxDistance={6}
           maxPolarAngle={Math.PI}
           minPolarAngle={0}
-          enabled={mode !== 'draw' && mode !== 'erase'}
+          enabled={mode !== 'draw' && mode !== 'erase' && mode !== 'text'}
         />
       </Canvas>
       

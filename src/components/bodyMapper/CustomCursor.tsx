@@ -55,6 +55,11 @@ export const CustomCursor: React.FC<CustomCursorProps> = ({
         if (canvas) canvas.style.setProperty('cursor', 'none', 'important');
         console.log('🖱️ Setting none cursor - sensation selected but not hovering');
       }
+    } else if (mode === 'text') {
+      // Show text cursor when in text mode
+      document.body.style.setProperty('cursor', 'text', 'important');
+      if (canvas) canvas.style.setProperty('cursor', 'text', 'important');
+      console.log('🖱️ Setting text cursor - text mode');
     } else {
       // Default cursor when no sensation selected
       document.body.style.setProperty('cursor', 'default', 'important');
@@ -66,7 +71,7 @@ export const CustomCursor: React.FC<CustomCursorProps> = ({
       document.body.style.cursor = 'default';
       if (canvas) canvas.style.cursor = 'default';
     };
-  }, [selectedSensation, isHoveringBody, showNotAllowed]);
+  }, [selectedSensation, isHoveringBody, showNotAllowed, mode]);
 
   // Show custom cursor only for sensations (let browser handle not-allowed cursor)
   if (!selectedSensation) {
