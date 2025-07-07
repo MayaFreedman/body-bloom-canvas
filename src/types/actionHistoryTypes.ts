@@ -1,5 +1,6 @@
 
 import * as THREE from 'three';
+import { TextMark } from './textTypes';
 
 export interface DrawingMark {
   id: string;
@@ -34,7 +35,7 @@ export interface SensationMark {
 
 export interface ActionHistoryItem {
   id: string;
-  type: 'draw' | 'erase' | 'fill' | 'clear' | 'sensation';
+  type: 'draw' | 'erase' | 'fill' | 'clear' | 'sensation' | 'textPlace' | 'textEdit' | 'textDelete' | 'resetAll';
   timestamp: number;
   data: {
     strokes?: DrawingStroke[];
@@ -43,6 +44,9 @@ export interface ActionHistoryItem {
     previousBodyPartColors?: Record<string, string>;
     sensationMark?: SensationMark;
     previousSensationMarks?: SensationMark[];
+    textMark?: TextMark;
+    previousTextMarks?: TextMark[];
+    previousText?: string;
     erasedMarks?: DrawingMark[];
     affectedArea?: {
       center: THREE.Vector3;
@@ -54,6 +58,8 @@ export interface ActionHistoryItem {
     color?: string;
     bodyPart?: string;
     sensationType?: string;
+    text?: string;
+    itemCount?: number;
   };
 }
 

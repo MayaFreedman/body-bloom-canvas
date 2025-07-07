@@ -16,13 +16,19 @@ interface UseEnhancedBodyMapperStateProps {
   isMultiplayer?: boolean;
   broadcastUndo?: () => void;
   broadcastRedo?: () => void;
+  onBroadcastTextPlace?: (textMark: any) => void;
+  onBroadcastTextUpdate?: (textMark: any) => void;
+  onBroadcastTextDelete?: (textId: string) => void;
 }
 
 export const useEnhancedBodyMapperState = ({ 
   currentUserId,
   isMultiplayer = false,
   broadcastUndo,
-  broadcastRedo
+  broadcastRedo,
+  onBroadcastTextPlace,
+  onBroadcastTextUpdate,
+  onBroadcastTextDelete
 }: UseEnhancedBodyMapperStateProps) => {
   const [mode, setMode] = useState<BodyMapperMode>('draw');
   const [selectedColor, setSelectedColor] = useState('#ffeb3b'); // Changed from '#ff6b6b' to '#ffeb3b' (yellow)
@@ -73,9 +79,13 @@ export const useEnhancedBodyMapperState = ({
     currentUserId 
   });
 
+  // Text Manager with multiplayer integration
   const textManager = useTextManager({
     currentUserId,
-    onAddAction: actionHistory.addAction
+    onAddAction: actionHistory.addAction,
+    onBroadcastTextPlace,
+    onBroadcastTextUpdate,
+    onBroadcastTextDelete
   });
 
   // Enhanced drawing handlers with state tracking
@@ -124,6 +134,34 @@ export const useEnhancedBodyMapperState = ({
     });
     
     console.log('Added sensation mark to history:', newSensationMark);
+  };
+
+  // Reset functionality that includes text marks
+  const handleResetAll = () => {
+    console.log('🔄 Resetting all content');
+    
+    // Get all current content for action history
+    const allContent = {
+      drawingMarks: [...strokeManager.completedStrokes.flatMap(stroke => stroke.marks)],
+      sensationMarks: [...sensationMarks],
+      bodyPartColors: { ...bodyPartColors },
+      textMarks: [...textManager.textMarks]
+    };
+    
+    // Clear everything using the existing clearAll method
+    clearAll();
+    
+    // Also clear text marks
+    textManager.clearAllText();
+    
+    // Record the reset action
+    actionHistory.addAction({
+      type: 'resetAll',
+      data: allContent,
+      metadata: {
+        itemCount: allContent.drawingMarks.length + allContent.sensationMarks.length + allContent.textMarks.length + Object.keys(allContent.bodyPartColors).length
+      }
+    });
   };
 
   const clearAll = () => {
@@ -190,6 +228,7 @@ export const useEnhancedBodyMapperState = ({
     handleIncomingUndo: undoRedoOps.handleIncomingUndo,
     handleIncomingRedo: undoRedoOps.handleIncomingRedo,
     handleBodyPartClick: bodyPartOps.handleBodyPartClick,
+    handleResetAll,
     clearAll,
     
     // Text functionality

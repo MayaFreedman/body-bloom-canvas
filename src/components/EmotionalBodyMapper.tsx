@@ -72,7 +72,10 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     currentUserId,
     isMultiplayer: multiplayer.isConnected,
     broadcastUndo: multiplayer.broadcastUndo,
-    broadcastRedo: multiplayer.broadcastRedo
+    broadcastRedo: multiplayer.broadcastRedo,
+    onBroadcastTextPlace: multiplayer.broadcastTextPlace,
+    onBroadcastTextUpdate: multiplayer.broadcastTextUpdate,
+    onBroadcastTextDelete: multiplayer.broadcastTextDelete
   });
 
   const {

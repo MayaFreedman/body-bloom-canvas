@@ -5,11 +5,17 @@ import * as THREE from 'three';
 interface UseTextManagerProps {
   currentUserId?: string;
   onAddAction?: (action: any) => void;
+  onBroadcastTextPlace?: (textMark: Omit<TextMark, 'userId'>) => void;
+  onBroadcastTextUpdate?: (textMark: Partial<TextMark> & { id: string }) => void;
+  onBroadcastTextDelete?: (textId: string) => void;
 }
 
 export const useTextManager = ({ 
   currentUserId, 
-  onAddAction 
+  onAddAction,
+  onBroadcastTextPlace,
+  onBroadcastTextUpdate,
+  onBroadcastTextDelete
 }: UseTextManagerProps = {}) => {
   const [textMarks, setTextMarks] = useState<TextMark[]>([]);
   const [textSettings, setTextSettings] = useState<TextSettings>({
@@ -43,6 +49,9 @@ export const useTextManager = ({
 
     setTextMarks(prev => [...prev, newTextMark]);
 
+    // Broadcast to multiplayer if connected
+    onBroadcastTextPlace?.(newTextMark);
+
     // Add to action history
     onAddAction?.({
       type: 'textPlace',
@@ -56,7 +65,7 @@ export const useTextManager = ({
     });
 
     return newTextMark;
-  }, [textSettings, currentUserId, textMarks, onAddAction]);
+  }, [textSettings, currentUserId, textMarks, onAddAction, onBroadcastTextPlace]);
 
   const updateTextMark = useCallback((id: string, updates: Partial<TextMark>) => {
     const previousState = textMarks.find(mark => mark.id === id);
@@ -64,6 +73,10 @@ export const useTextManager = ({
     setTextMarks(prev => prev.map(mark => 
       mark.id === id ? { ...mark, ...updates } : mark
     ));
+
+    // Broadcast updates to multiplayer if connected
+    const updatedMark = { id, ...updates };
+    onBroadcastTextUpdate?.(updatedMark);
 
     if (previousState && updates.text !== undefined) {
       onAddAction?.({
@@ -74,12 +87,15 @@ export const useTextManager = ({
         }
       });
     }
-  }, [textMarks, onAddAction]);
+  }, [textMarks, onAddAction, onBroadcastTextUpdate]);
 
   const deleteTextMark = useCallback((id: string) => {
     const markToDelete = textMarks.find(mark => mark.id === id);
     
     setTextMarks(prev => prev.filter(mark => mark.id !== id));
+
+    // Broadcast deletion to multiplayer if connected
+    onBroadcastTextDelete?.(id);
 
     if (markToDelete) {
       onAddAction?.({
@@ -90,7 +106,7 @@ export const useTextManager = ({
         }
       });
     }
-  }, [textMarks, onAddAction]);
+  }, [textMarks, onAddAction, onBroadcastTextDelete]);
 
   const clearAllText = useCallback(() => {
     const previousMarks = [...textMarks];

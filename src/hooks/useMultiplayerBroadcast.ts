@@ -2,6 +2,7 @@
 import { useCallback, useRef } from 'react';
 import { ServerClass } from '../services/ServerClass';
 import { SensationData, BodyPartFill } from '@/types/multiplayerTypes';
+import { TextMark } from '@/types/textTypes';
 import * as THREE from 'three';
 
 export const useMultiplayerBroadcast = (
@@ -79,6 +80,47 @@ export const useMultiplayerBroadcast = (
     }
   }, [room, isConnected, currentPlayerId]);
 
+  const broadcastTextPlace = useCallback((textMark: Omit<TextMark, 'userId'>) => {
+    if (room && isConnected) {
+      const server = ServerClass.getInstance();
+      server.sendEvent({
+        type: 'textPlace',
+        action: { 
+          ...textMark, 
+          userId: currentPlayerId,
+          position: { x: textMark.position.x, y: textMark.position.y, z: textMark.position.z }
+        }
+      });
+    }
+  }, [room, isConnected, currentPlayerId]);
+
+  const broadcastTextUpdate = useCallback((textMark: Partial<TextMark> & { id: string }) => {
+    if (room && isConnected) {
+      const server = ServerClass.getInstance();
+      server.sendEvent({
+        type: 'textUpdate',
+        action: { 
+          ...textMark, 
+          userId: currentPlayerId,
+          position: textMark.position ? { x: textMark.position.x, y: textMark.position.y, z: textMark.position.z } : undefined
+        }
+      });
+    }
+  }, [room, isConnected, currentPlayerId]);
+
+  const broadcastTextDelete = useCallback((textId: string) => {
+    if (room && isConnected) {
+      const server = ServerClass.getInstance();
+      server.sendEvent({
+        type: 'textDelete',
+        action: { 
+          id: textId,
+          userId: currentPlayerId
+        }
+      });
+    }
+  }, [room, isConnected, currentPlayerId]);
+
   const broadcastCursor = useCallback((position: { x: number; y: number }) => {
     if (room && isConnected) {
       if (cursorThrottleRef.current) {
@@ -114,6 +156,9 @@ export const useMultiplayerBroadcast = (
     broadcastRedo,
     broadcastReset,
     broadcastCursor,
+    broadcastTextPlace,
+    broadcastTextUpdate,
+    broadcastTextDelete,
     cleanup
   };
 };
