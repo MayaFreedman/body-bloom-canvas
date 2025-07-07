@@ -53,6 +53,21 @@ export const CustomCursor: React.FC<CustomCursorProps> = ({
       document.body.style.setProperty('cursor', 'not-allowed', 'important');
       if (canvas) canvas.style.setProperty('cursor', 'not-allowed', 'important');
       console.log('🚫 Setting not-allowed cursor - whiteboard mode on body');
+      
+      // Set up a continuous override to prevent other components from changing the cursor
+      const interval = setInterval(() => {
+        if (document.body.style.cursor !== 'not-allowed') {
+          console.log('🚫 Re-enforcing not-allowed cursor - something tried to change it');
+          document.body.style.setProperty('cursor', 'not-allowed', 'important');
+          if (canvas) canvas.style.setProperty('cursor', 'not-allowed', 'important');
+        }
+      }, 50);
+      
+      return () => {
+        clearInterval(interval);
+        document.body.style.removeProperty('cursor');
+        if (canvas) canvas.style.removeProperty('cursor');
+      };
     } else if (selectedSensation) {
       if (isHoveringBody) {
         // Force grabby hand when hovering over body with sensation selected - use !important override
