@@ -8,6 +8,7 @@ import { DrawingTargetSelector } from './DrawingTargetSelector';
 import { WhiteboardPlane } from './WhiteboardPlane';
 import { BodyMapperMode, SelectedSensation, SensationMark } from '@/types/bodyMapperTypes';
 import { WorldDrawingPoint } from '@/types/multiplayerTypes';
+import { TextMark, TextSettings } from '@/types/textTypes';
 import * as THREE from 'three';
 
 interface BodyMapperLayoutProps {
@@ -19,6 +20,9 @@ interface BodyMapperLayoutProps {
   selectedSensation: SelectedSensation | null;
   drawingMarks: any[];
   sensationMarks: SensationMark[];
+  textMarks?: TextMark[];
+  textSettings?: TextSettings;
+  editingTextId?: string | null;
   bodyPartColors: Record<string, string>;
   rotation: number;
   modelRef: React.RefObject<THREE.Group>;
@@ -31,6 +35,7 @@ interface BodyMapperLayoutProps {
   setBrushSize: (size: number[]) => void;
   setDrawingTarget: (target: 'body' | 'whiteboard') => void;
   setSelectedSensation: (sensation: SelectedSensation | null) => void;
+  setTextSettings?: (settings: Partial<TextSettings>) => void;
   onAddDrawingMark: (mark: any) => void;
   onDrawingStrokeStart: () => void;
   onDrawingStrokeComplete: () => void;
@@ -38,6 +43,11 @@ interface BodyMapperLayoutProps {
   onBodyPartClick: (partName: string, color: string) => void;
   onSensationClick: (position: THREE.Vector3, sensation: SelectedSensation) => void;
   onErase: (center: THREE.Vector3, radius: number, surface: 'body' | 'whiteboard') => void;
+  onTextPlace?: (position: THREE.Vector3, surface: 'body' | 'whiteboard') => void;
+  onTextClick?: (textMark: TextMark) => void;
+  onTextSave?: (text: string) => void;
+  onTextCancel?: () => void;
+  onTextDelete?: () => void;
   onRotateLeft: () => void;
   onRotateRight: () => void;
   onResetAll: () => void;
@@ -55,6 +65,9 @@ export const BodyMapperLayout = ({
   selectedSensation,
   drawingMarks,
   sensationMarks,
+  textMarks,
+  textSettings,
+  editingTextId,
   bodyPartColors,
   rotation,
   modelRef,
@@ -67,6 +80,7 @@ export const BodyMapperLayout = ({
   setBrushSize,
   setDrawingTarget,
   setSelectedSensation,
+  setTextSettings,
   onAddDrawingMark,
   onDrawingStrokeStart,
   onDrawingStrokeComplete,
@@ -74,6 +88,11 @@ export const BodyMapperLayout = ({
   onBodyPartClick,
   onSensationClick,
   onErase,
+  onTextPlace,
+  onTextClick,
+  onTextSave,
+  onTextCancel,
+  onTextDelete,
   onRotateLeft,
   onRotateRight,
   onResetAll,
@@ -97,6 +116,8 @@ export const BodyMapperLayout = ({
             bodyPartColors={bodyPartColors}
             rotation={rotation}
             isActivelyDrawing={isActivelyDrawing}
+            textMarks={textMarks}
+            editingTextId={editingTextId}
             modelRef={modelRef}
             onAddDrawingMark={onAddDrawingMark}
             onDrawingStrokeStart={onDrawingStrokeStart}
@@ -106,6 +127,11 @@ export const BodyMapperLayout = ({
             onSensationClick={onSensationClick}
             onSensationDeselect={() => setSelectedSensation(null)}
             onErase={onErase}
+            onTextPlace={onTextPlace}
+            onTextClick={onTextClick}
+            onTextSave={onTextSave}
+            onTextCancel={onTextCancel}
+            onTextDelete={onTextDelete}
             onRotateLeft={onRotateLeft}
             onRotateRight={onRotateRight}
           />
@@ -136,10 +162,12 @@ export const BodyMapperLayout = ({
             selectedColor={selectedColor}
             brushSize={brushSize}
             selectedSensation={selectedSensation}
+            textSettings={textSettings}
             onModeChange={setMode}
             onColorChange={setSelectedColor}
             onBrushSizeChange={setBrushSize}
             onSensationChange={setSelectedSensation}
+            onTextSettingsChange={setTextSettings}
             onEmotionsUpdate={onEmotionsUpdate}
           />
         </div>

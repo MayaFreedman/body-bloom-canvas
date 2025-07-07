@@ -8,6 +8,8 @@ import { useDrawingOperations } from './useDrawingOperations';
 import { useEraseOperations } from './useEraseOperations';
 import { useUndoRedoOperations } from './useUndoRedoOperations';
 import { useBodyPartOperations } from './useBodyPartOperations';
+import { useTextManager } from './useTextManager';
+import { TextSettings } from '@/types/textTypes';
 
 interface UseEnhancedBodyMapperStateProps {
   currentUserId: string | null;
@@ -68,6 +70,11 @@ export const useEnhancedBodyMapperState = ({
     bodyPartColors, 
     setBodyPartColors, 
     currentUserId 
+  });
+
+  const textManager = useTextManager({
+    currentUserId,
+    onAddAction: actionHistory.addAction
   });
 
   // Enhanced drawing handlers with state tracking
@@ -183,6 +190,17 @@ export const useEnhancedBodyMapperState = ({
     handleIncomingRedo: undoRedoOps.handleIncomingRedo,
     handleBodyPartClick: bodyPartOps.handleBodyPartClick,
     clearAll,
+    
+    // Text functionality
+    textMarks: textManager.textMarks,
+    textSettings: textManager.textSettings,
+    editingTextId: textManager.editingTextId,
+    handleAddTextMark: textManager.addTextMark,
+    handleUpdateTextMark: textManager.updateTextMark,
+    handleDeleteTextMark: textManager.deleteTextMark,
+    handleStartTextEditing: textManager.startEditing,
+    handleStopTextEditing: textManager.stopEditing,
+    setTextSettings: textManager.setTextSettings,
     
     // State queries
     canUndo: actionHistory.canUndo,

@@ -3,7 +3,9 @@ import React, { useState, useEffect, forwardRef } from 'react';
 import { TabContainer } from './TabContainer';
 import { FeelingsTabContent } from './FeelingsTabContent';
 import { SensationSelector } from './SensationSelector';
+import { TextControls } from './TextControls';
 import { BodyMapperMode, SelectedSensation } from '@/types/bodyMapperTypes';
+import { TextSettings } from '@/types/textTypes';
 
 interface CustomEmotion {
   color: string;
@@ -23,10 +25,12 @@ interface BodyMapperControlsProps {
   selectedColor: string;
   brushSize: number[];
   selectedSensation: SelectedSensation | null;
+  textSettings?: TextSettings;
   onModeChange: (mode: BodyMapperMode) => void;
   onColorChange: (color: string) => void;
   onBrushSizeChange: (size: number[]) => void;
   onSensationChange: (sensation: SelectedSensation | null) => void;
+  onTextSettingsChange?: (settings: Partial<TextSettings>) => void;
   onEmotionsUpdate?: (update: EmotionUpdate) => void;
 }
 
@@ -49,10 +53,12 @@ export const BodyMapperControls = React.forwardRef<
   selectedColor,
   brushSize,
   selectedSensation,
+  textSettings,
   onModeChange,
   onColorChange,
   onBrushSizeChange,
   onSensationChange,
+  onTextSettingsChange,
   onEmotionsUpdate
 }, ref) => {
   const [activeTab, setActiveTab] = useState('feelings');
@@ -190,6 +196,18 @@ export const BodyMapperControls = React.forwardRef<
           onModeChange={onModeChange}
           onSensationChange={onSensationChange}
         />
+      </div>
+
+      {/* Text Tab Content */}
+      <div className={`tab-content ${activeTab === 'text' ? 'active' : ''}`}>
+        {textSettings && onTextSettingsChange && (
+          <TextControls
+            mode={mode}
+            textSettings={textSettings}
+            onModeChange={onModeChange}
+            onTextSettingsChange={onTextSettingsChange}
+          />
+        )}
       </div>
     </TabContainer>
   );

@@ -13,8 +13,12 @@ import { ClickHandler } from './ClickHandler';
 import { HoverDetector } from './HoverDetector';
 import { EraserHandler } from './EraserHandler';
 import { WhiteboardPlane } from './WhiteboardPlane';
+import { TextPlacementHandler } from './TextPlacementHandler';
+import { TextEditor } from './TextEditor';
+import { TextRenderer } from '@/components/TextRenderer';
 import { DrawingMark, SensationMark, Effect, BodyPartColors, BodyMapperMode, SelectedSensation } from '@/types/bodyMapperTypes';
 import { WorldDrawingPoint } from '@/types/multiplayerTypes';
+import { TextMark } from '@/types/textTypes';
 import * as THREE from 'three';
 
 interface BodyMapperCanvasProps {
@@ -29,6 +33,8 @@ interface BodyMapperCanvasProps {
   bodyPartColors: BodyPartColors;
   rotation: number;
   isActivelyDrawing?: boolean;
+  textMarks?: TextMark[];
+  editingTextId?: string | null;
   modelRef: React.RefObject<THREE.Group>;
   onAddDrawingMark: (mark: DrawingMark) => void;
   onDrawingStrokeStart: () => void;
@@ -38,6 +44,11 @@ interface BodyMapperCanvasProps {
   onSensationClick: (position: THREE.Vector3, sensation: SelectedSensation) => void;
   onSensationDeselect: () => void;
   onErase: (center: THREE.Vector3, radius: number, surface: 'body' | 'whiteboard') => void;
+  onTextPlace?: (position: THREE.Vector3, surface: 'body' | 'whiteboard') => void;
+  onTextClick?: (textMark: TextMark) => void;
+  onTextSave?: (text: string) => void;
+  onTextCancel?: () => void;
+  onTextDelete?: () => void;
   onRotateLeft: () => void;
   onRotateRight: () => void;
 }
@@ -54,6 +65,8 @@ export const BodyMapperCanvas = ({
   bodyPartColors,
   rotation,
   isActivelyDrawing = false,
+  textMarks = [],
+  editingTextId,
   modelRef,
   onAddDrawingMark,
   onDrawingStrokeStart,
@@ -63,6 +76,11 @@ export const BodyMapperCanvas = ({
   onSensationClick,
   onSensationDeselect,
   onErase,
+  onTextPlace,
+  onTextClick,
+  onTextSave,
+  onTextCancel,
+  onTextDelete,
   onRotateLeft,
   onRotateRight
 }: BodyMapperCanvasProps) => {
@@ -124,6 +142,12 @@ export const BodyMapperCanvas = ({
 
           {/* Render sensation particles as children of the model group */}
           <SensationParticles sensationMarks={sensationMarks} />
+          
+          {/* Render text marks on body surface as children of the model group */}
+          <TextRenderer 
+            textMarks={textMarks.filter(mark => mark.surface === 'body')} 
+            onTextClick={onTextClick}
+          />
         </group>
         
         {/* Render whiteboard marks outside the model group so they don't rotate */}
@@ -133,6 +157,12 @@ export const BodyMapperCanvas = ({
             <meshBasicMaterial color={mark.color} />      
           </mesh>
         ))}
+        
+        {/* Render text marks on whiteboard outside the model group */}
+        <TextRenderer 
+          textMarks={textMarks.filter(mark => mark.surface === 'whiteboard')} 
+          onTextClick={onTextClick}
+        />
         
         <ModelDrawing
           isDrawing={mode === 'draw'}
@@ -154,6 +184,16 @@ export const BodyMapperCanvas = ({
           onErase={onErase}
           modelRef={modelRef}
         />
+        
+        {onTextPlace && (
+          <TextPlacementHandler
+            isTextMode={mode === 'text'}
+            selectedColor={selectedColor}
+            drawingTarget={drawingTarget}
+            onTextPlace={onTextPlace}
+            modelRef={modelRef}
+          />
+        )}
         
         <EffectsRenderer effects={effects} />
         
@@ -186,6 +226,17 @@ export const BodyMapperCanvas = ({
         drawingTarget={drawingTarget}
         isActivelyDrawing={isActivelyDrawing}
       />
+      
+      {/* Text Editor Modal */}
+      {onTextSave && onTextCancel && (
+        <TextEditor
+          isOpen={editingTextId !== null}
+          textMark={textMarks.find(mark => mark.id === editingTextId)}
+          onSave={onTextSave}
+          onCancel={onTextCancel}
+          onDelete={onTextDelete}
+        />
+      )}
     </div>
   );
 };
