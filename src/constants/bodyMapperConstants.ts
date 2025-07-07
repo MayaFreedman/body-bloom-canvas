@@ -34,5 +34,15 @@ export const bodySensations = [
   { icon: 'Activity', name: 'Change in Appetite', color: '#FF8C00' },
   { icon: 'Wind', name: 'Heaviness', color: '#708090' },
   { icon: 'Activity', name: 'Fidgety', color: '#DC143C' },
-  { icon: 'Snowflake', name: 'Frozen/Stiff', color: '#B0C4DE' }
+  { icon: 'Snowflake', name: 'Frozen/Stiff', color: '#B0C4DE' },
+  { icon: 'Zap', name: 'Ache', color: '#8B4513' },
+  { icon: 'Star', name: 'Feeling Small', color: '#A9A9A9' },
+  { icon: 'Droplet', name: 'Dry Mouth', color: '#DEB887' },
+  { icon: 'Activity', name: 'Clenched', color: '#B22222' },
+  { icon: 'Zap', name: 'Change in Energy', color: '#FFD700' },
+  { icon: 'Activity', name: 'Avoiding Eye Contact', color: '#9370DB' },
+  { icon: 'Activity', name: 'Scrunched Face', color: '#CD853F' },
+  { icon: 'Snowflake', name: 'Goosebumps', color: '#E6E6FA' },
+  { icon: 'Wind', name: 'Relaxed', color: '#98FB98' },
+  { icon: 'Droplet', name: 'Sweat', color: '#4682B4' }
 ];
