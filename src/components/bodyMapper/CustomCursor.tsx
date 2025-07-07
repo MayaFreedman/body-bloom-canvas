@@ -30,11 +30,8 @@ export const CustomCursor: React.FC<CustomCursorProps> = ({
     return () => document.removeEventListener('mousemove', updateCursorPosition);
   }, []);
 
-  // Check if we should show a "not allowed" cursor (any mode when whiteboard is selected and hovering body, but not actively drawing)
-  const showNotAllowed = drawingTarget === 'whiteboard' && isHoveringBody && !isActivelyDrawing;
-  
-  // TEMP: Force show not-allowed when in whiteboard mode (regardless of hover) to test
-  const forceNotAllowed = drawingTarget === 'whiteboard' && !isActivelyDrawing && !selectedSensation;
+  // Show not-allowed cursor when in whiteboard mode and hovering body
+  const showNotAllowed = drawingTarget === 'whiteboard' && isHoveringBody && !isActivelyDrawing && !selectedSensation;
   
   console.log('🎯 CustomCursor Debug:', {
     mode,
@@ -42,7 +39,6 @@ export const CustomCursor: React.FC<CustomCursorProps> = ({
     isHoveringBody, 
     isActivelyDrawing, 
     showNotAllowed,
-    forceNotAllowed,
     selectedSensation: !!selectedSensation
   });
 
@@ -50,7 +46,7 @@ export const CustomCursor: React.FC<CustomCursorProps> = ({
   useEffect(() => {
     const canvas = document.querySelector('canvas');
     
-    if (forceNotAllowed) {
+    if (showNotAllowed) {
       // Show native browser not-allowed cursor
       console.log('🚫 Setting native not-allowed cursor');
       document.body.style.setProperty('cursor', 'not-allowed', 'important');
@@ -74,12 +70,12 @@ export const CustomCursor: React.FC<CustomCursorProps> = ({
     }
 
     return () => {
-      if (forceNotAllowed || selectedSensation) {
+      if (showNotAllowed || selectedSensation) {
         document.body.style.cursor = 'default';
         if (canvas) canvas.style.cursor = 'default';
       }
     };
-  }, [selectedSensation, isHoveringBody, forceNotAllowed]);
+  }, [selectedSensation, isHoveringBody, showNotAllowed]);
 
   // Show custom cursor only for sensations (let native browser handle not-allowed)
   if (!selectedSensation) {
