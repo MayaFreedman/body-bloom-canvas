@@ -25,7 +25,7 @@ const TextMarkComponent = ({
   };
 
   const fontStyle = useMemo(() => ({
-    fontSize: textMark.fontSize / 500, // Scale down much more to match preview
+    fontSize: textMark.fontSize / 300, // Scale up a bit from /500
     color: textMark.color,
     fontFamily: textMark.fontFamily,
     fontWeight: textMark.fontWeight,
