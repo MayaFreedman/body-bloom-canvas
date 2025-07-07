@@ -43,6 +43,8 @@ export const FeelingsTabContent = ({
   onBrushSizeChange,
   onTextSettingsChange
 }: FeelingsTabContentProps) => {
+  console.log('🎨 FeelingsTabContent rendering with textSettings:', textSettings, 'onTextSettingsChange:', !!onTextSettingsChange);
+  
   return (
     <div>
       <h3 className="text-xl font-semibold text-gray-800 mb-4">Colors & Emotions</h3>
@@ -73,17 +75,24 @@ export const FeelingsTabContent = ({
       />
       
       {/* Text Controls */}
-      {textSettings && onTextSettingsChange && (
-        <div className="mt-6">
-          <TextControls
-            mode={mode}
-            textSettings={textSettings}
-            selectedColor={selectedColor}
-            onModeChange={onModeChange}
-            onTextSettingsChange={onTextSettingsChange}
-          />
-        </div>
-      )}
+      {(() => {
+        console.log('🎨 Checking text controls render condition:', { textSettings: !!textSettings, onTextSettingsChange: !!onTextSettingsChange });
+        return textSettings && onTextSettingsChange ? (
+          <div className="mt-6">
+            <TextControls
+              mode={mode}
+              textSettings={textSettings}
+              selectedColor={selectedColor}
+              onModeChange={onModeChange}
+              onTextSettingsChange={onTextSettingsChange}
+            />
+          </div>
+        ) : (
+          <div className="mt-6 p-4 bg-red-100 border border-red-300 rounded">
+            DEBUG: Text controls not showing - textSettings: {textSettings ? 'exists' : 'missing'}, onTextSettingsChange: {onTextSettingsChange ? 'exists' : 'missing'}
+          </div>
+        );
+      })()}
     </div>
   );
 };

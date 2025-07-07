@@ -24,12 +24,6 @@ export const TabContainer = ({ activeTab, onTabChange, children }: TabContainerP
         >
           Body Sensations and Signals
         </button>
-        <button 
-          className={`tab-button ${activeTab === 'text' ? 'active' : ''}`}
-          onClick={() => onTabChange('text')}
-        >
-          Text Tool
-        </button>
       </div>
       {children}
     </div>
