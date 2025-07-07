@@ -56,6 +56,11 @@ export const BodyMapperControls = React.forwardRef<
   onEmotionsUpdate
 }, ref) => {
   const [activeTab, setActiveTab] = useState('feelings');
+  
+  const handleTabChange = (tab: string) => {
+    console.log('🎯 TabContainer - Switching to tab:', tab);
+    setActiveTab(tab);
+  };
   const [emotions, setEmotions] = useState<CustomEmotion[]>(defaultEmotions);
 
   const handleEmotionColorChange = (index: number, color: string) => {
@@ -154,7 +159,7 @@ export const BodyMapperControls = React.forwardRef<
   }, []);
 
   return (
-    <TabContainer activeTab={activeTab} onTabChange={setActiveTab}>
+    <TabContainer activeTab={activeTab} onTabChange={handleTabChange}>
       {/* Color by Feelings Tab Content */}
       <div className={`tab-content ${activeTab === 'feelings' ? 'active' : ''}`}>
         <FeelingsTabContent
