@@ -614,7 +614,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             // FLOW effects - dripping with strong downward movement (negative Y = down)
             'Tears': { speed: 0.2, intensity: 0.4, pattern: 'drip', gravity: 0.0002, drift: new THREE.Vector3(0, -0.15, 0) },
             'Sweat': { speed: 0.3, intensity: 0.5, pattern: 'drip', gravity: 0.00015, drift: new THREE.Vector3(0, -0.12, 0) },
-            'Decreased Temperature': { speed: 0.4, intensity: 0.5, pattern: 'drip', gravity: 0.0002, drift: new THREE.Vector3(0, -0.12, 0) },
+            'Decreased Temperature': { speed: 0.8, intensity: 0.7, pattern: 'drip', gravity: 0.0004, drift: new THREE.Vector3(0, -0.25, 0) },
             'Change in Breathing': { speed: 0.8, intensity: 0.7, pattern: 'wave', gravity: 0.0001, drift: new THREE.Vector3(0.1, 0.3, 0) },
             'Nausea': { speed: 1.2, intensity: 1.0, pattern: 'swirl', gravity: 0.0002 },
             
