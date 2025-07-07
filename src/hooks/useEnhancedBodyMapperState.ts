@@ -148,7 +148,8 @@ export const useEnhancedBodyMapperState = ({
     id: mark.id,
     position: mark.position,
     color: mark.color,
-    size: mark.size
+    size: mark.size,
+    surface: mark.surface
   }));
 
   return {

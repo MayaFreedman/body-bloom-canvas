@@ -7,6 +7,7 @@ interface DrawingMark {
   position: THREE.Vector3;
   color: string;
   size: number;
+  surface?: 'body' | 'whiteboard';
 }
 
 interface UseDrawingMarksProps {
@@ -42,7 +43,8 @@ export const useDrawingMarks = ({
         id: `mark-${Date.now()}-${Math.random()}`,
         position: localPosition,
         color: selectedColor,
-        size: brushSize / 200
+        size: brushSize / 200,
+        surface: surface
       };
       onAddMark(mark);
       
