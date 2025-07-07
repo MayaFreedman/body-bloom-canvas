@@ -180,6 +180,8 @@ export const BodyMapperCanvas = ({
       <CustomCursor 
         selectedSensation={selectedSensation}
         isHoveringBody={isHoveringBody}
+        mode={mode}
+        drawingTarget={drawingTarget}
       />
     </div>
   );
