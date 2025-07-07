@@ -370,7 +370,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             'Scrunched Face': 10,       // Facial tension
             
             // FAST/JERKY = high count, short-lived
-            'Nerves': 30,               // Electrical, dispersed
+            'Nerves': 20,               // Reduced from 30 - fewer particles
             'Tingling': 25,             // Sparkles
             'Shaky': 35,                // Rapid trembling
             'Goosebumps': 20,           // Small bumps
@@ -729,30 +729,30 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
           // Minimal damping - let gravity do the work
           particle.velocity.multiplyScalar(0.998);
           
-        } else if (mark.icon === 'butterfly') {
-          // Butterfly: natural fluttering with fluid movement
-          const wingBeatX = Math.sin(time * 12 * animProfile.speed + particle.life) * 0.002 * animProfile.intensity;
-          const wingBeatY = Math.cos(time * 8 * animProfile.speed + particle.life) * 0.0015 * animProfile.intensity;
-          const flutterZ = Math.sin(particle.oscillationPhase * 2.5) * 0.001 * animProfile.intensity;
+        } else if (mark.icon === 'butterfly' || mark.name === 'Nerves') {
+          // Butterfly/Nerves: more realistic gentle movement
+          const gentleFloat = Math.sin(time * 2 + particle.life * 0.3) * 0.0008 * (animProfile.intensity || 0.6);
+          const naturalDrift = Math.cos(time * 1.5 + particle.life * 0.2) * 0.0006 * (animProfile.intensity || 0.6);
+          const softVertical = Math.sin(particle.oscillationPhase * 1.2) * 0.0004 * (animProfile.intensity || 0.6);
           
-          // Random direction changes for butterfly behavior
-          if (Math.random() < 0.03) {
+          // Occasional gentle direction changes (less frequent)
+          if (Math.random() < 0.015) {
             particle.velocity.add(new THREE.Vector3(
-              (Math.random() - 0.5) * 0.001,
-              Math.random() * 0.0008,
-              (Math.random() - 0.5) * 0.001
+              (Math.random() - 0.5) * 0.0005,
+              (Math.random() - 0.5) * 0.0004,
+              (Math.random() - 0.5) * 0.0005
             ));
           }
           
-          // Add wing forces
-          particle.velocity.x += wingBeatX * delta;
-          particle.velocity.y += wingBeatY * delta;
-          particle.velocity.z += flutterZ * delta;
+          // Add gentle floating forces
+          particle.velocity.x += gentleFloat * delta;
+          particle.velocity.y += softVertical * delta;
+          particle.velocity.z += naturalDrift * delta;
           
-          // Light upward tendency for butterflies
-          particle.velocity.y += 0.0003 * delta;
+          // Very subtle upward tendency
+          particle.velocity.y += 0.0001 * delta;
           particle.position.add(particle.velocity);
-          particle.velocity.multiplyScalar(0.96);
+          particle.velocity.multiplyScalar(0.98); // More damping for realistic movement
           
         } else {
           // Default fluid movement for all other sensations
