@@ -47,9 +47,10 @@ export const useDrawingEvents = ({
 
   const eventHandlers = useDrawingEventHandlers({
     isDrawing,
+    drawingTarget,
     onStrokeStart,
     onStrokeComplete,
-    onAddToStroke, // Pass through for stroke-level batching
+    onAddToStroke,
     getIntersectedObjects: intersectionUtils.getIntersectedObjects,
     addMarkAtPosition: drawingMarks.addMarkAtPosition,
     interpolateMarks: drawingMarks.interpolateMarks

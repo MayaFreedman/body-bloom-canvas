@@ -6,16 +6,18 @@ import * as THREE from 'three';
 
 interface UseDrawingEventHandlersProps {
   isDrawing: boolean;
+  drawingTarget: 'body' | 'whiteboard';
   onStrokeStart?: () => void;
   onStrokeComplete?: () => void;
   onAddToStroke?: (worldPoint: WorldDrawingPoint) => void;
-  getIntersectedObjects: () => THREE.Mesh[];
-  addMarkAtPosition: (worldPosition: THREE.Vector3, intersect?: THREE.Intersection) => void;
-  interpolateMarks: (start: THREE.Vector3, end: THREE.Vector3, startBodyPart: string, endBodyPart: string, endIntersect?: THREE.Intersection) => void;
+  getIntersectedObjects: (includeWhiteboard?: boolean) => THREE.Mesh[];
+  addMarkAtPosition: (worldPosition: THREE.Vector3, intersect?: THREE.Intersection, surface?: 'body' | 'whiteboard') => void;
+  interpolateMarks: (start: THREE.Vector3, end: THREE.Vector3, startBodyPart: string, endBodyPart: string, endIntersect?: THREE.Intersection, surface?: 'body' | 'whiteboard') => void;
 }
 
 export const useDrawingEventHandlers = ({
   isDrawing,
+  drawingTarget,
   onStrokeStart,
   onStrokeComplete,
   onAddToStroke,
@@ -42,23 +44,23 @@ export const useDrawingEventHandlers = ({
 
     raycaster.setFromCamera(mouse, camera);
     
-    const meshes = getIntersectedObjects();
+    // Include whiteboard in intersection detection based on drawing target
+    const meshes = getIntersectedObjects(drawingTarget === 'whiteboard');
     const intersects = raycaster.intersectObjects(meshes, false);
 
     if (intersects.length > 0) {
       const intersect = intersects[0];
       
-      if (intersect.object.userData.bodyPart) {
+      // Handle body part intersection
+      if (intersect.object.userData.bodyPart && drawingTarget === 'body') {
         console.log('✅ Hit body part:', intersect.object.userData.bodyPart);
         if (onStrokeStart && !strokeStarted.current) {
           onStrokeStart();
           strokeStarted.current = true;
         }
         
-        // Place mark immediately for local display
-        addMarkAtPosition(intersect.point, intersect);
+        addMarkAtPosition(intersect.point, intersect, 'body');
         
-        // Add to stroke for batching
         if (onAddToStroke && intersect.object instanceof THREE.Mesh) {
           const worldPoint: WorldDrawingPoint = {
             id: `point-${Date.now()}-${Math.random()}`,
@@ -79,6 +81,36 @@ export const useDrawingEventHandlers = ({
         lastBodyPart.current = intersect.object.userData.bodyPart;
         lastMarkTime.current = Date.now();
       }
+      // Handle whiteboard intersection
+      else if (intersect.object.userData.isWhiteboard && drawingTarget === 'whiteboard') {
+        console.log('✅ Hit whiteboard at:', intersect.point);
+        if (onStrokeStart && !strokeStarted.current) {
+          onStrokeStart();
+          strokeStarted.current = true;
+        }
+        
+        addMarkAtPosition(intersect.point, intersect, 'whiteboard');
+        
+        if (onAddToStroke && intersect.object instanceof THREE.Mesh) {
+          const worldPoint: WorldDrawingPoint = {
+            id: `point-${Date.now()}-${Math.random()}`,
+            worldPosition: {
+              x: intersect.point.x,
+              y: intersect.point.y,
+              z: intersect.point.z
+            },
+            whiteboardRegion: `${intersect.point.x > 0 ? 'right' : 'left'}-${intersect.point.y > 0 ? 'top' : 'bottom'}`,
+            surface: 'whiteboard',
+            color: '',
+            size: 0
+          };
+          onAddToStroke(worldPoint);
+        }
+        
+        lastPosition.current = intersect.point.clone();
+        lastBodyPart.current = 'whiteboard'; // Use whiteboard as identifier
+        lastMarkTime.current = Date.now();
+      }
     }
   }, [isDrawing, addMarkAtPosition, onStrokeStart, onAddToStroke, camera, gl, raycaster, mouse, getIntersectedObjects]);
 
@@ -97,22 +129,19 @@ export const useDrawingEventHandlers = ({
 
     raycaster.setFromCamera(mouse, camera);
     
-    const meshes = getIntersectedObjects();
+    const meshes = getIntersectedObjects(drawingTarget === 'whiteboard');
     const intersects = raycaster.intersectObjects(meshes, false);
 
     if (intersects.length > 0) {
       const intersect = intersects[0];
       
-      if (intersect.object.userData.bodyPart) {
+      // Handle body drawing
+      if (intersect.object.userData.bodyPart && drawingTarget === 'body') {
         const currentPosition = intersect.point;
         const currentBodyPart = intersect.object.userData.bodyPart;
         
-        console.log('🖱️ Pointer move - placing mark and interpolating');
+        addMarkAtPosition(currentPosition, intersect, 'body');
         
-        // Place primary mark for local display
-        addMarkAtPosition(currentPosition, intersect);
-        
-        // Add to stroke for batching
         if (onAddToStroke && intersect.object instanceof THREE.Mesh) {
           const worldPoint: WorldDrawingPoint = {
             id: `point-${Date.now()}-${Math.random()}`,
@@ -129,14 +158,42 @@ export const useDrawingEventHandlers = ({
           onAddToStroke(worldPoint);
         }
         
-        // Enhanced interpolation for ultra-smooth local drawing
         if (lastPosition.current && lastBodyPart.current) {
-          console.log('🔄 Calling interpolateMarks between positions');
-          interpolateMarks(lastPosition.current, currentPosition, lastBodyPart.current, currentBodyPart, intersect);
+          interpolateMarks(lastPosition.current, currentPosition, lastBodyPart.current, currentBodyPart, intersect, 'body');
         }
         
         lastPosition.current = currentPosition.clone();
         lastBodyPart.current = currentBodyPart;
+        lastMarkTime.current = now;
+      }
+      // Handle whiteboard drawing
+      else if (intersect.object.userData.isWhiteboard && drawingTarget === 'whiteboard') {
+        const currentPosition = intersect.point;
+        
+        addMarkAtPosition(currentPosition, intersect, 'whiteboard');
+        
+        if (onAddToStroke && intersect.object instanceof THREE.Mesh) {
+          const worldPoint: WorldDrawingPoint = {
+            id: `point-${Date.now()}-${Math.random()}`,
+            worldPosition: {
+              x: currentPosition.x,
+              y: currentPosition.y,
+              z: currentPosition.z
+            },
+            whiteboardRegion: `${currentPosition.x > 0 ? 'right' : 'left'}-${currentPosition.y > 0 ? 'top' : 'bottom'}`,
+            surface: 'whiteboard',
+            color: '',
+            size: 0
+          };
+          onAddToStroke(worldPoint);
+        }
+        
+        if (lastPosition.current && lastBodyPart.current) {
+          interpolateMarks(lastPosition.current, currentPosition, lastBodyPart.current, 'whiteboard', intersect, 'whiteboard');
+        }
+        
+        lastPosition.current = currentPosition.clone();
+        lastBodyPart.current = 'whiteboard';
         lastMarkTime.current = now;
       }
     }

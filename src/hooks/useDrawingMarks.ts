@@ -25,13 +25,19 @@ export const useDrawingMarks = ({
   getBodyPartAtPosition
 }: UseDrawingMarksProps) => {
 
-  const addMarkAtPosition = useCallback((worldPosition: THREE.Vector3, intersect?: THREE.Intersection, isInterpolated: boolean = false) => {
+  const addMarkAtPosition = useCallback((worldPosition: THREE.Vector3, intersect?: THREE.Intersection, surface: 'body' | 'whiteboard' = 'body') => {
     const modelGroup = modelRef?.current;
     if (modelGroup) {
       const localPosition = new THREE.Vector3();
-      modelGroup.worldToLocal(localPosition.copy(worldPosition));
       
-      // Make actual drawing marks much smaller - divide by 200 instead of 100
+      if (surface === 'whiteboard') {
+        // For whiteboard, use world coordinates directly (don't transform to model space)
+        localPosition.copy(worldPosition);
+      } else {
+        // For body, transform to model local space
+        modelGroup.worldToLocal(localPosition.copy(worldPosition));
+      }
+      
       const mark: DrawingMark = {
         id: `mark-${Date.now()}-${Math.random()}`,
         position: localPosition,
@@ -40,51 +46,48 @@ export const useDrawingMarks = ({
       };
       onAddMark(mark);
       
-      console.log('Added mark:', isInterpolated ? 'INTERPOLATED' : 'PRIMARY', 'brush size:', brushSize, 'mark size:', mark.size);
+      console.log('Added mark:', surface, 'brush size:', brushSize, 'mark size:', mark.size);
     }
   }, [selectedColor, brushSize, onAddMark, modelRef]);
 
-  const interpolateMarks = useCallback((start: THREE.Vector3, end: THREE.Vector3, startBodyPart: string, endBodyPart: string, endIntersect?: THREE.Intersection) => {
-    console.log('🎨 Interpolating between points, distance:', start.distanceTo(end), 'brush size:', brushSize);
+  const interpolateMarks = useCallback((start: THREE.Vector3, end: THREE.Vector3, startBodyPart: string, endBodyPart: string, endIntersect?: THREE.Intersection, surface: 'body' | 'whiteboard' = 'body') => {
+    console.log('🎨 Interpolating between points, distance:', start.distanceTo(end), 'brush size:', brushSize, 'surface:', surface);
     
-    // Only interpolate if both points are on the same body part
-    if (startBodyPart !== endBodyPart) {
+    // For whiteboard, always allow interpolation; for body, check same body part
+    if (surface === 'body' && startBodyPart !== endBodyPart) {
       console.log('❌ Different body parts, skipping interpolation');
       return;
     }
 
     const distance = start.distanceTo(end);
     
-    // Significantly increased interpolation - much more for smaller brushes
     const getStepCount = (size: number, distance: number): number => {
-      // Base steps dramatically increased, with smaller brushes getting exponentially more
       let baseMultiplier;
       if (size <= 3) {
-        baseMultiplier = 150; // Tiny brushes get massive interpolation
+        baseMultiplier = 150;
       } else if (size <= 5) {
-        baseMultiplier = 120; // Small brushes get very high interpolation
+        baseMultiplier = 120;
       } else if (size <= 8) {
-        baseMultiplier = 90;  // Medium brushes get high interpolation
+        baseMultiplier = 90;
       } else if (size <= 12) {
-        baseMultiplier = 70;  // Larger brushes get good interpolation
+        baseMultiplier = 70;
       } else {
-        baseMultiplier = 50;  // Largest brushes get moderate interpolation
+        baseMultiplier = 50;
       }
       
       const calculatedSteps = Math.floor(distance * baseMultiplier);
       
-      // Much higher maximums, especially for small brushes
       let maxSteps;
       if (size <= 3) {
-        maxSteps = 80;  // Tiny brushes can have up to 80 steps
+        maxSteps = 80;
       } else if (size <= 5) {
-        maxSteps = 60;  // Small brushes can have up to 60 steps
+        maxSteps = 60;
       } else if (size <= 8) {
-        maxSteps = 45;  // Medium brushes can have up to 45 steps
+        maxSteps = 45;
       } else if (size <= 12) {
-        maxSteps = 35;  // Larger brushes can have up to 35 steps
+        maxSteps = 35;
       } else {
-        maxSteps = 25;  // Largest brushes can have up to 25 steps
+        maxSteps = 25;
       }
       
       return Math.max(1, Math.min(maxSteps, calculatedSteps));
@@ -95,17 +98,20 @@ export const useDrawingMarks = ({
     
     for (let i = 1; i <= steps; i++) {
       const t = i / steps;
-      // Use smoothstep function for enhanced smoothing
       const smoothT = t * t * (3 - 2 * t);
       const interpolatedPosition = new THREE.Vector3().lerpVectors(start, end, smoothT);
       
-      // Validate that the interpolated position is still on the same body part
-      const bodyPartAtInterpolated = getBodyPartAtPosition(interpolatedPosition);
-      if (bodyPartAtInterpolated === startBodyPart) {
-        // Mark as interpolated to skip network updates
-        addMarkAtPosition(interpolatedPosition, endIntersect, true);
+      // For whiteboard, skip body part validation
+      if (surface === 'whiteboard') {
+        addMarkAtPosition(interpolatedPosition, endIntersect, surface);
       } else {
-        console.log('⚠️ Interpolated point not on same body part, skipping');
+        // For body, validate that the interpolated position is still on the same body part
+        const bodyPartAtInterpolated = getBodyPartAtPosition(interpolatedPosition);
+        if (bodyPartAtInterpolated === startBodyPart) {
+          addMarkAtPosition(interpolatedPosition, endIntersect, surface);
+        } else {
+          console.log('⚠️ Interpolated point not on same body part, skipping');
+        }
       }
     }
   }, [addMarkAtPosition, getBodyPartAtPosition, brushSize]);
