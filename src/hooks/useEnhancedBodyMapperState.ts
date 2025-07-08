@@ -9,6 +9,7 @@ import { useEraseOperations } from './useEraseOperations';
 import { useUndoRedoOperations } from './useUndoRedoOperations';
 import { useBodyPartOperations } from './useBodyPartOperations';
 import { useTextManager } from './useTextManager';
+import { useWhiteboardState } from './useWhiteboardState';
 import { TextSettings } from '@/types/textTypes';
 import * as THREE from 'three';
 
@@ -38,7 +39,6 @@ export const useEnhancedBodyMapperState = ({
   const [textToPlace, setTextToPlace] = useState('Sample Text');
   const [selectedSensation, setSelectedSensation] = useState<SelectedSensation | null>(null);
   const [bodyPartColors, setBodyPartColors] = useState<Record<string, string>>({});
-  const [whiteboardBackground, setWhiteboardBackground] = useState('white');
   const [sensationMarks, setSensationMarks] = useState<SensationMark[]>([]);
   const [rotation, setRotation] = useState(0);
   const [isActivelyDrawing, setIsActivelyDrawing] = useState(false);
@@ -65,6 +65,13 @@ export const useEnhancedBodyMapperState = ({
     onBroadcastTextDelete
   });
 
+  // Whiteboard state management
+  const whiteboardState = useWhiteboardState({
+    selectedColor,
+    brushSize: brushSize[0],
+    onAddAction: actionHistory.addAction
+  });
+
   const eraseOps = useEraseOperations({ 
     strokeManager, 
     actionHistory, 
@@ -82,7 +89,7 @@ export const useEnhancedBodyMapperState = ({
     setBodyPartColors,
     setSensationMarks,
     setTextMarks: textManager.setTextMarks,
-    setWhiteboardBackground,
+    setWhiteboardBackground: whiteboardState.setWhiteboardBackground,
     broadcastUndo,
     broadcastRedo,
     isMultiplayer
@@ -144,25 +151,8 @@ export const useEnhancedBodyMapperState = ({
     console.log('Added sensation mark to history:', newSensationMark);
   };
 
-  // Whiteboard fill handler
-  const handleWhiteboardFill = (color: string) => {
-    console.log('🎨 useEnhancedBodyMapperState - Filling whiteboard with color:', color);
-    
-    const previousColor = whiteboardBackground;
-    setWhiteboardBackground(color);
-    
-    // Add to action history for undo/redo
-    actionHistory.addAction({
-      type: 'whiteboardFill',
-      data: {
-        newColor: color,
-        previousColor: previousColor
-      },
-      metadata: {
-        fillColor: color
-      }
-    });
-  };
+  // Whiteboard fill handler - now delegated to whiteboard state
+  const handleWhiteboardFill = whiteboardState.handleWhiteboardFill;
 
   const handleResetAll = () => {
     console.log('🔄 Resetting all content');
@@ -197,12 +187,13 @@ export const useEnhancedBodyMapperState = ({
   const clearAll = () => {
     const previousSensationMarks = [...sensationMarks];
     const previousTextMarks = [...textManager.textMarks];
-    const previousWhiteboardColor = whiteboardBackground;
+    const previousWhiteboardColor = whiteboardState.whiteboardBackground;
     
     bodyPartOps.clearAll();
     setSensationMarks([]);
     textManager.clearAllText();
-    setWhiteboardBackground('white');
+    whiteboardState.clearWhiteboardMarks();
+    whiteboardState.setWhiteboardBackground('white');
     
     // Record clear action including sensation marks and text marks
     if (previousSensationMarks.length > 0 || previousTextMarks.length > 0 || previousWhiteboardColor !== 'white') {
@@ -249,10 +240,13 @@ export const useEnhancedBodyMapperState = ({
     sensationMarks,
     setSensationMarks,
     bodyPartColors,
-    whiteboardBackground,
-    setWhiteboardBackground,
     rotation,
     setRotation,
+    
+    // Whiteboard state
+    whiteboardMarks: whiteboardState.whiteboardMarks,
+    whiteboardBackground: whiteboardState.whiteboardBackground,
+    setWhiteboardBackground: whiteboardState.setWhiteboardBackground,
     
     // Enhanced functionality
     handleStartDrawing,
@@ -268,6 +262,12 @@ export const useEnhancedBodyMapperState = ({
     handleWhiteboardFill,
     handleResetAll,
     clearAll,
+    
+    // Whiteboard handlers
+    handleWhiteboardPointerDown: whiteboardState.handleWhiteboardPointerDown,
+    handleWhiteboardPointerMove: whiteboardState.handleWhiteboardPointerMove,
+    handleWhiteboardPointerUp: whiteboardState.handleWhiteboardPointerUp,
+    eraseWhiteboardMarks: whiteboardState.eraseWhiteboardMarks,
     
     // Text functionality
     textMarks: textManager.textMarks,

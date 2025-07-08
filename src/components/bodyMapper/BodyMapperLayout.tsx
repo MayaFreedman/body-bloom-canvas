@@ -20,6 +20,7 @@ interface BodyMapperLayoutProps {
   isActivelyDrawing: boolean;
   selectedSensation: SelectedSensation | null;
   drawingMarks: any[];
+  whiteboardMarks: any[];
   sensationMarks: SensationMark[];
   textMarks: TextMark[];
   textSettings?: TextSettings;
@@ -48,6 +49,9 @@ interface BodyMapperLayoutProps {
   onSensationClick: (position: THREE.Vector3, sensation: SelectedSensation) => void;
   onErase: (center: THREE.Vector3, radius: number, surface: 'body' | 'whiteboard') => void;
   onWhiteboardFill?: (color: string) => void;
+  onWhiteboardPointerDown?: (x: number, y: number) => void;
+  onWhiteboardPointerMove?: (x: number, y: number) => void;
+  onWhiteboardPointerUp?: () => void;
   onTextPlace?: (position: THREE.Vector3, surface: 'body' | 'whiteboard') => void;
   onTextClick?: (textMark: TextMark) => void;
   onTextSave?: (text: string) => void;
@@ -69,6 +73,7 @@ export const BodyMapperLayout = ({
   isActivelyDrawing,
   selectedSensation,
   drawingMarks,
+  whiteboardMarks,
   sensationMarks,
   textMarks,
   textSettings,
@@ -97,6 +102,9 @@ export const BodyMapperLayout = ({
   onSensationClick,
   onErase,
   onWhiteboardFill,
+  onWhiteboardPointerDown,
+  onWhiteboardPointerMove,
+  onWhiteboardPointerUp,
   onTextPlace,
   onTextClick,
   onTextSave,
@@ -123,6 +131,7 @@ export const BodyMapperLayout = ({
             drawingTarget={drawingTarget}
             selectedSensation={selectedSensation}
             drawingMarks={drawingMarks}
+            whiteboardMarks={whiteboardMarks}
             sensationMarks={sensationMarks}
             effects={[]}
             bodyPartColors={bodyPartColors}
@@ -144,6 +153,9 @@ export const BodyMapperLayout = ({
             onSensationDeselect={() => setSelectedSensation(null)}
             onErase={onErase}
             onWhiteboardFill={onWhiteboardFill}
+            onWhiteboardPointerDown={onWhiteboardPointerDown}
+            onWhiteboardPointerMove={onWhiteboardPointerMove}
+            onWhiteboardPointerUp={onWhiteboardPointerUp}
             onTextPlace={onTextPlace}
             onTextClick={onTextClick}
             onTextSave={onTextSave}
