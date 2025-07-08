@@ -13,19 +13,17 @@ export const useIntersectionUtils = ({ modelRef }: UseIntersectionUtilsProps) =>
     
     console.log('🔍 getIntersectedObjects called, includeWhiteboard:', includeWhiteboard, 'modelGroup:', !!modelGroup);
     
+    // Get body meshes from inside the model group
     if (modelGroup) {
       modelGroup.traverse((child) => {
-        if (child instanceof THREE.Mesh) {
-          console.log('🔍 Found mesh in model group:', child.userData);
-          if (child.userData.bodyPart || (includeWhiteboard && child.userData.isWhiteboard)) {
-            console.log('🔍 Adding mesh to intersection list:', child.userData.bodyPart || 'whiteboard');
-            meshes.push(child);
-          }
+        if (child instanceof THREE.Mesh && child.userData.bodyPart) {
+          console.log('🔍 Found body mesh in model group:', child.userData.bodyPart);
+          meshes.push(child);
         }
       });
     }
     
-    // If looking for whiteboard, also check scene directly since whiteboard is outside model group
+    // Get whiteboard meshes ONLY from scene (outside model group) to prevent coordinate transformation issues
     if (includeWhiteboard && modelGroup?.parent) {
       console.log('🔍 Checking scene for whiteboard meshes...');
       modelGroup.parent.traverse((child) => {

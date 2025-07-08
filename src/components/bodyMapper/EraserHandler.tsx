@@ -26,15 +26,23 @@ export const EraserHandler = ({
     const modelGroup = modelRef?.current;
     
     if (modelGroup) {
-      modelGroup.traverse((child) => {
-        if (child instanceof THREE.Mesh) {
-          if (drawingTarget === 'body' && child.userData.bodyPart) {
-            meshes.push(child);
-          } else if (drawingTarget === 'whiteboard' && child.userData.isWhiteboard) {
+      // Get body meshes from inside the model group
+      if (drawingTarget === 'body') {
+        modelGroup.traverse((child) => {
+          if (child instanceof THREE.Mesh && child.userData.bodyPart) {
             meshes.push(child);
           }
-        }
-      });
+        });
+      }
+      
+      // Get whiteboard meshes ONLY from scene (outside model group)
+      if (drawingTarget === 'whiteboard' && modelGroup.parent) {
+        modelGroup.parent.traverse((child) => {
+          if (child instanceof THREE.Mesh && child.userData.isWhiteboard) {
+            meshes.push(child);
+          }
+        });
+      }
     }
     
     return meshes;

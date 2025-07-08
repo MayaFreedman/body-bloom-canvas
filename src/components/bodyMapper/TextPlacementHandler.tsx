@@ -27,26 +27,20 @@ export const TextPlacementHandler = ({
     console.log('📝 TextPlacement: Getting intersected objects for', drawingTarget, 'modelGroup:', !!modelGroup);
     
     if (modelGroup) {
-      modelGroup.traverse((child) => {
-        if (child instanceof THREE.Mesh) {
-          console.log('📝 Found mesh with userData:', child.userData);
-          if (drawingTarget === 'body' && child.userData.bodyPart) {
+      // Get body meshes from inside the model group
+      if (drawingTarget === 'body') {
+        modelGroup.traverse((child) => {
+          if (child instanceof THREE.Mesh && child.userData.bodyPart) {
             console.log('📝 Adding body mesh:', child.userData.bodyPart);
             meshes.push(child);
-          } else if (drawingTarget === 'whiteboard' && child.userData.isWhiteboard) {
-            console.log('📝 Adding whiteboard mesh');
-            meshes.push(child);
           }
-        }
-      });
-    }
-    
-    // For whiteboard, also check scene directly since whiteboard is outside model group
-    if (drawingTarget === 'whiteboard') {
-      const scene = modelGroup?.parent;
-      console.log('📝 Checking scene directly for whiteboard, scene:', !!scene);
-      if (scene) {
-        scene.traverse((child) => {
+        });
+      }
+      
+      // Get whiteboard meshes ONLY from scene (outside model group) to prevent coordinate issues
+      if (drawingTarget === 'whiteboard' && modelGroup.parent) {
+        console.log('📝 Checking scene directly for whiteboard');
+        modelGroup.parent.traverse((child) => {
           if (child instanceof THREE.Mesh && child.userData.isWhiteboard) {
             console.log('📝 Found whiteboard in scene:', child.userData);
             meshes.push(child);
