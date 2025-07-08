@@ -1,11 +1,10 @@
 
 import React from 'react';
 import { BodyMapperCanvas } from './BodyMapperCanvas';
-import { BodyMapperControls } from './BodyMapperControls';
 import { ControlButtons } from './ControlButtons';
 import { SensationPlacementPopup } from './SensationPlacementPopup';
-import { DrawingTargetSelector } from './DrawingTargetSelector';
-import { WhiteboardPlane } from './WhiteboardPlane';
+import { AppSidebar } from './AppSidebar';
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { BodyMapperMode, SelectedSensation, SensationMark } from '@/types/bodyMapperTypes';
 import { WorldDrawingPoint } from '@/types/multiplayerTypes';
 import { TextMark, TextSettings } from '@/types/textTypes';
@@ -105,85 +104,95 @@ export const BodyMapperLayout = ({
   onEmotionsUpdate
 }: BodyMapperLayoutProps) => {
   return (
-    <div className="game-container">
-      <div className="canvas-container">
-        <div ref={canvasRef} style={{ width: '100%', height: '100%' }}>
-          <BodyMapperCanvas
-            mode={mode}
-            selectedColor={selectedColor}
-            brushSize={brushSize[0]}
-            drawingTarget={drawingTarget}
-            selectedSensation={selectedSensation}
-            drawingMarks={drawingMarks}
-            sensationMarks={sensationMarks}
-            effects={[]}
-            bodyPartColors={bodyPartColors}
-            rotation={rotation}
-            isActivelyDrawing={isActivelyDrawing}
-            textMarks={textMarks}
-            textToPlace={textToPlace}
-            textSettings={textSettings}
-            editingTextId={editingTextId}
-            modelRef={modelRef}
-            onAddDrawingMark={onAddDrawingMark}
-            onDrawingStrokeStart={onDrawingStrokeStart}
-            onDrawingStrokeComplete={onDrawingStrokeComplete}
-            onAddToDrawingStroke={onAddToDrawingStroke}
-            onBodyPartClick={onBodyPartClick}
-            onSensationClick={onSensationClick}
-            onSensationDeselect={() => setSelectedSensation(null)}
-            onErase={onErase}
-            onTextPlace={onTextPlace}
-            onTextClick={onTextClick}
-            onTextSave={onTextSave}
-            onTextCancel={onTextCancel}
-            onTextDelete={onTextDelete}
-            onRotateLeft={onRotateLeft}
-            onRotateRight={onRotateRight}
-          />
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full">
+        {/* Blue Banner */}
+        <div id="topBanner">
+          <h2>Feel Your Emotions</h2>
+          <p>Use the tools to map your emotions and sensations on the body</p>
         </div>
-        
-        <ControlButtons 
-          onResetAll={onResetAll}
-          onUndo={onUndo}
-          onRedo={onRedo}
-          canUndo={canUndo}
-          canRedo={canRedo}
-          canvasRef={canvasRef}
-          drawingTarget={drawingTarget}
+
+        {/* Sidebar Trigger for collapsed state */}
+        <div className="fixed top-2 left-2 z-50">
+          <SidebarTrigger />
+        </div>
+
+        <AppSidebar
           mode={mode}
-          isActivelyDrawing={isActivelyDrawing}
+          selectedColor={selectedColor}
+          brushSize={brushSize}
+          selectedSensation={selectedSensation}
+          drawingTarget={drawingTarget}
+          textSettings={textSettings}
+          textToPlace={textToPlace}
+          controlsRef={controlsRef}
+          onModeChange={setMode}
+          onColorChange={setSelectedColor}
+          onBrushSizeChange={setBrushSize}
+          onSensationChange={setSelectedSensation}
+          onDrawingTargetChange={setDrawingTarget}
+          onTextSettingsChange={setTextSettings}
+          onTextToPlaceChange={setTextToPlace}
+          onEmotionsUpdate={onEmotionsUpdate}
+        />
+
+        {/* Main Canvas Area */}
+        <main className="flex-1 relative">
+          <div ref={canvasRef} className="w-full h-screen">
+            <BodyMapperCanvas
+              mode={mode}
+              selectedColor={selectedColor}
+              brushSize={brushSize[0]}
+              drawingTarget={drawingTarget}
+              selectedSensation={selectedSensation}
+              drawingMarks={drawingMarks}
+              sensationMarks={sensationMarks}
+              effects={[]}
+              bodyPartColors={bodyPartColors}
+              rotation={rotation}
+              isActivelyDrawing={isActivelyDrawing}
+              textMarks={textMarks}
+              textToPlace={textToPlace}
+              textSettings={textSettings}
+              editingTextId={editingTextId}
+              modelRef={modelRef}
+              onAddDrawingMark={onAddDrawingMark}
+              onDrawingStrokeStart={onDrawingStrokeStart}
+              onDrawingStrokeComplete={onDrawingStrokeComplete}
+              onAddToDrawingStroke={onAddToDrawingStroke}
+              onBodyPartClick={onBodyPartClick}
+              onSensationClick={onSensationClick}
+              onSensationDeselect={() => setSelectedSensation(null)}
+              onErase={onErase}
+              onTextPlace={onTextPlace}
+              onTextClick={onTextClick}
+              onTextSave={onTextSave}
+              onTextCancel={onTextCancel}
+              onTextDelete={onTextDelete}
+              onRotateLeft={onRotateLeft}
+              onRotateRight={onRotateRight}
+            />
+          </div>
+          
+          <ControlButtons 
+            onResetAll={onResetAll}
+            onUndo={onUndo}
+            onRedo={onRedo}
+            canUndo={canUndo}
+            canRedo={canRedo}
+            canvasRef={canvasRef}
+            drawingTarget={drawingTarget}
+            mode={mode}
+            isActivelyDrawing={isActivelyDrawing}
+          />
+        </main>
+        
+        {/* Sensation placement popup */}
+        <SensationPlacementPopup 
+          selectedSensation={selectedSensation}
+          isVisible={selectedSensation !== null}
         />
       </div>
-
-      <div className="controls-container">
-        <div id="rightColumn">
-          <BodyMapperControls
-            ref={controlsRef}
-            mode={mode}
-            selectedColor={selectedColor}
-            brushSize={brushSize}
-            selectedSensation={selectedSensation}
-            drawingTarget={drawingTarget}
-            textSettings={textSettings}
-            textToPlace={textToPlace}
-            onModeChange={setMode}
-            onColorChange={setSelectedColor}
-            onBrushSizeChange={setBrushSize}
-            onSensationChange={setSelectedSensation}
-            onDrawingTargetChange={setDrawingTarget}
-            onTextSettingsChange={setTextSettings}
-            onTextToPlaceChange={setTextToPlace}
-            onEmotionsUpdate={onEmotionsUpdate}
-          />
-        </div>
-      </div>
-      
-      {/* Sensation placement popup */}
-      <SensationPlacementPopup 
-        selectedSensation={selectedSensation}
-        isVisible={selectedSensation !== null}
-      />
-    </div>
+    </SidebarProvider>
   );
 };
