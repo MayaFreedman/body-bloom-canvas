@@ -160,7 +160,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       'Tingling': 0.7,
       'Shaky': 0.3, // Reduced from 1.0 - shake image is small  
       'Pacing': 1.2,
-      'Stomping': 1.5, // Smaller particles - reduced from 2.5
+      'Stomping': 0.8, // Much smaller, subtle particles
       'Tight': 1.0,
       'Lump in Throat': 1.0,
       'Change in Appetite': 0.3, // Reduced from 1.0 - plate image is small
@@ -308,7 +308,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       'Change in Energy': { min: 50, max: 100 }, // Energy bursts
       'Fidgety': { min: 40, max: 80 }, // Restless, changing
       'Pacing': { min: 60, max: 100 }, // Movement patterns
-      'Stomping': { min: 1000, max: 1500 }, // 5x longer lifespan - very slow disappearance
+      'Stomping': { min: 2000, max: 3000 }, // Extremely long lifespan - 10x slower disappearance
       'Avoiding Eye Contact': { min: 45, max: 85 }, // Nervous behavior
       'Scrunched Face': { min: 40, max: 80 }, // Facial expressions
       
@@ -368,7 +368,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             'Change in Energy': 20,     // Energy bursts
             'Fidgety': 25,              // Restless movement
             'Pacing': 18,               // Movement patterns
-            'Stomping': 4,              // Very few, big stomps - reduced from 15
+            'Stomping': 2,              // Only 2 particles - very minimal
             'Avoiding Eye Contact': 12, // Nervous behavior
             'Scrunched Face': 10,       // Facial tension
             
@@ -609,7 +609,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             'Shaky': { speed: 3.0, intensity: 1.8, pattern: 'shake' }, // Fast trembling
             'Fidgety': { speed: 2.2, intensity: 1.4, pattern: 'shake' }, // Restless movement
             'Pacing': { speed: 1.5, intensity: 1.0, pattern: 'wave' }, // Rhythmic movement
-            'Stomping': { speed: 0.05, intensity: 0.1, pattern: 'shake' }, // Very slow, gentle movement
+            'Stomping': { speed: 0.01, intensity: 0.03, pattern: 'shake' }, // Extremely slow, very subtle movement
             
             // FLOW effects - dripping with strong downward movement (negative Y = down)
             'Tears': { speed: 0.2, intensity: 0.4, pattern: 'drip', gravity: 0.0002, drift: new THREE.Vector3(0, -0.15, 0) },
