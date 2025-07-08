@@ -26,6 +26,7 @@ interface BodyMapperLayoutProps {
   textToPlace?: string;
   editingTextId: string | null;
   bodyPartColors: Record<string, string>;
+  whiteboardBackground?: string;
   rotation: number;
   modelRef: React.RefObject<THREE.Group>;
   controlsRef: React.RefObject<any>;
@@ -46,6 +47,7 @@ interface BodyMapperLayoutProps {
   onBodyPartClick: (partName: string, color: string) => void;
   onSensationClick: (position: THREE.Vector3, sensation: SelectedSensation) => void;
   onErase: (center: THREE.Vector3, radius: number, surface: 'body' | 'whiteboard') => void;
+  onWhiteboardFill?: (color: string) => void;
   onTextPlace?: (position: THREE.Vector3, surface: 'body' | 'whiteboard') => void;
   onTextClick?: (textMark: TextMark) => void;
   onTextSave?: (text: string) => void;
@@ -73,6 +75,7 @@ export const BodyMapperLayout = ({
   textToPlace,
   editingTextId,
   bodyPartColors,
+  whiteboardBackground,
   rotation,
   modelRef,
   controlsRef,
@@ -93,6 +96,7 @@ export const BodyMapperLayout = ({
   onBodyPartClick,
   onSensationClick,
   onErase,
+  onWhiteboardFill,
   onTextPlace,
   onTextClick,
   onTextSave,
@@ -122,6 +126,7 @@ export const BodyMapperLayout = ({
             sensationMarks={sensationMarks}
             effects={[]}
             bodyPartColors={bodyPartColors}
+            whiteboardBackground={whiteboardBackground}
             rotation={rotation}
             isActivelyDrawing={isActivelyDrawing}
             isHoveringControlButtons={isHoveringControlButtons}
@@ -138,6 +143,7 @@ export const BodyMapperLayout = ({
             onSensationClick={onSensationClick}
             onSensationDeselect={() => setSelectedSensation(null)}
             onErase={onErase}
+            onWhiteboardFill={onWhiteboardFill}
             onTextPlace={onTextPlace}
             onTextClick={onTextClick}
             onTextSave={onTextSave}

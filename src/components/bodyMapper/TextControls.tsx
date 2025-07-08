@@ -78,13 +78,13 @@ export const TextControls = ({
               onBlur={validateText}
             />
             {hasError && (
-              <p className="text-xs text-red-500">Text field cannot be empty</p>
+              <p className="text-xs text-red-500 ml-1 -mt-2">Text field cannot be empty</p>
             )}
           </div>
 
           {/* Font Size */}
           <div className="space-y-2">
-            <label className="text-sm font-medium">Font Size: {textSettings.fontSize}px</label>
+            <label className="text-sm font-medium">Size: {textSettings.fontSize}px</label>
             <Slider
               value={[textSettings.fontSize]}
               onValueChange={([value]) => onTextSettingsChange({ fontSize: value })}
