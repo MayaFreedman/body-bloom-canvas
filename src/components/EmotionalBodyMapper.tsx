@@ -177,7 +177,8 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     id: mark.id,
     position: mark.position,
     color: mark.color,
-    size: mark.size
+    size: mark.size,
+    surface: mark.surface  // ✅ FIXED: Include surface property
   }));
 
   console.log('EmotionalBodyMapper - canUndo:', canUndo, 'canRedo:', canRedo);
