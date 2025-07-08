@@ -21,14 +21,12 @@ export const DrawingTargetSelector = ({
         onClick={toggleTarget}
         className="relative w-full h-8 bg-gray-200 border border-gray-300 rounded-full cursor-pointer overflow-hidden"
       >
-        {/* Sliding orb */}
+        {/* Sliding thumb */}
         <div 
-          className={`absolute top-0.5 left-0.5 h-7 w-1/2 bg-white border border-gray-200 rounded-full shadow-sm transition-transform duration-200 ease-in-out flex items-center justify-center ${
-            drawingTarget === 'whiteboard' ? 'translate-x-[calc(100%-4px)]' : 'translate-x-0'
+          className={`absolute top-0.5 h-7 w-7 bg-white border border-gray-200 rounded-full shadow-sm transition-transform duration-200 ease-in-out ${
+            drawingTarget === 'whiteboard' ? 'translate-x-[calc(100%-30px)] left-0.5' : 'translate-x-0 left-0.5'
           }`}
-        >
-          <div className="w-4 h-4 bg-green-500 rounded-full shadow-sm"></div>
-        </div>
+        />
         
         {/* Text labels */}
         <div className="relative flex h-full">
