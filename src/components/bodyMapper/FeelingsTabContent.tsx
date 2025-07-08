@@ -64,16 +64,14 @@ export const FeelingsTabContent = ({
         </div>
       </div>
       
-      {/* Drawing Target Selector - placed above tools */}
-      {drawingTarget && onDrawingTargetChange && (
-        <DrawingTargetSelector
-          drawingTarget={drawingTarget}
-          onTargetChange={onDrawingTargetChange}
-        />
-      )}
-      
-      {/* Tool Buttons */}
-      <PaintingModeSelector mode={mode} onModeChange={onModeChange} title="Tools" />
+      {/* Tool Buttons with integrated drawing target selector */}
+      <PaintingModeSelector 
+        mode={mode} 
+        onModeChange={onModeChange} 
+        title="Tools"
+        drawingTarget={drawingTarget}
+        onDrawingTargetChange={onDrawingTargetChange}
+      />
       {/* Brush Size Control - Only visible in Draw mode */}
       {mode === 'draw' && (
         <BrushSizeControl

@@ -48,6 +48,11 @@ export const TextControls = ({
     <>
       {mode === 'text' && (
         <div className="space-y-4">
+          {/* Instructions - moved to top */}
+          <div className="text-xs text-muted-foreground p-2 bg-muted rounded">
+            Click anywhere on active drawing field to place your text
+          </div>
+
           {/* Text Input */}
           <div className="space-y-2">
             <label className="text-sm font-medium">Text to Place</label>
@@ -57,23 +62,6 @@ export const TextControls = ({
               placeholder="Enter text..."
               className="w-full"
             />
-          </div>
-
-          {/* Text Preview */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Preview</label>
-            <div 
-              className="min-h-[40px] border border-border rounded p-2 bg-background flex items-center justify-center"
-              style={{
-                fontFamily: textSettings.fontFamily,
-                fontSize: `${Math.min(textSettings.fontSize, 16)}px`,
-                fontWeight: textSettings.fontWeight,
-                fontStyle: textSettings.fontStyle,
-                color: selectedColor
-              }}
-            >
-              {currentText || 'Enter text above...'}
-            </div>
           </div>
 
           {/* Font Size */}
@@ -89,30 +77,28 @@ export const TextControls = ({
             />
           </div>
 
-          {/* Font Family */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Font Family</label>
-            <Select
-              value={textSettings.fontFamily}
-              onValueChange={(value) => onTextSettingsChange({ fontFamily: value })}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {fontFamilies.map((font) => (
-                  <SelectItem key={font} value={font}>
-                    <span style={{ fontFamily: font }}>{font}</span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Font Style */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Style</label>
-            <div className="flex gap-2">
+          {/* Font Family and Style in one row */}
+          <div className="space-y-3">
+            <label className="text-sm font-medium">Font & Style</label>
+            <div className="flex gap-2 items-center">
+              {/* Font Family */}
+              <Select
+                value={textSettings.fontFamily}
+                onValueChange={(value) => onTextSettingsChange({ fontFamily: value })}
+              >
+                <SelectTrigger className="flex-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {fontFamilies.map((font) => (
+                    <SelectItem key={font} value={font}>
+                      <span style={{ fontFamily: font }}>{font}</span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              
+              {/* Style Buttons */}
               <Button
                 variant={textSettings.fontWeight === 'bold' ? 'default' : 'outline'}
                 size="sm"
@@ -132,11 +118,6 @@ export const TextControls = ({
                 <Italic className="w-4 h-4" />
               </Button>
             </div>
-          </div>
-
-          {/* Instructions */}
-          <div className="text-xs text-muted-foreground p-2 bg-muted rounded">
-            Click anywhere on the body or whiteboard to place your text
           </div>
 
         </div>
