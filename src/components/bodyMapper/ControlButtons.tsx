@@ -138,7 +138,7 @@ export const ControlButtons = ({
           </TooltipTrigger>
           <TooltipContent 
             side="top" 
-            className="z-[9999] bg-red-500 text-white border-4 border-yellow-400 pointer-events-none"
+            className="z-[9999] bg-gray-800 text-white pointer-events-none"
             sideOffset={10}
           >
             <p>Undo</p>
@@ -162,7 +162,7 @@ export const ControlButtons = ({
           </TooltipTrigger>
           <TooltipContent 
             side="top" 
-            className="z-[9999] bg-red-500 text-white border-4 border-yellow-400 pointer-events-none"
+            className="z-[9999] bg-gray-800 text-white pointer-events-none"
             sideOffset={10}
           >
             <p>Redo</p>
@@ -185,7 +185,7 @@ export const ControlButtons = ({
           </TooltipTrigger>
           <TooltipContent 
             side="top" 
-            className="z-[9999] bg-red-500 text-white border-4 border-yellow-400 pointer-events-none"
+            className="z-[9999] bg-gray-800 text-white pointer-events-none"
             sideOffset={10}
           >
             <p>Snapshot</p>
