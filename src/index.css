@@ -268,7 +268,7 @@
   /* Control buttons in canvas area */
   .top-left-controls {
     position: absolute;
-    bottom: 20px;
+    bottom: 35px; /* Adjusted to align button centers */
     right: calc(50% + 140px); /* Position to the left of the reset button */
     display: flex;
     gap: 10px;
@@ -278,7 +278,7 @@
 
   .top-right-controls {
     position: absolute;
-    bottom: 20px;
+    bottom: 35px; /* Adjusted to align button centers */
     left: calc(50% + 140px); /* Position to the right of the reset button */
     display: flex;
     gap: 10px;
