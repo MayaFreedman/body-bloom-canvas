@@ -249,7 +249,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       // MEDIUM = medium particles, moderate regeneration
       'Nausea': { base: 0.045, variance: 0.025, multiplier: 1.7 }, // Visible swirling
       'Increased Heart Rate': { base: 0.045, variance: 0.02, multiplier: 1.7 }, // Fast but visible beats
-      'Change in Breathing': { base: 0.04, variance: 0.02, multiplier: 1.6 }, // Air movement
+      'Change in Breathing': { base: 0.06, variance: 0.03, multiplier: 2.0 }, // Increased size for better visibility
       'Change in Appetite': { base: 0.04, variance: 0.02, multiplier: 1.6 }, // Noticeable change
       'Clenched': { base: 0.045, variance: 0.02, multiplier: 1.7 }, // Muscle tension
       
@@ -259,11 +259,11 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       'Pacing': { base: 0.04, variance: 0.02, multiplier: 1.5 }, // Movement patterns
       'Stomping': { base: 0.045, variance: 0.025, multiplier: 1.7 }, // Bigger particles than pacing
       'Avoiding Eye Contact': { base: 0.035, variance: 0.015, multiplier: 1.4 }, // Nervous behavior
-      'Scrunched Face': { base: 0.04, variance: 0.02, multiplier: 1.5 }, // Facial tension
+      'Scrunched Face': { base: 0.06, variance: 0.03, multiplier: 2.0 }, // Increased size for facial tension visibility
       
       // FAST/JERKY = smaller but still visible, frequent regeneration
       'Tingling': { base: 0.03, variance: 0.015, multiplier: 1.3 }, // Sparkle effect
-      'Shaky': { base: 0.035, variance: 0.015, multiplier: 1.4 }, // Trembling
+      'Shaky': { base: 0.05, variance: 0.025, multiplier: 1.8 }, // Increased size for trembling visibility
       'Nerves': { base: 0.025, variance: 0.012, multiplier: 1.2 }, // Electrical, dispersed
       'Goosebumps': { base: 0.025, variance: 0.012, multiplier: 1.2 }, // Small bumps
       
