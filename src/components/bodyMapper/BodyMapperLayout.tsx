@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { BodyMapperCanvas } from './BodyMapperCanvas';
 import { BodyMapperControls } from './BodyMapperControls';
 import { ControlButtons } from './ControlButtons';
@@ -9,6 +9,7 @@ import { WhiteboardPlane } from './WhiteboardPlane';
 import { BodyMapperMode, SelectedSensation, SensationMark } from '@/types/bodyMapperTypes';
 import { WorldDrawingPoint } from '@/types/multiplayerTypes';
 import { TextMark, TextSettings } from '@/types/textTypes';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import * as THREE from 'three';
 
 interface BodyMapperLayoutProps {
@@ -104,6 +105,8 @@ export const BodyMapperLayout = ({
   onRedo,
   onEmotionsUpdate
 }: BodyMapperLayoutProps) => {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
   return (
     <div className="game-container">
       <div className="canvas-container">
@@ -156,7 +159,15 @@ export const BodyMapperLayout = ({
         />
       </div>
 
-      <div className="controls-container">
+      <div className={`controls-container ${isCollapsed ? 'collapsed' : ''}`}>
+        <button
+          className="sidebar-toggle"
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          title={isCollapsed ? 'Show sidebar' : 'Hide sidebar'}
+        >
+          {isCollapsed ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
+        </button>
+        
         <div id="rightColumn">
           <BodyMapperControls
             ref={controlsRef}

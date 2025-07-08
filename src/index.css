@@ -102,14 +102,20 @@
   }
 
   .canvas-container {
-    width: 60%; /* Canvas takes up 60% of the width */
+    width: 75%; /* Canvas takes up 75% of the width */
     height: 100%;
     position: relative;
   }
 
   .controls-container {
-    width: 40%; /* Controls take up 40% of the width */
+    width: 25%; /* Controls take up 25% of the width (thinner) */
     height: 100%;
+    position: relative;
+    transition: width 0.3s ease;
+  }
+
+  .controls-container.collapsed {
+    width: 60px; /* Collapsed state shows only toggle button */
   }
 
   /* Top Banner - exact match to original */
@@ -153,6 +159,11 @@
     flex-direction: column;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     overflow: hidden;
+    transition: transform 0.3s ease;
+  }
+
+  .controls-container.collapsed #rightColumn {
+    transform: translateX(100%);
   }
 
   /* Tab styling - exact match */
@@ -416,5 +427,30 @@
       padding: 6px 12px;
       font-size: 14px;
     }
+  }
+
+  /* Sidebar toggle button */
+  .sidebar-toggle {
+    position: absolute;
+    top: 50%;
+    left: 10px;
+    transform: translateY(-50%);
+    background-color: rgba(255, 255, 255, 0.9);
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 8px;
+    cursor: pointer;
+    z-index: 1000;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+  }
+
+  .sidebar-toggle:hover {
+    background-color: white;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  }
+
+  .controls-container:not(.collapsed) .sidebar-toggle {
+    display: none;
   }
 }
