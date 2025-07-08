@@ -14,11 +14,24 @@ export const useIntersectionUtils = ({ modelRef }: UseIntersectionUtilsProps) =>
     if (modelGroup) {
       modelGroup.traverse((child) => {
         if (child instanceof THREE.Mesh) {
-          if (child.userData.bodyPart || (includeWhiteboard && child.userData.isWhiteboard)) {
+          if (child.userData.bodyPart) {
             meshes.push(child);
           }
         }
       });
+    }
+    
+    // For whiteboard, we need to search globally since it's outside the model group
+    if (includeWhiteboard) {
+      const scene = modelGroup?.parent;
+      if (scene) {
+        scene.traverse((child) => {
+          if (child instanceof THREE.Mesh && child.userData.isWhiteboard) {
+            console.log('🎯 Found whiteboard mesh for intersection');
+            meshes.push(child);
+          }
+        });
+      }
     }
     
     return meshes;
