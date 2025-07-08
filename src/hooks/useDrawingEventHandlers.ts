@@ -11,7 +11,7 @@ interface UseDrawingEventHandlersProps {
   onStrokeComplete?: () => void;
   onAddToStroke?: (worldPoint: WorldDrawingPoint) => void;
   getIntersectedObjects: (includeWhiteboard?: boolean) => THREE.Mesh[];
-  addMarkAtPosition: (worldPosition: THREE.Vector3, intersect?: THREE.Intersection, surface?: 'body' | 'whiteboard') => void;
+  addMarkAtPosition: (worldPosition: THREE.Vector3, intersect: THREE.Intersection | undefined, surface: 'body' | 'whiteboard') => void;
   interpolateMarks: (start: THREE.Vector3, end: THREE.Vector3, startBodyPart: string, endBodyPart: string, endIntersect?: THREE.Intersection, surface?: 'body' | 'whiteboard') => void;
 }
 
