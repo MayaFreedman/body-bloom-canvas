@@ -35,7 +35,7 @@ export interface SensationMark {
 
 export interface ActionHistoryItem {
   id: string;
-  type: 'draw' | 'erase' | 'fill' | 'clear' | 'sensation' | 'textPlace' | 'textEdit' | 'textDelete' | 'resetAll' | 'whiteboardFill';
+  type: 'draw' | 'erase' | 'fill' | 'clear' | 'sensation' | 'textPlace' | 'textEdit' | 'textDelete' | 'resetAll';
   timestamp: number;
   data: {
     strokes?: DrawingStroke[];
@@ -49,8 +49,6 @@ export interface ActionHistoryItem {
     erasedTextMarks?: TextMark[];
     erasedSensationMarks?: SensationMark[];
     previousText?: string;
-    newColor?: string;
-    previousColor?: string;
     erasedMarks?: DrawingMark[];
     affectedArea?: {
       center: THREE.Vector3;
@@ -64,7 +62,6 @@ export interface ActionHistoryItem {
     sensationType?: string;
     text?: string;
     itemCount?: number;
-    fillColor?: string;
   };
 }
 

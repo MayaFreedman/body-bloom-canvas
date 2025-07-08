@@ -28,32 +28,28 @@ export const useDrawingMarks = ({
 
   const addMarkAtPosition = useCallback((worldPosition: THREE.Vector3, intersect?: THREE.Intersection, surface: 'body' | 'whiteboard' = 'body') => {
     const modelGroup = modelRef?.current;
-    const localPosition = new THREE.Vector3();
-    
-    if (surface === 'whiteboard') {
-      // For whiteboard, use intersection point directly in world space
-      // Don't transform through model group - whiteboard is stationary
-      localPosition.copy(worldPosition);
-      console.log('🎨 Adding whiteboard mark at world position:', localPosition);
-    } else if (modelGroup) {
-      // For body, transform to model local space
-      modelGroup.worldToLocal(localPosition.copy(worldPosition));
-      console.log('🎨 Adding body mark at local position:', localPosition);
-    } else {
-      console.error('❌ No model group available for body mark');
-      return;
+    if (modelGroup) {
+      const localPosition = new THREE.Vector3();
+      
+      if (surface === 'whiteboard') {
+        // For whiteboard, use world coordinates directly (don't transform to model space)
+        localPosition.copy(worldPosition);
+      } else {
+        // For body, transform to model local space
+        modelGroup.worldToLocal(localPosition.copy(worldPosition));
+      }
+      
+      const mark: DrawingMark = {
+        id: `mark-${Date.now()}-${Math.random()}`,
+        position: localPosition,
+        color: selectedColor,
+        size: brushSize / 200,
+        surface: surface
+      };
+      onAddMark(mark);
+      
+      console.log('Added mark:', surface, 'brush size:', brushSize, 'mark size:', mark.size);
     }
-    
-    const mark: DrawingMark = {
-      id: `mark-${Date.now()}-${Math.random()}`,
-      position: localPosition,
-      color: selectedColor,
-      size: brushSize / 200,
-      surface: surface
-    };
-    onAddMark(mark);
-    
-    console.log('Added mark:', surface, 'at position:', localPosition, 'brush size:', brushSize, 'mark size:', mark.size);
   }, [selectedColor, brushSize, onAddMark, modelRef]);
 
   const interpolateMarks = useCallback((start: THREE.Vector3, end: THREE.Vector3, startBodyPart: string, endBodyPart: string, endIntersect?: THREE.Intersection, surface: 'body' | 'whiteboard' = 'body') => {
