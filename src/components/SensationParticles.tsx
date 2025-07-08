@@ -307,8 +307,8 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       // ACTIVE = shorter lifespan, more dynamic
       'Change in Energy': { min: 50, max: 100 }, // Energy bursts
       'Fidgety': { min: 40, max: 80 }, // Restless, changing
-      'Pacing': { min: 60, max: 100 }, // Movement patterns
-      'Stomping': { min: 90, max: 160 }, // Slower respawn than pacing for slower movement
+      'Pacing': { min: 100, max: 180 }, // Longer lifespan to reduce spawn/despawn rate
+      'Stomping': { min: 140, max: 220 }, // Even longer lifespan for slower movement
       'Avoiding Eye Contact': { min: 45, max: 85 }, // Nervous behavior
       'Scrunched Face': { min: 40, max: 80 }, // Facial expressions
       
@@ -608,14 +608,14 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             // MOVEMENT effects
             'Shaky': { speed: 3.0, intensity: 1.8, pattern: 'shake' }, // Fast trembling
             'Fidgety': { speed: 2.2, intensity: 1.4, pattern: 'shake' }, // Restless movement
-            'Pacing': { speed: 0.3, intensity: 0.3, pattern: 'gentle' }, // Very gentle movement
-            'Stomping': { speed: 0.15, intensity: 0.4, pattern: 'gentle' }, // Same pattern as pacing, just slower
+            'Pacing': { speed: 0.15, intensity: 0.2, pattern: 'gentle' }, // Even more subtle movement
+            'Stomping': { speed: 0.08, intensity: 0.25, pattern: 'gentle' }, // Very slow and subtle
             
             // FLOW effects - dripping with strong downward movement (negative Y = down)
             'Tears': { speed: 0.2, intensity: 0.4, pattern: 'drip', gravity: 0.0002, drift: new THREE.Vector3(0, -0.15, 0) },
             'Sweat': { speed: 0.3, intensity: 0.5, pattern: 'drip', gravity: 0.00015, drift: new THREE.Vector3(0, -0.12, 0) },
             'Decreased Temperature': { speed: 0.8, intensity: 0.7, pattern: 'drip', gravity: 0.0004, drift: new THREE.Vector3(0, -0.25, 0) },
-            'Change in Breathing': { speed: 0.8, intensity: 0.7, pattern: 'wave', gravity: 0.0001, drift: new THREE.Vector3(0.1, 0.3, 0) },
+            'Change in Breathing': { speed: 0.4, intensity: 0.4, pattern: 'wave', gravity: 0.0001, drift: new THREE.Vector3(0.05, 0.15, 0) },
             'Nausea': { speed: 1.2, intensity: 1.0, pattern: 'swirl', gravity: 0.0002 },
             
             // PAIN effects
@@ -773,10 +773,10 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             particle.velocity.add(driftForce);
           }
           
-          // Add extremely gentle drift movement - minimal oscillations
-          const gentleDriftX = Math.sin(time * 0.1 + particle.life * 0.005) * 0.00005 * animProfile.intensity;
-          const gentleDriftY = Math.cos(time * 0.08) * 0.00002 * animProfile.intensity;
-          const gentleDriftZ = Math.sin(time * 0.05) * 0.00001 * animProfile.intensity;
+          // Add extremely subtle drift movement - barely perceptible
+          const gentleDriftX = Math.sin(time * 0.05 + particle.life * 0.002) * 0.00002 * animProfile.intensity;
+          const gentleDriftY = Math.cos(time * 0.04) * 0.00001 * animProfile.intensity;
+          const gentleDriftZ = Math.sin(time * 0.03) * 0.000005 * animProfile.intensity;
           
           particle.velocity.x += gentleDriftX * delta;
           particle.velocity.y += gentleDriftY * delta;
