@@ -314,7 +314,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       
       // FAST/JERKY = short lifespan, frequent regeneration
       'Tingling': { min: 30, max: 60 }, // Quick sparkles
-      'Shaky': { min: 25, max: 50 }, // Rapid trembling
+      'Shaky': { min: 80, max: 140 }, // Slower respawn rate for less overwhelming trembling
       'Nerves': { min: 20, max: 45 }, // Electrical, quick
       'Goosebumps': { min: 35, max: 70 }, // Brief bumps
       
