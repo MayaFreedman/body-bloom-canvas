@@ -7,7 +7,6 @@ import * as THREE from 'three';
 
 interface HumanModelProps {
   bodyPartColors?: { [key: string]: string };
-  children?: React.ReactNode;
 }
 
 // Color correction function to make 3D colors match UI colors better
@@ -27,21 +26,16 @@ const correctColorFor3D = (hexColor: string): string => {
   return `#${color.getHexString()}`;
 };
 
-export const HumanModel = ({ bodyPartColors = {}, children }: HumanModelProps) => {
+export const HumanModel = ({ bodyPartColors = {} }: HumanModelProps) => {
   const groupRef = useRef<Group>(null);
-  const breathingGroupRef = useRef<Group>(null);
   const { scene } = useGLTF('/body.glb');
   const originalColors = useRef<{ [key: string]: string }>({});
 
   // Subtle breathing animation - slower and more gentle
   useFrame((state) => {
-    const breathe = Math.sin(state.clock.elapsedTime * 0.08) * 0.004 + 1;
-    if (breathingGroupRef.current) {
-      breathingGroupRef.current.scale.setScalar(breathe);
-      // Debug logging
-      if (Math.floor(state.clock.elapsedTime * 10) % 30 === 0) {
-        console.log('🫁 Breathing scale:', breathe, 'Children count:', React.Children.count(children));
-      }
+    const breathe = Math.sin(state.clock.elapsedTime * 0.08) * 0.004 + 1; // Reduced frequency from 0.15 to 0.08, amplitude from 0.008 to 0.004
+    if (groupRef.current) {
+      groupRef.current.scale.setScalar(breathe);
     }
   });
 
@@ -164,10 +158,7 @@ export const HumanModel = ({ bodyPartColors = {}, children }: HumanModelProps) =
 
   return (
     <group ref={groupRef} position={[0, -1, 0]} rotation={[0, Math.PI / 2, 0]}>
-      <group ref={breathingGroupRef}>
-        <primitive object={scene} />
-        {children}
-      </group>
+      <primitive object={scene} />
     </group>
   );
 };

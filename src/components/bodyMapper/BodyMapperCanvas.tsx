@@ -135,24 +135,25 @@ export const BodyMapperCanvas = ({
         <directionalLight position={[-10, -10, -5]} intensity={0.2} />
         
         <group ref={modelRef} rotation={[0, rotation, 0]}>
-          <HumanModel bodyPartColors={bodyPartColors}>
-            {/* Content that should breathe with the body */}
-            {drawingMarks.filter(mark => mark.surface !== 'whiteboard').map((mark) => (
-              <mesh key={mark.id} position={mark.position}>
-                <sphereGeometry args={[mark.size, 8, 8]} />
-                <meshBasicMaterial color={mark.color} />      
-              </mesh>
-            ))}
-
-            <SensationParticles sensationMarks={sensationMarks} />
-            
-            <TextRenderer 
-              textMarks={textMarks.filter(mark => mark.surface === 'body')} 
-              onTextClick={onTextClick}
-            />
-          </HumanModel>
-          
+          <HumanModel bodyPartColors={bodyPartColors} />
           <WhiteboardPlane visible={drawingTarget === 'whiteboard'} />
+          
+          {/* Render drawing marks as children of the model group so they rotate with it */}
+          {drawingMarks.filter(mark => mark.surface !== 'whiteboard').map((mark) => (
+            <mesh key={mark.id} position={mark.position}>
+              <sphereGeometry args={[mark.size, 8, 8]} />
+              <meshBasicMaterial color={mark.color} />      
+            </mesh>
+          ))}
+
+          {/* Render sensation particles as children of the model group */}
+          <SensationParticles sensationMarks={sensationMarks} />
+          
+          {/* Render text marks on body surface as children of the model group */}
+          <TextRenderer 
+            textMarks={textMarks.filter(mark => mark.surface === 'body')} 
+            onTextClick={onTextClick}
+          />
         </group>
         
         {/* Render whiteboard marks outside the model group so they don't rotate */}
