@@ -37,8 +37,8 @@ export const CustomCursor: React.FC<CustomCursorProps> = ({
     return () => document.removeEventListener('mousemove', updateCursorPosition);
   }, []);
 
-  // Check if we should show a "not allowed" cursor (drawing on body when in whiteboard mode, but not actively drawing)
-  const showNotAllowed = mode === 'draw' && drawingTarget === 'whiteboard' && isHoveringBody && !isActivelyDrawing;
+  // Check if we should show a "not allowed" cursor (drawing on body when in whiteboard mode, but not actively drawing, and no sensation selected)
+  const showNotAllowed = mode === 'draw' && drawingTarget === 'whiteboard' && isHoveringBody && !isActivelyDrawing && !selectedSensation;
 
   // Set the document cursor style based on state
   useEffect(() => {
