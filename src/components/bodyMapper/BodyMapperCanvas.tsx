@@ -140,12 +140,14 @@ export const BodyMapperCanvas = ({
         <directionalLight position={[10, 10, 5]} intensity={0.5} />
         <directionalLight position={[-10, -10, -5]} intensity={0.2} />
         
+        {/* Whiteboard plane - stationary, doesn't rotate with body */}
+        <WhiteboardPlane 
+          visible={drawingTarget === 'whiteboard'} 
+          backgroundColor={whiteboardBackground}
+        />
+        
         <group ref={modelRef} rotation={[0, rotation, 0]}>
           <HumanModel bodyPartColors={bodyPartColors} />
-          <WhiteboardPlane 
-            visible={drawingTarget === 'whiteboard'} 
-            backgroundColor={whiteboardBackground}
-          />
           
           {/* Render drawing marks as children of the model group so they rotate with it */}
           {drawingMarks.filter(mark => mark.surface !== 'whiteboard').map((mark) => (
