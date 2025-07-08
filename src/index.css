@@ -293,7 +293,7 @@
     transition: background-color 0.2s;
   }
 
-  .control-button:hover {
+  .control-button:hover:not(:disabled) {
     background-color: rgba(0, 0, 0, 0.8);
   }
 
