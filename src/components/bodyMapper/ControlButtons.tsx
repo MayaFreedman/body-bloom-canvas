@@ -85,7 +85,7 @@ export const ControlButtons = ({
           onControlButtonsHover?.(false);
         }}
       >
-        <Tooltip>
+        <Tooltip onOpenChange={(open) => console.log('🚨 Reset Tooltip open state:', open)}>
           <TooltipTrigger asChild>
             <button 
               onClick={handleResetAll} 
@@ -121,7 +121,7 @@ export const ControlButtons = ({
           onControlButtonsHover?.(false);
         }}
       >
-        <Tooltip>
+        <Tooltip onOpenChange={(open) => console.log('🚨 Undo Tooltip open state:', open)}>
           <TooltipTrigger asChild>
             <button 
               onClick={handleUndo}
@@ -135,7 +135,7 @@ export const ControlButtons = ({
           </TooltipTrigger>
           <TooltipContent 
             side="top" 
-            className="z-[9999]"
+            className="z-[9999] bg-red-500 text-white border-4 border-yellow-400"
             onPointerEnter={() => console.log('💡 Undo tooltip pointer enter')}
             onPointerLeave={() => console.log('💡 Undo tooltip pointer leave')}
           >
@@ -143,7 +143,7 @@ export const ControlButtons = ({
           </TooltipContent>
         </Tooltip>
         
-        <Tooltip>
+        <Tooltip onOpenChange={(open) => console.log('🚨 Redo Tooltip open state:', open)}>
           <TooltipTrigger asChild>
             <button 
               onClick={handleRedo}
@@ -157,7 +157,7 @@ export const ControlButtons = ({
           </TooltipTrigger>
           <TooltipContent 
             side="top" 
-            className="z-[9999]"
+            className="z-[9999] bg-red-500 text-white border-4 border-yellow-400"
             onPointerEnter={() => console.log('💡 Redo tooltip pointer enter')}
             onPointerLeave={() => console.log('💡 Redo tooltip pointer leave')}
           >
@@ -165,7 +165,7 @@ export const ControlButtons = ({
           </TooltipContent>
         </Tooltip>
         
-        <Tooltip>
+        <Tooltip onOpenChange={(open) => console.log('🚨 Snapshot Tooltip open state:', open)}>
           <TooltipTrigger asChild>
             <button 
               onClick={captureScreenshot} 
@@ -178,7 +178,7 @@ export const ControlButtons = ({
           </TooltipTrigger>
           <TooltipContent 
             side="top" 
-            className="z-[9999]"
+            className="z-[9999] bg-red-500 text-white border-4 border-yellow-400"
             onPointerEnter={() => console.log('💡 Snapshot tooltip pointer enter')}
             onPointerLeave={() => console.log('💡 Snapshot tooltip pointer leave')}
           >
