@@ -43,8 +43,8 @@ const TextMarkComponent = ({
       return textMark.position; // No offset needed for whiteboard
     }
     
-    // For body surface, add small outward offset to prevent z-fighting during breathing
-    const offset = 0.015; // Small offset to float above surface
+    // For body surface, add larger outward offset to prevent z-fighting during breathing
+    const offset = 0.025; // Increased from 0.015 to 0.025 for better clearance
     const pos = textMark.position.clone();
     
     // Add offset along the normal (outward from center)

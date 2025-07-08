@@ -15,6 +15,11 @@ export const InlineTextEditor = ({
   onCancel,
   onDelete
 }: InlineTextEditorProps) => {
+  // Guard against undefined textMark
+  if (!textMark) {
+    return null;
+  }
+  
   const [text, setText] = useState(textMark.text);
   const inputRef = useRef<HTMLInputElement>(null);
 

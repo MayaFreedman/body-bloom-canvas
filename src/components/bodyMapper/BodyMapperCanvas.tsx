@@ -241,12 +241,17 @@ export const BodyMapperCanvas = ({
       {onTextSave && onTextCancel && editingTextId && (
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-auto">
-            <InlineTextEditor
-              textMark={textMarks.find(mark => mark.id === editingTextId)!}
-              onSave={onTextSave}
-              onCancel={onTextCancel}
-              onDelete={onTextDelete}
-            />
+            {(() => {
+              const textMark = textMarks.find(mark => mark.id === editingTextId);
+              return textMark ? (
+                <InlineTextEditor
+                  textMark={textMark}
+                  onSave={onTextSave}
+                  onCancel={onTextCancel}
+                  onDelete={onTextDelete}
+                />
+              ) : null;
+            })()}
           </div>
         </div>
       )}
