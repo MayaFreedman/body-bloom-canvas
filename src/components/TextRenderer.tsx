@@ -24,13 +24,18 @@ const TextMarkComponent = ({
     onTextClick?.(textMark);
   };
 
-  const fontStyle = useMemo(() => ({
-    fontSize: textMark.fontSize / 300, // Scale up a bit from /500
-    color: textMark.color,
-    fontFamily: textMark.fontFamily,
-    fontWeight: textMark.fontWeight,
-    fontStyle: textMark.fontStyle
-  }), [textMark]);
+  const fontStyle = useMemo(() => {
+    // Apply different scaling based on surface to account for coordinate system differences
+    const scaleFactor = textMark.surface === 'whiteboard' ? 200 : 300;
+    
+    return {
+      fontSize: textMark.fontSize / scaleFactor,
+      color: textMark.color,
+      fontFamily: textMark.fontFamily,
+      fontWeight: textMark.fontWeight,
+      fontStyle: textMark.fontStyle
+    };
+  }, [textMark]);
 
   return (
     <group position={textMark.position}>
