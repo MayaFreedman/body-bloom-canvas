@@ -32,14 +32,28 @@ export const TextControls = ({
   selectedColor,
   onModeChange,
   onTextSettingsChange,
-  textToPlace = 'Sample Text',
+  textToPlace = '',
   onTextToPlaceChange
 }: TextControlsProps) => {
   const [localTextToPlace, setLocalTextToPlace] = useState(textToPlace);
+  const [hasError, setHasError] = useState(false);
 
   const handleTextChange = (text: string) => {
     setLocalTextToPlace(text);
     onTextToPlaceChange?.(text);
+    if (hasError && text.trim()) {
+      setHasError(false);
+    }
+  };
+
+  const validateText = () => {
+    const currentText = onTextToPlaceChange ? (textToPlace || localTextToPlace) : localTextToPlace;
+    if (!currentText || !currentText.trim()) {
+      setHasError(true);
+      return false;
+    }
+    setHasError(false);
+    return true;
   };
 
   const currentText = onTextToPlaceChange ? (textToPlace || localTextToPlace) : localTextToPlace;
@@ -59,9 +73,13 @@ export const TextControls = ({
             <Input
               value={currentText}
               onChange={(e) => handleTextChange(e.target.value)}
-              placeholder="Enter text..."
-              className="w-full"
+              placeholder="Enter your text here..."
+              className={`w-full ${hasError ? 'border-red-500 focus:border-red-500' : ''}`}
+              onBlur={validateText}
             />
+            {hasError && (
+              <p className="text-xs text-red-500">Text field cannot be empty</p>
+            )}
           </div>
 
           {/* Font Size */}
@@ -86,7 +104,7 @@ export const TextControls = ({
                 value={textSettings.fontFamily}
                 onValueChange={(value) => onTextSettingsChange({ fontFamily: value })}
               >
-                <SelectTrigger className="flex-1">
+                <SelectTrigger className="flex-1 h-9">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -98,10 +116,11 @@ export const TextControls = ({
                 </SelectContent>
               </Select>
               
-              {/* Style Buttons */}
+              {/* Style Buttons - matching height */}
               <Button
                 variant={textSettings.fontWeight === 'bold' ? 'default' : 'outline'}
                 size="sm"
+                className="h-9 px-3"
                 onClick={() => onTextSettingsChange({ 
                   fontWeight: textSettings.fontWeight === 'bold' ? 'normal' : 'bold' 
                 })}
@@ -111,6 +130,7 @@ export const TextControls = ({
               <Button
                 variant={textSettings.fontStyle === 'italic' ? 'default' : 'outline'}
                 size="sm"
+                className="h-9 px-3"
                 onClick={() => onTextSettingsChange({ 
                   fontStyle: textSettings.fontStyle === 'italic' ? 'normal' : 'italic' 
                 })}
