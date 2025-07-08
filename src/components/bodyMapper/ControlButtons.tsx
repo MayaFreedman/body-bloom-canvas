@@ -71,7 +71,7 @@ export const ControlButtons = ({
   const shouldDisablePointerEvents = drawingTarget === 'whiteboard' && mode === 'draw' && isActivelyDrawing;
 
   return (
-    <TooltipProvider>
+    <TooltipProvider delayDuration={300}>
       {/* Reset Button Container */}
       <div 
         className="reset-button-container control-buttons"
@@ -89,8 +89,8 @@ export const ControlButtons = ({
               Reset All Changes
             </button>
           </TooltipTrigger>
-          <TooltipContent>
-            <p>Clear all drawings and text from the body model</p>
+          <TooltipContent side="top">
+            <p>Reset</p>
           </TooltipContent>
         </Tooltip>
       </div>
@@ -112,8 +112,8 @@ export const ControlButtons = ({
               <Undo2 size={16} />
             </button>
           </TooltipTrigger>
-          <TooltipContent>
-            <p>Undo last action</p>
+          <TooltipContent side="top">
+            <p>Undo</p>
           </TooltipContent>
         </Tooltip>
         
@@ -127,8 +127,8 @@ export const ControlButtons = ({
               <Redo2 size={16} />
             </button>
           </TooltipTrigger>
-          <TooltipContent>
-            <p>Redo last undone action</p>
+          <TooltipContent side="top">
+            <p>Redo</p>
           </TooltipContent>
         </Tooltip>
         
@@ -141,8 +141,8 @@ export const ControlButtons = ({
               <Camera size={16} />
             </button>
           </TooltipTrigger>
-          <TooltipContent>
-            <p>Take a screenshot of the body map</p>
+          <TooltipContent side="top">
+            <p>Snapshot</p>
           </TooltipContent>
         </Tooltip>
       </div>
