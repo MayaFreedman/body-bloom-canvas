@@ -19,7 +19,7 @@ export const WhiteboardPlane = ({ visible = false, backgroundColor = 'white' }: 
       <meshBasicMaterial 
         color={backgroundColor} 
         transparent 
-        opacity={visible ? 0.3 : 0.8}
+        opacity={0.8}
         side={THREE.DoubleSide}
       />
     </mesh>
