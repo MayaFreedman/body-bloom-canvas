@@ -1,5 +1,4 @@
 import React from 'react';
-import { Switch } from '@/components/ui/switch';
 import { DrawingTarget } from '@/types/bodyMapperTypes';
 
 interface DrawingTargetSelectorProps {
@@ -12,20 +11,27 @@ export const DrawingTargetSelector = ({
   onTargetChange 
 }: DrawingTargetSelectorProps) => {
   return (
-    <div className="flex items-center justify-between">
-      <label className="text-sm font-medium">Drawing On:</label>
-      <div className="flex items-center space-x-3">
-        <span className={`text-sm ${drawingTarget === 'body' ? 'font-medium' : 'text-muted-foreground'}`}>
-          Body
-        </span>
-        <Switch
-          checked={drawingTarget === 'whiteboard'}
-          onCheckedChange={(checked) => onTargetChange(checked ? 'whiteboard' : 'body')}
-        />
-        <span className={`text-sm ${drawingTarget === 'whiteboard' ? 'font-medium' : 'text-muted-foreground'}`}>
-          Whiteboard
-        </span>
-      </div>
+    <div className="flex bg-muted rounded-lg p-1">
+      <button
+        onClick={() => onTargetChange('body')}
+        className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
+          drawingTarget === 'body' 
+            ? 'bg-green-500 text-white shadow-sm' 
+            : 'text-muted-foreground hover:text-foreground'
+        }`}
+      >
+        Body
+      </button>
+      <button
+        onClick={() => onTargetChange('whiteboard')}
+        className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
+          drawingTarget === 'whiteboard' 
+            ? 'bg-green-500 text-white shadow-sm' 
+            : 'text-muted-foreground hover:text-foreground'
+        }`}
+      >
+        Whiteboard
+      </button>
     </div>
   );
 };
