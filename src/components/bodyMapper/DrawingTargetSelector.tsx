@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
 import { DrawingTarget } from '@/types/bodyMapperTypes';
 
 interface DrawingTargetSelectorProps {
@@ -12,23 +12,20 @@ export const DrawingTargetSelector = ({
   onTargetChange 
 }: DrawingTargetSelectorProps) => {
   return (
-    <div className="flex gap-2">
-      <Button
-        variant={drawingTarget === 'body' ? 'default' : 'outline'}
-        size="sm"
-        onClick={() => onTargetChange('body')}
-        className="flex-1"
-      >
-        Body
-      </Button>
-      <Button
-        variant={drawingTarget === 'whiteboard' ? 'default' : 'outline'}
-        size="sm"
-        onClick={() => onTargetChange('whiteboard')}
-        className="flex-1"
-      >
-        Whiteboard
-      </Button>
+    <div className="flex items-center justify-between">
+      <label className="text-sm font-medium">Drawing On:</label>
+      <div className="flex items-center space-x-3">
+        <span className={`text-sm ${drawingTarget === 'body' ? 'font-medium' : 'text-muted-foreground'}`}>
+          Body
+        </span>
+        <Switch
+          checked={drawingTarget === 'whiteboard'}
+          onCheckedChange={(checked) => onTargetChange(checked ? 'whiteboard' : 'body')}
+        />
+        <span className={`text-sm ${drawingTarget === 'whiteboard' ? 'font-medium' : 'text-muted-foreground'}`}>
+          Whiteboard
+        </span>
+      </div>
     </div>
   );
 };
