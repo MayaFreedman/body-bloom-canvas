@@ -33,7 +33,7 @@ export const HumanModel = ({ bodyPartColors = {} }: HumanModelProps) => {
 
   // Subtle breathing animation - slower and more gentle
   useFrame((state) => {
-    const breathe = Math.sin(state.clock.elapsedTime * 0.15) * 0.008 + 1;
+    const breathe = Math.sin(state.clock.elapsedTime * 0.08) * 0.004 + 1; // Reduced frequency from 0.15 to 0.08, amplitude from 0.008 to 0.004
     if (groupRef.current) {
       groupRef.current.scale.setScalar(breathe);
     }
