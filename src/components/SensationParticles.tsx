@@ -15,8 +15,9 @@ import heartTexture from '@/Assets/particleEffects/heart.png';
 import zzzTexture from '@/Assets/particleEffects/zzz.png';
 import windTexture from '@/Assets/particleEffects/wind.png';
 import starTexture from '@/Assets/particleEffects/star.png';
-import shakeTexture from '@/Assets/particleEffects/shake.png';
+import lightningBoltTexture from '@/Assets/particleEffects/lightning-bolt.png';
 import feetTexture from '@/Assets/particleEffects/feet.png';
+import shakeTexture from '@/Assets/particleEffects/shake.png';
 import feetredTexture from '@/Assets/particleEffects/feetred.png';
 import nauticalKnotTexture from '@/Assets/particleEffects/nautical-knot.png';
 import frogTexture from '@/Assets/particleEffects/frog.png';
@@ -80,6 +81,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       zzz: loader.load(zzzTexture),
       wind: loader.load(windTexture),
       star: loader.load(starTexture),
+      'lightning-bolt': loader.load(lightningBoltTexture),
       shake: loader.load(shakeTexture),
       feet: loader.load(feetTexture),
       feetred: loader.load(feetredTexture),
@@ -106,7 +108,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
     console.log('🦋 SensationParticles - Getting texture for sensation:', sensationName);
     const textureMapping: { [key: string]: keyof typeof textureMap } = {
       'Nerves': 'butterfly',
-      'Pain': 'pain',
+      'Pain': 'lightning-bolt',
       'Nausea': 'swirl',
       'Tears': 'water',
       'Decreased Temperature': 'snowflakes',
@@ -250,12 +252,12 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       'Nausea': { base: 0.045, variance: 0.025, multiplier: 1.7 }, // Visible swirling
       'Increased Heart Rate': { base: 0.045, variance: 0.02, multiplier: 1.7 }, // Fast but visible beats
       'Change in Breathing': { base: 0.06, variance: 0.03, multiplier: 2.0 }, // Increased size for better visibility
-      'Change in Appetite': { base: 0.04, variance: 0.02, multiplier: 1.6 }, // Noticeable change
+      'Change in Appetite': { base: 0.08, variance: 0.04, multiplier: 2.5 }, // Drastically increased size
       'Clenched': { base: 0.045, variance: 0.02, multiplier: 1.7 }, // Muscle tension
       
       // ACTIVE = medium particles for visibility
       'Change in Energy': { base: 0.04, variance: 0.02, multiplier: 1.5 }, // Energy bursts
-      'Fidgety': { base: 0.035, variance: 0.015, multiplier: 1.4 }, // Restless movement
+      'Fidgety': { base: 0.08, variance: 0.04, multiplier: 2.5 }, // Drastically increased size for restless movement
       'Pacing': { base: 0.04, variance: 0.02, multiplier: 1.5 }, // Movement patterns
       'Stomping': { base: 0.045, variance: 0.025, multiplier: 1.7 }, // Bigger particles than pacing
       'Avoiding Eye Contact': { base: 0.035, variance: 0.015, multiplier: 1.4 }, // Nervous behavior
