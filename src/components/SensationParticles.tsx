@@ -160,7 +160,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       'Tingling': 0.7,
       'Shaky': 0.3, // Reduced from 1.0 - shake image is small  
       'Pacing': 1.2,
-      'Stomping': 1.4, // Slightly bigger than pacing (1.2)
+      'Stomping': 1.6, // Bigger than pacing for more exaggerated look
       'Tight': 1.0,
       'Lump in Throat': 1.0,
       'Change in Appetite': 0.3, // Reduced from 1.0 - plate image is small
@@ -195,7 +195,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       // ACTIVE = large spread for movement visibility
       'Change in Energy': 0.09,  // Energy across body part
       'Pacing': 0.07,            // Movement patterns
-      'Stomping': 0.12,          // Larger spawn area for more spread
+      'Stomping': 0.07,          // Same as pacing for identical base behavior
       'Avoiding Eye Contact': 0.08, // Face/head area
       'Scrunched Face': 0.06,    // Facial area
       
@@ -257,7 +257,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       'Change in Energy': { base: 0.04, variance: 0.02, multiplier: 1.5 }, // Energy bursts
       'Fidgety': { base: 0.035, variance: 0.015, multiplier: 1.4 }, // Restless movement
       'Pacing': { base: 0.04, variance: 0.02, multiplier: 1.5 }, // Movement patterns
-      'Stomping': { base: 0.04, variance: 0.02, multiplier: 1.5 }, // Same as pacing
+      'Stomping': { base: 0.045, variance: 0.025, multiplier: 1.7 }, // Bigger particles than pacing
       'Avoiding Eye Contact': { base: 0.035, variance: 0.015, multiplier: 1.4 }, // Nervous behavior
       'Scrunched Face': { base: 0.04, variance: 0.02, multiplier: 1.5 }, // Facial tension
       
@@ -308,7 +308,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       'Change in Energy': { min: 50, max: 100 }, // Energy bursts
       'Fidgety': { min: 40, max: 80 }, // Restless, changing
       'Pacing': { min: 60, max: 100 }, // Movement patterns
-      'Stomping': { min: 80, max: 140 }, // Slower respawn than pacing (60-100)
+      'Stomping': { min: 90, max: 160 }, // Slower respawn than pacing for slower movement
       'Avoiding Eye Contact': { min: 45, max: 85 }, // Nervous behavior
       'Scrunched Face': { min: 40, max: 80 }, // Facial expressions
       
@@ -367,8 +367,8 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             // ACTIVE = higher count for movement
             'Change in Energy': 20,     // Energy bursts
             'Fidgety': 25,              // Restless movement
-            'Pacing': 18,               // Movement patterns
-            'Stomping': 18,             // Same as pacing
+      'Pacing': 18,               // Movement patterns
+      'Stomping': 18,             // Same count as pacing
             'Avoiding Eye Contact': 12, // Nervous behavior
             'Scrunched Face': 10,       // Facial tension
             
@@ -609,7 +609,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             'Shaky': { speed: 3.0, intensity: 1.8, pattern: 'shake' }, // Fast trembling
             'Fidgety': { speed: 2.2, intensity: 1.4, pattern: 'shake' }, // Restless movement
             'Pacing': { speed: 1.5, intensity: 1.0, pattern: 'wave' }, // Rhythmic movement
-            'Stomping': { speed: 0.3, intensity: 0.8, pattern: 'wave' }, // Much slower movement
+            'Stomping': { speed: 0.5, intensity: 1.2, pattern: 'wave' }, // Slower but more intense than pacing
             
             // FLOW effects - dripping with strong downward movement (negative Y = down)
             'Tears': { speed: 0.2, intensity: 0.4, pattern: 'drip', gravity: 0.0002, drift: new THREE.Vector3(0, -0.15, 0) },
@@ -822,10 +822,8 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
               material.opacity = opacity * (0.7 + Math.sin(particle.oscillationPhase * 3) * 0.2);
             }
           } else if (mark.name === 'Stomping') {
-            // Big, slow pulse on impact - longer duration, bigger scale
-            const impactPulse = particle.life < particle.maxLife * 0.4 ? 
-              1 + (1 - particle.life / (particle.maxLife * 0.4)) * 1.2 : 1; // 40% of lifetime, 120% bigger on impact
-            mesh.scale.setScalar(particle.size * normalizedScale * impactPulse);
+            // Remove special impact pulse - use same pattern as pacing
+            mesh.scale.setScalar(particle.size * normalizedScale);
             
             // Update sprite material opacity
             const material = (mesh as any).material;
