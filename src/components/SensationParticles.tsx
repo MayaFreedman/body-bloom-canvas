@@ -195,7 +195,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       // ACTIVE = large spread for movement visibility
       'Change in Energy': 0.09,  // Energy across body part
       'Pacing': 0.07,            // Movement patterns
-      'Stomping': 0.07,          // Same as pacing
+      'Stomping': 0.12,          // Larger spawn area for more spread
       'Avoiding Eye Contact': 0.08, // Face/head area
       'Scrunched Face': 0.06,    // Facial area
       
