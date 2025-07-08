@@ -609,7 +609,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             'Shaky': { speed: 3.0, intensity: 1.8, pattern: 'shake' }, // Fast trembling
             'Fidgety': { speed: 2.2, intensity: 1.4, pattern: 'shake' }, // Restless movement
             'Pacing': { speed: 0.3, intensity: 0.3, pattern: 'gentle' }, // Very gentle movement
-            'Stomping': { speed: 0.15, intensity: 0.4, pattern: 'gentle' }, // Extremely gentle
+            'Stomping': { speed: 0.15, intensity: 0.4, pattern: 'gentle' }, // Same pattern as pacing, just slower
             
             // FLOW effects - dripping with strong downward movement (negative Y = down)
             'Tears': { speed: 0.2, intensity: 0.4, pattern: 'drip', gravity: 0.0002, drift: new THREE.Vector3(0, -0.15, 0) },
@@ -773,10 +773,10 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             particle.velocity.add(driftForce);
           }
           
-          // Add very gentle drift movement - no nauseating oscillations
-          const gentleDriftX = Math.sin(time * 0.2 + particle.life * 0.01) * 0.0001 * animProfile.intensity;
-          const gentleDriftY = Math.cos(time * 0.15) * 0.00005 * animProfile.intensity;
-          const gentleDriftZ = Math.sin(time * 0.1) * 0.00003 * animProfile.intensity;
+          // Add extremely gentle drift movement - minimal oscillations
+          const gentleDriftX = Math.sin(time * 0.1 + particle.life * 0.005) * 0.00005 * animProfile.intensity;
+          const gentleDriftY = Math.cos(time * 0.08) * 0.00002 * animProfile.intensity;
+          const gentleDriftZ = Math.sin(time * 0.05) * 0.00001 * animProfile.intensity;
           
           particle.velocity.x += gentleDriftX * delta;
           particle.velocity.y += gentleDriftY * delta;
