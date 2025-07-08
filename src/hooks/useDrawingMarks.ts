@@ -31,12 +31,12 @@ export const useDrawingMarks = ({
     const localPosition = new THREE.Vector3();
     
     if (surface === 'whiteboard') {
-      // For whiteboard, use intersection point directly in world space
-      // Don't transform through model group - whiteboard is stationary
+      // For whiteboard, store coordinates in absolute world space
+      // This ensures they don't rotate with the body
       localPosition.copy(worldPosition);
-      console.log('🎨 Adding whiteboard mark at world position:', localPosition);
+      console.log('🎨 Adding whiteboard mark at absolute world position:', localPosition);
     } else if (modelGroup) {
-      // For body, transform to model local space
+      // For body, transform to model local space so they rotate with the body
       modelGroup.worldToLocal(localPosition.copy(worldPosition));
       console.log('🎨 Adding body mark at local position:', localPosition);
     } else {
