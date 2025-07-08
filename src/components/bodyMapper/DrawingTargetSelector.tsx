@@ -23,8 +23,8 @@ export const DrawingTargetSelector = ({
       >
         {/* Sliding thumb */}
         <div 
-          className={`absolute top-0.5 h-7 w-7 bg-white border border-gray-200 rounded-full shadow-sm transition-transform duration-200 ease-in-out ${
-            drawingTarget === 'whiteboard' ? 'translate-x-[calc(100%-30px)] left-0.5' : 'translate-x-0 left-0.5'
+          className={`absolute top-0.5 left-0.5 h-7 w-7 bg-white border border-gray-200 rounded-full shadow-sm transition-transform duration-200 ease-in-out ${
+            drawingTarget === 'whiteboard' ? 'translate-x-[calc(100%-32px)]' : 'translate-x-0'
           }`}
         />
         
