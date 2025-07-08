@@ -12,12 +12,12 @@ import { CustomCursor } from './CustomCursor';
 import { ClickHandler } from './ClickHandler';
 import { HoverDetector } from './HoverDetector';
 import { EraserHandler } from './EraserHandler';
-import { WhiteboardPlane } from './WhiteboardPlane';
+import { WhiteboardOverlay } from './WhiteboardOverlay';
 import { TextPlacementHandler } from './TextPlacementHandler';
 import { InlineTextEditor } from './InlineTextEditor';
 import { TextRenderer } from '@/components/TextRenderer';
 import { useSidebarHover } from '@/hooks/useSidebarHover';
-import { DrawingMark, SensationMark, Effect, BodyPartColors, BodyMapperMode, SelectedSensation } from '@/types/bodyMapperTypes';
+import { DrawingMark, WhiteboardMark, SensationMark, Effect, BodyPartColors, BodyMapperMode, SelectedSensation } from '@/types/bodyMapperTypes';
 import { WorldDrawingPoint } from '@/types/multiplayerTypes';
 import { TextMark } from '@/types/textTypes';
 import * as THREE from 'three';
@@ -29,6 +29,7 @@ interface BodyMapperCanvasProps {
   drawingTarget: 'body' | 'whiteboard';
   selectedSensation: SelectedSensation | null;
   drawingMarks: DrawingMark[];
+  whiteboardMarks?: WhiteboardMark[];
   sensationMarks: SensationMark[];
   effects: Effect[];
   bodyPartColors: BodyPartColors;
@@ -42,6 +43,7 @@ interface BodyMapperCanvasProps {
   textSettings?: any;
   modelRef: React.RefObject<THREE.Group>;
   onAddDrawingMark: (mark: DrawingMark) => void;
+  onAddWhiteboardMark?: (mark: WhiteboardMark) => void;
   onDrawingStrokeStart: () => void;
   onDrawingStrokeComplete: () => void;
   onAddToDrawingStroke: (worldPoint: WorldDrawingPoint) => void;
@@ -66,6 +68,7 @@ export const BodyMapperCanvas = ({
   drawingTarget,
   selectedSensation,
   drawingMarks,
+  whiteboardMarks = [],
   sensationMarks,
   effects,
   bodyPartColors,
@@ -79,6 +82,7 @@ export const BodyMapperCanvas = ({
   textSettings,
   modelRef,
   onAddDrawingMark,
+  onAddWhiteboardMark,
   onDrawingStrokeStart,
   onDrawingStrokeComplete,
   onAddToDrawingStroke,
@@ -140,11 +144,7 @@ export const BodyMapperCanvas = ({
         <directionalLight position={[10, 10, 5]} intensity={0.5} />
         <directionalLight position={[-10, -10, -5]} intensity={0.2} />
         
-        {/* Whiteboard plane - stationary, doesn't rotate with body */}
-        <WhiteboardPlane 
-          visible={drawingTarget === 'whiteboard'} 
-          backgroundColor={whiteboardBackground}
-        />
+        {/* Whiteboard overlay disabled - using 2D overlay instead */}
         
         <group ref={modelRef} rotation={[0, rotation, 0]}>
           <HumanModel bodyPartColors={bodyPartColors} />
@@ -167,19 +167,7 @@ export const BodyMapperCanvas = ({
           />
         </group>
         
-        {/* Render whiteboard marks outside the model group so they don't rotate */}
-        {drawingMarks.filter(mark => mark.surface === 'whiteboard').map((mark) => (
-          <mesh key={mark.id} position={mark.position}>
-            <sphereGeometry args={[mark.size, 8, 8]} />
-            <meshBasicMaterial color={mark.color} />      
-          </mesh>
-        ))}
-        
-        {/* Render text marks on whiteboard outside the model group */}
-        <TextRenderer 
-          textMarks={textMarks.filter(mark => mark.surface === 'whiteboard')} 
-          onTextClick={onTextClick}
-        />
+        {/* Old 3D whiteboard rendering removed - using 2D overlay instead */}
         
         <ModelDrawing
           isDrawing={mode === 'draw'}
@@ -251,6 +239,20 @@ export const BodyMapperCanvas = ({
         selectedColor={selectedColor}
       />
       
+      {/* 2D Whiteboard Overlay */}
+      <WhiteboardOverlay
+        visible={drawingTarget === 'whiteboard'}
+        backgroundColor={whiteboardBackground}
+        marks={whiteboardMarks}
+        isDrawing={mode === 'draw'}
+        selectedColor={selectedColor}
+        brushSize={brushSize}
+        onAddMark={onAddWhiteboardMark || (() => {})}
+        onStrokeStart={onDrawingStrokeStart}
+        onStrokeComplete={onDrawingStrokeComplete}
+        onFill={onWhiteboardFill}
+      />
+
       {/* Inline Text Editor */}
       {onTextSave && onTextCancel && editingTextId && (
         <div className="absolute inset-0 pointer-events-none">

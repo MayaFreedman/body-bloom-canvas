@@ -12,6 +12,14 @@ export interface DrawingMark {
   userId?: string;
 }
 
+export interface WhiteboardMark {
+  id: string;
+  x: number;
+  y: number;
+  color: string;
+  size: number;
+}
+
 export interface SensationMark {
   id: string;
   position: THREE.Vector3;
