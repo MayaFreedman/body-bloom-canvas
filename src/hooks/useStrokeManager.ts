@@ -1,6 +1,7 @@
 
 import { useState, useCallback, useRef } from 'react';
-import { DrawingStroke, DrawingMark } from '@/types/actionHistoryTypes';
+import { DrawingStroke, DrawingMark as ActionDrawingMark } from '@/types/actionHistoryTypes';
+import { DrawingMark } from '@/types/bodyMapperTypes';
 import * as THREE from 'three';
 
 interface UseStrokeManagerProps {
@@ -30,14 +31,16 @@ export const useStrokeManager = ({ currentUserId }: UseStrokeManagerProps) => {
   }, [currentUserId]);
 
   const addMarkToStroke = useCallback((mark: Omit<DrawingMark, 'strokeId' | 'timestamp' | 'userId'>) => {
+    console.log('🟡 useStrokeManager.addMarkToStroke received mark:', {id: mark.id, surface: mark.surface, hasAllProps: Object.keys(mark)});
     if (!currentStroke || !currentUserId) return null;
 
-    const enhancedMark: DrawingMark = {
+    const enhancedMark: ActionDrawingMark = {
       ...mark,
       strokeId: currentStroke.id,
       timestamp: Date.now(),
       userId: currentUserId
     };
+    console.log('🟡 useStrokeManager.addMarkToStroke enhanced mark:', {id: enhancedMark.id, surface: enhancedMark.surface, hasAllProps: Object.keys(enhancedMark)});
 
     setCurrentStroke(prev => {
       if (!prev) return null;
@@ -86,7 +89,7 @@ export const useStrokeManager = ({ currentUserId }: UseStrokeManagerProps) => {
     setCompletedStrokes(prev => prev.filter(stroke => stroke.userId !== userId));
   }, []);
 
-  const getAllMarks = useCallback((): DrawingMark[] => {
+  const getAllMarks = useCallback((): ActionDrawingMark[] => {
     const allMarks = completedStrokes.flatMap(stroke => stroke.marks);
     if (currentStroke) {
       allMarks.push(...currentStroke.marks);
@@ -102,7 +105,7 @@ export const useStrokeManager = ({ currentUserId }: UseStrokeManagerProps) => {
     return allStrokes;
   }, [completedStrokes, currentStroke]);
 
-  const getMarksByUser = useCallback((userId: string): DrawingMark[] => {
+  const getMarksByUser = useCallback((userId: string): ActionDrawingMark[] => {
     return getAllMarks().filter(mark => mark.userId === userId);
   }, [getAllMarks]);
 
