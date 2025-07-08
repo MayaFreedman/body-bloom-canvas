@@ -10,28 +10,38 @@ export const DrawingTargetSelector = ({
   drawingTarget, 
   onTargetChange 
 }: DrawingTargetSelectorProps) => {
+  const toggleTarget = () => {
+    onTargetChange(drawingTarget === 'body' ? 'whiteboard' : 'body');
+  };
+
   return (
-    <div className="flex bg-muted rounded-lg p-1">
-      <button
-        onClick={() => onTargetChange('body')}
-        className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
-          drawingTarget === 'body' 
-            ? 'bg-green-500 text-white shadow-sm' 
-            : 'text-muted-foreground hover:text-foreground'
-        }`}
+    <div className="relative">
+      <label className="text-sm font-medium mb-2 block">Drawing On:</label>
+      <div 
+        onClick={toggleTarget}
+        className="relative w-full h-10 bg-muted rounded-full cursor-pointer overflow-hidden"
       >
-        Body
-      </button>
-      <button
-        onClick={() => onTargetChange('whiteboard')}
-        className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
-          drawingTarget === 'whiteboard' 
-            ? 'bg-green-500 text-white shadow-sm' 
-            : 'text-muted-foreground hover:text-foreground'
-        }`}
-      >
-        Whiteboard
-      </button>
+        {/* Sliding background indicator */}
+        <div 
+          className={`absolute top-0 h-full w-1/2 bg-green-500 rounded-full transition-transform duration-200 ease-in-out ${
+            drawingTarget === 'whiteboard' ? 'translate-x-full' : 'translate-x-0'
+          }`}
+        />
+        
+        {/* Text labels */}
+        <div className="relative flex h-full">
+          <div className={`flex-1 flex items-center justify-center text-sm font-medium transition-colors duration-200 ${
+            drawingTarget === 'body' ? 'text-white' : 'text-muted-foreground'
+          }`}>
+            Body
+          </div>
+          <div className={`flex-1 flex items-center justify-center text-sm font-medium transition-colors duration-200 ${
+            drawingTarget === 'whiteboard' ? 'text-white' : 'text-muted-foreground'
+          }`}>
+            Whiteboard
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
