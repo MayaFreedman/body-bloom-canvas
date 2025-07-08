@@ -38,6 +38,7 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     sensationMarks,
     setSensationMarks,
     bodyPartColors,
+    whiteboardBackground,
     rotation,
     setRotation,
     handleStartDrawing,
@@ -50,6 +51,7 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     handleRedo,
     handleIncomingUndo,
     handleIncomingRedo,
+    handleWhiteboardFill,
     clearAll,
     canUndo,
     canRedo,
@@ -201,6 +203,7 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
         modelRef={modelRef}
         textToPlace={textToPlace}
         bodyPartColors={bodyPartColors}
+        whiteboardBackground={whiteboardBackground}
         rotation={rotation}
         textSettings={textSettings}
         editingTextId={editingTextId}
@@ -222,6 +225,7 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
         onBodyPartClick={handleBodyPartClick}
         onSensationClick={combinedSensationClick}
         onErase={handleMultiplayerErase}
+        onWhiteboardFill={handleWhiteboardFill}
         onTextPlace={(position, surface) => handleAddTextMark(position, textToPlace || 'Sample Text', surface, selectedColor)}
         onTextClick={(textMark) => handleStartTextEditing(textMark.id)}
         onTextSave={(text) => editingTextId && handleUpdateTextMark(editingTextId, { text })}

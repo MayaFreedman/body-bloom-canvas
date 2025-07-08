@@ -11,6 +11,7 @@ interface UseUndoRedoOperationsProps {
   setBodyPartColors: React.Dispatch<React.SetStateAction<Record<string, string>>>;
   setSensationMarks: React.Dispatch<React.SetStateAction<SensationMark[]>>;
   setTextMarks: React.Dispatch<React.SetStateAction<TextMark[]>>;
+  setWhiteboardBackground?: React.Dispatch<React.SetStateAction<string>>;
   broadcastUndo?: () => void;
   broadcastRedo?: () => void;
   isMultiplayer?: boolean;
@@ -22,6 +23,7 @@ export const useUndoRedoOperations = ({
   setBodyPartColors,
   setSensationMarks,
   setTextMarks,
+  setWhiteboardBackground,
   broadcastUndo,
   broadcastRedo,
   isMultiplayer = false
@@ -65,6 +67,13 @@ export const useUndoRedoOperations = ({
         if (actionToUndo.data.previousBodyPartColors !== undefined) {
           setBodyPartColors(actionToUndo.data.previousBodyPartColors);
           console.log('Restored previous body part colors:', actionToUndo.data.previousBodyPartColors);
+        }
+        break;
+      case 'whiteboardFill':
+        console.log('Undoing whiteboard fill action');
+        if (actionToUndo.data.previousColor !== undefined && setWhiteboardBackground) {
+          setWhiteboardBackground(actionToUndo.data.previousColor);
+          console.log('Restored previous whiteboard color:', actionToUndo.data.previousColor);
         }
         break;
       case 'sensation':
@@ -152,7 +161,7 @@ export const useUndoRedoOperations = ({
         }
         break;
     }
-  }, [strokeManager, setBodyPartColors, setSensationMarks, setTextMarks]);
+  }, [strokeManager, setBodyPartColors, setSensationMarks, setTextMarks, setWhiteboardBackground]);
 
   const performRedo = useCallback((actionToRedo: any) => {
     if (!actionToRedo) return;
@@ -200,6 +209,13 @@ export const useUndoRedoOperations = ({
             ...actionToRedo.data.bodyPartColors
           }));
           console.log('Applied body part colors after redo:', actionToRedo.data.bodyPartColors);
+        }
+        break;
+      case 'whiteboardFill':
+        console.log('Redoing whiteboard fill action');
+        if (actionToRedo.data.newColor !== undefined && setWhiteboardBackground) {
+          setWhiteboardBackground(actionToRedo.data.newColor);
+          console.log('Applied whiteboard color after redo:', actionToRedo.data.newColor);
         }
         break;
       case 'sensation':
@@ -274,7 +290,7 @@ export const useUndoRedoOperations = ({
         console.log('Cleared all content after reset redo');
         break;
     }
-  }, [strokeManager, setBodyPartColors, setSensationMarks, setTextMarks]);
+  }, [strokeManager, setBodyPartColors, setSensationMarks, setTextMarks, setWhiteboardBackground]);
 
   const handleUndo = useCallback(() => {
     console.log('handleUndo called - LOCAL ACTION');
