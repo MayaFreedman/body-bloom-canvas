@@ -270,7 +270,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       'Goosebumps': { base: 0.025, variance: 0.012, multiplier: 1.2 }, // Small bumps
       
       // SMALLEST = appropriately tiny
-      'Feeling Small': { base: 0.02, variance: 0.01, multiplier: 1.0 } // Appropriately small
+      'Feeling Small': { base: 0.035, variance: 0.015, multiplier: 1.3 } // Increased from 1.0 but still small
     };
     
     const config = sizeMap[sensationName] || { base: 0.04, variance: 0.02, multiplier: 1.5 };

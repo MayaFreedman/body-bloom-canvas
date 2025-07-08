@@ -11,6 +11,7 @@ import fireImg from '@/Assets/particleEffects/fire.png';
 import heartImg from '@/Assets/particleEffects/heart.png';
 import zzzImg from '@/Assets/particleEffects/zzz.png';
 import windImg from '@/Assets/particleEffects/wind.png';
+import lightningBoltImg from '@/Assets/particleEffects/lightning-bolt.png';
 import starImg from '@/Assets/particleEffects/star.png';
 import shakeImg from '@/Assets/particleEffects/shake.png';
 import feetImg from '@/Assets/particleEffects/feet.png';
@@ -64,7 +65,7 @@ export const SensationPlacementPopup = ({ selectedSensation, isVisible }: Sensat
 const getSensationImage = (sensationName: string) => {
   const imageMapping: { [key: string]: string } = {
     'Nerves': butterflyImg,
-    'Pain': painImg,
+    'Pain': lightningBoltImg,
     'Nausea': swirlImg,
     'Tears': waterImg,
     'Decreased Temperature': snowflakesImg,
