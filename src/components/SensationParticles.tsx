@@ -204,7 +204,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       // MEDIUM SPEED = good spread across body parts
       'Nausea': 0.08,            // Stomach/torso area
       'Increased Heart Rate': 0.07, // Chest area coverage
-      'Pain': 0.06,              // Pain area coverage
+      'Pain': 0.08,              // Increased dispersion for less overlapping
       'Change in Breathing': 0.08, // Chest/torso breathing
       'Ache': 0.05,              // Localized but spread
       'Clenched': 0.05,          // Muscle area
@@ -354,7 +354,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             // MEDIUM-SLOW = medium count
             'Tears': 8,                 // Droplets
             'Sweat': 8,                 // Reduced from 10 - fewer particles
-            'Pain': 12,                 // Visible pain
+            'Pain': 8,                  // Reduced from 12 - fewer particles for less density
             'Ache': 10,                 // Persistent aches
             'Tight': 8,                 // Tension areas
             'Dry Mouth': 7,             // Dryness
