@@ -18,6 +18,7 @@ interface UseMultiplayerDrawingHandlersProps {
   selectedColor: string;
   brushSize: number[];
   addAction: (action: any) => void;
+  setSelectedSensation?: (sensation: any) => void;
 }
 
 export const useMultiplayerDrawingHandlers = ({
@@ -30,7 +31,8 @@ export const useMultiplayerDrawingHandlers = ({
   clearAll,
   selectedColor,
   brushSize,
-  addAction
+  addAction,
+  setSelectedSensation
 }: UseMultiplayerDrawingHandlersProps) => {
   const emotionHandlers = useEmotionHandlers({ multiplayer });
   const bodyPartHandlers = useBodyPartHandlers({ multiplayer, baseHandleBodyPartClick });
@@ -45,7 +47,7 @@ export const useMultiplayerDrawingHandlers = ({
     addAction
   });
   const sensationHandlers = useSensationHandlers({ multiplayer });
-  const resetHandlers = useResetHandlers({ multiplayer, clearAll });
+  const resetHandlers = useResetHandlers({ multiplayer, clearAll, setSelectedSensation });
 
   return {
     ...emotionHandlers,

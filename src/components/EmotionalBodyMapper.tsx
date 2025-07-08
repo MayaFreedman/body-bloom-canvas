@@ -99,7 +99,8 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     clearAll,
     selectedColor,
     brushSize,
-    addAction
+    addAction,
+    setSelectedSensation
   });
 
   const { handleRotateLeft, handleRotateRight } = useRotationHandlers({ 
