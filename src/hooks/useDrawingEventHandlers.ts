@@ -84,22 +84,29 @@ export const useDrawingEventHandlers = ({
       // Handle whiteboard intersection
       else if (intersect.object.userData.isWhiteboard && drawingTarget === 'whiteboard') {
         console.log('✅ Hit whiteboard at world position:', intersect.point);
-        console.log('🎨 Whiteboard intersect object matrix:', intersect.object.matrixWorld);
+        
+        // Convert 3D intersection to 2D screen coordinates
+        const canvas = gl.domElement;
+        const rect = canvas.getBoundingClientRect();
+        const screenX = ((intersect.point.x + 3) / 6) * rect.width; // Map from [-3,3] to [0,width]
+        const screenY = ((-intersect.point.y + 4) / 8) * rect.height; // Map from [-4,4] to [0,height]
+        
         if (onStrokeStart && !strokeStarted.current) {
           onStrokeStart();
           strokeStarted.current = true;
         }
         
-        // Use the intersection point directly without any transformations
-        addMarkAtPosition(intersect.point, intersect, 'whiteboard');
+        // Store as screen coordinates for whiteboard
+        const screenPoint = new THREE.Vector3(screenX, screenY, 0);
+        addMarkAtPosition(screenPoint, intersect, 'whiteboard');
         
         if (onAddToStroke && intersect.object instanceof THREE.Mesh) {
           const worldPoint: WorldDrawingPoint = {
             id: `point-${Date.now()}-${Math.random()}`,
             worldPosition: {
-              x: intersect.point.x,
-              y: intersect.point.y,
-              z: intersect.point.z
+              x: screenX,
+              y: screenY,
+              z: 0
             },
             whiteboardRegion: `${intersect.point.x > 0 ? 'right' : 'left'}-${intersect.point.y > 0 ? 'top' : 'bottom'}`,
             surface: 'whiteboard',
@@ -109,8 +116,8 @@ export const useDrawingEventHandlers = ({
           onAddToStroke(worldPoint);
         }
         
-        lastPosition.current = intersect.point.clone();
-        lastBodyPart.current = 'whiteboard'; // Use whiteboard as identifier
+        lastPosition.current = screenPoint;
+        lastBodyPart.current = 'whiteboard';
         lastMarkTime.current = Date.now();
       }
     }
@@ -170,8 +177,14 @@ export const useDrawingEventHandlers = ({
       }
       // Handle whiteboard drawing
       else if (intersect.object.userData.isWhiteboard && drawingTarget === 'whiteboard') {
-        const currentPosition = intersect.point;
-        console.log('🖊️ Moving on whiteboard at world position:', currentPosition);
+        console.log('🖊️ Moving on whiteboard at world position:', intersect.point);
+        
+        // Convert 3D intersection to 2D screen coordinates
+        const canvas = gl.domElement;
+        const rect = canvas.getBoundingClientRect();
+        const screenX = ((intersect.point.x + 3) / 6) * rect.width;
+        const screenY = ((-intersect.point.y + 4) / 8) * rect.height;
+        const currentPosition = new THREE.Vector3(screenX, screenY, 0);
         
         addMarkAtPosition(currentPosition, intersect, 'whiteboard');
         
@@ -179,11 +192,11 @@ export const useDrawingEventHandlers = ({
           const worldPoint: WorldDrawingPoint = {
             id: `point-${Date.now()}-${Math.random()}`,
             worldPosition: {
-              x: currentPosition.x,
-              y: currentPosition.y,
-              z: currentPosition.z
+              x: screenX,
+              y: screenY,
+              z: 0
             },
-            whiteboardRegion: `${currentPosition.x > 0 ? 'right' : 'left'}-${currentPosition.y > 0 ? 'top' : 'bottom'}`,
+            whiteboardRegion: `${intersect.point.x > 0 ? 'right' : 'left'}-${intersect.point.y > 0 ? 'top' : 'bottom'}`,
             surface: 'whiteboard',
             color: '',
             size: 0
@@ -195,7 +208,7 @@ export const useDrawingEventHandlers = ({
           interpolateMarks(lastPosition.current, currentPosition, lastBodyPart.current, 'whiteboard', intersect, 'whiteboard');
         }
         
-        lastPosition.current = currentPosition.clone();
+        lastPosition.current = currentPosition;
         lastBodyPart.current = 'whiteboard';
         lastMarkTime.current = now;
       }

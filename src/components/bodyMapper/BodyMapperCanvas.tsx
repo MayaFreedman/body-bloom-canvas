@@ -12,12 +12,12 @@ import { CustomCursor } from './CustomCursor';
 import { ClickHandler } from './ClickHandler';
 import { HoverDetector } from './HoverDetector';
 import { EraserHandler } from './EraserHandler';
-import { WhiteboardCanvas } from './WhiteboardCanvas';
+
 import { TextPlacementHandler } from './TextPlacementHandler';
 import { InlineTextEditor } from './InlineTextEditor';
 import { TextRenderer } from '@/components/TextRenderer';
 import { useSidebarHover } from '@/hooks/useSidebarHover';
-import { DrawingMark, SensationMark, Effect, BodyPartColors, BodyMapperMode, SelectedSensation, WhiteboardMark } from '@/types/bodyMapperTypes';
+import { DrawingMark, SensationMark, Effect, BodyPartColors, BodyMapperMode, SelectedSensation } from '@/types/bodyMapperTypes';
 import { WorldDrawingPoint } from '@/types/multiplayerTypes';
 import { TextMark } from '@/types/textTypes';
 import * as THREE from 'three';
@@ -29,7 +29,6 @@ interface BodyMapperCanvasProps {
   drawingTarget: 'body' | 'whiteboard';
   selectedSensation: SelectedSensation | null;
   drawingMarks: DrawingMark[];
-  whiteboardMarks: WhiteboardMark[];
   sensationMarks: SensationMark[];
   effects: Effect[];
   bodyPartColors: BodyPartColors;
@@ -51,9 +50,6 @@ interface BodyMapperCanvasProps {
   onSensationDeselect: () => void;
   onErase: (center: THREE.Vector3, radius: number, surface: 'body' | 'whiteboard') => void;
   onWhiteboardFill?: (color: string) => void;
-  onWhiteboardPointerDown?: (x: number, y: number) => void;
-  onWhiteboardPointerMove?: (x: number, y: number) => void;
-  onWhiteboardPointerUp?: () => void;
   onTextPlace?: (position: THREE.Vector3, surface: 'body' | 'whiteboard') => void;
   onTextClick?: (textMark: TextMark) => void;
   onTextSave?: (text: string) => void;
@@ -70,7 +66,6 @@ export const BodyMapperCanvas = ({
   drawingTarget,
   selectedSensation,
   drawingMarks,
-  whiteboardMarks,
   sensationMarks,
   effects,
   bodyPartColors,
@@ -92,9 +87,6 @@ export const BodyMapperCanvas = ({
   onSensationDeselect,
   onErase,
   onWhiteboardFill,
-  onWhiteboardPointerDown,
-  onWhiteboardPointerMove,
-  onWhiteboardPointerUp,
   onTextPlace,
   onTextClick,
   onTextSave,
@@ -160,14 +152,13 @@ export const BodyMapperCanvas = ({
         
         <group ref={modelRef} rotation={[0, rotation, 0]}>
           <HumanModel bodyPartColors={bodyPartColors} />
-          
-        {/* Render body drawing marks as children of the model group so they rotate with it */}
-        {drawingMarks.map((mark) => (
-          <mesh key={mark.id} position={mark.position}>
-            <sphereGeometry args={[mark.size, 8, 8]} />
-            <meshBasicMaterial color={mark.color} />      
-          </mesh>
-        ))}
+          {/* Render body drawing marks as children of the model group so they rotate with it */}
+          {drawingMarks.filter(mark => mark.surface !== 'whiteboard').map((mark) => (
+            <mesh key={mark.id} position={mark.position}>
+              <sphereGeometry args={[mark.size, 8, 8]} />
+              <meshBasicMaterial color={mark.color} />      
+            </mesh>
+          ))}
 
           {/* Render sensation particles as children of the model group */}
           <SensationParticles sensationMarks={sensationMarks} />
@@ -179,7 +170,13 @@ export const BodyMapperCanvas = ({
           />
         </group>
         
-        {/* Whiteboard marks are now rendered in 2D canvas overlay */}
+        {/* Render whiteboard marks outside the model group so they don't rotate */}
+        {drawingMarks.filter(mark => mark.surface === 'whiteboard').map((mark) => (
+          <mesh key={mark.id} position={[mark.position.x, mark.position.y, -0.49]}>
+            <sphereGeometry args={[mark.size, 8, 8]} />
+            <meshBasicMaterial color={mark.color} />      
+          </mesh>
+        ))}
         
         {/* Render text marks on whiteboard outside the model group */}
         <TextRenderer 
@@ -242,18 +239,6 @@ export const BodyMapperCanvas = ({
           enabled={mode !== 'draw' && mode !== 'erase' && mode !== 'text'}
         />
       </Canvas>
-      
-      {/* Whiteboard 2D Canvas Overlay - independent of 3D scene */}
-      <WhiteboardCanvas
-        visible={drawingTarget === 'whiteboard'}
-        backgroundColor={whiteboardBackground}
-        marks={whiteboardMarks}
-        onPointerDown={onWhiteboardPointerDown}
-        onPointerMove={onWhiteboardPointerMove}
-        onPointerUp={onWhiteboardPointerUp}
-        isDrawing={mode === 'draw'}
-        drawingTarget={drawingTarget}
-      />
       
       {/* Custom cursor outside Canvas for global mouse tracking */}
       <CustomCursor 
