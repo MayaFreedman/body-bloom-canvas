@@ -21,17 +21,17 @@ export const PaintingModeSelector = ({
 }: PaintingModeSelectorProps) => {
   return (
     <div className="mb-6">
-      {/* Drawing target toggle above header */}
+      <h4 className="font-semibold text-gray-800 mb-3">{title}</h4>
+      
+      {/* Drawing target toggle above tools */}
       {drawingTarget && onDrawingTargetChange && (
-        <div className="mb-4">
+        <div className="mb-3">
           <DrawingTargetSelector
             drawingTarget={drawingTarget}
             onTargetChange={onDrawingTargetChange}
           />
         </div>
       )}
-
-      <h4 className="font-semibold text-gray-800 mb-3">{title}</h4>
       
       {/* Drawing tools */}
       <div className="grid grid-cols-2 gap-2">
