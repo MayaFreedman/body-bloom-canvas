@@ -11,16 +11,32 @@ export const useIntersectionUtils = ({ modelRef }: UseIntersectionUtilsProps) =>
     const meshes: THREE.Mesh[] = [];
     const modelGroup = modelRef?.current;
     
+    console.log('🔍 getIntersectedObjects called, includeWhiteboard:', includeWhiteboard, 'modelGroup:', !!modelGroup);
+    
     if (modelGroup) {
       modelGroup.traverse((child) => {
         if (child instanceof THREE.Mesh) {
+          console.log('🔍 Found mesh in model group:', child.userData);
           if (child.userData.bodyPart || (includeWhiteboard && child.userData.isWhiteboard)) {
+            console.log('🔍 Adding mesh to intersection list:', child.userData.bodyPart || 'whiteboard');
             meshes.push(child);
           }
         }
       });
     }
     
+    // If looking for whiteboard, also check scene directly since whiteboard is outside model group
+    if (includeWhiteboard && modelGroup?.parent) {
+      console.log('🔍 Checking scene for whiteboard meshes...');
+      modelGroup.parent.traverse((child) => {
+        if (child instanceof THREE.Mesh && child.userData.isWhiteboard) {
+          console.log('🔍 Found whiteboard in scene:', child.userData);
+          meshes.push(child);
+        }
+      });
+    }
+    
+    console.log('🔍 Total meshes found:', meshes.length);
     return meshes;
   }, [modelRef]);
 

@@ -34,7 +34,7 @@ export const useDrawingEventHandlers = ({
 
   const handlePointerDown = useCallback((event: PointerEvent) => {
     if (!isDrawing) return;
-    console.log('🖱️ Pointer down - starting drawing');
+    console.log('🖱️ Pointer down - starting drawing, target:', drawingTarget);
     isMouseDown.current = true;
     strokeStarted.current = false;
     
@@ -46,7 +46,13 @@ export const useDrawingEventHandlers = ({
     
     // Include whiteboard in intersection detection based on drawing target
     const meshes = getIntersectedObjects(drawingTarget === 'whiteboard');
+    console.log('🎯 Found meshes for intersection:', meshes.length, 'includeWhiteboard:', drawingTarget === 'whiteboard');
+    meshes.forEach((mesh, i) => {
+      console.log(`  Mesh ${i}:`, mesh.userData.bodyPart || 'whiteboard', mesh.userData);
+    });
+    
     const intersects = raycaster.intersectObjects(meshes, false);
+    console.log('🎯 Raycaster intersections:', intersects.length);
 
     if (intersects.length > 0) {
       const intersect = intersects[0];
@@ -83,8 +89,9 @@ export const useDrawingEventHandlers = ({
       }
       // Handle whiteboard intersection
       else if (intersect.object.userData.isWhiteboard && drawingTarget === 'whiteboard') {
-        console.log('✅ Hit whiteboard at:', intersect.point);
+        console.log('✅ Hit whiteboard at:', intersect.point, 'object userData:', intersect.object.userData);
         if (onStrokeStart && !strokeStarted.current) {
+          console.log('🎬 Starting whiteboard stroke');
           onStrokeStart();
           strokeStarted.current = true;
         }
@@ -111,8 +118,13 @@ export const useDrawingEventHandlers = ({
         lastBodyPart.current = 'whiteboard'; // Use whiteboard as identifier
         lastMarkTime.current = Date.now();
       }
+    } else {
+      console.log('❌ No valid intersection found for', drawingTarget);
+      if (intersects.length > 0) {
+        console.log('  First intersect object userData:', intersects[0].object.userData);
+      }
     }
-  }, [isDrawing, addMarkAtPosition, onStrokeStart, onAddToStroke, camera, gl, raycaster, mouse, getIntersectedObjects]);
+  }, [isDrawing, addMarkAtPosition, onStrokeStart, onAddToStroke, camera, gl, raycaster, mouse, getIntersectedObjects, drawingTarget]);
 
   const handlePointerMove = useCallback((event: PointerEvent) => {
     if (!isDrawing || !isMouseDown.current) return;
