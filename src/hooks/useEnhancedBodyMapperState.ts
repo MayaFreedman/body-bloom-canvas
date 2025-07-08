@@ -32,7 +32,7 @@ export const useEnhancedBodyMapperState = ({
   onBroadcastTextDelete
 }: UseEnhancedBodyMapperStateProps) => {
   const [mode, setMode] = useState<BodyMapperMode>('draw');
-  const [selectedColor, setSelectedColor] = useState('#ffeb3b'); // Changed from '#ff6b6b' to '#ffeb3b' (yellow)
+  const [selectedColor, setSelectedColor] = useState('#ff6b6b'); // Consistent with useBodyMapperState
   const [brushSize, setBrushSize] = useState([3]);
   const [drawingTarget, setDrawingTarget] = useState<DrawingTarget>('body');
   const [textToPlace, setTextToPlace] = useState('Sample Text');

@@ -9,6 +9,10 @@ interface WhiteboardPlaneProps {
 export const WhiteboardPlane = ({ visible = false, backgroundColor = 'white' }: WhiteboardPlaneProps) => {
   console.log('🖼️ WhiteboardPlane rendering, visible:', visible, 'backgroundColor:', backgroundColor);
   
+  if (visible) {
+    console.log('✅ WhiteboardPlane is VISIBLE and ready for drawing');
+  }
+  
   return (
     <mesh
       position={[0, 0, -0.5]} // Closer to camera for better intersection
