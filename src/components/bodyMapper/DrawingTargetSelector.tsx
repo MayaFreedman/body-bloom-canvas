@@ -39,4 +39,5 @@ export const DrawingTargetSelector = ({
         {drawingTarget === 'body' ? 'Body' : 'Board'}
       </span>
     </div>
+  );
 };
