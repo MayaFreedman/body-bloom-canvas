@@ -195,7 +195,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       // ACTIVE = large spread for movement visibility
       'Change in Energy': 0.09,  // Energy across body part
       'Pacing': 0.07,            // Movement patterns
-      'Stomping': 0.06,          // Foot/leg area coverage
+      'Stomping': 0.12,          // Foot/leg area coverage - increased from 0.06 for larger spawn area
       'Avoiding Eye Contact': 0.08, // Face/head area
       'Scrunched Face': 0.06,    // Facial area
       
@@ -822,19 +822,15 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
               material.opacity = opacity * (0.7 + Math.sin(particle.oscillationPhase * 3) * 0.2);
             }
           } else if (mark.name === 'Stomping') {
-            // Special stomping pulse effect - big entrance pulse
-            const entryPulse = particle.life < particle.maxLife * 0.3 ? 
-              1 + Math.sin((particle.life / (particle.maxLife * 0.3)) * Math.PI) * 1.2 : 1;
-            const stompScale = entryPulse * (1 + Math.sin(time * 2 + particle.life * 0.1) * 0.3);
-            mesh.scale.setScalar(particle.size * normalizedScale * stompScale);
+            // Simple methodical stomp - just a brief impact pulse on spawn
+            const impactPulse = particle.life < particle.maxLife * 0.15 ? 
+              1 + (1 - particle.life / (particle.maxLife * 0.15)) * 0.4 : 1; // Quick impact, then steady
+            mesh.scale.setScalar(particle.size * normalizedScale * impactPulse);
             
-            // Update sprite material opacity with pulse effect
+            // Update sprite material opacity
             const material = (mesh as any).material;
             if (material) {
-              const pulseOpacity = particle.life < particle.maxLife * 0.3 ? 
-                opacity * (0.9 + Math.sin((particle.life / (particle.maxLife * 0.3)) * Math.PI) * 0.3) : 
-                opacity;
-              material.opacity = pulseOpacity;
+              material.opacity = opacity;
             }
           } else {
             // Apply normalized scale to all other sensations
