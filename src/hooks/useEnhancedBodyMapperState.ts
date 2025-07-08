@@ -140,7 +140,6 @@ export const useEnhancedBodyMapperState = ({
     console.log('Added sensation mark to history:', newSensationMark);
   };
 
-  // Reset functionality that includes text marks
   const handleResetAll = () => {
     console.log('🔄 Resetting all content');
     
@@ -157,6 +156,9 @@ export const useEnhancedBodyMapperState = ({
     
     // Also clear text marks
     textManager.clearAllText();
+    
+    // Reset selected sensation to null (unequip)
+    setSelectedSensation(null);
     
     // Record the reset action
     actionHistory.addAction({
