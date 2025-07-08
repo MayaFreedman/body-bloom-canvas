@@ -26,7 +26,7 @@ const TextMarkComponent = ({
 
   const fontStyle = useMemo(() => {
     // Apply different scaling based on surface to account for coordinate system differences
-    const scaleFactor = textMark.surface === 'whiteboard' ? 400 : 300;
+    const scaleFactor = textMark.surface === 'whiteboard' ? 350 : 300;
     
     return {
       fontSize: textMark.fontSize / scaleFactor,
