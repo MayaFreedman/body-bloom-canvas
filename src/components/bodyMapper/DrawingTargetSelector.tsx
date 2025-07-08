@@ -17,26 +17,21 @@ export const DrawingTargetSelector = ({
   return (
     <div className="flex items-center gap-3">
       <label className="text-sm font-medium text-foreground">Drawing On:</label>
+      
       <div 
         onClick={toggleTarget}
-        className="relative h-6 w-20 bg-muted rounded-full cursor-pointer transition-colors duration-200 border border-border"
+        className={`relative h-6 w-11 rounded-full cursor-pointer transition-colors duration-200 border-2 ${
+          drawingTarget === 'whiteboard' 
+            ? 'bg-primary border-primary' 
+            : 'bg-muted border-input'
+        }`}
       >
         {/* Sliding thumb */}
         <div 
-          className={`absolute top-0.5 h-5 w-5 bg-background rounded-full shadow-md transition-transform duration-200 ease-out border border-border ${
-            drawingTarget === 'whiteboard' ? 'translate-x-[3.25rem]' : 'translate-x-0.5'
+          className={`absolute top-0.5 h-4 w-4 bg-background rounded-full shadow-lg transition-transform duration-200 ease-out border border-border ${
+            drawingTarget === 'whiteboard' ? 'translate-x-5' : 'translate-x-0.5'
           }`}
-        >
-          {/* Green indicator dot */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-2 h-2 bg-primary rounded-full"></div>
-          </div>
-        </div>
-        
-        {/* Hidden text for accessibility */}
-        <span className="sr-only">
-          {drawingTarget === 'body' ? 'Body selected' : 'Whiteboard selected'}
-        </span>
+        />
       </div>
       
       {/* Current selection label */}
@@ -44,5 +39,4 @@ export const DrawingTargetSelector = ({
         {drawingTarget === 'body' ? 'Body' : 'Board'}
       </span>
     </div>
-  );
 };
