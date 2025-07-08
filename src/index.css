@@ -238,8 +238,6 @@
     width: 250px;
     height: 70px;
     padding: 10px;
-    display: flex;
-    align-items: center; /* Center the button vertically for text alignment */
   }
 
   .main-reset-button {
@@ -265,25 +263,14 @@
     box-shadow: 0 4px 8px rgba(0,0,0,0.3);
   }
 
-  /* Control buttons in canvas area */
-  .top-left-controls {
+  /* Control buttons in canvas area - exact match */
+  .undo-redo-container {
     position: absolute;
-    bottom: 35px; /* Adjusted to align button centers */
-    right: calc(50% + 140px); /* Position to the left of the reset button */
+    bottom: 20px;
+    right: 20px;
     display: flex;
     gap: 10px;
     z-index: 10;
-    align-items: center;
-  }
-
-  .top-right-controls {
-    position: absolute;
-    bottom: 35px; /* Adjusted to align button centers */
-    left: calc(50% + 140px); /* Position to the right of the reset button */
-    display: flex;
-    gap: 10px;
-    z-index: 10;
-    align-items: center;
   }
 
   .control-button {
@@ -297,7 +284,7 @@
     transition: background-color 0.2s;
   }
 
-  .control-button:hover:not(:disabled) {
+  .control-button:hover {
     background-color: rgba(0, 0, 0, 0.8);
   }
 

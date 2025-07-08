@@ -1,6 +1,7 @@
 
 import React from 'react';
 import html2canvas from 'html2canvas';
+import { Undo2, Redo2, Camera } from 'lucide-react';
 
 interface ControlButtonsProps {
   onResetAll: () => void;
@@ -68,7 +69,7 @@ export const ControlButtons = ({
 
   return (
     <>
-      {/* Reset Button Container - Bottom Center */}
+      {/* Reset Button Container */}
       <div 
         className="reset-button-container control-buttons"
         style={{ pointerEvents: shouldDisablePointerEvents ? 'none' : 'auto' }}
@@ -83,9 +84,9 @@ export const ControlButtons = ({
         </button>
       </div>
 
-      {/* Undo/Redo Container - Top Left */}
+      {/* Undo/Redo Container */}
       <div 
-        className="top-left-controls control-buttons"
+        className="undo-redo-container control-buttons"
         style={{ pointerEvents: shouldDisablePointerEvents ? 'none' : 'auto' }}
       >
         <button 
@@ -94,7 +95,7 @@ export const ControlButtons = ({
           className={`control-button ${!canUndo ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'}`}
           title="Undo last action"
         >
-          ↩ Undo
+          <Undo2 size={16} />
         </button>
         <button 
           onClick={handleRedo}
@@ -102,17 +103,14 @@ export const ControlButtons = ({
           className={`control-button ${!canRedo ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'}`}
           title="Redo last undone action"
         >
-          ↪ Redo
+          <Redo2 size={16} />
         </button>
-      </div>
-
-      {/* Snapshot Button - Top Right */}
-      <div 
-        className="top-right-controls control-buttons"
-        style={{ pointerEvents: shouldDisablePointerEvents ? 'none' : 'auto' }}
-      >
-        <button onClick={captureScreenshot} className="control-button">
-          📷 Snapshot
+        <button 
+          onClick={captureScreenshot} 
+          className="control-button"
+          title="Take screenshot"
+        >
+          <Camera size={16} />
         </button>
       </div>
     </>
