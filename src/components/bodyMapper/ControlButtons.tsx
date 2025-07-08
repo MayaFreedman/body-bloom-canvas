@@ -76,8 +76,14 @@ export const ControlButtons = ({
       <div 
         className="reset-button-container control-buttons"
         style={{ pointerEvents: shouldDisablePointerEvents ? 'none' : 'auto' }}
-        onMouseEnter={() => onControlButtonsHover?.(true)}
-        onMouseLeave={() => onControlButtonsHover?.(false)}
+        onMouseEnter={() => {
+          console.log('🎯 Reset container mouse enter');
+          onControlButtonsHover?.(true);
+        }}
+        onMouseLeave={() => {
+          console.log('🎯 Reset container mouse leave');
+          onControlButtonsHover?.(false);
+        }}
       >
         <Tooltip>
           <TooltipTrigger asChild>
@@ -85,11 +91,18 @@ export const ControlButtons = ({
               onClick={handleResetAll} 
               className="main-reset-button"
               aria-label="Reset all changes to the body model"
+              onMouseEnter={() => console.log('🔥 Reset button hover enter')}
+              onMouseLeave={() => console.log('🔥 Reset button hover leave')}
             >
               Reset All Changes
             </button>
           </TooltipTrigger>
-          <TooltipContent side="top" className="z-[9999]">
+          <TooltipContent 
+            side="top" 
+            className="z-[9999]"
+            onPointerEnter={() => console.log('💡 Reset tooltip pointer enter')}
+            onPointerLeave={() => console.log('💡 Reset tooltip pointer leave')}
+          >
             <p>Reset</p>
           </TooltipContent>
         </Tooltip>
@@ -99,8 +112,14 @@ export const ControlButtons = ({
       <div 
         className="undo-redo-container control-buttons"
         style={{ pointerEvents: shouldDisablePointerEvents ? 'none' : 'auto' }}
-        onMouseEnter={() => onControlButtonsHover?.(true)}
-        onMouseLeave={() => onControlButtonsHover?.(false)}
+        onMouseEnter={() => {
+          console.log('🎯 Undo/Redo container mouse enter');
+          onControlButtonsHover?.(true);
+        }}
+        onMouseLeave={() => {
+          console.log('🎯 Undo/Redo container mouse leave');
+          onControlButtonsHover?.(false);
+        }}
       >
         <Tooltip>
           <TooltipTrigger asChild>
@@ -108,11 +127,18 @@ export const ControlButtons = ({
               onClick={handleUndo}
               disabled={!canUndo}
               className={`control-button ${!canUndo ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'}`}
+              onMouseEnter={() => console.log('🔥 Undo button hover enter, canUndo:', canUndo)}
+              onMouseLeave={() => console.log('🔥 Undo button hover leave')}
             >
               <Undo2 size={16} />
             </button>
           </TooltipTrigger>
-          <TooltipContent side="top" className="z-[9999]">
+          <TooltipContent 
+            side="top" 
+            className="z-[9999]"
+            onPointerEnter={() => console.log('💡 Undo tooltip pointer enter')}
+            onPointerLeave={() => console.log('💡 Undo tooltip pointer leave')}
+          >
             <p>Undo</p>
           </TooltipContent>
         </Tooltip>
@@ -123,11 +149,18 @@ export const ControlButtons = ({
               onClick={handleRedo}
               disabled={!canRedo}
               className={`control-button ${!canRedo ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'}`}
+              onMouseEnter={() => console.log('🔥 Redo button hover enter, canRedo:', canRedo)}
+              onMouseLeave={() => console.log('🔥 Redo button hover leave')}
             >
               <Redo2 size={16} />
             </button>
           </TooltipTrigger>
-          <TooltipContent side="top" className="z-[9999]">
+          <TooltipContent 
+            side="top" 
+            className="z-[9999]"
+            onPointerEnter={() => console.log('💡 Redo tooltip pointer enter')}
+            onPointerLeave={() => console.log('💡 Redo tooltip pointer leave')}
+          >
             <p>Redo</p>
           </TooltipContent>
         </Tooltip>
@@ -137,11 +170,18 @@ export const ControlButtons = ({
             <button 
               onClick={captureScreenshot} 
               className="control-button"
+              onMouseEnter={() => console.log('🔥 Snapshot button hover enter')}
+              onMouseLeave={() => console.log('🔥 Snapshot button hover leave')}
             >
               <Camera size={16} />
             </button>
           </TooltipTrigger>
-          <TooltipContent side="top" className="z-[9999]">
+          <TooltipContent 
+            side="top" 
+            className="z-[9999]"
+            onPointerEnter={() => console.log('💡 Snapshot tooltip pointer enter')}
+            onPointerLeave={() => console.log('💡 Snapshot tooltip pointer leave')}
+          >
             <p>Snapshot</p>
           </TooltipContent>
         </Tooltip>
