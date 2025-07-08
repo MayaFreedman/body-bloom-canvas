@@ -160,7 +160,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       'Tingling': 0.7,
       'Shaky': 0.3, // Reduced from 1.0 - shake image is small  
       'Pacing': 1.2,
-      'Stomping': 0.8, // Much smaller, subtle particles
+      'Stomping': 1.4, // Slightly bigger than pacing (1.2)
       'Tight': 1.0,
       'Lump in Throat': 1.0,
       'Change in Appetite': 0.3, // Reduced from 1.0 - plate image is small
@@ -195,7 +195,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       // ACTIVE = large spread for movement visibility
       'Change in Energy': 0.09,  // Energy across body part
       'Pacing': 0.07,            // Movement patterns
-      'Stomping': 0.18,          // Much larger spawn area - increased from 0.12
+      'Stomping': 0.07,          // Same as pacing
       'Avoiding Eye Contact': 0.08, // Face/head area
       'Scrunched Face': 0.06,    // Facial area
       
@@ -257,7 +257,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       'Change in Energy': { base: 0.04, variance: 0.02, multiplier: 1.5 }, // Energy bursts
       'Fidgety': { base: 0.035, variance: 0.015, multiplier: 1.4 }, // Restless movement
       'Pacing': { base: 0.04, variance: 0.02, multiplier: 1.5 }, // Movement patterns
-      'Stomping': { base: 0.06, variance: 0.03, multiplier: 2.5 }, // Big, heavy particles like frozen/stiff
+      'Stomping': { base: 0.04, variance: 0.02, multiplier: 1.5 }, // Same as pacing
       'Avoiding Eye Contact': { base: 0.035, variance: 0.015, multiplier: 1.4 }, // Nervous behavior
       'Scrunched Face': { base: 0.04, variance: 0.02, multiplier: 1.5 }, // Facial tension
       
@@ -308,7 +308,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       'Change in Energy': { min: 50, max: 100 }, // Energy bursts
       'Fidgety': { min: 40, max: 80 }, // Restless, changing
       'Pacing': { min: 60, max: 100 }, // Movement patterns
-      'Stomping': { min: 2000, max: 3000 }, // Extremely long lifespan - 10x slower disappearance
+      'Stomping': { min: 80, max: 140 }, // Slower respawn than pacing (60-100)
       'Avoiding Eye Contact': { min: 45, max: 85 }, // Nervous behavior
       'Scrunched Face': { min: 40, max: 80 }, // Facial expressions
       
@@ -368,7 +368,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             'Change in Energy': 20,     // Energy bursts
             'Fidgety': 25,              // Restless movement
             'Pacing': 18,               // Movement patterns
-            'Stomping': 2,              // Only 2 particles - very minimal
+            'Stomping': 18,             // Same as pacing
             'Avoiding Eye Contact': 12, // Nervous behavior
             'Scrunched Face': 10,       // Facial tension
             
@@ -609,7 +609,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             'Shaky': { speed: 3.0, intensity: 1.8, pattern: 'shake' }, // Fast trembling
             'Fidgety': { speed: 2.2, intensity: 1.4, pattern: 'shake' }, // Restless movement
             'Pacing': { speed: 1.5, intensity: 1.0, pattern: 'wave' }, // Rhythmic movement
-            'Stomping': { speed: 0.01, intensity: 0.03, pattern: 'shake' }, // Extremely slow, very subtle movement
+            'Stomping': { speed: 1.0, intensity: 1.3, pattern: 'wave' }, // Slower and more exaggerated than pacing
             
             // FLOW effects - dripping with strong downward movement (negative Y = down)
             'Tears': { speed: 0.2, intensity: 0.4, pattern: 'drip', gravity: 0.0002, drift: new THREE.Vector3(0, -0.15, 0) },
