@@ -1,6 +1,6 @@
 
 import { useCallback } from 'react';
-import { DrawingMark } from '@/types/actionHistoryTypes';
+import { DrawingMark } from '@/types/bodyMapperTypes';
 import { useStrokeManager } from './useStrokeManager';
 import { useActionHistory } from './useActionHistory';
 

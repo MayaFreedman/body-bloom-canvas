@@ -95,7 +95,7 @@ export const BodyMapperCanvas = ({
   onRotateLeft,
   onRotateRight
 }: BodyMapperCanvasProps) => {
-  console.log('BodyMapperCanvas rendering with sensation marks:', sensationMarks);
+  console.log('🎯 BodyMapperCanvas received drawingMarks:', drawingMarks.length, 'marks with surfaces:', drawingMarks.map(m => ({id: m.id, surface: m.surface})));
   const [isHoveringBody, setIsHoveringBody] = useState(false);
   const isHoveringSidebar = useSidebarHover();
   

@@ -31,6 +31,7 @@ export const ModelDrawing = ({
   onAddToStroke,
   modelRef 
 }: ModelDrawingProps) => {
+  console.log('🖊️ ModelDrawing received drawingMarks:', drawingMarks.length, 'marks with surfaces:', drawingMarks.map(m => ({id: m.id, surface: m.surface})));
   const drawingEvents = useDrawingEvents({
     isDrawing,
     selectedColor,
