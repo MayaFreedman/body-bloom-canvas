@@ -89,7 +89,11 @@ export const useDrawingEventHandlers = ({
       }
       // Handle whiteboard intersection
       else if (intersect.object.userData.isWhiteboard && drawingTarget === 'whiteboard') {
-        console.log('✅ Hit whiteboard at:', intersect.point, 'object userData:', intersect.object.userData);
+        console.log('✅ Hit whiteboard at world coords:', {
+          x: intersect.point.x.toFixed(3),
+          y: intersect.point.y.toFixed(3),
+          z: intersect.point.z.toFixed(3)
+        }, 'object userData:', intersect.object.userData);
         if (onStrokeStart && !strokeStarted.current) {
           console.log('🎬 Starting whiteboard stroke');
           onStrokeStart();
@@ -181,6 +185,11 @@ export const useDrawingEventHandlers = ({
       // Handle whiteboard drawing
       else if (intersect.object.userData.isWhiteboard && drawingTarget === 'whiteboard') {
         const currentPosition = intersect.point;
+        console.log('🖼️ Whiteboard move - world coords:', {
+          x: currentPosition.x.toFixed(3),
+          y: currentPosition.y.toFixed(3),
+          z: currentPosition.z.toFixed(3)
+        });
         
         addMarkAtPosition(currentPosition, intersect, 'whiteboard');
         

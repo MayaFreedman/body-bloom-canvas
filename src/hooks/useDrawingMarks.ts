@@ -34,9 +34,27 @@ export const useDrawingMarks = ({
       if (surface === 'whiteboard') {
         // For whiteboard, use world coordinates directly (don't transform to model space)
         localPosition.copy(worldPosition);
+        console.log('🖼️ Whiteboard mark - world position:', {
+          x: worldPosition.x.toFixed(3),
+          y: worldPosition.y.toFixed(3),
+          z: worldPosition.z.toFixed(3)
+        }, 'final position:', {
+          x: localPosition.x.toFixed(3),
+          y: localPosition.y.toFixed(3),
+          z: localPosition.z.toFixed(3)
+        });
       } else {
         // For body, transform to model local space
         modelGroup.worldToLocal(localPosition.copy(worldPosition));
+        console.log('🧍 Body mark - world position:', {
+          x: worldPosition.x.toFixed(3),
+          y: worldPosition.y.toFixed(3),
+          z: worldPosition.z.toFixed(3)
+        }, 'local position:', {
+          x: localPosition.x.toFixed(3),
+          y: localPosition.y.toFixed(3),
+          z: localPosition.z.toFixed(3)
+        });
       }
       
       const mark: DrawingMark = {
@@ -48,7 +66,11 @@ export const useDrawingMarks = ({
       };
       onAddMark(mark);
       
-      console.log('Added mark:', surface, 'brush size:', brushSize, 'mark size:', mark.size);
+      console.log('✅ Added mark:', surface, 'final mark position:', {
+        x: mark.position.x.toFixed(3),
+        y: mark.position.y.toFixed(3),
+        z: mark.position.z.toFixed(3)
+      });
     }
   }, [selectedColor, brushSize, onAddMark, modelRef]);
 
