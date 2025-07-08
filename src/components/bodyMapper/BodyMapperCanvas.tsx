@@ -159,27 +159,27 @@ export const BodyMapperCanvas = ({
             textMarks={textMarks.filter(mark => mark.surface === 'body')} 
             onTextClick={onTextClick}
           />
-          
-          {/* Whiteboard plane rotates with the model */}
-          <WhiteboardPlane 
-            visible={drawingTarget === 'whiteboard'} 
-            backgroundColor={whiteboardBackground}
-          />
-          
-          {/* Render whiteboard marks inside the model group so they rotate with it */}
-          {drawingMarks.filter(mark => mark.surface === 'whiteboard').map((mark) => (
-            <mesh key={mark.id} position={mark.position}>
-              <sphereGeometry args={[mark.size, 8, 8]} />
-              <meshBasicMaterial color={mark.color} />      
-            </mesh>
-          ))}
-          
-          {/* Render text marks on whiteboard inside the model group */}
-          <TextRenderer 
-            textMarks={textMarks.filter(mark => mark.surface === 'whiteboard')} 
-            onTextClick={onTextClick}
-          />
         </group>
+        
+        {/* Whiteboard plane stays stationary outside the rotating group */}
+        <WhiteboardPlane 
+          visible={drawingTarget === 'whiteboard'} 
+          backgroundColor={whiteboardBackground}
+        />
+        
+        {/* Render whiteboard marks outside the model group so they don't rotate */}
+        {drawingMarks.filter(mark => mark.surface === 'whiteboard').map((mark) => (
+          <mesh key={mark.id} position={mark.position}>
+            <sphereGeometry args={[mark.size, 8, 8]} />
+            <meshBasicMaterial color={mark.color} />      
+          </mesh>
+        ))}
+        
+        {/* Render text marks on whiteboard outside the model group */}
+        <TextRenderer 
+          textMarks={textMarks.filter(mark => mark.surface === 'whiteboard')} 
+          onTextClick={onTextClick}
+        />
         
         <ModelDrawing
           isDrawing={mode === 'draw'}
