@@ -300,7 +300,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       // MEDIUM = normal lifespan
       'Nausea': { min: 80, max: 140 }, // Swirling motion
       'Increased Heart Rate': { min: 60, max: 120 }, // Faster rhythm
-      'Change in Breathing': { min: 70, max: 130 }, // Breathing cycles
+      'Change in Breathing': { min: 120, max: 200 }, // Slower respawn rate for calmer breathing
       'Change in Appetite': { min: 90, max: 150 }, // Moderate change
       'Clenched': { min: 80, max: 140 }, // Tension comes and goes
       
