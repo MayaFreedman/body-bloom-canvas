@@ -269,21 +269,21 @@
   .top-left-controls {
     position: absolute;
     bottom: 20px;
-    left: calc(50% - 200px); /* Position to the left of the reset button with balanced spacing */
+    right: calc(50% + 140px); /* Position to the left of the reset button */
     display: flex;
     gap: 10px;
     z-index: 10;
-    align-items: center; /* Align text content inline */
+    align-items: center;
   }
 
   .top-right-controls {
     position: absolute;
     bottom: 20px;
-    right: calc(50% - 200px); /* Position to the right of the reset button with balanced spacing */
+    left: calc(50% + 140px); /* Position to the right of the reset button */
     display: flex;
     gap: 10px;
     z-index: 10;
-    align-items: center; /* Align text content inline */
+    align-items: center;
   }
 
   .control-button {
