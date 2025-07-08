@@ -51,7 +51,12 @@ export const CustomCursor: React.FC<CustomCursorProps> = ({
       if (canvas) canvas.style.setProperty('cursor', 'not-allowed', 'important');
       console.log('🚫 Setting not-allowed cursor - whiteboard mode on body');
     } else if (selectedSensation) {
-      if (isHoveringBody) {
+      if (isHoveringSidebar) {
+        // Show default cursor when hovering sidebar with sensation selected
+        document.body.style.setProperty('cursor', 'default', 'important');
+        if (canvas) canvas.style.setProperty('cursor', 'default', 'important');
+        console.log('🖱️ Setting default cursor - sensation selected but hovering sidebar');
+      } else if (isHoveringBody) {
         // Force grabby hand when hovering over body with sensation selected - use !important override
         document.body.style.setProperty('cursor', 'grab', 'important');
         if (canvas) canvas.style.setProperty('cursor', 'grab', 'important');
