@@ -1,13 +1,6 @@
 
 import React from 'react';
 import html2canvas from 'html2canvas';
-import { Undo2, Redo2, Camera } from 'lucide-react';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 interface ControlButtonsProps {
   onResetAll: () => void;
@@ -74,7 +67,7 @@ export const ControlButtons = ({
   const shouldDisablePointerEvents = drawingTarget === 'whiteboard' && mode === 'draw' && isActivelyDrawing;
 
   return (
-    <TooltipProvider>
+    <>
       {/* Reset Button Container */}
       <div 
         className="reset-button-container control-buttons"
@@ -84,6 +77,7 @@ export const ControlButtons = ({
           onClick={handleResetAll} 
           className="main-reset-button"
           aria-label="Reset all changes to the body model" 
+          title="Click to reset all changes"
         >
           Reset All Changes
         </button>
@@ -94,50 +88,26 @@ export const ControlButtons = ({
         className="undo-redo-container control-buttons"
         style={{ pointerEvents: shouldDisablePointerEvents ? 'none' : 'auto' }}
       >
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <button 
-              onClick={handleUndo}
-              disabled={!canUndo}
-              className={`control-button ${!canUndo ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'}`}
-            >
-              <Undo2 size={16} />
-            </button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Undo last action</p>
-          </TooltipContent>
-        </Tooltip>
-
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <button 
-              onClick={handleRedo}
-              disabled={!canRedo}
-              className={`control-button ${!canRedo ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'}`}
-            >
-              <Redo2 size={16} />
-            </button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Redo last undone action</p>
-          </TooltipContent>
-        </Tooltip>
-
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <button 
-              onClick={captureScreenshot} 
-              className="control-button"
-            >
-              <Camera size={16} />
-            </button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Take screenshot</p>
-          </TooltipContent>
-        </Tooltip>
+        <button 
+          onClick={handleUndo}
+          disabled={!canUndo}
+          className={`control-button ${!canUndo ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'}`}
+          title="Undo last action"
+        >
+          ↩ Undo
+        </button>
+        <button 
+          onClick={handleRedo}
+          disabled={!canRedo}
+          className={`control-button ${!canRedo ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'}`}
+          title="Redo last undone action"
+        >
+          ↪ Redo
+        </button>
+        <button onClick={captureScreenshot} className="control-button">
+          📷 Snapshot
+        </button>
       </div>
-    </TooltipProvider>
+    </>
   );
 };

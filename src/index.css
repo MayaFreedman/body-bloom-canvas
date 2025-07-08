@@ -102,13 +102,13 @@
   }
 
   .canvas-container {
-    width: 65%; /* Canvas takes up 65% of the width */
+    width: 75%; /* Canvas takes up 75% of the width */
     height: 100%;
     position: relative;
   }
 
   .controls-container {
-    width: 35%; /* Controls take up 35% of the width */
+    width: 25%; /* Controls take up 25% of the width (thinner) */
     height: 100%;
     position: relative;
     transition: width 0.3s ease;
