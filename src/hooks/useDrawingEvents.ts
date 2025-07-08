@@ -1,16 +1,10 @@
 
 import * as THREE from 'three';
 import { WorldDrawingPoint } from '@/types/multiplayerTypes';
+import { DrawingMark } from '@/types/bodyMapperTypes';
 import { useIntersectionUtils } from './useIntersectionUtils';
 import { useDrawingMarks } from './useDrawingMarks';
 import { useDrawingEventHandlers } from './useDrawingEventHandlers';
-
-interface DrawingMark {
-  id: string;
-  position: THREE.Vector3;
-  color: string;
-  size: number;
-}
 
 interface UseDrawingEventsProps {
   isDrawing: boolean;

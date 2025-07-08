@@ -1,11 +1,5 @@
 import { useCallback, useRef } from 'react';
-
-interface DrawingMark {
-  id: string;
-  position: any;
-  color: string;
-  size: number;
-}
+import { DrawingMark } from '@/types/bodyMapperTypes';
 
 interface UseDrawingOptimizationProps {
   maxMarksPerSession?: number;

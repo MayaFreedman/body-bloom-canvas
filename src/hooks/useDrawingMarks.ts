@@ -1,14 +1,7 @@
 
 import { useCallback } from 'react';
+import { DrawingMark } from '@/types/bodyMapperTypes';
 import * as THREE from 'three';
-
-interface DrawingMark {
-  id: string;
-  position: THREE.Vector3;
-  color: string;
-  size: number;
-  surface?: 'body' | 'whiteboard';
-}
 
 interface UseDrawingMarksProps {
   selectedColor: string;
