@@ -85,30 +85,29 @@ export const useDrawingEventHandlers = ({
       else if (intersect.object.userData.isWhiteboard && drawingTarget === 'whiteboard') {
         console.log('✅ Hit whiteboard at world position:', intersect.point);
         
-        // Convert 3D intersection to 2D screen coordinates
-        const canvas = gl.domElement;
-        const rect = canvas.getBoundingClientRect();
-        const screenX = ((intersect.point.x + 3) / 6) * rect.width; // Map from [-3,3] to [0,width]
-        const screenY = ((-intersect.point.y + 4) / 8) * rect.height; // Map from [-4,4] to [0,height]
+        // For whiteboard, keep the coordinates normalized to the whiteboard plane
+        // but store them in a way that they don't rotate with the body
+        const normalizedX = intersect.point.x; // Keep between -3 and 3 
+        const normalizedY = intersect.point.y; // Keep between -4 and 4
+        const whiteboardPosition = new THREE.Vector3(normalizedX, normalizedY, -0.49);
         
         if (onStrokeStart && !strokeStarted.current) {
           onStrokeStart();
           strokeStarted.current = true;
         }
         
-        // Store as screen coordinates for whiteboard
-        const screenPoint = new THREE.Vector3(screenX, screenY, 0);
-        addMarkAtPosition(screenPoint, intersect, 'whiteboard');
+        // Store whiteboard marks with absolute coordinates that won't rotate
+        addMarkAtPosition(whiteboardPosition, intersect, 'whiteboard');
         
         if (onAddToStroke && intersect.object instanceof THREE.Mesh) {
           const worldPoint: WorldDrawingPoint = {
             id: `point-${Date.now()}-${Math.random()}`,
             worldPosition: {
-              x: screenX,
-              y: screenY,
-              z: 0
+              x: normalizedX,
+              y: normalizedY,
+              z: -0.49
             },
-            whiteboardRegion: `${intersect.point.x > 0 ? 'right' : 'left'}-${intersect.point.y > 0 ? 'top' : 'bottom'}`,
+            whiteboardRegion: `${normalizedX > 0 ? 'right' : 'left'}-${normalizedY > 0 ? 'top' : 'bottom'}`,
             surface: 'whiteboard',
             color: '',
             size: 0
@@ -116,7 +115,7 @@ export const useDrawingEventHandlers = ({
           onAddToStroke(worldPoint);
         }
         
-        lastPosition.current = screenPoint;
+        lastPosition.current = whiteboardPosition;
         lastBodyPart.current = 'whiteboard';
         lastMarkTime.current = Date.now();
       }
@@ -179,12 +178,10 @@ export const useDrawingEventHandlers = ({
       else if (intersect.object.userData.isWhiteboard && drawingTarget === 'whiteboard') {
         console.log('🖊️ Moving on whiteboard at world position:', intersect.point);
         
-        // Convert 3D intersection to 2D screen coordinates
-        const canvas = gl.domElement;
-        const rect = canvas.getBoundingClientRect();
-        const screenX = ((intersect.point.x + 3) / 6) * rect.width;
-        const screenY = ((-intersect.point.y + 4) / 8) * rect.height;
-        const currentPosition = new THREE.Vector3(screenX, screenY, 0);
+        // For whiteboard, keep the coordinates normalized to the whiteboard plane
+        const normalizedX = intersect.point.x;
+        const normalizedY = intersect.point.y;
+        const currentPosition = new THREE.Vector3(normalizedX, normalizedY, -0.49);
         
         addMarkAtPosition(currentPosition, intersect, 'whiteboard');
         
@@ -192,11 +189,11 @@ export const useDrawingEventHandlers = ({
           const worldPoint: WorldDrawingPoint = {
             id: `point-${Date.now()}-${Math.random()}`,
             worldPosition: {
-              x: screenX,
-              y: screenY,
-              z: 0
+              x: normalizedX,
+              y: normalizedY,
+              z: -0.49
             },
-            whiteboardRegion: `${intersect.point.x > 0 ? 'right' : 'left'}-${intersect.point.y > 0 ? 'top' : 'bottom'}`,
+            whiteboardRegion: `${normalizedX > 0 ? 'right' : 'left'}-${normalizedY > 0 ? 'top' : 'bottom'}`,
             surface: 'whiteboard',
             color: '',
             size: 0

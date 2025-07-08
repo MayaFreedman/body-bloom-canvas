@@ -140,14 +140,19 @@ export const BodyMapperCanvas = ({
         <directionalLight position={[10, 10, 5]} intensity={0.5} />
         <directionalLight position={[-10, -10, -5]} intensity={0.2} />
         
-        {/* Keep invisible whiteboard plane for intersection detection only */}
+        {/* Whiteboard plane - visible when whiteboard mode is active */}
         <mesh
           position={[0, 0, -0.5]}
           userData={{ isWhiteboard: true }}
-          visible={false}
+          visible={drawingTarget === 'whiteboard'}
         >
           <planeGeometry args={[6, 8]} />
-          <meshBasicMaterial transparent opacity={0} />
+          <meshBasicMaterial 
+            color={whiteboardBackground} 
+            transparent 
+            opacity={0.9}
+            side={THREE.DoubleSide}
+          />
         </mesh>
         
         <group ref={modelRef} rotation={[0, rotation, 0]}>
@@ -171,12 +176,15 @@ export const BodyMapperCanvas = ({
         </group>
         
         {/* Render whiteboard marks outside the model group so they don't rotate */}
-        {drawingMarks.filter(mark => mark.surface === 'whiteboard').map((mark) => (
-          <mesh key={mark.id} position={[mark.position.x, mark.position.y, -0.49]}>
-            <sphereGeometry args={[mark.size, 8, 8]} />
-            <meshBasicMaterial color={mark.color} />      
-          </mesh>
-        ))}
+        {drawingMarks.filter(mark => mark.surface === 'whiteboard').map((mark) => {
+          console.log('🎨 Rendering whiteboard mark:', mark);
+          return (
+            <mesh key={mark.id} position={mark.position}>
+              <sphereGeometry args={[mark.size, 8, 8]} />
+              <meshBasicMaterial color={mark.color} />      
+            </mesh>
+          );
+        })}
         
         {/* Render text marks on whiteboard outside the model group */}
         <TextRenderer 
