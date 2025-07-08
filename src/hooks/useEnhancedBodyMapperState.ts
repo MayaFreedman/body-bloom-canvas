@@ -38,6 +38,7 @@ export const useEnhancedBodyMapperState = ({
   const [textToPlace, setTextToPlace] = useState('Sample Text');
   const [selectedSensation, setSelectedSensation] = useState<SelectedSensation | null>(null);
   const [bodyPartColors, setBodyPartColors] = useState<Record<string, string>>({});
+  const [whiteboardBackground, setWhiteboardBackground] = useState('white');
   const [sensationMarks, setSensationMarks] = useState<SensationMark[]>([]);
   const [rotation, setRotation] = useState(0);
   const [isActivelyDrawing, setIsActivelyDrawing] = useState(false);
@@ -81,6 +82,7 @@ export const useEnhancedBodyMapperState = ({
     setBodyPartColors,
     setSensationMarks,
     setTextMarks: textManager.setTextMarks,
+    setWhiteboardBackground,
     broadcastUndo,
     broadcastRedo,
     isMultiplayer
@@ -142,6 +144,26 @@ export const useEnhancedBodyMapperState = ({
     console.log('Added sensation mark to history:', newSensationMark);
   };
 
+  // Whiteboard fill handler
+  const handleWhiteboardFill = (color: string) => {
+    console.log('🎨 useEnhancedBodyMapperState - Filling whiteboard with color:', color);
+    
+    const previousColor = whiteboardBackground;
+    setWhiteboardBackground(color);
+    
+    // Add to action history for undo/redo
+    actionHistory.addAction({
+      type: 'whiteboardFill',
+      data: {
+        newColor: color,
+        previousColor: previousColor
+      },
+      metadata: {
+        fillColor: color
+      }
+    });
+  };
+
   const handleResetAll = () => {
     console.log('🔄 Resetting all content');
     
@@ -175,13 +197,15 @@ export const useEnhancedBodyMapperState = ({
   const clearAll = () => {
     const previousSensationMarks = [...sensationMarks];
     const previousTextMarks = [...textManager.textMarks];
+    const previousWhiteboardColor = whiteboardBackground;
     
     bodyPartOps.clearAll();
     setSensationMarks([]);
     textManager.clearAllText();
+    setWhiteboardBackground('white');
     
     // Record clear action including sensation marks and text marks
-    if (previousSensationMarks.length > 0 || previousTextMarks.length > 0) {
+    if (previousSensationMarks.length > 0 || previousTextMarks.length > 0 || previousWhiteboardColor !== 'white') {
       actionHistory.addAction({
         type: 'clear',
         data: {
@@ -225,6 +249,8 @@ export const useEnhancedBodyMapperState = ({
     sensationMarks,
     setSensationMarks,
     bodyPartColors,
+    whiteboardBackground,
+    setWhiteboardBackground,
     rotation,
     setRotation,
     
@@ -239,6 +265,7 @@ export const useEnhancedBodyMapperState = ({
     handleIncomingUndo: undoRedoOps.handleIncomingUndo,
     handleIncomingRedo: undoRedoOps.handleIncomingRedo,
     handleBodyPartClick: bodyPartOps.handleBodyPartClick,
+    handleWhiteboardFill,
     handleResetAll,
     clearAll,
     

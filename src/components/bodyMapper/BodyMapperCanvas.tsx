@@ -32,6 +32,7 @@ interface BodyMapperCanvasProps {
   sensationMarks: SensationMark[];
   effects: Effect[];
   bodyPartColors: BodyPartColors;
+  whiteboardBackground?: string;
   rotation: number;
   isActivelyDrawing?: boolean;
   isHoveringControlButtons?: boolean;
@@ -48,6 +49,7 @@ interface BodyMapperCanvasProps {
   onSensationClick: (position: THREE.Vector3, sensation: SelectedSensation) => void;
   onSensationDeselect: () => void;
   onErase: (center: THREE.Vector3, radius: number, surface: 'body' | 'whiteboard') => void;
+  onWhiteboardFill?: (color: string) => void;
   onTextPlace?: (position: THREE.Vector3, surface: 'body' | 'whiteboard') => void;
   onTextClick?: (textMark: TextMark) => void;
   onTextSave?: (text: string) => void;
@@ -67,6 +69,7 @@ export const BodyMapperCanvas = ({
   sensationMarks,
   effects,
   bodyPartColors,
+  whiteboardBackground = 'white',
   rotation,
   isActivelyDrawing = false,
   isHoveringControlButtons = false,
@@ -83,6 +86,7 @@ export const BodyMapperCanvas = ({
   onSensationClick,
   onSensationDeselect,
   onErase,
+  onWhiteboardFill,
   onTextPlace,
   onTextClick,
   onTextSave,
@@ -138,7 +142,10 @@ export const BodyMapperCanvas = ({
         
         <group ref={modelRef} rotation={[0, rotation, 0]}>
           <HumanModel bodyPartColors={bodyPartColors} />
-          <WhiteboardPlane visible={drawingTarget === 'whiteboard'} />
+          <WhiteboardPlane 
+            visible={drawingTarget === 'whiteboard'} 
+            backgroundColor={whiteboardBackground}
+          />
           
           {/* Render drawing marks as children of the model group so they rotate with it */}
           {drawingMarks.filter(mark => mark.surface !== 'whiteboard').map((mark) => (
@@ -209,8 +216,10 @@ export const BodyMapperCanvas = ({
           mode={mode}
           selectedColor={selectedColor}
           selectedSensation={selectedSensation}
+          drawingTarget={drawingTarget}
           onBodyPartClick={onBodyPartClick}
           onSensationClick={handleSensationClick}
+          onWhiteboardFill={onWhiteboardFill}
         />
         
         <HoverDetector onHoverChange={setIsHoveringBody} />

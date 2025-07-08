@@ -3,10 +3,11 @@ import * as THREE from 'three';
 
 interface WhiteboardPlaneProps {
   visible?: boolean;
+  backgroundColor?: string;
 }
 
-export const WhiteboardPlane = ({ visible = false }: WhiteboardPlaneProps) => {
-  console.log('🖼️ WhiteboardPlane rendering, visible:', visible);
+export const WhiteboardPlane = ({ visible = false, backgroundColor = 'white' }: WhiteboardPlaneProps) => {
+  console.log('🖼️ WhiteboardPlane rendering, visible:', visible, 'backgroundColor:', backgroundColor);
   
   return (
     <mesh
@@ -16,9 +17,9 @@ export const WhiteboardPlane = ({ visible = false }: WhiteboardPlaneProps) => {
     >
       <planeGeometry args={[6, 8]} />
       <meshBasicMaterial 
-        color="white" 
+        color={backgroundColor} 
         transparent 
-        opacity={0.2}
+        opacity={0.8}
         side={THREE.DoubleSide}
       />
     </mesh>
