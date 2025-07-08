@@ -160,7 +160,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       'Tingling': 0.7,
       'Shaky': 0.3, // Reduced from 1.0 - shake image is small  
       'Pacing': 1.2,
-      'Stomping': 1.8, // Increased from 0.4 - bigger stompy feet
+      'Stomping': 2.5, // Even bigger stompy feet - increased from 1.8
       'Tight': 1.0,
       'Lump in Throat': 1.0,
       'Change in Appetite': 0.3, // Reduced from 1.0 - plate image is small
@@ -257,7 +257,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       'Change in Energy': { base: 0.04, variance: 0.02, multiplier: 1.5 }, // Energy bursts
       'Fidgety': { base: 0.035, variance: 0.015, multiplier: 1.4 }, // Restless movement
       'Pacing': { base: 0.04, variance: 0.02, multiplier: 1.5 }, // Movement patterns
-      'Stomping': { base: 0.02, variance: 0.01, multiplier: 1.2 }, // Much slower spawn rate - reduced from 0.045
+      'Stomping': { base: 0.01, variance: 0.005, multiplier: 1.0 }, // Even slower spawn rate - reduced from 0.02
       'Avoiding Eye Contact': { base: 0.035, variance: 0.015, multiplier: 1.4 }, // Nervous behavior
       'Scrunched Face': { base: 0.04, variance: 0.02, multiplier: 1.5 }, // Facial tension
       
@@ -822,9 +822,9 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
               material.opacity = opacity * (0.7 + Math.sin(particle.oscillationPhase * 3) * 0.2);
             }
           } else if (mark.name === 'Stomping') {
-            // Simple methodical stomp - just a brief impact pulse on spawn
-            const impactPulse = particle.life < particle.maxLife * 0.15 ? 
-              1 + (1 - particle.life / (particle.maxLife * 0.15)) * 0.4 : 1; // Quick impact, then steady
+            // Big, slow pulse on impact - longer duration, bigger scale
+            const impactPulse = particle.life < particle.maxLife * 0.4 ? 
+              1 + (1 - particle.life / (particle.maxLife * 0.4)) * 1.2 : 1; // 40% of lifetime, 120% bigger on impact
             mesh.scale.setScalar(particle.size * normalizedScale * impactPulse);
             
             // Update sprite material opacity
