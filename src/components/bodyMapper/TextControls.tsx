@@ -78,7 +78,7 @@ export const TextControls = ({
               onBlur={validateText}
             />
             {hasError && (
-              <p className="text-xs text-red-500 ml-1 -mt-1">Text field cannot be empty</p>
+              <p className="text-xs text-red-500 ml-1 -mt-2">Text field cannot be empty</p>
             )}
           </div>
 

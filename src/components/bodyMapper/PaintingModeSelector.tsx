@@ -23,49 +23,46 @@ export const PaintingModeSelector = ({
     <div className="mb-6">
       <h4 className="font-semibold text-gray-800 mb-3">{title}</h4>
       
-      {/* Drawing tools and target selector in one row */}
-      <div className="space-y-3">
-        <div className="grid grid-cols-2 gap-2">
-          <button
-            className={`game-button-primary flex items-center justify-center gap-2 px-3 py-2 text-sm ${mode === 'draw' ? 'opacity-100' : 'opacity-70'}`}
-            onClick={() => onModeChange('draw')}
-          >
-            <Brush className="w-4 h-4" />
-            Draw
-          </button>
-          <button
-            className={`game-button-primary flex items-center justify-center gap-2 px-3 py-2 text-sm ${mode === 'fill' ? 'opacity-100' : 'opacity-70'}`}
-            onClick={() => onModeChange('fill')}
-          >
-            <Palette className="w-4 h-4" />
-            Fill
-          </button>
-          <button
-            className={`game-button-primary flex items-center justify-center gap-2 px-3 py-2 text-sm ${mode === 'erase' ? 'opacity-100' : 'opacity-70'}`}
-            onClick={() => onModeChange('erase')}
-          >
-            <Eraser className="w-4 h-4" />
-            Erase
-          </button>
-          <button
-            className={`game-button-primary flex items-center justify-center gap-2 px-3 py-2 text-sm ${mode === 'text' ? 'opacity-100' : 'opacity-70'}`}
-            onClick={() => onModeChange('text')}
-          >
-            <Type className="w-4 h-4" />
-            Text
-          </button>
+      {/* Drawing target toggle above tools */}
+      {drawingTarget && onDrawingTargetChange && (
+        <div className="mb-3">
+          <DrawingTargetSelector
+            drawingTarget={drawingTarget}
+            onTargetChange={onDrawingTargetChange}
+          />
         </div>
-        
-        {/* Body/Whiteboard toggle below tools */}
-        {drawingTarget && onDrawingTargetChange && (
-          <div>
-            <label className="text-sm font-medium mb-2 block">Drawing On:</label>
-            <DrawingTargetSelector
-              drawingTarget={drawingTarget}
-              onTargetChange={onDrawingTargetChange}
-            />
-          </div>
-        )}
+      )}
+      
+      {/* Drawing tools */}
+      <div className="grid grid-cols-2 gap-2">
+        <button
+          className={`game-button-primary flex items-center justify-center gap-2 px-3 py-2 text-sm ${mode === 'draw' ? 'opacity-100' : 'opacity-70'}`}
+          onClick={() => onModeChange('draw')}
+        >
+          <Brush className="w-4 h-4" />
+          Draw
+        </button>
+        <button
+          className={`game-button-primary flex items-center justify-center gap-2 px-3 py-2 text-sm ${mode === 'fill' ? 'opacity-100' : 'opacity-70'}`}
+          onClick={() => onModeChange('fill')}
+        >
+          <Palette className="w-4 h-4" />
+          Fill
+        </button>
+        <button
+          className={`game-button-primary flex items-center justify-center gap-2 px-3 py-2 text-sm ${mode === 'erase' ? 'opacity-100' : 'opacity-70'}`}
+          onClick={() => onModeChange('erase')}
+        >
+          <Eraser className="w-4 h-4" />
+          Erase
+        </button>
+        <button
+          className={`game-button-primary flex items-center justify-center gap-2 px-3 py-2 text-sm ${mode === 'text' ? 'opacity-100' : 'opacity-70'}`}
+          onClick={() => onModeChange('text')}
+        >
+          <Type className="w-4 h-4" />
+          Text
+        </button>
       </div>
     </div>
   );
