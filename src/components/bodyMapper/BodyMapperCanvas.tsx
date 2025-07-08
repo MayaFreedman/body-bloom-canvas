@@ -134,7 +134,7 @@ export const BodyMapperCanvas = ({
 
       <Canvas 
         camera={{ position: [0, 0, 3.5], fov: 50 }}
-        style={{ width: '100%', height: '100%' }}
+        style={{ width: '100%', height: '100%', backgroundColor: 'white' }}
       >
         <ambientLight intensity={1.0} />
         <directionalLight position={[10, 10, 5]} intensity={0.5} />
