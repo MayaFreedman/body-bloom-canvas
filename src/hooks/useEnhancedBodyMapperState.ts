@@ -70,7 +70,9 @@ export const useEnhancedBodyMapperState = ({
     spatialIndex, 
     currentUserId,
     textMarks: () => textManager.textMarks,
-    deleteTextMark: textManager.deleteTextMark
+    deleteTextMark: textManager.deleteTextMark,
+    sensationMarks: () => sensationMarks,
+    deleteSensationMark: (id: string) => setSensationMarks(prev => prev.filter(mark => mark.id !== id))
    });
 
   const undoRedoOps = useUndoRedoOperations({

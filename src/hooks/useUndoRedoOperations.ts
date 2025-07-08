@@ -54,6 +54,11 @@ export const useUndoRedoOperations = ({
           setTextMarks(prev => [...prev, ...actionToUndo.data.erasedTextMarks!]);
           console.log('Restored erased text marks from erase:', actionToUndo.data.erasedTextMarks);
         }
+        // Also restore any erased sensation marks
+        if (actionToUndo.data.erasedSensationMarks) {
+          setSensationMarks(prev => [...prev, ...actionToUndo.data.erasedSensationMarks!]);
+          console.log('Restored erased sensation marks from erase:', actionToUndo.data.erasedSensationMarks);
+        }
         break;
       case 'fill':
         console.log('Undoing fill action');
@@ -178,6 +183,13 @@ export const useUndoRedoOperations = ({
             setTextMarks(prev => prev.filter(mark => mark.id !== textMark.id));
           });
           console.log('Re-erased text marks for erase redo:', actionToRedo.data.erasedTextMarks);
+        }
+        // Also re-erase any sensation marks that were erased
+        if (actionToRedo.data.erasedSensationMarks) {
+          actionToRedo.data.erasedSensationMarks.forEach(sensationMark => {
+            setSensationMarks(prev => prev.filter(mark => mark.id !== sensationMark.id));
+          });
+          console.log('Re-erased sensation marks for erase redo:', actionToRedo.data.erasedSensationMarks);
         }
         break;
       case 'fill':
