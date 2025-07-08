@@ -60,7 +60,6 @@ export const FeelingsTabContent = ({
         <h3 className="text-xl font-semibold text-gray-800 mb-4">Colors & Emotions</h3>
         <div className="subtext-box">
           <p>Identify the feelings you are experiencing, then choose a color that best represents each feeling for you. Use those colors to fill in the body outline.</p>
-          <br />
           <p><strong>Tip:</strong> You can use the colors to show where you feel each emotion or how big or strong that feeling is for you.</p>
         </div>
       </div>

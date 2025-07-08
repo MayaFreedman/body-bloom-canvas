@@ -93,7 +93,7 @@
   }
 }
 
-  /* Game-specific styles updated for sidebar layout */
+/* Game-specific styles matching reference design exactly */
 @layer components {
   .game-container {
     display: flex;
@@ -112,23 +112,22 @@
     height: 100%;
   }
 
-  /* Top Banner - updated for sidebar layout */
+  /* Top Banner - exact match to original */
   #topBanner {
-    position: fixed;
+    position: absolute;
     top: 0;
     left: 0;
     right: 0;
     background-color: rgba(70, 130, 180, 0.9); /* Steel blue with transparency */
     color: white;
-    padding: 12px 20px;
+    padding: 10px 20px;
     text-align: center;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    z-index: 150;
+    z-index: 100;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 70px;
   }
 
   #topBanner h2 {
@@ -218,7 +217,7 @@
     color: #333;
   }
 
-  /* Reset button styling - updated for better positioning */
+  /* Reset button styling - exact match */
   .reset-button-container {
     position: absolute;
     bottom: 20px;
@@ -325,17 +324,16 @@
     flex-shrink: 0;
   }
 
-  /* Mobile responsive layout - updated for sidebar */
+  /* Mobile responsive layout - exact match */
   @media (max-width: 768px) {
     html, body {
       overflow-y: auto; /* allow scroll */
     }
 
     #topBanner {
-      position: fixed;
-      z-index: 150;
-      padding: 8px 10px;
-      height: 60px;
+      position: relative;
+      z-index: 2;
+      padding: 10px;
     }
 
     #topBanner h2 {
