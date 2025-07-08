@@ -115,8 +115,9 @@ export const SensationSelector = ({ mode, selectedSensation, onModeChange, onSen
                   console.log('🎯 SensationSelector - Unequipping sensation');
                   onSensationChange(null);
                 } else {
-                  // Equip the new sensation
-                  console.log('🎯 SensationSelector - Equipping sensation:', sensation.name);
+                  // Equip the new sensation and reset to draw mode (neutral state)
+                  console.log('🎯 SensationSelector - Equipping sensation:', sensation.name, 'and switching to draw mode');
+                  onModeChange('draw'); // Switch to draw mode to unequip other tools
                   onSensationChange({
                     icon: sensation.icon,
                     color: sensation.color,
