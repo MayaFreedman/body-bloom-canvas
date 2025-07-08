@@ -142,10 +142,6 @@ export const BodyMapperCanvas = ({
         
         <group ref={modelRef} rotation={[0, rotation, 0]}>
           <HumanModel bodyPartColors={bodyPartColors} />
-          <WhiteboardPlane 
-            visible={drawingTarget === 'whiteboard'} 
-            backgroundColor={whiteboardBackground}
-          />
           
           {/* Render drawing marks as children of the model group so they rotate with it */}
           {drawingMarks.filter(mark => mark.surface !== 'whiteboard').map((mark) => (
@@ -164,6 +160,12 @@ export const BodyMapperCanvas = ({
             onTextClick={onTextClick}
           />
         </group>
+        
+        {/* Whiteboard plane stays stationary outside the rotating group */}
+        <WhiteboardPlane 
+          visible={drawingTarget === 'whiteboard'} 
+          backgroundColor={whiteboardBackground}
+        />
         
         {/* Render whiteboard marks outside the model group so they don't rotate */}
         {drawingMarks.filter(mark => mark.surface === 'whiteboard').map((mark) => (
