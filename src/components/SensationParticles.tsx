@@ -308,7 +308,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       'Change in Energy': { min: 50, max: 100 }, // Energy bursts
       'Fidgety': { min: 40, max: 80 }, // Restless, changing
       'Pacing': { min: 60, max: 100 }, // Movement patterns
-      'Stomping': { min: 200, max: 300 }, // Much longer lifespan for slow disappearance
+      'Stomping': { min: 1000, max: 1500 }, // 5x longer lifespan - very slow disappearance
       'Avoiding Eye Contact': { min: 45, max: 85 }, // Nervous behavior
       'Scrunched Face': { min: 40, max: 80 }, // Facial expressions
       
