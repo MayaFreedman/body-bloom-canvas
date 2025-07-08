@@ -1,6 +1,6 @@
 
-import { useState, useEffect } from 'react';
-import { BodyMapperMode, SelectedSensation, SensationMark, DrawingTarget } from '@/types/bodyMapperTypes';
+import { useState, useEffect, useCallback } from 'react';
+import { BodyMapperMode, SelectedSensation, SensationMark, DrawingTarget, DrawingMark } from '@/types/bodyMapperTypes';
 import { useActionHistory } from './useActionHistory';
 import { useStrokeManager } from './useStrokeManager';
 import { useSpatialIndex } from './useSpatialIndex';
@@ -225,13 +225,17 @@ export const useEnhancedBodyMapperState = ({
   }, [strokeManager.completedStrokes, strokeManager.currentStroke, textManager.textMarks]);
 
   // Legacy compatibility - convert to old format for existing components
-  const drawingMarks = strokeManager.getAllMarks().map(mark => ({
-    id: mark.id,
-    position: mark.position,
-    color: mark.color,
-    size: mark.size,
-    surface: mark.surface
-  }));
+  const drawingMarks = strokeManager.getAllMarks().map(mark => {
+    console.log('🟢 Converting stroke mark to drawing mark:', {id: mark.id, surface: mark.surface, hasAllProps: Object.keys(mark)});
+    return {
+      id: mark.id,
+      position: mark.position,
+      color: mark.color,
+      size: mark.size,
+      surface: mark.surface
+    };
+  });
+  console.log('🟢 Final drawingMarks array:', drawingMarks.length, 'marks with surfaces:', drawingMarks.map(m => ({id: m.id, surface: m.surface})));
 
   return {
     mode,
@@ -256,7 +260,16 @@ export const useEnhancedBodyMapperState = ({
     
     // Enhanced functionality
     handleStartDrawing,
-    handleAddDrawingMark: drawingOps.handleAddDrawingMark,
+    handleAddDrawingMark: useCallback((mark: DrawingMark) => {
+      console.log('🟣 useEnhancedBodyMapperState.handleAddDrawingMark received mark:', {id: mark.id, surface: mark.surface, hasAllProps: Object.keys(mark)});
+      
+      // Add to stroke for action history
+      const enhancedMark = drawingOps.handleAddDrawingMark(mark);
+      
+      console.log('🟣 Mark successfully processed by drawingOps, enhancedMark:', enhancedMark);
+      
+      return enhancedMark;
+    }, [drawingOps.handleAddDrawingMark]),
     handleFinishDrawing,
     handleSensationClick,
     handleErase: eraseOps.handleErase,
