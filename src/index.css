@@ -263,10 +263,19 @@
     box-shadow: 0 4px 8px rgba(0,0,0,0.3);
   }
 
-  /* Control buttons in canvas area - exact match */
-  .undo-redo-container {
+  /* Control buttons in canvas area */
+  .top-left-controls {
     position: absolute;
-    bottom: 20px;
+    top: 20px;
+    left: 20px;
+    display: flex;
+    gap: 10px;
+    z-index: 10;
+  }
+
+  .top-right-controls {
+    position: absolute;
+    top: 20px;
     right: 20px;
     display: flex;
     gap: 10px;

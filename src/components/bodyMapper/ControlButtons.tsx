@@ -68,7 +68,7 @@ export const ControlButtons = ({
 
   return (
     <>
-      {/* Reset Button Container */}
+      {/* Reset Button Container - Bottom Center */}
       <div 
         className="reset-button-container control-buttons"
         style={{ pointerEvents: shouldDisablePointerEvents ? 'none' : 'auto' }}
@@ -83,9 +83,9 @@ export const ControlButtons = ({
         </button>
       </div>
 
-      {/* Undo/Redo Container */}
+      {/* Undo/Redo Container - Top Left */}
       <div 
-        className="undo-redo-container control-buttons"
+        className="top-left-controls control-buttons"
         style={{ pointerEvents: shouldDisablePointerEvents ? 'none' : 'auto' }}
       >
         <button 
@@ -104,6 +104,13 @@ export const ControlButtons = ({
         >
           ↪ Redo
         </button>
+      </div>
+
+      {/* Snapshot Button - Top Right */}
+      <div 
+        className="top-right-controls control-buttons"
+        style={{ pointerEvents: shouldDisablePointerEvents ? 'none' : 'auto' }}
+      >
         <button onClick={captureScreenshot} className="control-button">
           📷 Snapshot
         </button>
