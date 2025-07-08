@@ -66,10 +66,14 @@ export const useDrawingMarks = ({
       };
       onAddMark(mark);
       
-      console.log('✅ Added mark:', surface, 'final mark position:', {
-        x: mark.position.x.toFixed(3),
-        y: mark.position.y.toFixed(3),
-        z: mark.position.z.toFixed(3)
+      console.log('✅ Added mark with SURFACE:', surface, 'mark object:', { 
+        id: mark.id, 
+        surface: mark.surface, 
+        position: {
+          x: mark.position.x.toFixed(3),
+          y: mark.position.y.toFixed(3),
+          z: mark.position.z.toFixed(3)
+        }
       });
     }
   }, [selectedColor, brushSize, onAddMark, modelRef]);

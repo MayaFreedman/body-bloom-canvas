@@ -144,12 +144,16 @@ export const BodyMapperCanvas = ({
           <HumanModel bodyPartColors={bodyPartColors} />
           
           {/* Render drawing marks as children of the model group so they rotate with it */}
-          {drawingMarks.filter(mark => mark.surface !== 'whiteboard').map((mark) => (
+          {(() => {
+            const bodyMarks = drawingMarks.filter(mark => mark.surface !== 'whiteboard');
+            console.log('🎨 BODY MARKS TO RENDER (inside rotating group):', bodyMarks.length, 'marks:', bodyMarks.map(m => ({ id: m.id, surface: m.surface, pos: m.position })));
+            return bodyMarks.map((mark) => (
             <mesh key={mark.id} position={mark.position}>
               <sphereGeometry args={[mark.size, 8, 8]} />
               <meshBasicMaterial color={mark.color} />      
             </mesh>
-          ))}
+            ));
+          })()}
 
           {/* Render sensation particles as children of the model group */}
           <SensationParticles sensationMarks={sensationMarks} />
@@ -168,12 +172,16 @@ export const BodyMapperCanvas = ({
         />
         
         {/* Render whiteboard marks outside the model group so they don't rotate */}
-        {drawingMarks.filter(mark => mark.surface === 'whiteboard').map((mark) => (
+        {(() => {
+          const whiteboardMarks = drawingMarks.filter(mark => mark.surface === 'whiteboard');
+          console.log('🖼️ WHITEBOARD MARKS TO RENDER (outside rotating group):', whiteboardMarks.length, 'marks:', whiteboardMarks.map(m => ({ id: m.id, surface: m.surface, pos: m.position })));
+          return whiteboardMarks.map((mark) => (
           <mesh key={mark.id} position={mark.position}>
             <sphereGeometry args={[mark.size, 8, 8]} />
             <meshBasicMaterial color={mark.color} />      
           </mesh>
-        ))}
+          ));
+        })()}
         
         {/* Render text marks on whiteboard outside the model group */}
         <TextRenderer 
