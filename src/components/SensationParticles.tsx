@@ -160,7 +160,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       'Tingling': 0.7,
       'Shaky': 0.3, // Reduced from 1.0 - shake image is small  
       'Pacing': 1.2,
-      'Stomping': 0.4, // Reduced from 1.2 - feetred image is small
+      'Stomping': 1.8, // Increased from 0.4 - bigger stompy feet
       'Tight': 1.0,
       'Lump in Throat': 1.0,
       'Change in Appetite': 0.3, // Reduced from 1.0 - plate image is small
@@ -820,6 +820,21 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             const material = (mesh as any).material;
             if (material) {
               material.opacity = opacity * (0.7 + Math.sin(particle.oscillationPhase * 3) * 0.2);
+            }
+          } else if (mark.name === 'Stomping') {
+            // Special stomping pulse effect - big entrance pulse
+            const entryPulse = particle.life < particle.maxLife * 0.3 ? 
+              1 + Math.sin((particle.life / (particle.maxLife * 0.3)) * Math.PI) * 1.2 : 1;
+            const stompScale = entryPulse * (1 + Math.sin(time * 2 + particle.life * 0.1) * 0.3);
+            mesh.scale.setScalar(particle.size * normalizedScale * stompScale);
+            
+            // Update sprite material opacity with pulse effect
+            const material = (mesh as any).material;
+            if (material) {
+              const pulseOpacity = particle.life < particle.maxLife * 0.3 ? 
+                opacity * (0.9 + Math.sin((particle.life / (particle.maxLife * 0.3)) * Math.PI) * 0.3) : 
+                opacity;
+              material.opacity = pulseOpacity;
             }
           } else {
             // Apply normalized scale to all other sensations
