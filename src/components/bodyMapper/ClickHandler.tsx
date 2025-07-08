@@ -8,20 +8,16 @@ interface ClickHandlerProps {
   mode: BodyMapperMode;
   selectedColor: string;
   selectedSensation?: SelectedSensation | null;
-  drawingTarget: 'body' | 'whiteboard';
   onBodyPartClick: (partName: string, color: string) => void;
   onSensationClick: (position: THREE.Vector3, sensation: SelectedSensation) => void;
-  onWhiteboardFill?: (color: string) => void;
 }
 
 export const ClickHandler = ({ 
   mode, 
   selectedColor, 
   selectedSensation, 
-  drawingTarget,
   onBodyPartClick, 
-  onSensationClick,
-  onWhiteboardFill
+  onSensationClick 
 }: ClickHandlerProps) => {
   const { camera, gl, raycaster, mouse, scene } = useThree();
 
@@ -29,16 +25,6 @@ export const ClickHandler = ({
     const meshes: THREE.Mesh[] = [];
     scene.traverse((child) => {
       if (child instanceof THREE.Mesh && child.userData.bodyPart) {
-        meshes.push(child);
-      }
-    });
-    return meshes;
-  }, [scene]);
-
-  const getWhiteboardMeshes = useCallback(() => {
-    const meshes: THREE.Mesh[] = [];
-    scene.traverse((child) => {
-      if (child instanceof THREE.Mesh && child.userData.isWhiteboard) {
         meshes.push(child);
       }
     });
@@ -54,33 +40,7 @@ export const ClickHandler = ({
 
     raycaster.setFromCamera(mouse, camera);
     
-    // Check whiteboard clicks first if targeting whiteboard
-    if (drawingTarget === 'whiteboard') {
-      const whiteboardMeshes = getWhiteboardMeshes();
-      const whiteboardIntersects = raycaster.intersectObjects(whiteboardMeshes, false);
-      
-      if (whiteboardIntersects.length > 0) {
-        const intersectedObject = whiteboardIntersects[0].object;
-        
-        if (intersectedObject.userData.isWhiteboard) {
-          // PRIORITY 1: If a sensation is equipped, place it on whiteboard
-          if (selectedSensation) {
-            console.log('🎯 ClickHandler - Placing sensation on whiteboard:', selectedSensation.name);
-            onSensationClick(whiteboardIntersects[0].point, selectedSensation);
-            return;
-          }
-          
-          // PRIORITY 2: If mode is fill, fill whiteboard background
-          if (mode === 'fill' && onWhiteboardFill) {
-            console.log('🎨 ClickHandler - Filling whiteboard with color:', selectedColor);
-            onWhiteboardFill(selectedColor);
-            return;
-          }
-        }
-      }
-    }
-
-    // Get all body meshes for body interactions
+    // Get all body meshes
     const bodyMeshes = getBodyMeshes();
     const intersects = raycaster.intersectObjects(bodyMeshes, false);
 

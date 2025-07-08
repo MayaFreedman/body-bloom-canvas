@@ -12,7 +12,6 @@ export const useBodyMapperState = () => {
   const [sensationMarks, setSensationMarks] = useState<SensationMark[]>([]);
   const [effects, setEffects] = useState<Effect[]>([]);
   const [bodyPartColors, setBodyPartColors] = useState<BodyPartColors>({});
-  const [whiteboardBackground, setWhiteboardBackground] = useState('white');
   const [rotation, setRotation] = useState(0);
 
   // Add performance optimization
@@ -57,16 +56,11 @@ export const useBodyMapperState = () => {
     setRotation(prev => prev + Math.PI / 2);
   }, []);
 
-  const handleWhiteboardFill = useCallback((color: string) => {
-    setWhiteboardBackground(color);
-  }, []);
-
   const clearAll = useCallback(() => {
     setDrawingMarks([]);
     setEffects([]);
     setBodyPartColors({});
     setSensationMarks([]);
-    setWhiteboardBackground('white');
   }, []);
 
   return {
@@ -86,14 +80,11 @@ export const useBodyMapperState = () => {
     setEffects,
     bodyPartColors,
     setBodyPartColors,
-    whiteboardBackground,
-    setWhiteboardBackground,
     rotation,
     setRotation,
     handleAddDrawingMark,
     handleBodyPartClick,
     handleSensationClick,
-    handleWhiteboardFill,
     rotateLeft,
     rotateRight,
     clearAll

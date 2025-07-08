@@ -12,12 +12,12 @@ import { CustomCursor } from './CustomCursor';
 import { ClickHandler } from './ClickHandler';
 import { HoverDetector } from './HoverDetector';
 import { EraserHandler } from './EraserHandler';
-import { WhiteboardOverlay } from './WhiteboardOverlay';
+import { WhiteboardPlane } from './WhiteboardPlane';
 import { TextPlacementHandler } from './TextPlacementHandler';
 import { InlineTextEditor } from './InlineTextEditor';
 import { TextRenderer } from '@/components/TextRenderer';
 import { useSidebarHover } from '@/hooks/useSidebarHover';
-import { DrawingMark, WhiteboardMark, SensationMark, Effect, BodyPartColors, BodyMapperMode, SelectedSensation } from '@/types/bodyMapperTypes';
+import { DrawingMark, SensationMark, Effect, BodyPartColors, BodyMapperMode, SelectedSensation } from '@/types/bodyMapperTypes';
 import { WorldDrawingPoint } from '@/types/multiplayerTypes';
 import { TextMark } from '@/types/textTypes';
 import * as THREE from 'three';
@@ -29,11 +29,9 @@ interface BodyMapperCanvasProps {
   drawingTarget: 'body' | 'whiteboard';
   selectedSensation: SelectedSensation | null;
   drawingMarks: DrawingMark[];
-  whiteboardMarks?: WhiteboardMark[];
   sensationMarks: SensationMark[];
   effects: Effect[];
   bodyPartColors: BodyPartColors;
-  whiteboardBackground?: string;
   rotation: number;
   isActivelyDrawing?: boolean;
   isHoveringControlButtons?: boolean;
@@ -43,7 +41,6 @@ interface BodyMapperCanvasProps {
   textSettings?: any;
   modelRef: React.RefObject<THREE.Group>;
   onAddDrawingMark: (mark: DrawingMark) => void;
-  onAddWhiteboardMark?: (mark: WhiteboardMark) => void;
   onDrawingStrokeStart: () => void;
   onDrawingStrokeComplete: () => void;
   onAddToDrawingStroke: (worldPoint: WorldDrawingPoint) => void;
@@ -51,7 +48,6 @@ interface BodyMapperCanvasProps {
   onSensationClick: (position: THREE.Vector3, sensation: SelectedSensation) => void;
   onSensationDeselect: () => void;
   onErase: (center: THREE.Vector3, radius: number, surface: 'body' | 'whiteboard') => void;
-  onWhiteboardFill?: (color: string) => void;
   onTextPlace?: (position: THREE.Vector3, surface: 'body' | 'whiteboard') => void;
   onTextClick?: (textMark: TextMark) => void;
   onTextSave?: (text: string) => void;
@@ -68,11 +64,9 @@ export const BodyMapperCanvas = ({
   drawingTarget,
   selectedSensation,
   drawingMarks,
-  whiteboardMarks = [],
   sensationMarks,
   effects,
   bodyPartColors,
-  whiteboardBackground = 'white',
   rotation,
   isActivelyDrawing = false,
   isHoveringControlButtons = false,
@@ -82,7 +76,6 @@ export const BodyMapperCanvas = ({
   textSettings,
   modelRef,
   onAddDrawingMark,
-  onAddWhiteboardMark,
   onDrawingStrokeStart,
   onDrawingStrokeComplete,
   onAddToDrawingStroke,
@@ -90,7 +83,6 @@ export const BodyMapperCanvas = ({
   onSensationClick,
   onSensationDeselect,
   onErase,
-  onWhiteboardFill,
   onTextPlace,
   onTextClick,
   onTextSave,
@@ -138,16 +130,15 @@ export const BodyMapperCanvas = ({
 
       <Canvas 
         camera={{ position: [0, 0, 3.5], fov: 50 }}
-        style={{ width: '100%', height: '100%', backgroundColor: 'white' }}
+        style={{ width: '100%', height: '100%' }}
       >
         <ambientLight intensity={1.0} />
         <directionalLight position={[10, 10, 5]} intensity={0.5} />
         <directionalLight position={[-10, -10, -5]} intensity={0.2} />
         
-        {/* Whiteboard overlay disabled - using 2D overlay instead */}
-        
         <group ref={modelRef} rotation={[0, rotation, 0]}>
           <HumanModel bodyPartColors={bodyPartColors} />
+          <WhiteboardPlane visible={drawingTarget === 'whiteboard'} />
           
           {/* Render drawing marks as children of the model group so they rotate with it */}
           {drawingMarks.filter(mark => mark.surface !== 'whiteboard').map((mark) => (
@@ -167,7 +158,19 @@ export const BodyMapperCanvas = ({
           />
         </group>
         
-        {/* Old 3D whiteboard rendering removed - using 2D overlay instead */}
+        {/* Render whiteboard marks outside the model group so they don't rotate */}
+        {drawingMarks.filter(mark => mark.surface === 'whiteboard').map((mark) => (
+          <mesh key={mark.id} position={mark.position}>
+            <sphereGeometry args={[mark.size, 8, 8]} />
+            <meshBasicMaterial color={mark.color} />      
+          </mesh>
+        ))}
+        
+        {/* Render text marks on whiteboard outside the model group */}
+        <TextRenderer 
+          textMarks={textMarks.filter(mark => mark.surface === 'whiteboard')} 
+          onTextClick={onTextClick}
+        />
         
         <ModelDrawing
           isDrawing={mode === 'draw'}
@@ -206,10 +209,8 @@ export const BodyMapperCanvas = ({
           mode={mode}
           selectedColor={selectedColor}
           selectedSensation={selectedSensation}
-          drawingTarget={drawingTarget}
           onBodyPartClick={onBodyPartClick}
           onSensationClick={handleSensationClick}
-          onWhiteboardFill={onWhiteboardFill}
         />
         
         <HoverDetector onHoverChange={setIsHoveringBody} />
@@ -239,20 +240,6 @@ export const BodyMapperCanvas = ({
         selectedColor={selectedColor}
       />
       
-      {/* 2D Whiteboard Overlay */}
-      <WhiteboardOverlay
-        visible={drawingTarget === 'whiteboard'}
-        backgroundColor={whiteboardBackground}
-        marks={whiteboardMarks}
-        isDrawing={mode === 'draw'}
-        selectedColor={selectedColor}
-        brushSize={brushSize}
-        onAddMark={onAddWhiteboardMark || (() => {})}
-        onStrokeStart={onDrawingStrokeStart}
-        onStrokeComplete={onDrawingStrokeComplete}
-        onFill={onWhiteboardFill}
-      />
-
       {/* Inline Text Editor */}
       {onTextSave && onTextCancel && editingTextId && (
         <div className="absolute inset-0 pointer-events-none">

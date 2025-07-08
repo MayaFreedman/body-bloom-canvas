@@ -83,14 +83,12 @@ export const useDrawingEventHandlers = ({
       }
       // Handle whiteboard intersection
       else if (intersect.object.userData.isWhiteboard && drawingTarget === 'whiteboard') {
-        console.log('✅ Hit whiteboard at world position:', intersect.point);
-        console.log('🎨 Whiteboard intersect object matrix:', intersect.object.matrixWorld);
+        console.log('✅ Hit whiteboard at:', intersect.point);
         if (onStrokeStart && !strokeStarted.current) {
           onStrokeStart();
           strokeStarted.current = true;
         }
         
-        // Use the intersection point directly without any transformations
         addMarkAtPosition(intersect.point, intersect, 'whiteboard');
         
         if (onAddToStroke && intersect.object instanceof THREE.Mesh) {
@@ -171,7 +169,6 @@ export const useDrawingEventHandlers = ({
       // Handle whiteboard drawing
       else if (intersect.object.userData.isWhiteboard && drawingTarget === 'whiteboard') {
         const currentPosition = intersect.point;
-        console.log('🖊️ Moving on whiteboard at world position:', currentPosition);
         
         addMarkAtPosition(currentPosition, intersect, 'whiteboard');
         
