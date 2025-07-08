@@ -12,16 +12,6 @@ export interface DrawingMark {
   userId?: string;
 }
 
-export interface WhiteboardMark {
-  id: string;
-  x: number;
-  y: number;
-  color: string;
-  size: number;
-  timestamp?: number;
-  userId?: string;
-}
-
 export interface SensationMark {
   id: string;
   position: THREE.Vector3;

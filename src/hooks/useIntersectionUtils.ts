@@ -1,6 +1,5 @@
 
 import { useCallback } from 'react';
-import { useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 
 interface UseIntersectionUtilsProps {
@@ -8,32 +7,22 @@ interface UseIntersectionUtilsProps {
 }
 
 export const useIntersectionUtils = ({ modelRef }: UseIntersectionUtilsProps) => {
-  const { scene } = useThree();
-  
   const getIntersectedObjects = useCallback((includeWhiteboard: boolean = false) => {
     const meshes: THREE.Mesh[] = [];
     const modelGroup = modelRef?.current;
     
-    // Get body part meshes from model group
     if (modelGroup) {
       modelGroup.traverse((child) => {
-        if (child instanceof THREE.Mesh && child.userData.bodyPart) {
-          meshes.push(child);
-        }
-      });
-    }
-    
-    // Get whiteboard meshes from entire scene (they're outside model group)
-    if (includeWhiteboard) {
-      scene.traverse((child) => {
-        if (child instanceof THREE.Mesh && child.userData.isWhiteboard) {
-          meshes.push(child);
+        if (child instanceof THREE.Mesh) {
+          if (child.userData.bodyPart || (includeWhiteboard && child.userData.isWhiteboard)) {
+            meshes.push(child);
+          }
         }
       });
     }
     
     return meshes;
-  }, [modelRef, scene]);
+  }, [modelRef]);
 
   const getWhiteboardRegion = useCallback((position: THREE.Vector3): string => {
     // Simple quadrant system for whiteboard regions

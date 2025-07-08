@@ -83,31 +83,23 @@ export const useDrawingEventHandlers = ({
       }
       // Handle whiteboard intersection
       else if (intersect.object.userData.isWhiteboard && drawingTarget === 'whiteboard') {
-        console.log('✅ Hit whiteboard at world position:', intersect.point);
-        
-        // For whiteboard, keep the coordinates normalized to the whiteboard plane
-        // but store them in a way that they don't rotate with the body
-        const normalizedX = intersect.point.x; // Keep between -3 and 3 
-        const normalizedY = intersect.point.y; // Keep between -4 and 4
-        const whiteboardPosition = new THREE.Vector3(normalizedX, normalizedY, -0.49);
-        
+        console.log('✅ Hit whiteboard at:', intersect.point);
         if (onStrokeStart && !strokeStarted.current) {
           onStrokeStart();
           strokeStarted.current = true;
         }
         
-        // Store whiteboard marks with absolute coordinates that won't rotate
-        addMarkAtPosition(whiteboardPosition, intersect, 'whiteboard');
+        addMarkAtPosition(intersect.point, intersect, 'whiteboard');
         
         if (onAddToStroke && intersect.object instanceof THREE.Mesh) {
           const worldPoint: WorldDrawingPoint = {
             id: `point-${Date.now()}-${Math.random()}`,
             worldPosition: {
-              x: normalizedX,
-              y: normalizedY,
-              z: -0.49
+              x: intersect.point.x,
+              y: intersect.point.y,
+              z: intersect.point.z
             },
-            whiteboardRegion: `${normalizedX > 0 ? 'right' : 'left'}-${normalizedY > 0 ? 'top' : 'bottom'}`,
+            whiteboardRegion: `${intersect.point.x > 0 ? 'right' : 'left'}-${intersect.point.y > 0 ? 'top' : 'bottom'}`,
             surface: 'whiteboard',
             color: '',
             size: 0
@@ -115,8 +107,8 @@ export const useDrawingEventHandlers = ({
           onAddToStroke(worldPoint);
         }
         
-        lastPosition.current = whiteboardPosition;
-        lastBodyPart.current = 'whiteboard';
+        lastPosition.current = intersect.point.clone();
+        lastBodyPart.current = 'whiteboard'; // Use whiteboard as identifier
         lastMarkTime.current = Date.now();
       }
     }
@@ -176,12 +168,7 @@ export const useDrawingEventHandlers = ({
       }
       // Handle whiteboard drawing
       else if (intersect.object.userData.isWhiteboard && drawingTarget === 'whiteboard') {
-        console.log('🖊️ Moving on whiteboard at world position:', intersect.point);
-        
-        // For whiteboard, keep the coordinates normalized to the whiteboard plane
-        const normalizedX = intersect.point.x;
-        const normalizedY = intersect.point.y;
-        const currentPosition = new THREE.Vector3(normalizedX, normalizedY, -0.49);
+        const currentPosition = intersect.point;
         
         addMarkAtPosition(currentPosition, intersect, 'whiteboard');
         
@@ -189,11 +176,11 @@ export const useDrawingEventHandlers = ({
           const worldPoint: WorldDrawingPoint = {
             id: `point-${Date.now()}-${Math.random()}`,
             worldPosition: {
-              x: normalizedX,
-              y: normalizedY,
-              z: -0.49
+              x: currentPosition.x,
+              y: currentPosition.y,
+              z: currentPosition.z
             },
-            whiteboardRegion: `${normalizedX > 0 ? 'right' : 'left'}-${normalizedY > 0 ? 'top' : 'bottom'}`,
+            whiteboardRegion: `${currentPosition.x > 0 ? 'right' : 'left'}-${currentPosition.y > 0 ? 'top' : 'bottom'}`,
             surface: 'whiteboard',
             color: '',
             size: 0
@@ -205,7 +192,7 @@ export const useDrawingEventHandlers = ({
           interpolateMarks(lastPosition.current, currentPosition, lastBodyPart.current, 'whiteboard', intersect, 'whiteboard');
         }
         
-        lastPosition.current = currentPosition;
+        lastPosition.current = currentPosition.clone();
         lastBodyPart.current = 'whiteboard';
         lastMarkTime.current = now;
       }

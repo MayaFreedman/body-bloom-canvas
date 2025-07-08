@@ -9,7 +9,6 @@ import { useEraseOperations } from './useEraseOperations';
 import { useUndoRedoOperations } from './useUndoRedoOperations';
 import { useBodyPartOperations } from './useBodyPartOperations';
 import { useTextManager } from './useTextManager';
-
 import { TextSettings } from '@/types/textTypes';
 import * as THREE from 'three';
 
@@ -33,7 +32,7 @@ export const useEnhancedBodyMapperState = ({
   onBroadcastTextDelete
 }: UseEnhancedBodyMapperStateProps) => {
   const [mode, setMode] = useState<BodyMapperMode>('draw');
-  const [selectedColor, setSelectedColor] = useState('#ff6b6b'); // Consistent with useBodyMapperState
+  const [selectedColor, setSelectedColor] = useState('#ffeb3b'); // Changed from '#ff6b6b' to '#ffeb3b' (yellow)
   const [brushSize, setBrushSize] = useState([3]);
   const [drawingTarget, setDrawingTarget] = useState<DrawingTarget>('body');
   const [textToPlace, setTextToPlace] = useState('Sample Text');
@@ -65,7 +64,6 @@ export const useEnhancedBodyMapperState = ({
     onBroadcastTextUpdate,
     onBroadcastTextDelete
   });
-
 
   const eraseOps = useEraseOperations({ 
     strokeManager, 

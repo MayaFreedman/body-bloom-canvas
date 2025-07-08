@@ -12,7 +12,7 @@ import { CustomCursor } from './CustomCursor';
 import { ClickHandler } from './ClickHandler';
 import { HoverDetector } from './HoverDetector';
 import { EraserHandler } from './EraserHandler';
-
+import { WhiteboardPlane } from './WhiteboardPlane';
 import { TextPlacementHandler } from './TextPlacementHandler';
 import { InlineTextEditor } from './InlineTextEditor';
 import { TextRenderer } from '@/components/TextRenderer';
@@ -134,30 +134,20 @@ export const BodyMapperCanvas = ({
 
       <Canvas 
         camera={{ position: [0, 0, 3.5], fov: 50 }}
-        style={{ width: '100%', height: '100%', backgroundColor: 'white' }}
+        style={{ width: '100%', height: '100%' }}
       >
         <ambientLight intensity={1.0} />
         <directionalLight position={[10, 10, 5]} intensity={0.5} />
         <directionalLight position={[-10, -10, -5]} intensity={0.2} />
         
-        {/* Whiteboard plane - visible when whiteboard mode is active */}
-        <mesh
-          position={[0, 0, -0.5]}
-          userData={{ isWhiteboard: true }}
-          visible={drawingTarget === 'whiteboard'}
-        >
-          <planeGeometry args={[6, 8]} />
-          <meshBasicMaterial 
-            color={whiteboardBackground} 
-            transparent 
-            opacity={0.9}
-            side={THREE.DoubleSide}
-          />
-        </mesh>
-        
         <group ref={modelRef} rotation={[0, rotation, 0]}>
           <HumanModel bodyPartColors={bodyPartColors} />
-          {/* Render body drawing marks as children of the model group so they rotate with it */}
+          <WhiteboardPlane 
+            visible={drawingTarget === 'whiteboard'} 
+            backgroundColor={whiteboardBackground}
+          />
+          
+          {/* Render drawing marks as children of the model group so they rotate with it */}
           {drawingMarks.filter(mark => mark.surface !== 'whiteboard').map((mark) => (
             <mesh key={mark.id} position={mark.position}>
               <sphereGeometry args={[mark.size, 8, 8]} />
@@ -176,15 +166,12 @@ export const BodyMapperCanvas = ({
         </group>
         
         {/* Render whiteboard marks outside the model group so they don't rotate */}
-        {drawingMarks.filter(mark => mark.surface === 'whiteboard').map((mark) => {
-          console.log('🎨 Rendering whiteboard mark:', mark);
-          return (
-            <mesh key={mark.id} position={mark.position}>
-              <sphereGeometry args={[mark.size, 8, 8]} />
-              <meshBasicMaterial color={mark.color} />      
-            </mesh>
-          );
-        })}
+        {drawingMarks.filter(mark => mark.surface === 'whiteboard').map((mark) => (
+          <mesh key={mark.id} position={mark.position}>
+            <sphereGeometry args={[mark.size, 8, 8]} />
+            <meshBasicMaterial color={mark.color} />      
+          </mesh>
+        ))}
         
         {/* Render text marks on whiteboard outside the model group */}
         <TextRenderer 
