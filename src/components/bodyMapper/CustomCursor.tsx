@@ -63,10 +63,17 @@ export const CustomCursor: React.FC<CustomCursorProps> = ({
         console.log('🖱️ Setting none cursor - sensation selected but not hovering');
       }
     } else if (mode === 'text') {
-      // Hide default cursor when in text mode (we show custom cursor)
-      document.body.style.setProperty('cursor', 'none', 'important');
-      if (canvas) canvas.style.setProperty('cursor', 'none', 'important');
-      console.log('🖱️ Setting none cursor - text mode');
+      if (isHoveringSidebar) {
+        // Show default cursor when hovering sidebar in text mode
+        document.body.style.setProperty('cursor', 'default', 'important');
+        if (canvas) canvas.style.setProperty('cursor', 'default', 'important');
+        console.log('🖱️ Setting default cursor - text mode hovering sidebar');
+      } else {
+        // Hide default cursor when in text mode (we show custom cursor)
+        document.body.style.setProperty('cursor', 'none', 'important');
+        if (canvas) canvas.style.setProperty('cursor', 'none', 'important');
+        console.log('🖱️ Setting none cursor - text mode');
+      }
     } else {
       // Default cursor when no sensation selected
       document.body.style.setProperty('cursor', 'default', 'important');
@@ -78,7 +85,7 @@ export const CustomCursor: React.FC<CustomCursorProps> = ({
       document.body.style.cursor = 'default';
       if (canvas) canvas.style.cursor = 'default';
     };
-  }, [selectedSensation, isHoveringBody, showNotAllowed, mode]);
+  }, [selectedSensation, isHoveringBody, showNotAllowed, mode, isHoveringSidebar]);
 
   // Show custom cursor for sensations OR text mode, but not when hovering sidebar
   if ((!selectedSensation && mode !== 'text') || isHoveringSidebar) {
