@@ -257,7 +257,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       'Change in Energy': { base: 0.04, variance: 0.02, multiplier: 1.5 }, // Energy bursts
       'Fidgety': { base: 0.035, variance: 0.015, multiplier: 1.4 }, // Restless movement
       'Pacing': { base: 0.04, variance: 0.02, multiplier: 1.5 }, // Movement patterns
-      'Stomping': { base: 0.01, variance: 0.005, multiplier: 1.0 }, // Even slower spawn rate - reduced from 0.02
+      'Stomping': { base: 0.06, variance: 0.03, multiplier: 2.5 }, // Big, heavy particles like frozen/stiff
       'Avoiding Eye Contact': { base: 0.035, variance: 0.015, multiplier: 1.4 }, // Nervous behavior
       'Scrunched Face': { base: 0.04, variance: 0.02, multiplier: 1.5 }, // Facial tension
       
@@ -308,7 +308,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       'Change in Energy': { min: 50, max: 100 }, // Energy bursts
       'Fidgety': { min: 40, max: 80 }, // Restless, changing
       'Pacing': { min: 60, max: 100 }, // Movement patterns
-      'Stomping': { min: 50, max: 90 }, // Forceful but brief
+      'Stomping': { min: 100, max: 167 }, // Like frozen/stiff but 3x faster - was 50-90
       'Avoiding Eye Contact': { min: 45, max: 85 }, // Nervous behavior
       'Scrunched Face': { min: 40, max: 80 }, // Facial expressions
       
@@ -368,7 +368,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             'Change in Energy': 20,     // Energy bursts
             'Fidgety': 25,              // Restless movement
             'Pacing': 18,               // Movement patterns
-            'Stomping': 15,             // Forceful steps
+            'Stomping': 4,              // Very few, big stomps - reduced from 15
             'Avoiding Eye Contact': 12, // Nervous behavior
             'Scrunched Face': 10,       // Facial tension
             
