@@ -108,7 +108,7 @@
   }
 
   .controls-container {
-    width: 25%; /* Controls take up 25% of the width (thinner) */
+    width: 35%; /* Controls take up 35% of the width */
     height: 100%;
     position: relative;
     transition: width 0.3s ease;
