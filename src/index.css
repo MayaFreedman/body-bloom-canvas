@@ -102,7 +102,7 @@
   }
 
   .canvas-container {
-    width: 75%; /* Canvas takes up 75% of the width */
+    width: 65%; /* Canvas takes up 65% of the width */
     height: 100%;
     position: relative;
   }
