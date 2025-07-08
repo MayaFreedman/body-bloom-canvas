@@ -608,8 +608,8 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             // MOVEMENT effects
             'Shaky': { speed: 3.0, intensity: 1.8, pattern: 'shake' }, // Fast trembling
             'Fidgety': { speed: 2.2, intensity: 1.4, pattern: 'shake' }, // Restless movement
-            'Pacing': { speed: 1.5, intensity: 1.0, pattern: 'wave' }, // Rhythmic movement
-            'Stomping': { speed: 0.5, intensity: 1.2, pattern: 'wave' }, // Slower but more intense than pacing
+            'Pacing': { speed: 0.8, intensity: 0.6, pattern: 'wave' }, // Gentler rhythmic movement
+            'Stomping': { speed: 0.3, intensity: 0.8, pattern: 'wave' }, // Slower and gentler than pacing
             
             // FLOW effects - dripping with strong downward movement (negative Y = down)
             'Tears': { speed: 0.2, intensity: 0.4, pattern: 'drip', gravity: 0.0002, drift: new THREE.Vector3(0, -0.15, 0) },
@@ -773,10 +773,11 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             particle.velocity.add(driftForce);
           }
           
-          // Add natural floating movement
-          const floatX = Math.sin(particle.oscillationPhase * animProfile.speed) * 0.001 * animProfile.intensity;
-          const floatY = Math.cos(particle.oscillationPhase * animProfile.speed * 1.3) * 0.0008 * animProfile.intensity;
-          const floatZ = Math.sin(particle.oscillationPhase * animProfile.speed * 0.7) * 0.0006 * animProfile.intensity;
+          // Add gentle wave movement - much less nauseating
+          const wavePhase = particle.oscillationPhase * animProfile.speed * 0.5; // Slower oscillation
+          const floatX = Math.sin(wavePhase) * 0.0005 * animProfile.intensity; // Reduced intensity
+          const floatY = Math.sin(wavePhase * 0.8) * 0.0003 * animProfile.intensity; // Gentle vertical
+          const floatZ = Math.cos(wavePhase * 0.6) * 0.0002 * animProfile.intensity; // Minimal depth
           
           particle.velocity.x += floatX * delta;
           particle.velocity.y += floatY * delta;
