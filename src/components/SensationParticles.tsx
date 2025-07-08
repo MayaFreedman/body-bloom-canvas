@@ -300,21 +300,21 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       // MEDIUM = normal lifespan
       'Nausea': { min: 80, max: 140 }, // Swirling motion
       'Increased Heart Rate': { min: 60, max: 120 }, // Faster rhythm
-      'Change in Breathing': { min: 180, max: 300 }, // Much longer lifespan for calm breathing
+      'Change in Breathing': { min: 350, max: 500 }, // Very long lifespan for extremely calm breathing
       'Change in Appetite': { min: 90, max: 150 }, // Moderate change
       'Clenched': { min: 80, max: 140 }, // Tension comes and goes
       
       // ACTIVE = shorter lifespan, more dynamic
       'Change in Energy': { min: 50, max: 100 }, // Energy bursts
       'Fidgety': { min: 40, max: 80 }, // Restless, changing
-      'Pacing': { min: 200, max: 350 }, // Much longer lifespan, less respawning
-      'Stomping': { min: 250, max: 400 }, // Very long lifespan for minimal respawning
+      'Pacing': { min: 400, max: 600 }, // Very long lifespan, minimal respawning
+      'Stomping': { min: 500, max: 700 }, // Extremely long lifespan for very slow feeling
       'Avoiding Eye Contact': { min: 45, max: 85 }, // Nervous behavior
       'Scrunched Face': { min: 40, max: 80 }, // Facial expressions
       
       // FAST/JERKY = short lifespan, frequent regeneration
       'Tingling': { min: 30, max: 60 }, // Quick sparkles
-      'Shaky': { min: 80, max: 140 }, // Slower respawn rate for less overwhelming trembling
+      'Shaky': { min: 150, max: 250 }, // Longer lifespan for less overwhelming trembling
       'Nerves': { min: 20, max: 45 }, // Electrical, quick
       'Goosebumps': { min: 35, max: 70 }, // Brief bumps
       
