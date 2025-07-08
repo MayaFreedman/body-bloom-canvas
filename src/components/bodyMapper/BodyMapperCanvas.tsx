@@ -34,6 +34,7 @@ interface BodyMapperCanvasProps {
   bodyPartColors: BodyPartColors;
   rotation: number;
   isActivelyDrawing?: boolean;
+  isHoveringControlButtons?: boolean;
   textMarks?: TextMark[];
   editingTextId?: string | null;
   textToPlace?: string;
@@ -68,6 +69,7 @@ export const BodyMapperCanvas = ({
   bodyPartColors,
   rotation,
   isActivelyDrawing = false,
+  isHoveringControlButtons = false,
   textMarks = [],
   editingTextId,
   textToPlace = '',
@@ -229,6 +231,7 @@ export const BodyMapperCanvas = ({
         selectedSensation={selectedSensation}
         isHoveringBody={isHoveringBody}
         isHoveringSidebar={isHoveringSidebar}
+        isHoveringControlButtons={isHoveringControlButtons}
         mode={mode}
         drawingTarget={drawingTarget}
         isActivelyDrawing={isActivelyDrawing}

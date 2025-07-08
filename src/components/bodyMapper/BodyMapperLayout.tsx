@@ -106,6 +106,7 @@ export const BodyMapperLayout = ({
   onEmotionsUpdate
 }: BodyMapperLayoutProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isHoveringControlButtons, setIsHoveringControlButtons] = useState(false);
 
   return (
     <div className="game-container">
@@ -123,6 +124,7 @@ export const BodyMapperLayout = ({
             bodyPartColors={bodyPartColors}
             rotation={rotation}
             isActivelyDrawing={isActivelyDrawing}
+            isHoveringControlButtons={isHoveringControlButtons}
             textMarks={textMarks}
             textToPlace={textToPlace}
             textSettings={textSettings}
@@ -156,6 +158,7 @@ export const BodyMapperLayout = ({
           drawingTarget={drawingTarget}
           mode={mode}
           isActivelyDrawing={isActivelyDrawing}
+          onControlButtonsHover={setIsHoveringControlButtons}
         />
       </div>
 
