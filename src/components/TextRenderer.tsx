@@ -65,6 +65,7 @@ const TextMarkComponent = ({
         anchorY="middle"
         onPointerDown={handlePointerDown}
         onDoubleClick={handleDoubleClick}
+        key={`${textMark.id}-${textMark.fontFamily}-${textMark.fontWeight}-${textMark.fontStyle}`} // Force re-render on font changes
       >
         {textMark.text}
       </Text>
