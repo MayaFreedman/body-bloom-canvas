@@ -9,7 +9,7 @@ interface HumanModelProps {
   bodyPartColors?: { [key: string]: string };
 }
 
-// Aggressive color correction function to make 3D colors match UI colors better
+// Reverse-engineered color correction based on actual rendered vs expected color patterns
 const correctColorFor3D = (hexColor: string): string => {
   const color = new Color(hexColor);
   
@@ -17,9 +17,15 @@ const correctColorFor3D = (hexColor: string): string => {
   const hsl = { h: 0, s: 0, l: 0 };
   color.getHSL(hsl);
   
-  // More aggressive boost for saturation and lightness to overcome lighting
-  hsl.s = Math.min(1, hsl.s * 1.8); // Boost saturation by 80%
-  hsl.l = Math.min(0.95, hsl.l * 1.5); // Boost lightness by 50% but cap at 95%
+  // Dramatically boost saturation (main fix for muddy colors)
+  hsl.s = Math.min(1, hsl.s * 2.5); // Much more aggressive than before
+  
+  // Adaptive lightness adjustment based on how dark the color is
+  if (hsl.l < 0.3) {
+    hsl.l = Math.min(0.8, hsl.l * 2.2); // Boost dark colors more
+  } else {
+    hsl.l = Math.min(0.9, hsl.l * 1.3); // Moderate boost for lighter colors
+  }
   
   // Convert back to hex
   color.setHSL(hsl.h, hsl.s, hsl.l);
