@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
-import { RotateCcw, RotateCw } from 'lucide-react';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { HumanModel } from '@/components/HumanModel';
 import { EffectsRenderer } from '@/components/EffectsRenderer';
@@ -122,7 +122,7 @@ export const BodyMapperCanvas = ({
         className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10 bg-white/80 hover:bg-white"
         onClick={onRotateLeft}
       >
-        <RotateCcw className="w-6 h-6" />
+        <ArrowLeft className="w-6 h-6" />
       </Button>
 
       {/* Right Rotation Button */}
@@ -132,7 +132,7 @@ export const BodyMapperCanvas = ({
         className="absolute right-4 top-1/2 transform -translate-y-1/2 z-10 bg-white/80 hover:bg-white"
         onClick={onRotateRight}
       >
-        <RotateCw className="w-6 h-6" />
+        <ArrowRight className="w-6 h-6" />
       </Button>
 
       <Canvas 
