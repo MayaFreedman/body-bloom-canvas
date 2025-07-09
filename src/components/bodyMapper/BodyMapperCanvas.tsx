@@ -227,15 +227,6 @@ export const BodyMapperCanvas = ({
           modelRef={modelRef}
         />
         
-        {onTextPlace && (
-          <TextPlacementHandler
-            isTextMode={mode === 'text'}
-            selectedColor={selectedColor}
-            drawingTarget={drawingTarget}
-            onTextPlace={onTextPlace}
-            modelRef={modelRef}
-          />
-        )}
         
         <EffectsRenderer effects={effects} />
         
