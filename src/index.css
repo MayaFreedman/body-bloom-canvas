@@ -293,17 +293,17 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 12px 24px;
+    padding: 16px 32px;
     background-color: #4a90e2;
     color: white;
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 600;
     transition: all 0.3s ease;
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    min-width: 140px;
+    min-width: 160px;
   }
 
   .main-snapshot-button:hover {
