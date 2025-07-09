@@ -32,6 +32,8 @@ export const useTextManager = ({
     surface: 'body' | 'whiteboard',
     color: string
   ) => {
+    console.log('📝 useTextManager - Adding text with settings:', textSettings);
+    
     const newTextMark: TextMark = {
       id: `text-${Date.now()}-${Math.random()}`,
       position: position.clone(),
@@ -46,6 +48,8 @@ export const useTextManager = ({
       userId: currentUserId,
       timestamp: Date.now()
     };
+
+    console.log('📝 useTextManager - Created textMark with font:', newTextMark.fontFamily);
 
     setTextMarks(prev => [...prev, newTextMark]);
 

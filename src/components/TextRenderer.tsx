@@ -28,10 +28,15 @@ const TextMarkComponent = ({
     // Apply different scaling based on surface to account for coordinate system differences
     const scaleFactor = textMark.surface === 'whiteboard' ? 235 : 300;
     
+    console.log('🔤 TextRenderer - Original font from textMark:', textMark.fontFamily);
+    
     // Use system fonts for better consistency between HTML and Three.js rendering
     const fontFamily = textMark.fontFamily === 'Arial' 
       ? 'Inter, system-ui, -apple-system, sans-serif'
       : textMark.fontFamily || 'Inter, system-ui, -apple-system, sans-serif';
+    
+    console.log('🔤 TextRenderer - Final mapped font:', fontFamily);
+    console.log('🔤 TextRenderer - Complete textMark:', textMark);
     
     return {
       fontSize: textMark.fontSize / scaleFactor,

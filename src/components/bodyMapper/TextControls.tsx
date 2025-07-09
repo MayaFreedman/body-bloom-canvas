@@ -102,7 +102,10 @@ export const TextControls = ({
               {/* Font Family */}
               <Select
                 value={textSettings.fontFamily}
-                onValueChange={(value) => onTextSettingsChange({ fontFamily: value })}
+                onValueChange={(value) => {
+                  console.log('🎛️ TextControls - Font changed to:', value);
+                  onTextSettingsChange({ fontFamily: value });
+                }}
               >
                 <SelectTrigger className="flex-1 h-9">
                   <SelectValue />
