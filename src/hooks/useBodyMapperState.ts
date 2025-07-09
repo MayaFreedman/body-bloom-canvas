@@ -12,7 +12,7 @@ export const useBodyMapperState = () => {
   const [sensationMarks, setSensationMarks] = useState<SensationMark[]>([]);
   const [effects, setEffects] = useState<Effect[]>([]);
   const [bodyPartColors, setBodyPartColors] = useState<BodyPartColors>({});
-  const [whiteboardBackground, setWhiteboardBackground] = useState('#fcfbf8');
+  const [whiteboardBackground, setWhiteboardBackground] = useState('#ffffff');
   const [rotation, setRotation] = useState(0);
 
   // Add performance optimization
@@ -67,7 +67,7 @@ export const useBodyMapperState = () => {
     setEffects([]);
     setBodyPartColors({});
     setSensationMarks([]);
-    setWhiteboardBackground('#fcfbf8');
+    setWhiteboardBackground('#ffffff');
   }, []);
 
   return {
