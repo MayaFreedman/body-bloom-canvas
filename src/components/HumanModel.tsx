@@ -17,14 +17,22 @@ const correctColorFor3D = (hexColor: string): string => {
   const hsl = { h: 0, s: 0, l: 0 };
   color.getHSL(hsl);
   
-  // Dramatically boost saturation (main fix for muddy colors)
-  hsl.s = Math.min(1, hsl.s * 2.5); // Much more aggressive than before
+  // Extremely aggressive saturation boost - analyzing the mappings shows we need much more
+  hsl.s = Math.min(1, hsl.s * 4.0); // Even more aggressive based on actual results
   
-  // Adaptive lightness adjustment based on how dark the color is
-  if (hsl.l < 0.3) {
-    hsl.l = Math.min(0.8, hsl.l * 2.2); // Boost dark colors more
+  // More nuanced lightness adjustment based on color analysis
+  if (hsl.l < 0.25) {
+    // Very dark colors need massive boost
+    hsl.l = Math.min(0.85, hsl.l * 3.0);
+  } else if (hsl.l < 0.45) {
+    // Medium-dark colors need significant boost  
+    hsl.l = Math.min(0.75, hsl.l * 2.0);
+  } else if (hsl.l < 0.65) {
+    // Medium colors need moderate boost
+    hsl.l = Math.min(0.85, hsl.l * 1.4);
   } else {
-    hsl.l = Math.min(0.9, hsl.l * 1.3); // Moderate boost for lighter colors
+    // Light colors need minimal adjustment
+    hsl.l = Math.min(0.95, hsl.l * 1.1);
   }
   
   // Convert back to hex
