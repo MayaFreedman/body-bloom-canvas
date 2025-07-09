@@ -71,17 +71,25 @@ const TextMarkComponent = ({
     anchorY: "middle"
   });
 
+  // Simplified approach - don't pass font URLs that might fail to load
+  const safeProps = {
+    fontSize: fontStyle.fontSize,
+    color: fontStyle.color,
+    // Only pass font if it's a valid URL, otherwise let it use default
+    ...(fontStyle.font && fontStyle.font.startsWith('http') ? {} : { font: fontStyle.font })
+  };
+
   return (
     <group position={offsetPosition}>
       <Text
-        {...fontStyle}
+        {...safeProps}
         maxWidth={2}
         lineHeight={1.2}
         anchorX="center"
         anchorY="middle"
         onPointerDown={handlePointerDown}
         onDoubleClick={handleDoubleClick}
-        key={`${textMark.id}-${textMark.fontFamily}-${textMark.fontWeight}-${textMark.fontStyle}`} // Force re-render on font changes
+        key={`${textMark.id}-${textMark.fontFamily}-${textMark.fontWeight}-${textMark.fontStyle}`}
       >
         {textMark.text}
       </Text>
