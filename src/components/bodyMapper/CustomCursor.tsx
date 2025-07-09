@@ -101,7 +101,7 @@ export const CustomCursor: React.FC<CustomCursorProps> = ({
 
   // For text mode, show text preview
   if (mode === 'text' && textToPlace.trim()) {
-    const fontSize = (textSettings?.fontSize || 16) * 1.5; // Scale up preview by 1.5x
+    const fontSize = (textSettings?.fontSize || 16) * 1.3; // Scale up preview by 1.3x
     
     return (
       <div
@@ -120,7 +120,7 @@ export const CustomCursor: React.FC<CustomCursorProps> = ({
             fontWeight: textSettings?.fontWeight || 'normal',
             fontStyle: textSettings?.fontStyle || 'normal',
             color: selectedColor,
-            textShadow: '1px 1px 2px rgba(0,0,0,0.15)',
+            textShadow: '1px 1px 2px rgba(0,0,0,0.08)',
             maxWidth: '200px',
             wordBreak: 'break-word',
             lineHeight: 1.2
