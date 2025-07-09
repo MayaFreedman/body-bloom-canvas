@@ -9,7 +9,8 @@ interface UseSensationHandlersProps {
 
 export const useSensationHandlers = ({ multiplayer }: UseSensationHandlersProps) => {
   const handleSensationClick = useCallback((position: THREE.Vector3, sensation: { icon: string; color: string; name: string }) => {
-    console.log('Sensation clicked:', position, sensation);
+    console.log('🔥 MULTIPLAYER SENSATION: Sensation clicked:', position, sensation);
+    console.log('🔥 MULTIPLAYER SENSATION: Is connected?', multiplayer.isConnected);
     
     if (multiplayer.isConnected) {
       const sensationMark = {

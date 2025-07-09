@@ -109,7 +109,7 @@ export const useEnhancedBodyMapperState = ({
 
   // Enhanced sensation handling with action history tracking
   const handleSensationClick = (position: any, sensation: SelectedSensation) => {
-    console.log('🎯 useEnhancedBodyMapperState - handleSensationClick called with:', sensation.name, 'at position:', position);
+    console.log('🔥 LOCAL SENSATION: useEnhancedBodyMapperState - handleSensationClick called with:', sensation.name, 'at position:', position);
     
     const newSensationMark: SensationMark = {
       id: `sensation-${Date.now()}-${Math.random()}`,

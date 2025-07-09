@@ -17,7 +17,8 @@ export const useActionHistory = ({ maxHistorySize = 50 }: UseActionHistoryProps 
   const historyRef = useRef(history);
 
   const addAction = useCallback((action: Omit<ActionHistoryItem, 'id' | 'timestamp'>) => {
-    console.log('Adding action to global history:', action);
+    console.log('🔥 ACTION HISTORY: Adding action to global history:', action.type, action.metadata);
+    console.trace('🔥 ACTION HISTORY: Stack trace for action addition');
 
     setHistory(prev => {
       const newAction: ActionHistoryItem = {

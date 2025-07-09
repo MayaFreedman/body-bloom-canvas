@@ -155,11 +155,13 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
 
   // Combine local and multiplayer sensation handling (no auto-deselect)
   const combinedSensationClick = (position: THREE.Vector3, sensation: any) => {
-    console.log('✨ EmotionalBodyMapper - combinedSensationClick called with:', sensation.name, 'at position:', position);
+    console.log('🔥 COMBINED SENSATION: combinedSensationClick called with:', sensation.name, 'at position:', position);
     // Only call local handler once - it handles both state update and action history
     localHandleSensationClick(position, sensation);
+    console.log('🔥 COMBINED SENSATION: About to call multiplayer handler');
     // Only broadcast to multiplayer, don't double-record to history
     handleSensationClick(position, sensation);
+    console.log('🔥 COMBINED SENSATION: Completed both handlers');
     // Sensation remains equipped after placement for multiple uses
   };
 
