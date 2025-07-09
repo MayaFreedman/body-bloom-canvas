@@ -87,7 +87,6 @@ export const getSensationImage = (sensationName: string) => {
 export const SensationSelector = ({ mode, selectedSensation, onModeChange, onSensationChange }: SensationSelectorProps) => {
   return (
     <div>
-      <h3 className="text-xl font-semibold text-gray-800 mb-4">Body Sensations and Signals</h3>
       <div className="subtext-box">
         <p>Sometimes our bodies give us clues about how we're feeling - like a tight chest when we're worried or butterflies in our tummy when we're nervous. Select a sensation below, then click on the body to place it.</p>
         <p className="mt-3"><strong>Tip:</strong> Think about the signals your body gives you. Where do you feel tension, energy, or change when a big feeling shows up?</p>
