@@ -10,8 +10,7 @@ export const BottomBrand = ({ isConnected, isConnecting }: BottomBrandProps) => 
     <div className="fixed bottom-4 left-4 z-10 flex flex-col items-start gap-1">
       <div className="flex items-center gap-1.5 text-muted-foreground text-sm font-medium">
         Body Mapping by{' '}
-        <span className="text-foreground font-semibold">Playspace</span>
-        <img src="/lovable-uploads/d0039284-c575-4bac-9ce4-36954115fe2c.png" alt="Playspace" className="h-4 w-4 object-contain p-0.5" />
+        <img src="/lovable-uploads/924b5d58-1cee-4f88-95a3-4534f584bbaf.png" alt="PlaySpace" className="h-5 object-contain" />
       </div>
       
       {/* Connection status indicator if needed */}
