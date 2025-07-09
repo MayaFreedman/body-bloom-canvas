@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, forwardRef } from 'react';
+import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { TabContainer } from './TabContainer';
 import { FeelingsTabContent } from './FeelingsTabContent';
 import { SensationSelector } from './SensationSelector';
@@ -169,6 +169,18 @@ export const BodyMapperControls = React.forwardRef<
       emotions: emotions
     });
   }, []);
+
+  // Auto-scroll when mode changes to draw or text
+  useEffect(() => {
+    if (mode === 'draw' || mode === 'text') {
+      // Find the active tab content and scroll to show relevant controls
+      const activeTabContent = document.querySelector('.tab-content.active');
+      if (activeTabContent) {
+        // Scroll down to show the tools section
+        activeTabContent.scrollTop = activeTabContent.scrollTop + 200;
+      }
+    }
+  }, [mode]);
 
   return (
     <TabContainer activeTab={activeTab} onTabChange={handleTabChange}>
