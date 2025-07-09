@@ -252,6 +252,34 @@
     z-index: 10;
   }
 
+  /* New top-right positioned reset container */
+  .reset-button-container-top-right {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 10;
+  }
+
+  .control-button-with-text-red {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    background-color: #fff;
+    border: 1px solid #ef4444;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+    font-weight: 500;
+    color: #dc2626;
+  }
+
+  .control-button-with-text-red:hover {
+    background-color: #dc2626;
+    color: white;
+    transform: scale(1.02);
+  }
+
   .control-button-with-text {
     display: flex;
     align-items: center;

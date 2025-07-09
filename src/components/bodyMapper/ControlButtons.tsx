@@ -73,7 +73,7 @@ export const ControlButtons = ({
     <>
       {/* Reset Button Container */}
       <div 
-        className="reset-button-container control-buttons"
+        className="reset-button-container-top-right control-buttons"
         style={{ pointerEvents: shouldDisablePointerEvents ? 'none' : 'auto' }}
         onMouseEnter={() => {
           console.log('🎯 Reset container mouse enter');
@@ -86,12 +86,12 @@ export const ControlButtons = ({
       >
         <button 
           onClick={handleResetAll} 
-          className="main-reset-button"
+          className="control-button-with-text-red"
           aria-label="Reset all changes to the body model"
           onMouseEnter={() => console.log('🔥 Reset button hover enter')}
           onMouseLeave={() => console.log('🔥 Reset button hover leave')}
         >
-          Reset All Changes
+          Reset
         </button>
       </div>
 
