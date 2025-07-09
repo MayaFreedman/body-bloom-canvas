@@ -97,6 +97,7 @@ export const BodyMapperCanvas = ({
 }: BodyMapperCanvasProps) => {
   
   console.log("working version note");
+  console.log('🎯 BodyMapperCanvas: Rendering with mode:', mode, 'selectedSensation:', selectedSensation?.name);
   
   const [isHoveringBody, setIsHoveringBody] = useState(false);
   const isHoveringSidebar = useSidebarHover();
@@ -141,6 +142,9 @@ export const BodyMapperCanvas = ({
           outputColorSpace: 'srgb',
           toneMapping: 0, // NoToneMapping
           toneMappingExposure: 1
+        }}
+        onCreated={(state) => {
+          console.log('🎨 Canvas: Created with GL context:', !!state.gl);
         }}
       >
         <color attach="background" args={[whiteboardBackground]} />
@@ -252,6 +256,9 @@ export const BodyMapperCanvas = ({
           maxPolarAngle={Math.PI}
           minPolarAngle={0}
           enabled={true}
+          onStart={() => console.log('🎮 OrbitControls: Start interaction')}
+          onEnd={() => console.log('🎮 OrbitControls: End interaction')}
+          onChange={() => console.log('🎮 OrbitControls: Camera changed')}
         />
       </Canvas>
       

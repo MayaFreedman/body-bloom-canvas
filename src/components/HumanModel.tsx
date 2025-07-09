@@ -33,8 +33,10 @@ const correctColorFor3D = (hexColor: string): string => {
 };
 
 export const HumanModel = ({ bodyPartColors = {} }: HumanModelProps) => {
+  console.log('🎭 HumanModel: Component rendering, bodyPartColors:', bodyPartColors);
   const groupRef = useRef<Group>(null);
   const { scene } = useGLTF('/body.glb');
+  console.log('🎭 HumanModel: GLTF scene loaded:', !!scene, scene ? 'Scene exists' : 'No scene');
   const originalColors = useRef<{ [key: string]: string }>({});
 
   // Subtle breathing animation - slower and more gentle
@@ -42,6 +44,10 @@ export const HumanModel = ({ bodyPartColors = {} }: HumanModelProps) => {
     const breathe = Math.sin(state.clock.elapsedTime * 0.08) * 0.004 + 1; // Reduced frequency from 0.15 to 0.08, amplitude from 0.008 to 0.004
     if (groupRef.current) {
       groupRef.current.scale.setScalar(breathe);
+      // Only log occasionally to avoid spam
+      if (Math.floor(state.clock.elapsedTime) % 5 === 0 && state.clock.elapsedTime % 1 < 0.016) {
+        console.log('🫁 HumanModel: Breathing animation active, time:', state.clock.elapsedTime.toFixed(2));
+      }
     }
   });
 
@@ -202,6 +208,13 @@ export const HumanModel = ({ bodyPartColors = {} }: HumanModelProps) => {
       });
     }
   }, [scene, bodyPartColors]);
+
+  console.log('🎭 HumanModel: About to render group, scene exists:', !!scene);
+  
+  if (!scene) {
+    console.log('🎭 HumanModel: ⚠️ No scene available, rendering null');
+    return null;
+  }
 
   return (
     <group ref={groupRef} position={[0, -1, 0]} rotation={[0, Math.PI / 2, 0]}>
