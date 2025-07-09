@@ -105,11 +105,11 @@ export const CustomCursor: React.FC<CustomCursorProps> = ({
     
     return (
       <div
-        className="fixed pointer-events-none z-[9999] transition-opacity duration-150"
+        className="fixed pointer-events-none z-[9999] transition-all duration-200 ease-out"
         style={{
           left: cursorPosition.x,
           top: cursorPosition.y,
-          transform: 'translate(-50%, -50%)', // Changed from -100% to -50% for better alignment
+          transform: 'translate(-50%, -50%)',
           opacity: isHoveringBody ? 0.8 : 1
         }}
       >
