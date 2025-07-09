@@ -150,7 +150,11 @@ export const BodyMapperCanvas = ({
             return bodyMarks.map((mark) => (
             <mesh key={mark.id} position={mark.position}>
               <sphereGeometry args={[mark.size, 8, 8]} />
-              <meshBasicMaterial color={mark.color} />      
+              <meshBasicMaterial 
+                color={mark.color} 
+                toneMapped={false}
+                fog={false}
+              />      
             </mesh>
             ));
           })()}
@@ -178,7 +182,11 @@ export const BodyMapperCanvas = ({
           return whiteboardMarks.map((mark) => (
           <mesh key={mark.id} position={mark.position}>
             <sphereGeometry args={[mark.size, 8, 8]} />
-            <meshBasicMaterial color={mark.color} />      
+            <meshBasicMaterial 
+              color={mark.color} 
+              toneMapped={false}
+              fog={false}
+            />      
           </mesh>
           ));
         })()}
