@@ -7,6 +7,7 @@ import * as THREE from 'three';
 interface UseDrawingEventHandlersProps {
   isDrawing: boolean;
   drawingTarget: 'body' | 'whiteboard';
+  mode: string;
   onStrokeStart?: () => void;
   onStrokeComplete?: () => void;
   onAddToStroke?: (worldPoint: WorldDrawingPoint) => void;
@@ -18,6 +19,7 @@ interface UseDrawingEventHandlersProps {
 export const useDrawingEventHandlers = ({
   isDrawing,
   drawingTarget,
+  mode,
   onStrokeStart,
   onStrokeComplete,
   onAddToStroke,
@@ -222,7 +224,8 @@ export const useDrawingEventHandlers = ({
 
   const handlePointerUp = useCallback(() => {
     console.log('🖱️ Pointer up - ending drawing');
-    if (isMouseDown.current && strokeStarted.current) {
+    // Only complete strokes when actually in drawing mode
+    if (isMouseDown.current && strokeStarted.current && mode === 'draw') {
       if (onStrokeComplete) {
         onStrokeComplete();
       }

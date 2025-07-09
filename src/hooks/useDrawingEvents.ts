@@ -11,6 +11,7 @@ interface UseDrawingEventsProps {
   selectedColor: string;
   brushSize: number;
   drawingTarget: 'body' | 'whiteboard';
+  mode: string;
   onAddMark: (mark: DrawingMark) => void;
   onStrokeStart?: () => void;
   onStrokeComplete?: () => void;
@@ -23,6 +24,7 @@ export const useDrawingEvents = ({
   selectedColor,
   brushSize,
   drawingTarget,
+  mode,
   onAddMark,
   onStrokeStart,
   onStrokeComplete,
@@ -42,6 +44,7 @@ export const useDrawingEvents = ({
   const eventHandlers = useDrawingEventHandlers({
     isDrawing,
     drawingTarget,
+    mode,
     onStrokeStart,
     onStrokeComplete,
     onAddToStroke,
