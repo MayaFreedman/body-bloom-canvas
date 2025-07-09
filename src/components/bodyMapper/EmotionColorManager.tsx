@@ -31,7 +31,7 @@ export const EmotionColorManager = ({
   return (
     <div className="mb-6">
       <h4 className="font-semibold text-gray-800 mb-4">Colors & Emotions</h4>
-      <div className="space-y-4">
+      <div className="space-y-2">
         {emotions.map((emotion, index) => (
           <div key={index} className="flex items-center space-x-2">
             <div className="flex-1">
@@ -60,7 +60,7 @@ export const EmotionColorManager = ({
       </div>
       
       {/* Add Color Button */}
-      <div className="mt-4">
+      <div className="mt-3">
         <Button
           onClick={onAddColor}
           className="w-full bg-green-500 hover:bg-green-600 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center"
