@@ -20,11 +20,11 @@ const correctColorFor3D = (hexColor: string): string => {
   // More targeted saturation boost - not too extreme to avoid washout
   hsl.s = Math.min(1, hsl.s * 1.8);
   
-  // Strategic lightness adjustment - boost but keep colors rich
-  if (hsl.l < 0.4) {
-    hsl.l = Math.min(0.7, hsl.l * 1.8); // Boost dark colors moderately
+  // Conservative lightness adjustment - avoid greying out colors
+  if (hsl.l < 0.3) {
+    hsl.l = Math.min(0.6, hsl.l * 1.6); // Boost very dark colors only
   } else {
-    hsl.l = Math.min(0.85, hsl.l * 1.2); // Gentle boost for lighter colors
+    hsl.l = Math.max(0.4, Math.min(0.8, hsl.l * 1.05)); // Minimal adjustment for others
   }
   
   // Convert back to hex
