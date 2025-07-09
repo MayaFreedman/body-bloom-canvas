@@ -213,7 +213,7 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
         onSensationClick={combinedSensationClick}
         onErase={handleMultiplayerErase}
         onWhiteboardFill={handleWhiteboardFill}
-        onTextPlace={(position, surface) => handleAddTextMark(position, textToPlace || 'Sample Text', surface, selectedColor)}
+        onTextPlace={(position, surface) => handleAddTextMark(position, textToPlace || '', surface, selectedColor)}
         onTextClick={(textMark) => handleStartTextEditing(textMark.id)}
         onTextSave={(text) => editingTextId && handleUpdateTextMark(editingTextId, { text })}
         onTextCancel={handleStopTextEditing}

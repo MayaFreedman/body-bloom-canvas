@@ -35,7 +35,7 @@ export const useEnhancedBodyMapperState = ({
   const [selectedColor, setSelectedColor] = useState('#ffeb3b'); // Changed from '#ff6b6b' to '#ffeb3b' (yellow)
   const [brushSize, setBrushSize] = useState([3]);
   const [drawingTarget, setDrawingTarget] = useState<DrawingTarget>('body');
-  const [textToPlace, setTextToPlace] = useState('Sample Text');
+  const [textToPlace, setTextToPlace] = useState('');
   const [selectedSensation, setSelectedSensation] = useState<SelectedSensation | null>(null);
 
   // Custom sensation selection handler that manages mode
