@@ -57,7 +57,7 @@ export const FeelingsTabContent = ({
     <div className="space-y-4">
       {/* Colors & Emotions Header and Description */}
       <div>
-        <div className="subtext-box">
+        <div className="mb-4">
           <p>Identify the feelings you are experiencing, then choose a color that best represents each feeling for you. Use those colors to fill in the body outline.</p>
           <p className="mt-3"><strong>Tip:</strong> You can use the colors to show where you feel each emotion or how big or strong that feeling is for you.</p>
         </div>
