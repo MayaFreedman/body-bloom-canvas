@@ -244,13 +244,14 @@ export const BodyMapperCanvas = ({
         <HoverDetector onHoverChange={setIsHoveringBody} />
         
         <OrbitControls 
-          enableRotate={false}
-          enablePan={false}
+          enableRotate={mode !== 'draw' && mode !== 'erase' && mode !== 'text'}
+          enablePan={mode !== 'draw' && mode !== 'erase' && mode !== 'text'}
+          enableZoom={mode !== 'draw' && mode !== 'erase' && mode !== 'text'}
           minDistance={2.5}
           maxDistance={6}
           maxPolarAngle={Math.PI}
           minPolarAngle={0}
-          enabled={mode !== 'draw' && mode !== 'erase' && mode !== 'text'}
+          enabled={true}
         />
       </Canvas>
       
