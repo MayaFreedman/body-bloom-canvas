@@ -8,8 +8,10 @@ interface BottomBrandProps {
 export const BottomBrand = ({ isConnected, isConnecting }: BottomBrandProps) => {
   return (
     <div className="fixed bottom-4 left-4 z-10 flex flex-col items-start gap-1">
-      <div className="flex items-center gap-1.5 text-muted-foreground text-sm font-medium">
-        Body Mapping by{' '}
+      <div className="flex flex-col items-start gap-1">
+        <div className="text-muted-foreground text-sm font-medium">
+          Body Mapping by
+        </div>
         <img src="/lovable-uploads/924b5d58-1cee-4f88-95a3-4534f584bbaf.png" alt="PlaySpace" className="h-5 object-contain" />
       </div>
       
