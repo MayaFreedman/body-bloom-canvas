@@ -486,6 +486,8 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
   }, [sensationMarks]);
 
   useFrame((state, delta) => {
+    // Clamp delta to prevent huge jumps when switching tabs
+    const clampedDelta = Math.min(delta, 0.1); // Max 100ms delta to prevent particle explosions
     const time = state.clock.elapsedTime;
 
     sensationMarks.forEach((mark) => {
@@ -495,16 +497,16 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
 
       particles.forEach((particle, index) => {
         // Update particle life
-        particle.life += delta * 35;
+        particle.life += clampedDelta * 35;
         
         // Update animation properties
-        particle.rotation += particle.rotationSpeed * delta * 15;
-        particle.oscillationPhase += particle.oscillationSpeed * delta;
+        particle.rotation += particle.rotationSpeed * clampedDelta * 15;
+        particle.oscillationPhase += particle.oscillationSpeed * clampedDelta;
         
         // Update electrical properties for nerves and tingling
         if ((mark.icon === 'Activity' || mark.name === 'Nerves' || mark.name === 'Tingling') && particle.electricalPulse !== undefined) {
-          particle.electricalPulse += delta * 12;
-          particle.flickerPhase! += delta * 20;
+          particle.electricalPulse += clampedDelta * 12;
+          particle.flickerPhase! += clampedDelta * 20;
         }
         
         // Reset particle if it's dead
@@ -653,7 +655,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
           }
           
           // Apply gravity and movement
-          particle.velocity.y += (animProfile.gravity || 0.0002) * delta;
+          particle.velocity.y += (animProfile.gravity || 0.0002) * clampedDelta;
           particle.position.add(particle.velocity);
           
           // Add gentler electrical jitter
@@ -671,12 +673,12 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
           const shakeForceZ = Math.sin(time * 33 * animProfile.speed) * 0.0025 * animProfile.intensity;
           
           // Add shake forces to velocity
-          particle.velocity.x += shakeForceX * delta;
-          particle.velocity.y += shakeForceY * delta;
-          particle.velocity.z += shakeForceZ * delta;
+          particle.velocity.x += shakeForceX * clampedDelta;
+          particle.velocity.y += shakeForceY * clampedDelta;
+          particle.velocity.z += shakeForceZ * clampedDelta;
           
           // Apply gravity and movement
-          particle.velocity.y += (animProfile.gravity || 0.0001) * delta;
+          particle.velocity.y += (animProfile.gravity || 0.0001) * clampedDelta;
           particle.position.add(particle.velocity);
           particle.velocity.multiplyScalar(0.985); // Gentler damping
           
@@ -686,12 +688,12 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
           const beatDirection = Math.cos(time * 20 * animProfile.speed) * 0.001 * animProfile.intensity;
           
           // Add pulsing forces
-          particle.velocity.y += pulseForce * delta;
-          particle.velocity.x += beatDirection * delta * 0.5;
-          particle.velocity.z += beatDirection * delta * 0.3;
+          particle.velocity.y += pulseForce * clampedDelta;
+          particle.velocity.x += beatDirection * clampedDelta * 0.5;
+          particle.velocity.z += beatDirection * clampedDelta * 0.3;
           
           // Apply movement
-          particle.velocity.y += (animProfile.gravity || 0.0001) * delta;
+          particle.velocity.y += (animProfile.gravity || 0.0001) * clampedDelta;
           particle.position.add(particle.velocity);
           particle.velocity.multiplyScalar(0.99); // Very gentle damping for hearts
           
@@ -702,12 +704,12 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
           const verticalSwirl = Math.sin(particle.oscillationPhase * animProfile.speed * 1.3) * 0.001 * animProfile.intensity;
           
           // Add swirling forces
-          particle.velocity.x += swirlForceX * delta;
-          particle.velocity.z += swirlForceZ * delta;
-          particle.velocity.y += verticalSwirl * delta;
+          particle.velocity.x += swirlForceX * clampedDelta;
+          particle.velocity.z += swirlForceZ * clampedDelta;
+          particle.velocity.y += verticalSwirl * clampedDelta;
           
           // Apply movement
-          particle.velocity.y += (animProfile.gravity || 0.0002) * delta;
+          particle.velocity.y += (animProfile.gravity || 0.0002) * clampedDelta;
           particle.position.add(particle.velocity);
           particle.velocity.multiplyScalar(0.93);
           
@@ -716,18 +718,18 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
           
           // Apply strong downward gravity (negative Y = down)
           if (animProfile.gravity) {
-            particle.velocity.y -= animProfile.gravity * delta; // Subtract to go down
+            particle.velocity.y -= animProfile.gravity * clampedDelta; // Subtract to go down
           }
           
           // Apply downward drift force  
           if (animProfile.drift) {
-            const driftForce = animProfile.drift.clone().multiplyScalar(0.001 * animProfile.intensity * delta);
+            const driftForce = animProfile.drift.clone().multiplyScalar(0.001 * animProfile.intensity * clampedDelta);
             particle.velocity.add(driftForce); // drift Y is already negative
           }
           
           // Very minimal side-to-side oscillation for natural drip variation
           const gentleSway = Math.sin(particle.oscillationPhase * animProfile.speed * 0.5) * 0.0001 * animProfile.intensity;
-          particle.velocity.x += gentleSway * delta;
+          particle.velocity.x += gentleSway * clampedDelta;
           
           // Apply movement
           particle.position.add(particle.velocity);
@@ -751,12 +753,12 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
           }
           
           // Add gentle floating forces
-          particle.velocity.x += gentleFloat * delta;
-          particle.velocity.y += softVertical * delta;
-          particle.velocity.z += naturalDrift * delta;
+          particle.velocity.x += gentleFloat * clampedDelta;
+          particle.velocity.y += softVertical * clampedDelta;
+          particle.velocity.z += naturalDrift * clampedDelta;
           
           // Very subtle upward tendency
-          particle.velocity.y += 0.0001 * delta;
+          particle.velocity.y += 0.0001 * clampedDelta;
           particle.position.add(particle.velocity);
           particle.velocity.multiplyScalar(0.98); // More damping for realistic movement
           
@@ -765,11 +767,11 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
           
           // Apply gravity and drift forces
           if (animProfile.gravity) {
-            particle.velocity.y += animProfile.gravity * delta;
+            particle.velocity.y += animProfile.gravity * clampedDelta;
           }
           
           if (animProfile.drift) {
-            const driftForce = animProfile.drift.clone().multiplyScalar(0.001 * animProfile.intensity * delta);
+            const driftForce = animProfile.drift.clone().multiplyScalar(0.001 * animProfile.intensity * clampedDelta);
             particle.velocity.add(driftForce);
           }
           
@@ -778,9 +780,9 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
           const gentleDriftY = Math.cos(time * 0.015) * 0.000002 * animProfile.intensity;
           const gentleDriftZ = 0; // No Z movement to reduce nausea
           
-          particle.velocity.x += gentleDriftX * delta;
-          particle.velocity.y += gentleDriftY * delta;
-          particle.velocity.z += gentleDriftZ * delta;
+          particle.velocity.x += gentleDriftX * clampedDelta;
+          particle.velocity.y += gentleDriftY * clampedDelta;
+          particle.velocity.z += gentleDriftZ * clampedDelta;
           
           // Apply movement
           particle.position.add(particle.velocity);
