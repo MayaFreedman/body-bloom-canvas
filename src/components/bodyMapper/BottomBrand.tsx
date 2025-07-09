@@ -8,14 +8,15 @@ interface BottomBrandProps {
 export const BottomBrand = ({ isConnected, isConnecting }: BottomBrandProps) => {
   return (
     <div className="fixed bottom-4 left-4 z-10 flex flex-col items-start gap-1">
-      <div className="text-muted-foreground text-sm font-medium">
+      <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium">
+        <img src="/lovable-uploads/d0039284-c575-4bac-9ce4-36954115fe2c.png" alt="Playspace" className="w-6 h-6" />
         Body Mapping by{' '}
         <span className="text-foreground font-semibold">Playspace</span>
       </div>
       
       {/* Connection status indicator if needed */}
       {(isConnected || isConnecting) && (
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+        <div className="flex items-center gap-1.5 text-xs text-muted-foreground ml-8">
           <div 
             className={`w-2 h-2 rounded-full ${
               isConnected 
