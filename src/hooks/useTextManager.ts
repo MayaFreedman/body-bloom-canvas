@@ -65,7 +65,7 @@ export const useTextManager = ({
     });
 
     return newTextMark;
-  }, [textSettings, currentUserId, textMarks, onAddAction, onBroadcastTextPlace]);
+  }, [textSettings, currentUserId, onAddAction, onBroadcastTextPlace]);
 
   const updateTextMark = useCallback((id: string, updates: Partial<TextMark>) => {
     const previousState = textMarks.find(mark => mark.id === id);
