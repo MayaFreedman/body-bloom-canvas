@@ -115,7 +115,9 @@ export const CustomCursor: React.FC<CustomCursorProps> = ({
       >
         <div 
           style={{
-            fontFamily: textSettings?.fontFamily || 'Arial',
+            fontFamily: textSettings?.fontFamily === 'Arial' 
+              ? 'Inter, system-ui, -apple-system, sans-serif'
+              : textSettings?.fontFamily || 'Inter, system-ui, -apple-system, sans-serif',
             fontSize: `${fontSize}px`,
             fontWeight: textSettings?.fontWeight || 'normal',
             fontStyle: textSettings?.fontStyle || 'normal',
