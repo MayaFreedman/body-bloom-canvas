@@ -434,9 +434,9 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
           
           const baseParticle = {
             position: new THREE.Vector3(
-              mark.position.x + (Math.random() - 0.5) * dispersion,
-              mark.position.y + (Math.random() - 0.5) * dispersion,
-              mark.position.z + (Math.random() - 0.5) * dispersion
+              (Math.random() - 0.5) * dispersion,
+              (Math.random() - 0.5) * dispersion,
+              (Math.random() - 0.5) * dispersion
             ),
             velocity: initialVelocity,
             life: Math.random() * 100,
@@ -521,11 +521,11 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             const maxAttempts = 10;
             
             while (attempts < maxAttempts) {
-              const candidatePosition = mark.position.clone().add(new THREE.Vector3(
+              const candidatePosition = new THREE.Vector3(
                 (Math.random() - 0.5) * baseDispersion,
                 (Math.random() - 0.5) * baseDispersion,
                 (Math.random() - 0.5) * baseDispersion
-              ));
+              );
               
               // Check distance to other particles (except current one)
               let tooClose = false;
@@ -546,11 +546,11 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             }
             
             // Fallback: if can't find good spot, use a position with larger dispersion
-            return mark.position.clone().add(new THREE.Vector3(
+            return new THREE.Vector3(
               (Math.random() - 0.5) * baseDispersion * 1.5,
               (Math.random() - 0.5) * baseDispersion * 1.5,
               (Math.random() - 0.5) * baseDispersion * 1.5
-            ));
+            );
           };
           
           particle.position.copy(findAvailableSpawnPosition());
@@ -890,7 +890,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
   return (
     <group>
       {sensationMarks.map((mark) => (
-        <group key={mark.id}>
+        <group key={mark.id} position={mark.position}>
           {renderParticleSystem(mark)}
         </group>
       ))}
