@@ -110,8 +110,7 @@ export const CustomCursor: React.FC<CustomCursorProps> = ({
             fontStyle: textSettings?.fontStyle || 'normal',
             color: selectedColor,
             textShadow: '1px 1px 2px rgba(0,0,0,0.08)',
-            maxWidth: '200px',
-            wordBreak: 'break-word',
+            whiteSpace: 'nowrap',
             lineHeight: 1.2
           }}
         >
