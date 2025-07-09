@@ -130,10 +130,16 @@ export const HumanModel = ({ bodyPartColors = {} }: HumanModelProps) => {
                 child.material.forEach(mat => {
                   if ('color' in mat) {
                     mat.color.set(correctedColor);
+                    // Disable tone mapping and fog for vibrant colors
+                    if ('toneMapped' in mat) mat.toneMapped = false;
+                    if ('fog' in mat) mat.fog = false;
                   }
                 });
               } else if ('color' in child.material) {
                 child.material.color.set(correctedColor);
+                // Disable tone mapping and fog for vibrant colors
+                if ('toneMapped' in child.material) child.material.toneMapped = false;
+                if ('fog' in child.material) child.material.fog = false;
               }
             } else {
               // Reset to original color
