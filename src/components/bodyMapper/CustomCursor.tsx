@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import { SelectedSensation } from '@/types/bodyMapperTypes';
 import { getSensationImage } from './SensationSelector';
-import { getCssFont } from '@/utils/fontMapping';
 
 interface CustomCursorProps {
   selectedSensation: SelectedSensation | null;
@@ -116,7 +115,7 @@ export const CustomCursor: React.FC<CustomCursorProps> = ({
       >
         <div 
           style={{
-            fontFamily: getCssFont(textSettings?.fontFamily || 'Arial'),
+            fontFamily: textSettings?.fontFamily || 'Arial',
             fontSize: `${fontSize}px`,
             fontWeight: textSettings?.fontWeight || 'normal',
             fontStyle: textSettings?.fontStyle || 'normal',

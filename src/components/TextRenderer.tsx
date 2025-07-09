@@ -2,7 +2,6 @@ import React, { useMemo } from 'react';
 import { Text } from '@react-three/drei';
 import { TextMark } from '@/types/textTypes';
 import * as THREE from 'three';
-import { getFontUrl } from '@/utils/fontMapping';
 
 interface TextRendererProps {
   textMarks: TextMark[];
@@ -29,18 +28,12 @@ const TextMarkComponent = ({
     // Apply different scaling based on surface to account for coordinate system differences
     const scaleFactor = textMark.surface === 'whiteboard' ? 235 : 300;
     
-    console.log('🔤 TextRenderer - Original font from textMark:', textMark.fontFamily);
-    
-    const fontUrl = getFontUrl(textMark.fontFamily);
-    
-    console.log('🔤 TextRenderer - Direct font file URL for troika:', fontUrl);
-    
     return {
       fontSize: textMark.fontSize / scaleFactor,
       color: textMark.color,
-      font: fontUrl, // Use direct font file URL for troika-three-text
-      fontWeight: textMark.fontWeight || 'normal',
-      fontStyle: textMark.fontStyle || 'normal'
+      fontFamily: textMark.fontFamily,
+      fontWeight: textMark.fontWeight,
+      fontStyle: textMark.fontStyle
     };
   }, [textMark]);
 
@@ -62,15 +55,6 @@ const TextMarkComponent = ({
     return pos;
   }, [textMark.position, textMark.surface]);
 
-  // Debug logging for props passed to Text component
-  console.log('🔤 TextRenderer - Props being passed to Text component:', {
-    ...fontStyle,
-    maxWidth: 2,
-    lineHeight: 1.2,
-    anchorX: "center",
-    anchorY: "middle"
-  });
-
   return (
     <group position={offsetPosition}>
       <Text
@@ -81,7 +65,6 @@ const TextMarkComponent = ({
         anchorY="middle"
         onPointerDown={handlePointerDown}
         onDoubleClick={handleDoubleClick}
-        key={`${textMark.id}-${textMark.fontFamily}-${textMark.fontWeight}-${textMark.fontStyle}`}
       >
         {textMark.text}
       </Text>
