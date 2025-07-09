@@ -122,7 +122,7 @@ export const BodyMapperControls = React.forwardRef<
   };
 
   const handleDeleteColor = (index: number) => {
-    if (index < 8) return;
+    if (index < 3) return;
     
     const newEmotions = emotions.filter((_, i) => i !== index);
     setEmotions(newEmotions);
