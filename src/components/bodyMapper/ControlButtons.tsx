@@ -129,15 +129,29 @@ export const ControlButtons = ({
           <Redo2 size={16} />
           <span className="ml-2">Redo</span>
         </button>
-        
+      </div>
+
+      {/* Snapshot Button Container - Below Body */}
+      <div 
+        className="snapshot-button-container control-buttons"
+        style={{ pointerEvents: shouldDisablePointerEvents ? 'none' : 'auto' }}
+        onMouseEnter={() => {
+          console.log('🎯 Snapshot container mouse enter');
+          onControlButtonsHover?.(true);
+        }}
+        onMouseLeave={() => {
+          console.log('🎯 Snapshot container mouse leave');
+          onControlButtonsHover?.(false);
+        }}
+      >
         <button 
           onClick={captureScreenshot} 
-          className="control-button-with-text"
+          className="main-snapshot-button"
           onMouseEnter={() => console.log('🔥 Snapshot button hover enter')}
           onMouseLeave={() => console.log('🔥 Snapshot button hover leave')}
         >
-          <Camera size={16} />
-          <span className="ml-2">Snapshot</span>
+          <Camera size={20} className="mr-2" />
+          Snapshot
         </button>
       </div>
     </>

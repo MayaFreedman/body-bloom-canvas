@@ -280,6 +280,38 @@
     transform: scale(1.02);
   }
 
+  /* Snapshot button container - positioned below body */
+  .snapshot-button-container {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+  }
+
+  .main-snapshot-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 24px;
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    min-width: 140px;
+  }
+
+  .main-snapshot-button:hover {
+    background-color: #357abd;
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  }
+
   .control-button-with-text {
     display: flex;
     align-items: center;
