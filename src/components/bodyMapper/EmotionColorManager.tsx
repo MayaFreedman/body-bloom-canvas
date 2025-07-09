@@ -54,8 +54,8 @@ export const EmotionColorManager = ({
                 onSelect={() => onEmotionSelect(emotion.color)}
               />
             </div>
-            {/* Delete button - only show for colors beyond the base 8 */}
-            {index >= 8 && (
+            {/* Delete button - only show for colors beyond the base 3 */}
+            {index >= 3 && (
               <button
                 onClick={() => onDeleteColor(index)}
                 className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full transition-colors"
