@@ -31,9 +31,9 @@ const TextMarkComponent = ({
     return {
       fontSize: textMark.fontSize / scaleFactor,
       color: textMark.color,
-      fontFamily: textMark.fontFamily,
-      fontWeight: textMark.fontWeight,
-      fontStyle: textMark.fontStyle
+      fontFamily: textMark.fontFamily || 'Arial',
+      fontWeight: textMark.fontWeight || 'normal',
+      fontStyle: textMark.fontStyle || 'normal'
     };
   }, [textMark]);
 
