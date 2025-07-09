@@ -31,14 +31,14 @@ const TextMarkComponent = ({
     
     console.log('🔤 TextRenderer - Original font from textMark:', textMark.fontFamily);
     
-    // Don't pass font URLs to troika-three-text - it can't handle CSS URLs
-    // Let it use the default Roboto font for 3D text
-    console.log('🔤 TextRenderer - Skipping font URL for 3D text, using default');
+    const fontUrl = getFontUrl(textMark.fontFamily);
+    
+    console.log('🔤 TextRenderer - Direct font file URL for troika:', fontUrl);
     
     return {
       fontSize: textMark.fontSize / scaleFactor,
       color: textMark.color,
-      // Don't pass font property - let troika use default
+      font: fontUrl, // Use direct font file URL for troika-three-text
       fontWeight: textMark.fontWeight || 'normal',
       fontStyle: textMark.fontStyle || 'normal'
     };
