@@ -126,20 +126,20 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
   };
 
   // Handle incoming erase from other users - apply globally without recording to local history
-  const handleIncomingErase = (center: THREE.Vector3, radius: number) => {
-    console.log('🧹 INCOMING ERASE: Received multiplayer erase at', center, 'with radius', radius);
+  const handleIncomingErase = (center: THREE.Vector3, radius: number, surface: 'body' | 'whiteboard' = 'body') => {
+    console.log('🧹 INCOMING ERASE: Received multiplayer erase at', center, 'with radius', radius, 'on surface', surface);
     
     // Use the queryMarksInRadius function from the hook to find marks to erase
     const marksToErase = queryMarksInRadius(center, radius);
     
     if (marksToErase.length > 0) {
-      console.log('🧹 INCOMING ERASE: Found', marksToErase.length, 'marks to erase');
+      console.log('🧹 INCOMING ERASE: Found', marksToErase.length, 'marks to erase on', surface);
       
-      // Apply the erase operation using the hook's handleErase function
+      // Apply the erase operation using the hook's handleErase function with surface parameter
       // This will handle the actual removal from the stroke manager
-      handleErase(center, radius);
+      handleErase(center, radius, surface);
       
-      console.log('🧹 INCOMING ERASE: Processed incoming erase, erased', marksToErase.length, 'marks');
+      console.log('🧹 INCOMING ERASE: Processed incoming erase, erased', marksToErase.length, 'marks from', surface);
     }
   };
 

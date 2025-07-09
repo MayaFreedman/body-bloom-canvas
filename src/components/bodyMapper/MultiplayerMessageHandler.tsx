@@ -16,7 +16,7 @@ interface MultiplayerMessageHandlerProps {
   onIncomingOptimizedStroke?: (stroke: OptimizedDrawingStroke) => void;
   onIncomingUndo?: () => void;
   onIncomingRedo?: () => void;
-  onIncomingErase?: (center: THREE.Vector3, radius: number) => void;
+  onIncomingErase?: (center: THREE.Vector3, radius: number, surface?: 'body' | 'whiteboard') => void;
   onIncomingSensation?: (sensationMark: SensationMark) => void;
 }
 
@@ -60,14 +60,15 @@ export const MultiplayerMessageHandler = ({
 
         switch (message.type) {
           case 'eraseAction': {
-            console.log('🧹 Processing incoming erase action');
+            console.log('🧹 Processing incoming erase action with surface:', messageData.surface);
             if (onIncomingErase && messageData.center && messageData.radius) {
               const center = new THREE.Vector3(
                 messageData.center.x,
                 messageData.center.y,
                 messageData.center.z
               );
-              onIncomingErase(center, messageData.radius);
+              const surface = messageData.surface || 'body'; // Default to body for backward compatibility
+              onIncomingErase(center, messageData.radius, surface);
             }
             break;
           }
