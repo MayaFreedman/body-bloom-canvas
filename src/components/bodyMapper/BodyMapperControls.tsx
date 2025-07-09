@@ -44,9 +44,7 @@ const defaultEmotions: CustomEmotion[] = [
   { color: '#f44336', name: 'Anger' },
   { color: '#4caf50', name: '' },
   { color: '#9c27b0', name: '' },
-  { color: '#ff9800', name: '' },
-  { color: '#e91e63', name: '' },
-  { color: '#00bcd4', name: '' }
+  { color: '#ff9800', name: '' }
 ];
 
 export const BodyMapperControls = React.forwardRef<

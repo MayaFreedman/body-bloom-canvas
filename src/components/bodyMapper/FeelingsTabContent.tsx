@@ -62,6 +62,16 @@ export const FeelingsTabContent = ({
           <p className="mt-3"><strong>Tip:</strong> You can use the colors to show where you feel each emotion or how big or strong that feeling is for you.</p>
         </div>
       </div>
+
+      <EmotionColorManager
+        emotions={emotions}
+        selectedColor={selectedColor}
+        onEmotionColorChange={onEmotionColorChange}
+        onEmotionNameChange={onEmotionNameChange}
+        onEmotionSelect={onEmotionSelect}
+        onAddColor={onAddColor}
+        onDeleteColor={onDeleteColor}
+      />
       
       {/* Tool Buttons with integrated drawing target selector */}
       <PaintingModeSelector 
@@ -92,16 +102,6 @@ export const FeelingsTabContent = ({
           onTextToPlaceChange={onTextToPlaceChange}
         />
       )}
-
-      <EmotionColorManager
-        emotions={emotions}
-        selectedColor={selectedColor}
-        onEmotionColorChange={onEmotionColorChange}
-        onEmotionNameChange={onEmotionNameChange}
-        onEmotionSelect={onEmotionSelect}
-        onAddColor={onAddColor}
-        onDeleteColor={onDeleteColor}
-      />
     </div>
   );
 };
