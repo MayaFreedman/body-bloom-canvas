@@ -1,6 +1,6 @@
 
 import React, { useRef } from 'react';
-import { TopBanner } from './bodyMapper/TopBanner';
+import { BottomBrand } from './bodyMapper/BottomBrand';
 import { MultiplayerMessageHandler } from './bodyMapper/MultiplayerMessageHandler';
 import { BodyMapperLayout } from './bodyMapper/BodyMapperLayout';
 import { useEnhancedBodyMapperState } from '@/hooks/useEnhancedBodyMapperState';
@@ -177,12 +177,6 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
 
   return (
     <div style={{ height: '100vh', width: '100%' }}>
-      <TopBanner 
-        roomId={roomId}
-        isConnected={multiplayer.isConnected}
-        isConnecting={multiplayer.isConnecting}
-      />
-
       <BodyMapperLayout
         mode={mode}
         selectedColor={selectedColor}
@@ -230,6 +224,11 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
         onUndo={handleUndo}
         onRedo={handleRedo}
         onEmotionsUpdate={handleEmotionsUpdate}
+      />
+
+      <BottomBrand
+        isConnected={multiplayer.isConnected}
+        isConnecting={multiplayer.isConnecting}
       />
 
       <MultiplayerMessageHandler
