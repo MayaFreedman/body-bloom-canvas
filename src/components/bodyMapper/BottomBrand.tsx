@@ -11,7 +11,7 @@ export const BottomBrand = ({ isConnected, isConnecting }: BottomBrandProps) => 
       <div className="flex items-center gap-1.5 text-muted-foreground text-sm font-medium">
         Body Mapping by{' '}
         <span className="text-foreground font-semibold">Playspace</span>
-        <img src="/lovable-uploads/d0039284-c575-4bac-9ce4-36954115fe2c.png" alt="Playspace" className="w-3 h-3" />
+        <img src="/lovable-uploads/d0039284-c575-4bac-9ce4-36954115fe2c.png" alt="Playspace" className="h-3 object-contain" />
       </div>
       
       {/* Connection status indicator if needed */}
