@@ -46,6 +46,7 @@ export interface SensationData {
   position: THREE.Vector3;
   icon: string;
   color: string;
+  name: string; // Add name field for particle image determination
   size: number;
   playerId: string;
 }

@@ -18,6 +18,7 @@ export const useSensationHandlers = ({ multiplayer }: UseSensationHandlersProps)
         position,
         icon: sensation.icon,
         color: sensation.color,
+        name: sensation.name, // Include the name to determine particle image
         size: 0.1
       };
       multiplayer.broadcastSensation(sensationMark);
