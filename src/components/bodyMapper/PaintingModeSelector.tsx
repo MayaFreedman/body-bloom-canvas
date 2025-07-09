@@ -37,25 +37,25 @@ export const PaintingModeSelector = ({
       {/* Drawing tools */}
       <div className="flex gap-2">
         <button
-          className={`game-button-primary flex items-center justify-center px-3 py-2 text-sm ${mode === 'draw' ? 'opacity-100' : 'opacity-70'}`}
+          className={`game-button-primary flex-1 flex items-center justify-center px-3 py-2 text-sm ${mode === 'draw' ? 'opacity-100' : 'opacity-70'}`}
           onClick={() => onModeChange('draw')}
         >
           Draw
         </button>
         <button
-          className={`game-button-primary flex items-center justify-center px-3 py-2 text-sm ${mode === 'fill' ? 'opacity-100' : 'opacity-70'}`}
+          className={`game-button-primary flex-1 flex items-center justify-center px-3 py-2 text-sm ${mode === 'fill' ? 'opacity-100' : 'opacity-70'}`}
           onClick={() => onModeChange('fill')}
         >
           Fill
         </button>
         <button
-          className={`game-button-primary flex items-center justify-center px-3 py-2 text-sm ${mode === 'erase' ? 'opacity-100' : 'opacity-70'}`}
+          className={`game-button-primary flex-1 flex items-center justify-center px-3 py-2 text-sm ${mode === 'erase' ? 'opacity-100' : 'opacity-70'}`}
           onClick={() => onModeChange('erase')}
         >
           Erase
         </button>
         <button
-          className={`game-button-primary flex items-center justify-center px-3 py-2 text-sm ${mode === 'text' ? 'opacity-100' : 'opacity-70'}`}
+          className={`game-button-primary flex-1 flex items-center justify-center px-3 py-2 text-sm ${mode === 'text' ? 'opacity-100' : 'opacity-70'}`}
           onClick={() => onModeChange('text')}
         >
           Text
