@@ -62,10 +62,6 @@ export const TextControls = ({
     <>
       {mode === 'text' && (
         <div className="space-y-4">
-          {/* Instructions - moved to top */}
-          <div className="text-xs text-muted-foreground p-2 bg-muted rounded">
-            Click anywhere on active drawing field to place your text
-          </div>
 
           {/* Text Input */}
           <div className="space-y-2">
