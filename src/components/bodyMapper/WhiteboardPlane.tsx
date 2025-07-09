@@ -18,8 +18,6 @@ export const WhiteboardPlane = ({ visible = false, backgroundColor = 'white' }: 
       <planeGeometry args={[6, 8]} />
       <meshBasicMaterial 
         color={backgroundColor} 
-        transparent 
-        opacity={0.8}
         side={THREE.DoubleSide}
         toneMapped={false}
         fog={false}
