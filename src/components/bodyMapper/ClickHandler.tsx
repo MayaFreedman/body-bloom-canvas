@@ -63,8 +63,8 @@ export const ClickHandler = ({
         const intersectedObject = whiteboardIntersects[0].object;
         
         if (intersectedObject.userData.isWhiteboard) {
-          // PRIORITY 1: If a sensation is equipped, place it on whiteboard
-          if (selectedSensation) {
+          // PRIORITY 1: If in sensation mode, place sensation on whiteboard
+          if (mode === 'sensation' && selectedSensation) {
             console.log('🎯 ClickHandler - Placing sensation on whiteboard:', selectedSensation.name);
             onSensationClick(whiteboardIntersects[0].point, selectedSensation);
             return;
@@ -89,8 +89,8 @@ export const ClickHandler = ({
       const intersect = intersects[0];
       
       if (intersectedObject.userData.bodyPart) {
-        // PRIORITY 1: If a sensation is equipped, always place it (regardless of mode)
-        if (selectedSensation) {
+        // PRIORITY 1: If in sensation mode and sensation is equipped, place it
+        if (mode === 'sensation' && selectedSensation) {
           console.log('🎯 ClickHandler - Placing sensation:', selectedSensation.name, 'at body part:', intersectedObject.userData.bodyPart);
           // Convert world position to local position relative to the model
           const modelGroup = scene.children.find(child => child.type === 'Group');
@@ -105,7 +105,7 @@ export const ClickHandler = ({
           return; // Exit early after placing sensation
         }
         
-        // PRIORITY 2: If no sensation equipped and mode is fill, do body part filling
+        // PRIORITY 2: If mode is fill, do body part filling
         if (mode === 'fill') {
           console.log(`Filling body part: ${intersectedObject.userData.bodyPart} with color: ${selectedColor}`);
           onBodyPartClick(intersectedObject.userData.bodyPart, selectedColor);
@@ -113,18 +113,18 @@ export const ClickHandler = ({
         }
         
         // PRIORITY 3: Drawing mode is handled by ModelDrawing component (no action needed here)
-        console.log('⚠️ ClickHandler - No sensation equipped and not in fill mode, letting other handlers process');
+        console.log('⚠️ ClickHandler - Mode is', mode, 'letting other handlers process');
       }
     }
   }, [mode, selectedColor, selectedSensation, onBodyPartClick, onSensationClick, camera, gl, raycaster, mouse, getBodyMeshes, scene]);
 
   React.useEffect(() => {
-    // Always listen for clicks if a sensation is equipped, OR if not in draw/text mode
-    if (selectedSensation || (mode !== 'draw' && mode !== 'text')) {
+    // Listen for clicks if in sensation mode, fill mode, or other non-drawing modes
+    if (mode === 'sensation' || mode === 'fill' || (mode !== 'draw' && mode !== 'text')) {
       gl.domElement.addEventListener('click', handleClick);
       return () => gl.domElement.removeEventListener('click', handleClick);
     }
-  }, [handleClick, gl, mode, selectedSensation]);
+  }, [handleClick, gl, mode]);
 
   return null;
 };

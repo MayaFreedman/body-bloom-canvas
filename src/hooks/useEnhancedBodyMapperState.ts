@@ -37,6 +37,17 @@ export const useEnhancedBodyMapperState = ({
   const [drawingTarget, setDrawingTarget] = useState<DrawingTarget>('body');
   const [textToPlace, setTextToPlace] = useState('Sample Text');
   const [selectedSensation, setSelectedSensation] = useState<SelectedSensation | null>(null);
+
+  // Custom sensation selection handler that manages mode
+  const handleSensationSelection = useCallback((sensation: SelectedSensation | null) => {
+    setSelectedSensation(sensation);
+    if (sensation) {
+      // When a sensation is selected, switch to sensation mode
+      setMode('sensation');
+    }
+    // Note: We don't automatically switch away from sensation mode when deselecting
+    // to allow user to manually choose their next mode
+  }, []);
   const [bodyPartColors, setBodyPartColors] = useState<Record<string, string>>({});
   const [whiteboardBackground, setWhiteboardBackground] = useState('white');
   const [sensationMarks, setSensationMarks] = useState<SensationMark[]>([]);
@@ -184,7 +195,7 @@ export const useEnhancedBodyMapperState = ({
     textManager.clearAllText();
     
     // Reset selected sensation to null (unequip)
-    setSelectedSensation(null);
+    handleSensationSelection(null);
     
     // Record the reset action
     actionHistory.addAction({
@@ -250,7 +261,7 @@ export const useEnhancedBodyMapperState = ({
     setDrawingTarget,
     isActivelyDrawing,
     selectedSensation,
-    setSelectedSensation,
+    setSelectedSensation: handleSensationSelection,
     drawingMarks, // Legacy compatibility
     sensationMarks,
     setSensationMarks,

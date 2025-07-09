@@ -34,7 +34,7 @@ export interface BodyPartColors {
   [key: string]: string;
 }
 
-export type BodyMapperMode = 'draw' | 'fill' | 'erase' | 'text';
+export type BodyMapperMode = 'draw' | 'fill' | 'erase' | 'text' | 'sensation';
 
 export type DrawingTarget = 'body' | 'whiteboard';
 

@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Brush, Palette, Eraser, Type } from 'lucide-react';
+import { Brush, Palette, Eraser, Type, Sparkles } from 'lucide-react';
 import { BodyMapperMode } from '@/types/bodyMapperTypes';
 import { DrawingTargetSelector } from './DrawingTargetSelector';
 
@@ -35,7 +35,7 @@ export const PaintingModeSelector = ({
       <h4 className="font-semibold text-gray-800 mb-3">{title}</h4>
       
       {/* Drawing tools */}
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-3 gap-2">
         <button
           className={`game-button-primary flex items-center justify-center gap-2 px-3 py-2 text-sm ${mode === 'draw' ? 'opacity-100' : 'opacity-70'}`}
           onClick={() => onModeChange('draw')}
@@ -63,6 +63,13 @@ export const PaintingModeSelector = ({
         >
           <Type className="w-4 h-4" />
           Text
+        </button>
+        <button
+          className={`game-button-primary flex items-center justify-center gap-2 px-3 py-2 text-sm ${mode === 'sensation' ? 'opacity-100' : 'opacity-70'}`}
+          onClick={() => onModeChange('sensation')}
+        >
+          <Sparkles className="w-4 h-4" />
+          Sensation
         </button>
       </div>
     </div>

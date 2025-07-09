@@ -36,7 +36,7 @@ export const useDrawingEventHandlers = ({
 
   const handlePointerDown = useCallback((event: PointerEvent) => {
     console.log('🖱️ Pointer down - isDrawing:', isDrawing, 'mode:', mode, 'target:', drawingTarget);
-    if (!isDrawing) return;
+    if (!isDrawing || mode === 'sensation') return;
     console.log('🖱️ Pointer down - starting drawing, target:', drawingTarget);
     isMouseDown.current = true;
     strokeStarted.current = false;
@@ -135,7 +135,7 @@ export const useDrawingEventHandlers = ({
   }, [isDrawing, addMarkAtPosition, onStrokeStart, onAddToStroke, camera, gl, raycaster, mouse, getIntersectedObjects, drawingTarget]);
 
   const handlePointerMove = useCallback((event: PointerEvent) => {
-    if (!isDrawing || !isMouseDown.current) return;
+    if (!isDrawing || !isMouseDown.current || mode === 'sensation') return;
     
     const now = Date.now();
     
