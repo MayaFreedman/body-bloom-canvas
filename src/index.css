@@ -242,6 +242,30 @@
     z-index: 10;
   }
 
+  /* New top-left positioned undo/redo container */
+  .undo-redo-container-top-left {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    display: flex;
+    gap: 10px;
+    z-index: 10;
+  }
+
+  .control-button-with-text {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    background-color: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+  }
+
   .control-button {
     padding: 8px 15px;
     background-color: rgba(0, 0, 0, 0.6);

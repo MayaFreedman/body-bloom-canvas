@@ -2,7 +2,6 @@
 import React from 'react';
 import html2canvas from 'html2canvas';
 import { Undo2, Redo2, Camera } from 'lucide-react';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface ControlButtonsProps {
   onResetAll: () => void;
@@ -98,7 +97,7 @@ export const ControlButtons = ({
 
       {/* Undo/Redo Container */}
       <div 
-        className="undo-redo-container control-buttons"
+        className="undo-redo-container-top-left control-buttons"
         style={{ pointerEvents: shouldDisablePointerEvents ? 'none' : 'auto' }}
         onMouseEnter={() => {
           console.log('🎯 Undo/Redo container mouse enter');
@@ -109,76 +108,37 @@ export const ControlButtons = ({
           onControlButtonsHover?.(false);
         }}
       >
-        <Tooltip 
-          onOpenChange={(open) => console.log('🚨 Undo Tooltip open state:', open)}
-          delayDuration={0}
+        <button 
+          onClick={handleUndo}
+          disabled={!canUndo}
+          className={`control-button-with-text ${!canUndo ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'}`}
+          onMouseEnter={() => console.log('🔥 Undo button hover enter, canUndo:', canUndo)}
+          onMouseLeave={() => console.log('🔥 Undo button hover leave')}
         >
-          <TooltipTrigger asChild>
-            <button 
-              onClick={handleUndo}
-              disabled={!canUndo}
-              className={`control-button ${!canUndo ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'}`}
-              onMouseEnter={() => console.log('🔥 Undo button hover enter, canUndo:', canUndo)}
-              onMouseLeave={() => console.log('🔥 Undo button hover leave')}
-            >
-              <Undo2 size={16} />
-            </button>
-          </TooltipTrigger>
-          <TooltipContent 
-            side="top" 
-            className="z-[9999] bg-gray-800 text-white pointer-events-none"
-            sideOffset={10}
-          >
-            <p>Undo</p>
-          </TooltipContent>
-        </Tooltip>
+          <Undo2 size={16} />
+          <span className="ml-2">Undo</span>
+        </button>
         
-        <Tooltip 
-          onOpenChange={(open) => console.log('🚨 Redo Tooltip open state:', open)}
-          delayDuration={0}
+        <button 
+          onClick={handleRedo}
+          disabled={!canRedo}
+          className={`control-button-with-text ${!canRedo ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'}`}
+          onMouseEnter={() => console.log('🔥 Redo button hover enter, canRedo:', canRedo)}
+          onMouseLeave={() => console.log('🔥 Redo button hover leave')}
         >
-          <TooltipTrigger asChild>
-            <button 
-              onClick={handleRedo}
-              disabled={!canRedo}
-              className={`control-button ${!canRedo ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'}`}
-              onMouseEnter={() => console.log('🔥 Redo button hover enter, canRedo:', canRedo)}
-              onMouseLeave={() => console.log('🔥 Redo button hover leave')}
-            >
-              <Redo2 size={16} />
-            </button>
-          </TooltipTrigger>
-          <TooltipContent 
-            side="top" 
-            className="z-[9999] bg-gray-800 text-white pointer-events-none"
-            sideOffset={10}
-          >
-            <p>Redo</p>
-          </TooltipContent>
-        </Tooltip>
+          <Redo2 size={16} />
+          <span className="ml-2">Redo</span>
+        </button>
         
-        <Tooltip 
-          onOpenChange={(open) => console.log('🚨 Snapshot Tooltip open state:', open)}
-          delayDuration={0}
+        <button 
+          onClick={captureScreenshot} 
+          className="control-button-with-text"
+          onMouseEnter={() => console.log('🔥 Snapshot button hover enter')}
+          onMouseLeave={() => console.log('🔥 Snapshot button hover leave')}
         >
-          <TooltipTrigger asChild>
-            <button 
-              onClick={captureScreenshot} 
-              className="control-button"
-              onMouseEnter={() => console.log('🔥 Snapshot button hover enter')}
-              onMouseLeave={() => console.log('🔥 Snapshot button hover leave')}
-            >
-              <Camera size={16} />
-            </button>
-          </TooltipTrigger>
-          <TooltipContent 
-            side="top" 
-            className="z-[9999] bg-gray-800 text-white pointer-events-none"
-            sideOffset={10}
-          >
-            <p>Snapshot</p>
-          </TooltipContent>
-        </Tooltip>
+          <Camera size={16} />
+          <span className="ml-2">Snapshot</span>
+        </button>
       </div>
     </>
   );
