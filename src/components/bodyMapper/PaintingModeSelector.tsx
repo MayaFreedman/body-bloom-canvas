@@ -23,12 +23,14 @@ export const PaintingModeSelector = ({
     <div className="mb-6">
       {/* Drawing target toggle above tools header */}
       {drawingTarget && onDrawingTargetChange && (
-        <div className="mb-4">
-          <h5 className="font-medium text-gray-700 mb-2 text-sm">Drawing On</h5>
-          <DrawingTargetSelector
-            drawingTarget={drawingTarget}
-            onTargetChange={onDrawingTargetChange}
-          />
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-2">
+            <h4 className="font-semibold text-gray-800">Drawing On</h4>
+            <DrawingTargetSelector
+              drawingTarget={drawingTarget}
+              onTargetChange={onDrawingTargetChange}
+            />
+          </div>
         </div>
       )}
       
