@@ -35,6 +35,7 @@ export const useDrawingEventHandlers = ({
   const strokeStarted = useRef(false);
 
   const handlePointerDown = useCallback((event: PointerEvent) => {
+    console.log('🖱️ Pointer down - isDrawing:', isDrawing, 'mode:', mode, 'target:', drawingTarget);
     if (!isDrawing) return;
     console.log('🖱️ Pointer down - starting drawing, target:', drawingTarget);
     isMouseDown.current = true;
@@ -63,6 +64,7 @@ export const useDrawingEventHandlers = ({
       if (intersect.object.userData.bodyPart && drawingTarget === 'body') {
         console.log('✅ Hit body part:', intersect.object.userData.bodyPart);
         if (onStrokeStart && !strokeStarted.current) {
+          console.log('🎬 BODY STROKE START: Starting body stroke in mode:', mode);
           onStrokeStart();
           strokeStarted.current = true;
         }
@@ -223,19 +225,22 @@ export const useDrawingEventHandlers = ({
   }, [isDrawing, addMarkAtPosition, onAddToStroke, interpolateMarks, camera, gl, raycaster, mouse, getIntersectedObjects]);
 
   const handlePointerUp = useCallback(() => {
-    console.log('🖱️ Pointer up - ending drawing');
+    console.log('🖱️ Pointer up - ending drawing, mode:', mode, 'strokeStarted:', strokeStarted.current, 'mouseDown:', isMouseDown.current);
     // Only complete strokes when actually in drawing mode
     if (isMouseDown.current && strokeStarted.current && mode === 'draw') {
+      console.log('🏁 STROKE COMPLETE: Completing stroke in draw mode');
       if (onStrokeComplete) {
         onStrokeComplete();
       }
+    } else {
+      console.log('🚫 STROKE SKIP: Not completing stroke - mode:', mode, 'strokeStarted:', strokeStarted.current, 'mouseDown:', isMouseDown.current);
     }
     
     isMouseDown.current = false;
     lastPosition.current = null;
     lastBodyPart.current = null;
     strokeStarted.current = false;
-  }, [onStrokeComplete]);
+  }, [onStrokeComplete, mode]);
 
   return {
     handlePointerDown,
