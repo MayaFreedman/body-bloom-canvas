@@ -65,6 +65,15 @@ const TextMarkComponent = ({
     return pos;
   }, [textMark.position, textMark.surface]);
 
+  // Debug logging for props passed to Text component
+  console.log('🔤 TextRenderer - Props being passed to Text component:', {
+    ...fontStyle,
+    maxWidth: 2,
+    lineHeight: 1.2,
+    anchorX: "center",
+    anchorY: "middle"
+  });
+
   return (
     <group position={offsetPosition}>
       <Text
