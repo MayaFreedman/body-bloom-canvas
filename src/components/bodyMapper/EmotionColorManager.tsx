@@ -30,7 +30,17 @@ export const EmotionColorManager = ({
 }: EmotionColorManagerProps) => {
   return (
     <div className="mb-6">
-      <h4 className="font-semibold text-gray-800 mb-4">Colors & Emotions</h4>
+      <div className="flex items-center justify-between mb-2">
+        <h4 className="font-semibold text-gray-800">Colors & Emotions</h4>
+        <Button
+          onClick={onAddColor}
+          size="sm"
+          className="bg-green-500 hover:bg-green-600 text-white font-medium transition-colors duration-200 flex items-center"
+        >
+          <Plus className="w-4 h-4 mr-1" />
+          ADD
+        </Button>
+      </div>
       <div className="space-y-2">
         {emotions.map((emotion, index) => (
           <div key={index} className="flex items-center space-x-2">
@@ -57,17 +67,6 @@ export const EmotionColorManager = ({
             )}
           </div>
         ))}
-      </div>
-      
-      {/* Add Color Button */}
-      <div className="mt-3">
-        <Button
-          onClick={onAddColor}
-          className="w-full bg-green-500 hover:bg-green-600 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center"
-        >
-          <Plus className="w-5 h-5 mr-2" />
-          ADD COLOR
-        </Button>
       </div>
     </div>
   );
