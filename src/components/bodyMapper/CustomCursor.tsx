@@ -44,53 +44,42 @@ export const CustomCursor: React.FC<CustomCursorProps> = ({
 
   // Set the document cursor style based on state
   useEffect(() => {
-    // Also override any canvas cursor styles that might conflict
-    const canvas = document.querySelector('canvas');
-    
     if (showNotAllowed) {
       // Show "not allowed" cursor when trying to draw on body in whiteboard mode (but not while actively drawing)
       document.body.style.setProperty('cursor', 'not-allowed', 'important');
-      if (canvas) canvas.style.setProperty('cursor', 'not-allowed', 'important');
       console.log('🚫 Setting not-allowed cursor - whiteboard mode on body');
     } else if (selectedSensation) {
       if (isHoveringSidebar || isHoveringControlButtons) {
         // Show default cursor when hovering sidebar or control buttons with sensation selected
         document.body.style.setProperty('cursor', 'default', 'important');
-        if (canvas) canvas.style.setProperty('cursor', 'default', 'important');
         
       } else if (isHoveringBody) {
         // Force grabby hand when hovering over body with sensation selected - use !important override
         document.body.style.setProperty('cursor', 'grab', 'important');
-        if (canvas) canvas.style.setProperty('cursor', 'grab', 'important');
         console.log('🖱️ Setting grab cursor - hovering body with sensation');
       } else {
         // Hide default cursor when sensation is selected but not hovering body
         document.body.style.setProperty('cursor', 'none', 'important');
-        if (canvas) canvas.style.setProperty('cursor', 'none', 'important');
         console.log('🖱️ Setting none cursor - sensation selected but not hovering');
       }
     } else if (mode === 'text') {
       if (isHoveringSidebar || isHoveringControlButtons) {
         // Show default cursor when hovering sidebar or control buttons in text mode
         document.body.style.setProperty('cursor', 'default', 'important');
-        if (canvas) canvas.style.setProperty('cursor', 'default', 'important');
         
       } else {
         // Hide default cursor when in text mode (we show custom cursor)
         document.body.style.setProperty('cursor', 'none', 'important');
-        if (canvas) canvas.style.setProperty('cursor', 'none', 'important');
         console.log('🖱️ Setting none cursor - text mode');
       }
     } else {
       // Default cursor when no sensation selected
       document.body.style.setProperty('cursor', 'default', 'important');
-      if (canvas) canvas.style.setProperty('cursor', 'default', 'important');
       
     }
 
     return () => {
       document.body.style.cursor = 'default';
-      if (canvas) canvas.style.cursor = 'default';
     };
   }, [selectedSensation, isHoveringBody, showNotAllowed, mode, isHoveringSidebar, isHoveringControlButtons]);
 
