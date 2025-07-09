@@ -143,32 +143,22 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     }
   };
 
-  // Handle incoming sensation from other users - add to both state and action history
+  // Handle incoming sensation from other users - add to state only (no history)
   const handleIncomingSensation = (sensationMark: any) => {
     console.log('✨ INCOMING SENSATION: Received multiplayer sensation', sensationMark);
     
-    // Add to visual state
+    // Add to visual state only - don't record incoming sensations in local action history
     setSensationMarks(prev => [...prev, sensationMark]);
     
-    // Add to action history for undo/redo
-    addAction({
-      type: 'sensation',
-      data: {
-        sensationMark: sensationMark,
-        previousSensationMarks: sensationMarks
-      },
-      metadata: {
-        sensationType: sensationMark.icon
-      }
-    });
-    
-    console.log('✨ INCOMING SENSATION: Added to state and action history');
+    console.log('✨ INCOMING SENSATION: Added to state (no history entry for multiplayer)');
   };
 
   // Combine local and multiplayer sensation handling (no auto-deselect)
   const combinedSensationClick = (position: THREE.Vector3, sensation: any) => {
     console.log('✨ EmotionalBodyMapper - combinedSensationClick called with:', sensation.name, 'at position:', position);
+    // Only call local handler once - it handles both state update and action history
     localHandleSensationClick(position, sensation);
+    // Only broadcast to multiplayer, don't double-record to history
     handleSensationClick(position, sensation);
     // Sensation remains equipped after placement for multiple uses
   };
