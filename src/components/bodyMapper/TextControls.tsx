@@ -6,7 +6,6 @@ import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { TextSettings } from '@/types/textTypes';
 import { BodyMapperMode } from '@/types/bodyMapperTypes';
-import { fontFamilies } from '@/utils/fontMapping';
 
 interface TextControlsProps {
   mode: BodyMapperMode;
@@ -18,6 +17,14 @@ interface TextControlsProps {
   onTextToPlaceChange?: (text: string) => void;
 }
 
+const fontFamilies = [
+  'Arial',
+  'Helvetica',
+  'Times New Roman',
+  'Georgia',
+  'Verdana',
+  'Courier New'
+];
 
 export const TextControls = ({
   mode,

@@ -2,7 +2,6 @@ import React, { useMemo } from 'react';
 import { Text } from '@react-three/drei';
 import { TextMark } from '@/types/textTypes';
 import * as THREE from 'three';
-import { getFontUrl } from '@/utils/fontMapping';
 
 interface TextRendererProps {
   textMarks: TextMark[];
@@ -31,14 +30,18 @@ const TextMarkComponent = ({
     
     console.log('🔤 TextRenderer - Original font from textMark:', textMark.fontFamily);
     
-    const fontUrl = getFontUrl(textMark.fontFamily);
+    // Use system fonts for better consistency between HTML and Three.js rendering
+    const fontFamily = textMark.fontFamily === 'Arial' 
+      ? 'Inter, system-ui, -apple-system, sans-serif'
+      : textMark.fontFamily || 'Inter, system-ui, -apple-system, sans-serif';
     
-    console.log('🔤 TextRenderer - Font URL for troika:', fontUrl);
+    console.log('🔤 TextRenderer - Final mapped font:', fontFamily);
+    console.log('🔤 TextRenderer - Complete textMark:', textMark);
     
     return {
       fontSize: textMark.fontSize / scaleFactor,
       color: textMark.color,
-      font: fontUrl, // Use font URL for troika-three-text
+      fontFamily,
       fontWeight: textMark.fontWeight || 'normal',
       fontStyle: textMark.fontStyle || 'normal'
     };
