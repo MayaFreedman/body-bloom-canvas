@@ -34,8 +34,7 @@ export const EmotionColorManager = ({
         <h4 className="font-semibold text-gray-800">Colors & Emotions</h4>
         <Button
           onClick={onAddColor}
-          size="sm"
-          className="bg-green-500 hover:bg-green-600 text-white font-medium transition-colors duration-200 flex items-center"
+          className="bg-green-500 hover:bg-green-600 text-white font-medium transition-colors duration-200 flex items-center px-4 py-1.5 h-auto text-sm"
         >
           <Plus className="w-4 h-4 mr-1" />
           ADD
