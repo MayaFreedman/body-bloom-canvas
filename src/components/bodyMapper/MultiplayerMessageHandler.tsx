@@ -147,6 +147,7 @@ export const MultiplayerMessageHandler = ({
                 ),
                 icon: sensation.icon || 'Star',
                 color: sensation.color || '#ff6b6b',
+                name: sensation.name || 'Unknown', // Include the name field for particle image determination
                 size: sensation.size || 0.1
               };
               console.log('✨ Adding sensation mark:', newSensationMark);
