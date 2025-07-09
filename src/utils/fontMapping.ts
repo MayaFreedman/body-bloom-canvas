@@ -11,14 +11,14 @@ export const fontFamilies = [
 
 export type FontFamily = typeof fontFamilies[number];
 
-// Google Fonts URLs for troika-three-text (3D text rendering)
+// Font URLs compatible with troika-three-text (3D text rendering)
 export const fontUrlMap: Record<FontFamily, string> = {
-  'Arial': 'https://fonts.gstatic.com/s/opensans/v40/memSYaGs126MiZpBA-UvWbX2vVnXBbObj2OVZyOOSr4dVJWUgsjZ0B4taVIGxA.woff2',
-  'Georgia': 'https://fonts.gstatic.com/s/crimsontext/v19/wlp2gwHKFkZgtmSR3NB0oRJX8A.woff2',
-  'Times New Roman': 'https://fonts.gstatic.com/s/librebaskerville/v14/kmKnZrc3Hgbbcjq75U4uslyuy4kn0pNeYRI4CN2V.woff2',
-  'Helvetica': 'https://fonts.gstatic.com/s/opensans/v40/memSYaGs126MiZpBA-UvWbX2vVnXBbObj2OVZyOOSr4dVJWUgsjZ0B4taVIGxA.woff2',
-  'Verdana': 'https://fonts.gstatic.com/s/nunito/v26/XRXI3I6Li01BKofiOc5wtlZ2di8HDLshdTQ3j6zbXWjgevT.woff2',
-  'Comic Sans MS': 'https://fonts.gstatic.com/s/comicsneue/v8/F0_gfi6x8LO_TUWl4k31JYiIMGCpWjfr.woff2'
+  'Arial': 'https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap',
+  'Georgia': 'https://fonts.googleapis.com/css2?family=Crimson+Text:wght@400;700&display=swap',
+  'Times New Roman': 'https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&display=swap',
+  'Helvetica': 'https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap',
+  'Verdana': 'https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap',
+  'Comic Sans MS': 'https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap'
 };
 
 // CSS font families for HTML preview consistency
