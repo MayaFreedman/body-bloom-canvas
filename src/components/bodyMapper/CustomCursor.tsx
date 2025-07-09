@@ -57,7 +57,7 @@ export const CustomCursor: React.FC<CustomCursorProps> = ({
         // Show default cursor when hovering sidebar or control buttons with sensation selected
         document.body.style.setProperty('cursor', 'default', 'important');
         if (canvas) canvas.style.setProperty('cursor', 'default', 'important');
-        console.log('🖱️ Setting default cursor - sensation selected but hovering sidebar/controls');
+        
       } else if (isHoveringBody) {
         // Force grabby hand when hovering over body with sensation selected - use !important override
         document.body.style.setProperty('cursor', 'grab', 'important');
@@ -74,7 +74,7 @@ export const CustomCursor: React.FC<CustomCursorProps> = ({
         // Show default cursor when hovering sidebar or control buttons in text mode
         document.body.style.setProperty('cursor', 'default', 'important');
         if (canvas) canvas.style.setProperty('cursor', 'default', 'important');
-        console.log('🖱️ Setting default cursor - text mode hovering sidebar/controls');
+        
       } else {
         // Hide default cursor when in text mode (we show custom cursor)
         document.body.style.setProperty('cursor', 'none', 'important');
@@ -85,7 +85,7 @@ export const CustomCursor: React.FC<CustomCursorProps> = ({
       // Default cursor when no sensation selected
       document.body.style.setProperty('cursor', 'default', 'important');
       if (canvas) canvas.style.setProperty('cursor', 'default', 'important');
-      console.log('🖱️ Setting default cursor - no sensation selected');
+      
     }
 
     return () => {

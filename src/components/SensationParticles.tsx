@@ -62,14 +62,14 @@ interface SensationParticlesProps {
 }
 
 const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks }) => {
-  console.log('🦋 SensationParticles - Received sensation marks:', sensationMarks);
+  
   const particleSystemsRef = useRef<Map<string, SensationParticle[]>>(new Map());
   const meshRefsRef = useRef<Map<string, THREE.Object3D[]>>(new Map());
   
   // Load all particle textures
   const textureMap = useMemo(() => {
     const loader = new TextureLoader();
-    console.log('🦋 SensationParticles - Loading butterfly texture from:', butterflyTexture);
+    
     return {
       butterfly: loader.load(butterflyTexture),
       pain: loader.load(painTexture),
@@ -105,7 +105,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
 
   // Map sensation names to textures
   const getSensationTexture = (sensationName: string) => {
-    console.log('🦋 SensationParticles - Getting texture for sensation:', sensationName);
+    
     const textureMapping: { [key: string]: keyof typeof textureMap } = {
       'Nerves': 'butterfly',
       'Pain': 'lightning-bolt',
@@ -140,9 +140,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
     };
     
     const textureKey = textureMapping[sensationName] || 'star';
-    console.log('🦋 SensationParticles - Sensation:', sensationName, 'mapped to texture key:', textureKey);
     const texture = textureMap[textureKey];
-    console.log('🦋 SensationParticles - Texture object:', texture, 'loaded:', texture?.image?.complete);
     return texture;
   };
 
@@ -330,11 +328,11 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
 
   // Create particle system for each sensation mark
   const particleSystems = useMemo(() => {
-    console.log('🦋 SensationParticles - Creating particle systems for marks:', sensationMarks);
+    
     const systems: { [key: string]: SensationParticle[] } = {};
     
     sensationMarks.forEach((mark) => {
-      console.log('🦋 SensationParticles - Processing mark:', mark.id, 'name:', mark.name, 'icon:', mark.icon);
+      
       if (!particleSystemsRef.current.has(mark.id)) {
         const particles: SensationParticle[] = [];
         
@@ -849,7 +847,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
 
   const renderParticleSystem = (mark: typeof sensationMarks[0]) => {
     const particles = particleSystems[mark.id];
-    console.log('🦋 SensationParticles - Rendering particle system for mark:', mark.id, 'particles:', particles?.length);
+    
     if (!particles) return null;
 
     // Store mesh refs for this mark
@@ -860,13 +858,13 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
     const sensationTexture = getSensationTexture(mark.name || mark.icon);
     const normalizedScale = getNormalizedScale(mark.name || mark.icon);
     
-    console.log('🦋 SensationParticles - About to render', particles.length, 'particles with texture:', sensationTexture, 'scale:', normalizedScale);
+    
 
     return particles.map((particle, index) => {
       const opacity = 1 - (particle.life / particle.maxLife);
       const finalScale = particle.size * 1.5 * normalizedScale;
       
-      console.log('🦋 SensationParticles - Rendering particle', index, 'position:', particle.position.x, particle.position.y, particle.position.z, 'finalScale:', finalScale, 'opacity:', opacity);
+      
       
       // Use sprites for all sensation types with their appropriate textures
       return (

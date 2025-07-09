@@ -7,7 +7,7 @@ interface WhiteboardPlaneProps {
 }
 
 export const WhiteboardPlane = ({ visible = false, backgroundColor = 'white' }: WhiteboardPlaneProps) => {
-  console.log('🖼️ WhiteboardPlane rendering, visible:', visible, 'backgroundColor:', backgroundColor);
+  
   
   return (
     <mesh

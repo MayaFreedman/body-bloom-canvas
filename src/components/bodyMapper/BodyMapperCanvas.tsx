@@ -95,7 +95,7 @@ export const BodyMapperCanvas = ({
   onRotateLeft,
   onRotateRight
 }: BodyMapperCanvasProps) => {
-  console.log('🎯 BodyMapperCanvas received drawingMarks:', drawingMarks.length, 'marks with surfaces:', drawingMarks.map(m => ({id: m.id, surface: m.surface})));
+  
   const [isHoveringBody, setIsHoveringBody] = useState(false);
   const isHoveringSidebar = useSidebarHover();
   
@@ -146,7 +146,7 @@ export const BodyMapperCanvas = ({
           {/* Render drawing marks as children of the model group so they rotate with it */}
           {(() => {
             const bodyMarks = drawingMarks.filter(mark => mark.surface !== 'whiteboard');
-            console.log('🎨 BODY MARKS TO RENDER (inside rotating group):', bodyMarks.length, 'marks:', bodyMarks.map(m => ({ id: m.id, surface: m.surface, pos: m.position })));
+            
             return bodyMarks.map((mark) => (
             <mesh key={mark.id} position={mark.position}>
               <sphereGeometry args={[mark.size, 8, 8]} />
@@ -174,7 +174,7 @@ export const BodyMapperCanvas = ({
         {/* Render whiteboard marks outside the model group so they don't rotate */}
         {(() => {
           const whiteboardMarks = drawingMarks.filter(mark => mark.surface === 'whiteboard');
-          console.log('🖼️ WHITEBOARD MARKS TO RENDER (outside rotating group):', whiteboardMarks.length, 'marks:', whiteboardMarks.map(m => ({ id: m.id, surface: m.surface, pos: m.position })));
+          
           return whiteboardMarks.map((mark) => (
           <mesh key={mark.id} position={mark.position}>
             <sphereGeometry args={[mark.size, 8, 8]} />
