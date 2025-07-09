@@ -12,6 +12,7 @@ interface ClickHandlerProps {
   onBodyPartClick: (partName: string, color: string) => void;
   onSensationClick: (position: THREE.Vector3, sensation: SelectedSensation) => void;
   onWhiteboardFill?: (color: string) => void;
+  onTextPlace?: (position: THREE.Vector3, surface: 'body' | 'whiteboard') => void;
 }
 
 export const ClickHandler = ({ 
@@ -21,7 +22,8 @@ export const ClickHandler = ({
   drawingTarget,
   onBodyPartClick, 
   onSensationClick,
-  onWhiteboardFill
+  onWhiteboardFill,
+  onTextPlace
 }: ClickHandlerProps) => {
   const { camera, gl, raycaster, mouse, scene } = useThree();
 
@@ -63,14 +65,21 @@ export const ClickHandler = ({
         const intersectedObject = whiteboardIntersects[0].object;
         
         if (intersectedObject.userData.isWhiteboard) {
-          // PRIORITY 1: If in sensation mode, place sensation on whiteboard
+          // PRIORITY 1: If in text mode, place text on whiteboard
+          if (mode === 'text' && onTextPlace) {
+            console.log('📝 ClickHandler - Placing text on whiteboard');
+            onTextPlace(whiteboardIntersects[0].point, 'whiteboard');
+            return;
+          }
+          
+          // PRIORITY 2: If in sensation mode, place sensation on whiteboard
           if (mode === 'sensation' && selectedSensation) {
             console.log('🎯 ClickHandler - Placing sensation on whiteboard:', selectedSensation.name);
             onSensationClick(whiteboardIntersects[0].point, selectedSensation);
             return;
           }
           
-          // PRIORITY 2: If mode is fill, fill whiteboard background
+          // PRIORITY 3: If mode is fill, fill whiteboard background
           if (mode === 'fill' && onWhiteboardFill) {
             console.log('🎨 ClickHandler - Filling whiteboard with color:', selectedColor);
             onWhiteboardFill(selectedColor);
@@ -89,7 +98,14 @@ export const ClickHandler = ({
       const intersect = intersects[0];
       
       if (intersectedObject.userData.bodyPart) {
-        // PRIORITY 1: If in sensation mode and sensation is equipped, place it
+        // PRIORITY 1: If in text mode, place text on body
+        if (mode === 'text' && onTextPlace) {
+          console.log('📝 ClickHandler - Placing text on body at part:', intersectedObject.userData.bodyPart);
+          onTextPlace(intersect.point, 'body');
+          return;
+        }
+        
+        // PRIORITY 2: If in sensation mode and sensation is equipped, place it
         if (mode === 'sensation' && selectedSensation) {
           console.log('🎯 ClickHandler - Placing sensation:', selectedSensation.name, 'at body part:', intersectedObject.userData.bodyPart);
           // Convert world position to local position relative to the model
@@ -105,22 +121,22 @@ export const ClickHandler = ({
           return; // Exit early after placing sensation
         }
         
-        // PRIORITY 2: If mode is fill, do body part filling
+        // PRIORITY 3: If mode is fill, do body part filling
         if (mode === 'fill') {
           console.log(`Filling body part: ${intersectedObject.userData.bodyPart} with color: ${selectedColor}`);
           onBodyPartClick(intersectedObject.userData.bodyPart, selectedColor);
           return;
         }
         
-        // PRIORITY 3: Drawing mode is handled by ModelDrawing component (no action needed here)
+        // PRIORITY 4: Drawing mode is handled by ModelDrawing component (no action needed here)
         console.log('⚠️ ClickHandler - Mode is', mode, 'letting other handlers process');
       }
     }
   }, [mode, selectedColor, selectedSensation, onBodyPartClick, onSensationClick, camera, gl, raycaster, mouse, getBodyMeshes, scene]);
 
   React.useEffect(() => {
-    // Listen for clicks if in sensation mode, fill mode, or other non-drawing modes
-    if (mode === 'sensation' || mode === 'fill' || (mode !== 'draw' && mode !== 'text')) {
+    // Listen for clicks if in sensation mode, fill mode, text mode, or other non-drawing modes
+    if (mode === 'sensation' || mode === 'fill' || mode === 'text' || (mode !== 'draw')) {
       gl.domElement.addEventListener('click', handleClick);
       return () => gl.domElement.removeEventListener('click', handleClick);
     }

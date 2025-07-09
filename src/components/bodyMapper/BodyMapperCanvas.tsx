@@ -247,6 +247,7 @@ export const BodyMapperCanvas = ({
           onBodyPartClick={onBodyPartClick}
           onSensationClick={handleSensationClick}
           onWhiteboardFill={onWhiteboardFill}
+          onTextPlace={onTextPlace}
         />
         
         <HoverDetector onHoverChange={setIsHoveringBody} />

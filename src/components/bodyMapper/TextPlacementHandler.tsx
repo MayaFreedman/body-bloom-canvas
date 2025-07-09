@@ -85,17 +85,14 @@ export const TextPlacementHandler = ({
 
   React.useEffect(() => {
     if (isTextMode) {
-      gl.domElement.addEventListener('pointerdown', handlePointerDown);
       gl.domElement.style.cursor = 'text';
-      
       return () => {
-        gl.domElement.removeEventListener('pointerdown', handlePointerDown);
         gl.domElement.style.cursor = 'default';
       };
     } else {
       gl.domElement.style.cursor = 'default';
     }
-  }, [isTextMode, handlePointerDown, gl]);
+  }, [isTextMode, gl]);
 
   return null;
 };
