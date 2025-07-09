@@ -9,7 +9,7 @@ interface HumanModelProps {
   bodyPartColors?: { [key: string]: string };
 }
 
-// Color correction function to make 3D colors match UI colors better
+// Aggressive color correction function to make 3D colors match UI colors better
 const correctColorFor3D = (hexColor: string): string => {
   const color = new Color(hexColor);
   
@@ -17,9 +17,9 @@ const correctColorFor3D = (hexColor: string): string => {
   const hsl = { h: 0, s: 0, l: 0 };
   color.getHSL(hsl);
   
-  // Increase saturation and lightness to compensate for 3D rendering
-  hsl.s = Math.min(1, hsl.s * 1.3); // Boost saturation by 30%
-  hsl.l = Math.min(0.9, hsl.l * 1.2); // Boost lightness by 20% but cap at 90%
+  // More aggressive boost for saturation and lightness to overcome lighting
+  hsl.s = Math.min(1, hsl.s * 1.8); // Boost saturation by 80%
+  hsl.l = Math.min(0.95, hsl.l * 1.5); // Boost lightness by 50% but cap at 95%
   
   // Convert back to hex
   color.setHSL(hsl.h, hsl.s, hsl.l);
@@ -122,37 +122,72 @@ export const HumanModel = ({ bodyPartColors = {} }: HumanModelProps) => {
             const selectedColor = bodyPartColors[child.userData.bodyPart];
             
             if (selectedColor) {
-              // Apply color correction to make 3D colors match UI colors better
+              // Apply aggressive color correction and emissive glow for vibrant colors
               const correctedColor = correctColorFor3D(selectedColor);
+              const originalColor = new Color(selectedColor);
               
-              // Apply color to existing material instead of replacing it
+              // Apply color to existing material while preserving realism
               if (Array.isArray(child.material)) {
                 child.material.forEach(mat => {
                   if ('color' in mat) {
+                    // Set the base color
                     mat.color.set(correctedColor);
-                    // Disable tone mapping and fog for vibrant colors
-                    if ('toneMapped' in mat) mat.toneMapped = false;
-                    if ('fog' in mat) mat.fog = false;
+                    
+                    // Add emissive glow to push color through lighting
+                    if ('emissive' in mat) {
+                      mat.emissive.set(originalColor);
+                      if ('emissiveIntensity' in mat) {
+                        mat.emissiveIntensity = 0.2; // Subtle glow
+                      }
+                    }
+                    
+                    // Boost material properties while keeping realism
+                    if ('metalness' in mat) mat.metalness = Math.max(0.1, mat.metalness);
+                    if ('roughness' in mat) mat.roughness = Math.min(0.8, mat.roughness);
                   }
                 });
               } else if ('color' in child.material) {
+                // Set the base color
                 child.material.color.set(correctedColor);
-                // Disable tone mapping and fog for vibrant colors
-                if ('toneMapped' in child.material) child.material.toneMapped = false;
-                if ('fog' in child.material) child.material.fog = false;
+                
+                // Add emissive glow to push color through lighting
+                if ('emissive' in child.material) {
+                  child.material.emissive.set(originalColor);
+                  if ('emissiveIntensity' in child.material) {
+                    child.material.emissiveIntensity = 0.2; // Subtle glow
+                  }
+                }
+                
+                // Boost material properties while keeping realism
+                if ('metalness' in child.material) child.material.metalness = Math.max(0.1, child.material.metalness);
+                if ('roughness' in child.material) child.material.roughness = Math.min(0.8, child.material.roughness);
               }
             } else {
-              // Reset to original color
+              // Reset to original color and remove emissive glow
               const originalColor = originalColors.current[child.uuid];
               if (originalColor) {
                 if (Array.isArray(child.material)) {
                   child.material.forEach(mat => {
                     if ('color' in mat) {
                       mat.color.set(originalColor);
+                      // Reset emissive properties
+                      if ('emissive' in mat) {
+                        mat.emissive.set(0x000000);
+                        if ('emissiveIntensity' in mat) {
+                          mat.emissiveIntensity = 0;
+                        }
+                      }
                     }
                   });
                 } else if ('color' in child.material) {
                   child.material.color.set(originalColor);
+                  // Reset emissive properties
+                  if ('emissive' in child.material) {
+                    child.material.emissive.set(0x000000);
+                    if ('emissiveIntensity' in child.material) {
+                      child.material.emissiveIntensity = 0;
+                    }
+                  }
                 }
               }
             }
