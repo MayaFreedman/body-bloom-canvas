@@ -19,7 +19,7 @@
     --primary: 240 39% 66%; /* Primary Purple #898AC4 */
     --primary-foreground: 0 0% 100%; /* White for contrast */
 
-    --secondary: 108 25% 69%; /* Sage Green #A7C2A0 */
+    --secondary: 108 25% 78%; /* Lighter Sage Green #B8C9B5 */
     --secondary-foreground: 235 33% 28%; /* Deep Navy #2E315E */
 
     --muted: 32 30% 99%; /* Very Light Cream #FEFEFE */
@@ -36,7 +36,7 @@
     --deep-navy: 235 33% 28%; /* #2E315E */
     --cream: 32 30% 99%; /* #FEFEFE */
     --soft-coral: 6 85% 74%; /* #F58A82 */
-    --sage-green: 108 25% 69%; /* #A7C2A0 */
+    --sage-green: 108 25% 78%; /* #B8C9B5 - Lighter Sage */
     --warm-gray: 264 7% 44%; /* #6D6A75 */
 
     --border: 214.3 31.8% 91.4%;
