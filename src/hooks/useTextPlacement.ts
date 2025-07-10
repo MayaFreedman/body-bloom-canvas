@@ -55,27 +55,37 @@ export const useTextPlacement = ({
         // Apply small offset along surface normal
         finalPosition.add(normal.multiplyScalar(0.01));
         
-        // Calculate rotation to face outward from surface
-        const up = new THREE.Vector3(0, 1, 0);
-        const right = new THREE.Vector3().crossVectors(up, normal).normalize();
-        const adjustedUp = new THREE.Vector3().crossVectors(normal, right).normalize();
+        // Calculate rotation to make text face the camera/outward from surface
+        // For text, we want it to always face "out" from the surface toward the camera
         
-        // Create rotation matrix from surface orientation
-        const rotationMatrix = new THREE.Matrix4().makeBasis(right, adjustedUp, normal);
-        const euler = new THREE.Euler().setFromRotationMatrix(rotationMatrix);
+        // Simple approach: calculate rotation based on surface normal
+        // The text should face outward (normal direction) but be readable
+        const forward = normal.clone().negate(); // Text faces opposite to surface normal
+        const worldUp = new THREE.Vector3(0, 1, 0);
+        
+        // Calculate proper text orientation
+        const right = new THREE.Vector3().crossVectors(worldUp, forward).normalize();
+        const up = new THREE.Vector3().crossVectors(forward, right).normalize();
+        
+        // Create rotation matrix and convert to Euler angles
+        const rotationMatrix = new THREE.Matrix4().makeBasis(right, up, forward);
+        const euler = new THREE.Euler().setFromRotationMatrix(rotationMatrix, 'XYZ');
+        
         rotation = { x: euler.x, y: euler.y, z: euler.z };
+        console.log('📝 Text rotation calculated:', rotation, 'for normal:', normal);
       } else {
         // Fallback: small outward offset from center
         const center = new THREE.Vector3(0, 0, 0);
         const direction = finalPosition.clone().sub(center).normalize();
         finalPosition.add(direction.multiplyScalar(0.01));
       }
-
+      
       // Create text mark with rotation
       const textMark = onAddTextMark(finalPosition, textToPlace.trim(), surface, selectedColor);
       if (textMark && intersect?.face?.normal) {
         // Update the text mark with proper rotation
         textMark.rotation = rotation;
+        console.log('📝 Text mark created with rotation:', textMark.rotation);
       }
       return;
     }
