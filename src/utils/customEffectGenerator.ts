@@ -31,32 +31,29 @@ export const generateCustomEffectImage = async (
     canvas.width = 64;
     canvas.height = 64;
     
-    // Import map for the PNG files (only unused ones)
+    // Import map for the PNG files (only selected ones from reference image)
     const iconImageMap: Record<AvailableIcon, string> = {
-      'alarm': '/src/Assets/particleEffects/alarm.png',
-      'baloon': '/src/Assets/particleEffects/baloon.png',
-      'biceps': '/src/Assets/particleEffects/biceps.png',
-      'broken-heart': '/src/Assets/particleEffects/broken-heart.png',
-      'cat': '/src/Assets/particleEffects/cat.png',
-      'chicken': '/src/Assets/particleEffects/chicken.png',
-      'create': '/src/Assets/particleEffects/create.png',
-      'dog': '/src/Assets/particleEffects/dog.png',
-      'explosion': '/src/Assets/particleEffects/explosion.png',
       'flower': '/src/Assets/particleEffects/flower.png',
-      'musical-note': '/src/Assets/particleEffects/musical-note.png',
-      'plus': '/src/Assets/particleEffects/plus.png',
-      'racecar': '/src/Assets/particleEffects/racecar.png',
-      'resistor': '/src/Assets/particleEffects/resistor.png',
-      'robot': '/src/Assets/particleEffects/robot.png',
-      'roller-coaster': '/src/Assets/particleEffects/roller-coaster.png',
-      'shield': '/src/Assets/particleEffects/shield.png',
-      'spaceship': '/src/Assets/particleEffects/spaceship.png',
-      'storm': '/src/Assets/particleEffects/storm.png',
-      'supportheart': '/src/Assets/particleEffects/supportheart.png',
       'tornado': '/src/Assets/particleEffects/tornado.png',
-      'turtle': '/src/Assets/particleEffects/turtle.png',
-      'virus': '/src/Assets/particleEffects/virus.png',
+      'chicken': '/src/Assets/particleEffects/chicken.png',
+      'storm': '/src/Assets/particleEffects/storm.png',
+      'explosion': '/src/Assets/particleEffects/explosion.png',
+      'supportheart': '/src/Assets/particleEffects/supportheart.png',
+      'baloon': '/src/Assets/particleEffects/baloon.png',
+      'musical-note': '/src/Assets/particleEffects/musical-note.png',
+      'cat': '/src/Assets/particleEffects/cat.png',
+      'dog': '/src/Assets/particleEffects/dog.png',
+      'racecar': '/src/Assets/particleEffects/racecar.png',
+      'roller-coaster': '/src/Assets/particleEffects/roller-coaster.png',
+      'broken-heart': '/src/Assets/particleEffects/broken-heart.png',
+      'robot': '/src/Assets/particleEffects/robot.png',
+      'biceps': '/src/Assets/particleEffects/biceps.png',
+      'create': '/src/Assets/particleEffects/create.png',
       'wings': '/src/Assets/particleEffects/wings.png',
+      'alarm': '/src/Assets/particleEffects/alarm.png',
+      'lightbulb': '/src/Assets/particleEffects/lightbulb.png',
+      'spaceship': '/src/Assets/particleEffects/spaceship.png',
+      'shield': '/src/Assets/particleEffects/shield.png',
     };
     
     const img = new Image();

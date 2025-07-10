@@ -11,31 +11,28 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { CustomEffectForm, AVAILABLE_ICONS, AvailableIcon } from '@/types/customEffectTypes';
 
-// Import only the unused PNG images
-import alarmImg from '@/Assets/particleEffects/alarm.png';
-import baloonImg from '@/Assets/particleEffects/baloon.png';
-import bicepsImg from '@/Assets/particleEffects/biceps.png';
-import brokenHeartImg from '@/Assets/particleEffects/broken-heart.png';
-import catImg from '@/Assets/particleEffects/cat.png';
-import chickenImg from '@/Assets/particleEffects/chicken.png';
-import createImg from '@/Assets/particleEffects/create.png';
-import dogImg from '@/Assets/particleEffects/dog.png';
-import explosionImg from '@/Assets/particleEffects/explosion.png';
+// Import only the selected PNG images from the reference
 import flowerImg from '@/Assets/particleEffects/flower.png';
-import musicalNoteImg from '@/Assets/particleEffects/musical-note.png';
-import plusImg from '@/Assets/particleEffects/plus.png';
-import racecarImg from '@/Assets/particleEffects/racecar.png';
-import resistorImg from '@/Assets/particleEffects/resistor.png';
-import robotImg from '@/Assets/particleEffects/robot.png';
-import rollerCoasterImg from '@/Assets/particleEffects/roller-coaster.png';
-import shieldImg from '@/Assets/particleEffects/shield.png';
-import spaceshipImg from '@/Assets/particleEffects/spaceship.png';
-import stormImg from '@/Assets/particleEffects/storm.png';
-import supportheartImg from '@/Assets/particleEffects/supportheart.png';
 import tornadoImg from '@/Assets/particleEffects/tornado.png';
-import turtleImg from '@/Assets/particleEffects/turtle.png';
-import virusImg from '@/Assets/particleEffects/virus.png';
+import chickenImg from '@/Assets/particleEffects/chicken.png';
+import stormImg from '@/Assets/particleEffects/storm.png';
+import explosionImg from '@/Assets/particleEffects/explosion.png';
+import supportheartImg from '@/Assets/particleEffects/supportheart.png';
+import baloonImg from '@/Assets/particleEffects/baloon.png';
+import musicalNoteImg from '@/Assets/particleEffects/musical-note.png';
+import catImg from '@/Assets/particleEffects/cat.png';
+import dogImg from '@/Assets/particleEffects/dog.png';
+import racecarImg from '@/Assets/particleEffects/racecar.png';
+import rollerCoasterImg from '@/Assets/particleEffects/roller-coaster.png';
+import brokenHeartImg from '@/Assets/particleEffects/broken-heart.png';
+import robotImg from '@/Assets/particleEffects/robot.png';
+import bicepsImg from '@/Assets/particleEffects/biceps.png';
+import createImg from '@/Assets/particleEffects/create.png';
 import wingsImg from '@/Assets/particleEffects/wings.png';
+import alarmImg from '@/Assets/particleEffects/alarm.png';
+import lightbulbImg from '@/Assets/particleEffects/lightbulb.png';
+import spaceshipImg from '@/Assets/particleEffects/spaceship.png';
+import shieldImg from '@/Assets/particleEffects/shield.png';
 
 interface CustomEffectDialogProps {
   open: boolean;
@@ -44,30 +41,27 @@ interface CustomEffectDialogProps {
 }
 
 const ICON_IMAGES = {
-  alarm: alarmImg,
-  baloon: baloonImg,
-  biceps: bicepsImg,
-  'broken-heart': brokenHeartImg,
-  cat: catImg,
-  chicken: chickenImg,
-  create: createImg,
-  dog: dogImg,
-  explosion: explosionImg,
   flower: flowerImg,
-  'musical-note': musicalNoteImg,
-  plus: plusImg,
-  racecar: racecarImg,
-  resistor: resistorImg,
-  robot: robotImg,
-  'roller-coaster': rollerCoasterImg,
-  shield: shieldImg,
-  spaceship: spaceshipImg,
-  storm: stormImg,
-  supportheart: supportheartImg,
   tornado: tornadoImg,
-  turtle: turtleImg,
-  virus: virusImg,
+  chicken: chickenImg,
+  storm: stormImg,
+  explosion: explosionImg,
+  supportheart: supportheartImg,
+  baloon: baloonImg,
+  'musical-note': musicalNoteImg,
+  cat: catImg,
+  dog: dogImg,
+  racecar: racecarImg,
+  'roller-coaster': rollerCoasterImg,
+  'broken-heart': brokenHeartImg,
+  robot: robotImg,
+  biceps: bicepsImg,
+  create: createImg,
   wings: wingsImg,
+  alarm: alarmImg,
+  lightbulb: lightbulbImg,
+  spaceship: spaceshipImg,
+  shield: shieldImg,
 } as const;
 
 const MOVEMENT_BEHAVIORS = [
@@ -88,7 +82,7 @@ export const CustomEffectDialog: React.FC<CustomEffectDialogProps> = ({
 }) => {
   const [form, setForm] = useState<CustomEffectForm>({
     name: '',
-    selectedIcon: 'alarm', // Changed from 'heart' to available icon
+    selectedIcon: 'flower', // Changed to first available icon
     color: '#ef4444',
     movementBehavior: 'moderate',
   });
@@ -99,7 +93,7 @@ export const CustomEffectDialog: React.FC<CustomEffectDialogProps> = ({
       onCreateEffect(form);
       setForm({
         name: '',
-        selectedIcon: 'alarm', // Updated to use available icon
+        selectedIcon: 'flower', // Updated to use available icon
         color: '#ef4444',
         movementBehavior: 'moderate',
       });

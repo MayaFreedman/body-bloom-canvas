@@ -16,10 +16,9 @@ export interface CustomEffectForm {
 }
 
 export const AVAILABLE_ICONS = [
-  'alarm', 'baloon', 'biceps', 'broken-heart', 'cat', 'chicken', 
-  'create', 'dog', 'explosion', 'flower', 'musical-note', 'plus', 'racecar',
-  'resistor', 'robot', 'roller-coaster', 'shield', 'spaceship', 'storm', 
-  'supportheart', 'tornado', 'turtle', 'virus', 'wings'
+  'flower', 'tornado', 'chicken', 'storm', 'explosion', 'supportheart', 'baloon', 'musical-note',
+  'cat', 'dog', 'racecar', 'roller-coaster', 'broken-heart', 'robot', 'biceps', 'create',
+  'wings', 'alarm', 'lightbulb', 'spaceship', 'shield'
 ] as const;
 
 export type AvailableIcon = typeof AVAILABLE_ICONS[number];
