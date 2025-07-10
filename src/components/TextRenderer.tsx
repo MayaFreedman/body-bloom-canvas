@@ -44,13 +44,26 @@ const TextMarkComponent = ({
   // Ensure position is a proper THREE.Vector3, handling serialized positions
   const offsetPosition = useMemo(() => {
     const pos = textMark.position;
+    let basePos: THREE.Vector3;
+    
     if (pos instanceof THREE.Vector3) {
-      return pos;
+      basePos = pos.clone();
+    } else {
+      // Handle serialized positions that lost their Vector3 prototype
+      const posObj = pos as { x: number; y: number; z: number };
+      basePos = new THREE.Vector3(posObj.x || 0, posObj.y || 0, posObj.z || 0);
     }
-    // Handle serialized positions that lost their Vector3 prototype
-    const posObj = pos as { x: number; y: number; z: number };
-    return new THREE.Vector3(posObj.x || 0, posObj.y || 0, posObj.z || 0);
-  }, [textMark.position]);
+    
+    // Add small Z offset in the direction the model is facing to prevent clipping during breathing
+    const zOffset = 0.08;
+    const facingX = Math.sin(rotation);
+    const facingZ = Math.cos(rotation);
+    
+    basePos.x += facingX * zOffset;
+    basePos.z += facingZ * zOffset;
+    
+    return basePos;
+  }, [textMark.position, rotation]);
 
   return (
     <group position={offsetPosition}>
