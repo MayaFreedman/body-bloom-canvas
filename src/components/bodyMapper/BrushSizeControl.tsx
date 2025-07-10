@@ -11,7 +11,7 @@ interface BrushSizeControlProps {
 export const BrushSizeControl = ({ brushSize, selectedColor, onBrushSizeChange }: BrushSizeControlProps) => {
   return (
     <div>
-      <h5 className="font-medium text-gray-800 text-sm mb-3">Brush Size</h5>
+      <h5 className="font-medium text-gray-800 text-[17px] mb-3">Brush Size</h5>
       <div className="space-y-3">
         <Slider
           value={brushSize}
