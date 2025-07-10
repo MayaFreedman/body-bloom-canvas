@@ -31,10 +31,13 @@ export const ControlButtons = ({
   onCaptureScreenshot
 }: ControlButtonsProps) => {
   const captureScreenshot = () => {
+    console.log('🎬 ControlButtons: Screenshot button clicked');
+    console.log('🎬 ControlButtons: onCaptureScreenshot exists:', !!onCaptureScreenshot);
     if (onCaptureScreenshot) {
+      console.log('🎬 ControlButtons: Calling onCaptureScreenshot');
       onCaptureScreenshot();
     } else {
-      console.warn('Screenshot function not provided');
+      console.warn('🎬 ControlButtons: Screenshot function not provided');
     }
   };
 

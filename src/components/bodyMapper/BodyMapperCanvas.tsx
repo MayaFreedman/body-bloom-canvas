@@ -113,14 +113,32 @@ export const BodyMapperCanvas = ({
 
   // Screenshot capture function using Three.js renderer
   const captureScreenshot = React.useCallback(() => {
+    console.log('📸 Screenshot: Function called');
+    console.log('📸 Screenshot: glRenderer exists:', !!glRenderer);
+    console.log('📸 Screenshot: glRenderer domElement:', glRenderer?.domElement);
+    
     if (!glRenderer) {
-      console.warn('WebGL renderer not available for screenshot');
+      console.warn('📸 Screenshot: WebGL renderer not available for screenshot');
       return;
     }
     
     try {
+      console.log('📸 Screenshot: Canvas dimensions:', {
+        width: glRenderer.domElement.width,
+        height: glRenderer.domElement.height,
+        clientWidth: glRenderer.domElement.clientWidth,
+        clientHeight: glRenderer.domElement.clientHeight
+      });
+      
+      console.log('📸 Screenshot: Renderer info:', {
+        drawingBufferWidth: glRenderer.getDrawingBufferSize(new THREE.Vector2()).x,
+        drawingBufferHeight: glRenderer.getDrawingBufferSize(new THREE.Vector2()).y
+      });
+      
       // Get the data URL from the canvas directly 
       const dataURL = glRenderer.domElement.toDataURL('image/png');
+      console.log('📸 Screenshot: DataURL length:', dataURL.length);
+      console.log('📸 Screenshot: DataURL starts with:', dataURL.substring(0, 50));
       
       // Create download link
       const link = document.createElement('a');
@@ -128,16 +146,19 @@ export const BodyMapperCanvas = ({
       link.href = dataURL;
       link.click();
       
-      console.log('Screenshot captured successfully');
+      console.log('📸 Screenshot: Download triggered successfully');
     } catch (error) {
-      console.error('Failed to capture screenshot:', error);
+      console.error('📸 Screenshot: Failed to capture screenshot:', error);
     }
   }, [glRenderer]);
 
   // Expose screenshot function through ref
   React.useEffect(() => {
+    console.log('📸 Screenshot: Setting up ref, screenshotRef exists:', !!screenshotRef);
+    console.log('📸 Screenshot: captureScreenshot function exists:', !!captureScreenshot);
     if (screenshotRef) {
       screenshotRef.current = captureScreenshot;
+      console.log('📸 Screenshot: Ref assigned successfully');
     }
   }, [captureScreenshot, screenshotRef]);
   
@@ -176,6 +197,11 @@ export const BodyMapperCanvas = ({
         }}
         onCreated={(state) => {
           console.log('🎨 Canvas: Created with GL context:', !!state.gl);
+          console.log('🎨 Canvas: Renderer details:', {
+            domElement: !!state.gl.domElement,
+            width: state.gl.domElement?.width,
+            height: state.gl.domElement?.height
+          });
           setGlRenderer(state.gl);
         }}
       >
