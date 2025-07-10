@@ -25,6 +25,7 @@ export const ScreenshotComposer = ({
     
     // Generate legend data
     const legendItems = generateLegendData(bodyPartColors, sensationMarks);
+    console.log('📊 Legend items generated:', legendItems, 'from colors:', bodyPartColors, 'sensations:', sensationMarks);
     
     return new Promise((resolve) => {
       const img = new Image();
@@ -83,6 +84,7 @@ export const ScreenshotComposer = ({
   };
 
   const drawLegend = (ctx: CanvasRenderingContext2D, legendItems: LegendItem[], width: number, height: number) => {
+    console.log('🎨 Drawing legend with', legendItems.length, 'items:', legendItems);
     if (legendItems.length === 0) return;
     
     const legendWidth = 250;

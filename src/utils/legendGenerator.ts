@@ -16,9 +16,11 @@ export function generateLegendData(
 
   // Find active emotions (colors that are actually used)
   const usedColors = new Set(Object.values(bodyPartColors));
+  console.log('🎨 Used colors from bodyPartColors:', usedColors, bodyPartColors);
   
   emotionalColors.forEach(emotion => {
     if (usedColors.has(emotion.color)) {
+      console.log('✅ Adding emotion to legend:', emotion.name, emotion.color);
       legendItems.push({
         type: 'emotion',
         name: emotion.name,
@@ -31,9 +33,11 @@ export function generateLegendData(
   const usedSensations = new Set(
     sensationMarks.map(mark => mark.name || mark.icon)
   );
+  console.log('🎭 Used sensations from sensationMarks:', usedSensations, sensationMarks);
 
   bodySensations.forEach(sensation => {
     if (usedSensations.has(sensation.name) || usedSensations.has(sensation.icon)) {
+      console.log('✅ Adding sensation to legend:', sensation.name, sensation.color);
       legendItems.push({
         type: 'sensation',
         name: sensation.name,
@@ -43,5 +47,6 @@ export function generateLegendData(
     }
   });
 
+  console.log('📋 Final legend items:', legendItems);
   return legendItems;
 }
