@@ -87,7 +87,7 @@ export const TextControls = ({
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-9 w-9 p-0"
+                  className="h-8 w-8 p-0"
                   onClick={() => onTextSettingsChange({ fontSize: Math.max(10, textSettings.fontSize - 1) })}
                 >
                   <Minus className="w-4 h-4" />
@@ -114,12 +114,12 @@ export const TextControls = ({
                   }}
                   min={10}
                   max={48}
-                  className="w-16 h-9 text-center"
+                  className="w-16 h-8 text-center"
                 />
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-9 w-9 p-0"
+                  className="h-8 w-8 p-0"
                   onClick={() => onTextSettingsChange({ fontSize: Math.min(48, textSettings.fontSize + 1) })}
                 >
                   <Plus className="w-4 h-4" />
