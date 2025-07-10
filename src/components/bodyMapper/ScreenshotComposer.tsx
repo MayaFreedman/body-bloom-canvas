@@ -58,16 +58,16 @@ export const ScreenshotComposer = ({
   }, [screenshotCaptureRef, emotions, sensationMarks]);
 
   const drawLogo = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
-    // Draw "Body Mapping by" text
+    // Draw "Body Mapping by" text - 3x scale
     ctx.save();
     ctx.fillStyle = '#6D6A75'; // --warm-gray
-    ctx.font = '14px Arial, sans-serif';
-    ctx.fillText('Body Mapping by', 16, height - 50);
+    ctx.font = '42px Arial, sans-serif'; // 14px * 3
+    ctx.fillText('Body Mapping by', 48, height - 150); // 16 * 3, 50 * 3
     
-    // Draw "PlaySpace" text (simplified since we can't load the image directly)
+    // Draw "PlaySpace" text - 3x scale
     ctx.fillStyle = '#2E315E'; // --deep-navy
-    ctx.font = 'bold 16px Arial, sans-serif';
-    ctx.fillText('PlaySpace', 16, height - 28);
+    ctx.font = 'bold 48px Arial, sans-serif'; // 16px * 3
+    ctx.fillText('PlaySpace', 48, height - 84); // 16 * 3, 28 * 3
     ctx.restore();
   };
 
@@ -83,8 +83,8 @@ export const ScreenshotComposer = ({
     
     ctx.save();
     ctx.fillStyle = '#2E315E'; // --deep-navy
-    ctx.font = '14px Arial, sans-serif';
-    ctx.fillText(dateString, 16, 30);
+    ctx.font = '42px Arial, sans-serif'; // 14px * 3
+    ctx.fillText(dateString, 48, 90); // 16 * 3, 30 * 3
     ctx.restore();
   };
 
@@ -92,56 +92,93 @@ export const ScreenshotComposer = ({
     console.log('🎨 Drawing legend with', legendItems.length, 'items:', legendItems);
     if (legendItems.length === 0) return;
     
-    const legendWidth = 250;
-    const itemHeight = 28;
-    const padding = 16;
-    const legendHeight = legendItems.length * itemHeight + padding * 2;
+    // Separate emotions and sensations
+    const emotions = legendItems.filter(item => item.type === 'emotion');
+    const sensations = legendItems.filter(item => item.type === 'sensation');
     
-    const legendX = width - legendWidth - 16;
-    const legendY = 60; // Start below the date
+    const legendWidth = 750; // 250 * 3
+    const itemHeight = 84; // 28 * 3
+    const padding = 48; // 16 * 3
+    const sectionSpacing = 60; // Space between sections
+    
+    // Calculate total height for both sections
+    let totalHeight = padding * 2; // Top and bottom padding
+    if (emotions.length > 0) {
+      totalHeight += 72 + emotions.length * itemHeight + 30; // Title + items + spacing
+    }
+    if (sensations.length > 0) {
+      totalHeight += 72 + sensations.length * itemHeight; // Title + items
+    }
+    if (emotions.length > 0 && sensations.length > 0) {
+      totalHeight += sectionSpacing; // Space between sections
+    }
+    
+    const legendX = width - legendWidth - 48; // 16 * 3
+    const legendY = 180; // 60 * 3
     
     // Draw legend background
     ctx.save();
     ctx.fillStyle = 'rgba(254, 254, 254, 0.95)'; // --cream with transparency
     ctx.strokeStyle = '#B8C9B5'; // --sage-green
-    ctx.lineWidth = 1;
-    ctx.roundRect(legendX, legendY, legendWidth, legendHeight, 8);
+    ctx.lineWidth = 3; // 1 * 3
+    ctx.roundRect(legendX, legendY, legendWidth, totalHeight, 24); // 8 * 3
     ctx.fill();
     ctx.stroke();
     
-    // Draw legend title
-    ctx.fillStyle = '#2E315E'; // --deep-navy
-    ctx.font = 'bold 16px Arial, sans-serif';
-    ctx.fillText('Legend', legendX + padding, legendY + 24);
+    let currentY = legendY + 72; // 24 * 3
     
-    // Draw legend items
-    legendItems.forEach((item, index) => {
-      const itemY = legendY + 40 + index * itemHeight;
+    // Draw "Feeling Colours" section
+    if (emotions.length > 0) {
+      ctx.fillStyle = '#2E315E'; // --deep-navy
+      ctx.font = 'bold 48px Arial, sans-serif'; // 16px * 3
+      ctx.fillText('Feeling Colours', legendX + padding, currentY);
+      currentY += 30; // Small spacing after title
       
-      // Draw color swatch or icon indicator
-      ctx.fillStyle = item.color;
-      if (item.type === 'emotion') {
-        // Draw color circle for emotions
+      emotions.forEach((item, index) => {
+        const itemY = currentY + 30 + index * itemHeight; // 10 * 3
+        
+        // Draw color circle
+        ctx.fillStyle = item.color;
         ctx.beginPath();
-        ctx.arc(legendX + padding + 8, itemY, 8, 0, Math.PI * 2);
-        ctx.fill();
-      } else {
-        // Draw smaller circle for sensations
-        ctx.beginPath();
-        ctx.arc(legendX + padding + 8, itemY, 6, 0, Math.PI * 2);
+        ctx.arc(legendX + padding + 24, itemY, 24, 0, Math.PI * 2); // 8 * 3, 8 * 3
         ctx.fill();
         
-        // Draw small icon indicator
-        ctx.fillStyle = '#2E315E';
-        ctx.font = '10px Arial, sans-serif';
-        ctx.fillText('◆', legendX + padding + 5, itemY + 3);
-      }
+        // Draw emotion name
+        ctx.fillStyle = '#2E315E'; // --deep-navy
+        ctx.font = '42px Arial, sans-serif'; // 14px * 3
+        ctx.fillText(item.name, legendX + padding + 72, itemY + 15); // 24 * 3, 5 * 3
+      });
       
-      // Draw item name
+      currentY += emotions.length * itemHeight + sectionSpacing;
+    }
+    
+    // Draw "Body Sensations" section
+    if (sensations.length > 0) {
       ctx.fillStyle = '#2E315E'; // --deep-navy
-      ctx.font = '14px Arial, sans-serif';
-      ctx.fillText(item.name, legendX + padding + 24, itemY + 5);
-    });
+      ctx.font = 'bold 48px Arial, sans-serif'; // 16px * 3
+      ctx.fillText('Body Sensations', legendX + padding, currentY);
+      currentY += 30; // Small spacing after title
+      
+      sensations.forEach((item, index) => {
+        const itemY = currentY + 30 + index * itemHeight; // 10 * 3
+        
+        // Draw icon placeholder (since we can't load images directly in canvas)
+        ctx.fillStyle = item.color;
+        ctx.beginPath();
+        ctx.arc(legendX + padding + 18, itemY, 18, 0, Math.PI * 2); // 6 * 3, 6 * 3
+        ctx.fill();
+        
+        // Draw icon symbol
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = 'bold 30px Arial, sans-serif'; // 10px * 3
+        ctx.fillText('◆', legendX + padding + 9, itemY + 9); // 3 * 3, 3 * 3
+        
+        // Draw sensation name
+        ctx.fillStyle = '#2E315E'; // --deep-navy
+        ctx.font = '42px Arial, sans-serif'; // 14px * 3
+        ctx.fillText(item.name, legendX + padding + 72, itemY + 15); // 24 * 3, 5 * 3
+      });
+    }
     
     ctx.restore();
   };
