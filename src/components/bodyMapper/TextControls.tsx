@@ -74,12 +74,6 @@ export const TextControls = ({
                 onBlur={validateText}
               />
             </div>
-            {hasError && (
-              <div className="flex items-center gap-3 -mt-5">
-                <div className="font-medium text-gray-800 text-[16px] whitespace-nowrap invisible">Text to Place:</div>
-                <p className="text-xs text-red-500 flex-1">Text field cannot be empty</p>
-              </div>
-            )}
           </div>
 
           {/* Font Size */}
