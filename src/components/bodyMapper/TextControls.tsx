@@ -65,16 +65,18 @@ export const TextControls = ({
 
           {/* Text Input */}
           <div className="space-y-2">
-            <h5 className="font-medium text-gray-800 text-[16px] mb-2">Text to Place</h5>
-            <Input
-              value={currentText}
-              onChange={(e) => handleTextChange(e.target.value)}
-              placeholder="Enter your text here..."
-              className={`w-full ${hasError ? 'border-red-500 focus:border-red-500' : ''}`}
-              onBlur={validateText}
-            />
+            <div className="flex items-center gap-3">
+              <h5 className="font-medium text-gray-800 text-[16px] whitespace-nowrap">Text to Place</h5>
+              <Input
+                value={currentText}
+                onChange={(e) => handleTextChange(e.target.value)}
+                placeholder="Enter your text here..."
+                className={`flex-1 ${hasError ? 'border-red-500 focus:border-red-500' : ''}`}
+                onBlur={validateText}
+              />
+            </div>
             {hasError && (
-              <p className="text-xs text-red-500 ml-1 -mt-2">Text field cannot be empty</p>
+              <p className="text-xs text-red-500 ml-1">Text field cannot be empty</p>
             )}
           </div>
 
