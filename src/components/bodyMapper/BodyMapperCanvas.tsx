@@ -17,6 +17,7 @@ import { WhiteboardPlane } from './WhiteboardPlane';
 import { InlineTextEditor } from './InlineTextEditor';
 import { TextRenderer } from '@/components/TextRenderer';
 import { useSidebarHover } from '@/hooks/useSidebarHover';
+import { ScreenshotCapture } from './ScreenshotCapture';
 import { DrawingMark, SensationMark, Effect, BodyPartColors, BodyMapperMode, SelectedSensation } from '@/types/bodyMapperTypes';
 import { WorldDrawingPoint } from '@/types/multiplayerTypes';
 import { TextMark } from '@/types/textTypes';
@@ -99,7 +100,6 @@ export const BodyMapperCanvas = ({
 }: BodyMapperCanvasProps) => {
   
   const [isHoveringBody, setIsHoveringBody] = useState(false);
-  const [glRenderer, setGlRenderer] = useState<THREE.WebGLRenderer | null>(null);
   const isHoveringSidebar = useSidebarHover();
   
   // Handle sensation click with auto-deselect
@@ -108,73 +108,6 @@ export const BodyMapperCanvas = ({
     onSensationDeselect(); // Auto-deselect after placing
   };
 
-  // Screenshot capture function using Three.js renderer
-  const captureScreenshot = React.useCallback(() => {
-    console.log('📸 Screenshot: Function called');
-    console.log('📸 Screenshot: glRenderer exists:', !!glRenderer);
-    console.log('📸 Screenshot: glRenderer domElement:', glRenderer?.domElement);
-    
-    if (!glRenderer) {
-      console.warn('📸 Screenshot: WebGL renderer not available for screenshot');
-      return;
-    }
-    
-    try {
-      console.log('📸 Screenshot: Canvas dimensions:', {
-        width: glRenderer.domElement.width,
-        height: glRenderer.domElement.height,
-        clientWidth: glRenderer.domElement.clientWidth,
-        clientHeight: glRenderer.domElement.clientHeight
-      });
-      
-      console.log('📸 Screenshot: Renderer info:', {
-        drawingBufferWidth: glRenderer.getDrawingBufferSize(new THREE.Vector2()).x,
-        drawingBufferHeight: glRenderer.getDrawingBufferSize(new THREE.Vector2()).y
-      });
-
-      // Check if canvas has any content by looking at pixel data
-      const context = glRenderer.getContext();
-      console.log('📸 Screenshot: WebGL context exists:', !!context);
-      
-      // Force a render before capturing
-      console.log('📸 Screenshot: Current scene info:', {
-        modelRefExists: !!modelRef?.current,
-        drawingMarksCount: drawingMarks.length,
-        sensationMarksCount: sensationMarks.length,
-        textMarksCount: textMarks.length
-      });
-      
-      // Get the data URL from the canvas directly 
-      const dataURL = glRenderer.domElement.toDataURL('image/png');
-      console.log('📸 Screenshot: DataURL length:', dataURL.length);
-      console.log('📸 Screenshot: DataURL starts with:', dataURL.substring(0, 50));
-      
-      // Check if it's just a blank/grey image
-      if (dataURL.length < 10000) {
-        console.warn('📸 Screenshot: DataURL seems very small, might be blank canvas');
-      }
-      
-      // Create download link
-      const link = document.createElement('a');
-      link.download = `emotional-body-map-${new Date().toISOString().split('T')[0]}.png`;
-      link.href = dataURL;
-      link.click();
-      
-      console.log('📸 Screenshot: Download triggered successfully');
-    } catch (error) {
-      console.error('📸 Screenshot: Failed to capture screenshot:', error);
-    }
-  }, [glRenderer, modelRef, drawingMarks, sensationMarks, textMarks]);
-
-  // Expose screenshot function through ref
-  React.useEffect(() => {
-    console.log('📸 Screenshot: Setting up ref, screenshotRef exists:', !!screenshotRef);
-    console.log('📸 Screenshot: captureScreenshot function exists:', !!captureScreenshot);
-    if (screenshotRef) {
-      screenshotRef.current = captureScreenshot;
-      console.log('📸 Screenshot: Ref assigned successfully');
-    }
-  }, [captureScreenshot, screenshotRef]);
   
   return (
     <div style={{ 
@@ -210,10 +143,8 @@ export const BodyMapperCanvas = ({
           toneMappingExposure: 1,
           preserveDrawingBuffer: true
         }}
-        onCreated={(state) => {
-          setGlRenderer(state.gl);
-        }}
       >
+        <ScreenshotCapture screenshotRef={screenshotRef} />
         <color attach="background" args={[whiteboardBackground]} />
         <ambientLight intensity={1.0} />
         <directionalLight position={[10, 10, 5]} intensity={0.5} />
