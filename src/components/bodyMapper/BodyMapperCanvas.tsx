@@ -13,7 +13,7 @@ import { ClickHandler } from './ClickHandler';
 import { HoverDetector } from './HoverDetector';
 import { EraserHandler } from './EraserHandler';
 import { WhiteboardPlane } from './WhiteboardPlane';
-import { TextPlacementHandler } from './TextPlacementHandler';
+
 import { InlineTextEditor } from './InlineTextEditor';
 import { TextRenderer } from '@/components/TextRenderer';
 import { useSidebarHover } from '@/hooks/useSidebarHover';

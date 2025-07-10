@@ -101,7 +101,16 @@ export const ClickHandler = ({
         // PRIORITY 1: If in text mode, place text on body
         if (mode === 'text' && onTextPlace) {
           console.log('📝 ClickHandler - Placing text on body at part:', intersectedObject.userData.bodyPart);
-          onTextPlace(intersect.point, 'body');
+          // Convert world position to local position relative to the model (same as sensations)
+          const modelGroup = scene.children.find(child => child.type === 'Group');
+          if (modelGroup) {
+            const localPosition = new THREE.Vector3();
+            modelGroup.worldToLocal(localPosition.copy(intersect.point));
+            console.log('📝 ClickHandler - Calling onTextPlace with local position:', localPosition);
+            onTextPlace(localPosition, 'body');
+          } else {
+            console.error('❌ ClickHandler - Could not find model group for text placement');
+          }
           return;
         }
         
