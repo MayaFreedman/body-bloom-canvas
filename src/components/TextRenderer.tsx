@@ -61,11 +61,24 @@ const TextMarkComponent = ({
     const facingX = Math.sin(adjustedRotation);
     const facingZ = Math.cos(adjustedRotation);
     
+    console.log('📍 TextMark position calc:', {
+      id: textMark.id,
+      originalPos: pos,
+      basePos: basePos,
+      rotation,
+      adjustedRotation,
+      facingX,
+      facingZ,
+      zOffset
+    });
+    
     basePos.x += facingX * zOffset;
     basePos.z += facingZ * zOffset;
     
+    console.log('📍 Final text position:', basePos);
+    
     return basePos;
-  }, [textMark.position, rotation]);
+  }, [textMark.position, rotation, textMark.id]);
 
   return (
     <group position={offsetPosition}>
@@ -95,6 +108,8 @@ const TextMarkComponent = ({
 };
 
 export const TextRenderer = ({ textMarks, onTextClick, rotation }: TextRendererProps) => {
+  console.log('📝 TextRenderer: Rendering', textMarks.length, 'text marks, rotation:', rotation);
+  
   return (
     <>
       {textMarks.map((textMark) => (
