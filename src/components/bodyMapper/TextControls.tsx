@@ -96,9 +96,20 @@ export const TextControls = ({
                   type="number"
                   value={textSettings.fontSize}
                   onChange={(e) => {
+                    const value = parseInt(e.target.value) || textSettings.fontSize;
+                    onTextSettingsChange({ fontSize: value });
+                  }}
+                  onBlur={(e) => {
                     const value = parseInt(e.target.value) || 10;
-                    if (value >= 10 && value <= 48) {
-                      onTextSettingsChange({ fontSize: value });
+                    const clampedValue = Math.max(10, Math.min(48, value));
+                    onTextSettingsChange({ fontSize: clampedValue });
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      const value = parseInt(e.currentTarget.value) || 10;
+                      const clampedValue = Math.max(10, Math.min(48, value));
+                      onTextSettingsChange({ fontSize: clampedValue });
+                      e.currentTarget.blur();
                     }
                   }}
                   min={10}
