@@ -167,7 +167,11 @@ export const BodyMapperLayout = ({
           mode={mode}
           isActivelyDrawing={isActivelyDrawing}
           onControlButtonsHover={setIsHoveringControlButtons}
-          onCaptureScreenshot={() => screenshotRef.current?.()}
+          onCaptureScreenshot={() => {
+            console.log('🎭 Layout: Screenshot requested, calling screenshotRef.current');
+            console.log('🎭 Layout: screenshotRef.current exists:', !!screenshotRef.current);
+            screenshotRef.current?.();
+          }}
         />
       </div>
 

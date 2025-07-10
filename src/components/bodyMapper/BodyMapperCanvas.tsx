@@ -134,11 +134,28 @@ export const BodyMapperCanvas = ({
         drawingBufferWidth: glRenderer.getDrawingBufferSize(new THREE.Vector2()).x,
         drawingBufferHeight: glRenderer.getDrawingBufferSize(new THREE.Vector2()).y
       });
+
+      // Check if canvas has any content by looking at pixel data
+      const context = glRenderer.getContext();
+      console.log('📸 Screenshot: WebGL context exists:', !!context);
+      
+      // Force a render before capturing
+      console.log('📸 Screenshot: Current scene info:', {
+        modelRefExists: !!modelRef?.current,
+        drawingMarksCount: drawingMarks.length,
+        sensationMarksCount: sensationMarks.length,
+        textMarksCount: textMarks.length
+      });
       
       // Get the data URL from the canvas directly 
       const dataURL = glRenderer.domElement.toDataURL('image/png');
       console.log('📸 Screenshot: DataURL length:', dataURL.length);
       console.log('📸 Screenshot: DataURL starts with:', dataURL.substring(0, 50));
+      
+      // Check if it's just a blank/grey image
+      if (dataURL.length < 10000) {
+        console.warn('📸 Screenshot: DataURL seems very small, might be blank canvas');
+      }
       
       // Create download link
       const link = document.createElement('a');
@@ -150,7 +167,7 @@ export const BodyMapperCanvas = ({
     } catch (error) {
       console.error('📸 Screenshot: Failed to capture screenshot:', error);
     }
-  }, [glRenderer]);
+  }, [glRenderer, modelRef, drawingMarks, sensationMarks, textMarks]);
 
   // Expose screenshot function through ref
   React.useEffect(() => {
