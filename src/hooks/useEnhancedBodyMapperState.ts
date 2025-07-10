@@ -144,28 +144,8 @@ export const useEnhancedBodyMapperState = ({
     };
     
     // Update state
-    console.log('🎯 Custom effect data being stored:', {
-      sensationName: sensation.name,
-      sensationIcon: sensation.icon,
-      isCustomSensation: 'isCustom' in sensation && sensation.isCustom,
-      customIcon: ('isCustom' in sensation && sensation.isCustom) ? (sensation as any).selectedIcon : undefined,
-      finalIconValue: ('isCustom' in sensation && sensation.isCustom) 
-        ? (sensation as CustomSensation).selectedIcon  
-        : sensation.icon
-    });
-    console.log('🎯 useEnhancedBodyMapperState - About to add sensation mark:', newSensationMark);
     setSensationMarks(prev => {
-      console.log('🎯 useEnhancedBodyMapperState - Previous sensation marks:', prev);
       const newMarks = [...prev, newSensationMark];
-      console.log('🎯 useEnhancedBodyMapperState - New sensation marks:', newMarks);
-      console.log('🎯 useEnhancedBodyMapperState - New mark details:', {
-        id: newSensationMark.id,
-        icon: newSensationMark.icon,
-        isCustom: newSensationMark.isCustom,
-        name: newSensationMark.name,
-        color: newSensationMark.color,
-        movementBehavior: (newSensationMark as any).movementBehavior
-      });
       return newMarks;
     });
     
@@ -180,14 +160,10 @@ export const useEnhancedBodyMapperState = ({
         sensationType: sensation.name || sensation.icon
       }
     });
-    
-    console.log('Added sensation mark to history:', newSensationMark);
   };
 
   // Whiteboard fill handler
   const handleWhiteboardFill = (color: string) => {
-    console.log('🎨 useEnhancedBodyMapperState - Filling whiteboard with color:', color);
-    
     const previousColor = whiteboardBackground;
     setWhiteboardBackground(color);
     
@@ -205,7 +181,6 @@ export const useEnhancedBodyMapperState = ({
   };
 
   const handleResetAll = () => {
-    console.log('🔄 Resetting all content');
     
     // Get all current content for action history
     const allContent = {
@@ -266,7 +241,6 @@ export const useEnhancedBodyMapperState = ({
 
   // Legacy compatibility - convert to old format for existing components
   const drawingMarks = strokeManager.getAllMarks().map(mark => {
-    console.log('🟢 Converting stroke mark to drawing mark:', {id: mark.id, surface: mark.surface, hasAllProps: Object.keys(mark)});
     return {
       id: mark.id,
       position: mark.position,
@@ -275,7 +249,6 @@ export const useEnhancedBodyMapperState = ({
       surface: mark.surface
     };
   });
-  console.log('🟢 Final drawingMarks array:', drawingMarks.length, 'marks with surfaces:', drawingMarks.map(m => ({id: m.id, surface: m.surface})));
 
   return {
     mode,
@@ -301,12 +274,8 @@ export const useEnhancedBodyMapperState = ({
     // Enhanced functionality
     handleStartDrawing,
     handleAddDrawingMark: useCallback((mark: DrawingMark) => {
-      console.log('🟣 useEnhancedBodyMapperState.handleAddDrawingMark received mark:', {id: mark.id, surface: mark.surface, hasAllProps: Object.keys(mark)});
-      
       // Add to stroke for action history
       const enhancedMark = drawingOps.handleAddDrawingMark(mark);
-      
-      console.log('🟣 Mark successfully processed by drawingOps, enhancedMark:', enhancedMark);
       
       return enhancedMark;
     }, [drawingOps.handleAddDrawingMark]),

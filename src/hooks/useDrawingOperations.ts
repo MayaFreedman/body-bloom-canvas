@@ -23,13 +23,10 @@ export const useDrawingOperations = ({
   }, [strokeManager, brushSize, selectedColor]);
 
   const handleAddDrawingMark = useCallback((mark: Omit<DrawingMark, 'strokeId' | 'timestamp' | 'userId'>) => {
-    console.log('🟠 useDrawingOperations.handleAddDrawingMark received mark:', {id: mark.id, surface: mark.surface, hasAllProps: Object.keys(mark)});
     const enhancedMark = strokeManager.addMarkToStroke(mark);
     if (!enhancedMark) {
-      console.error('🔴 strokeManager.addMarkToStroke returned null!');
       return null;
     }
-    console.log('🟠 useDrawingOperations.handleAddDrawingMark enhanced mark:', {id: enhancedMark.id, surface: enhancedMark.surface, hasAllProps: Object.keys(enhancedMark)});
     return enhancedMark;
   }, [strokeManager]);
 
