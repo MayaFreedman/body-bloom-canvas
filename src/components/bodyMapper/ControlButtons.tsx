@@ -1,7 +1,8 @@
-
 import React from 'react';
-import html2canvas from 'html2canvas';
 import { Undo2, Redo2, Camera } from 'lucide-react';
+import { ScreenshotCaptureHandle } from './ScreenshotCapture';
+import { ScreenshotComposer } from './ScreenshotComposer';
+import { SensationMark } from '@/types/bodyMapperTypes';
 
 interface ControlButtonsProps {
   onResetAll: () => void;
@@ -14,6 +15,9 @@ interface ControlButtonsProps {
   mode?: string;
   isActivelyDrawing?: boolean;
   onControlButtonsHover?: (isHovering: boolean) => void;
+  screenshotRef?: React.RefObject<ScreenshotCaptureHandle>;
+  bodyPartColors?: Record<string, string>;
+  sensationMarks?: SensationMark[];
 }
 
 export const ControlButtons = ({ 
@@ -26,24 +30,46 @@ export const ControlButtons = ({
   drawingTarget = 'body',
   mode = 'draw',
   isActivelyDrawing = false,
-  onControlButtonsHover
+  onControlButtonsHover,
+  screenshotRef,
+  bodyPartColors = {},
+  sensationMarks = []
 }: ControlButtonsProps) => {
+  // Enhanced screenshot functionality with legend
+  const screenshotComposer = screenshotRef ? ScreenshotComposer({
+    screenshotCaptureRef: screenshotRef,
+    bodyPartColors,
+    sensationMarks
+  }) : null;
+
   const captureScreenshot = async () => {
-    if (!canvasRef.current) return;
-    
     try {
-      const canvas = await html2canvas(canvasRef.current, {
-        backgroundColor: '#f8f9fa',
-        useCORS: true,
-        scale: 2
-      });
+      console.log('📸 Starting enhanced screenshot capture...');
       
+      if (!screenshotRef?.current || !screenshotComposer) {
+        console.error('❌ Screenshot capture ref is not available');
+        return;
+      }
+
+      // Generate the composite screenshot with legend
+      const screenshotDataUrl = await screenshotComposer.generateScreenshot();
+      
+      // Convert to blob and download
+      const response = await fetch(screenshotDataUrl);
+      const blob = await response.blob();
+      
+      const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
-      link.download = `emotional-body-map-${new Date().toISOString().split('T')[0]}.png`;
-      link.href = canvas.toDataURL();
+      link.href = url;
+      link.download = `body-map-${new Date().toISOString().split('T')[0]}.png`;
+      document.body.appendChild(link);
       link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+      console.log('✅ Enhanced screenshot downloaded successfully');
     } catch (error) {
-      console.error('Failed to capture screenshot:', error);
+      console.error('❌ Enhanced screenshot capture failed:', error);
     }
   };
 

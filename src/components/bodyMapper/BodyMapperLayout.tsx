@@ -1,11 +1,12 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { BodyMapperCanvas } from './BodyMapperCanvas';
 import { BodyMapperControls } from './BodyMapperControls';
 import { ControlButtons } from './ControlButtons';
 import { SensationPlacementPopup } from './SensationPlacementPopup';
 import { DrawingTargetSelector } from './DrawingTargetSelector';
 import { WhiteboardPlane } from './WhiteboardPlane';
+import { ScreenshotCaptureHandle } from './ScreenshotCapture';
 import { BodyMapperMode, SelectedSensation, SensationMark } from '@/types/bodyMapperTypes';
 import { WorldDrawingPoint } from '@/types/multiplayerTypes';
 import { TextMark, TextSettings } from '@/types/textTypes';
@@ -111,6 +112,7 @@ export const BodyMapperLayout = ({
 }: BodyMapperLayoutProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isHoveringControlButtons, setIsHoveringControlButtons] = useState(false);
+  const screenshotRef = useRef<ScreenshotCaptureHandle>(null);
 
   return (
     <div className="game-container">
@@ -135,6 +137,7 @@ export const BodyMapperLayout = ({
             textSettings={textSettings}
             editingTextId={editingTextId}
             modelRef={modelRef}
+            screenshotRef={screenshotRef}
             onAddDrawingMark={onAddDrawingMark}
             onDrawingStrokeStart={onDrawingStrokeStart}
             onDrawingStrokeComplete={onDrawingStrokeComplete}
@@ -165,6 +168,9 @@ export const BodyMapperLayout = ({
           mode={mode}
           isActivelyDrawing={isActivelyDrawing}
           onControlButtonsHover={setIsHoveringControlButtons}
+          screenshotRef={screenshotRef}
+          bodyPartColors={bodyPartColors}
+          sensationMarks={sensationMarks}
         />
       </div>
 
