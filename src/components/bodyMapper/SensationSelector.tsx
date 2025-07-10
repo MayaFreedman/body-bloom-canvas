@@ -1,8 +1,11 @@
 
-import React from 'react';
-import { Sparkles, Activity, Zap, Wind, Droplet, Snowflake, Thermometer, Heart, Star } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Sparkles, Activity, Zap, Wind, Droplet, Snowflake, Thermometer, Heart, Star, Plus } from 'lucide-react';
 import { bodySensations } from '@/constants/bodyMapperConstants';
 import { BodyMapperMode, SelectedSensation } from '@/types/bodyMapperTypes';
+import { CustomSensation, CustomEffectForm } from '@/types/customEffectTypes';
+import { CustomEffectDialog } from './CustomEffectDialog';
+import { createCustomSensation, generateCustomEffectImage, saveCustomEffects, loadCustomEffects } from '@/utils/customEffectGenerator';
 
 // Import particle effect images for previews
 import butterflyImg from '@/Assets/particleEffects/butterfly.png';
@@ -85,6 +88,54 @@ export const getSensationImage = (sensationName: string) => {
 };
 
 export const SensationSelector = ({ mode, selectedSensation, onModeChange, onSensationChange }: SensationSelectorProps) => {
+  const [customEffects, setCustomEffects] = useState<CustomSensation[]>([]);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [customImages, setCustomImages] = useState<Map<string, string>>(new Map());
+
+  // Load custom effects on mount
+  useEffect(() => {
+    const loadedEffects = loadCustomEffects();
+    setCustomEffects(loadedEffects);
+    
+    // Generate images for loaded effects
+    loadedEffects.forEach(async (effect) => {
+      try {
+        const imageUrl = await generateCustomEffectImage(effect.selectedIcon as any, effect.color);
+        setCustomImages(prev => new Map(prev).set(effect.id, imageUrl));
+      } catch (error) {
+        console.warn('Failed to generate image for custom effect:', effect.name, error);
+      }
+    });
+  }, []);
+
+  // Handle creating new custom effect
+  const handleCreateCustomEffect = async (form: CustomEffectForm) => {
+    try {
+      const customSensation = createCustomSensation(form);
+      const imageUrl = await generateCustomEffectImage(customSensation.selectedIcon as any, customSensation.color);
+      
+      const updatedEffects = [...customEffects, customSensation];
+      setCustomEffects(updatedEffects);
+      setCustomImages(prev => new Map(prev).set(customSensation.id, imageUrl));
+      saveCustomEffects(updatedEffects);
+      
+      console.log('✨ Created custom effect:', customSensation);
+    } catch (error) {
+      console.error('Failed to create custom effect:', error);
+    }
+  };
+
+  // Get image for sensation (including custom ones)
+  const getSensationImageForDisplay = (sensation: SelectedSensation | CustomSensation) => {
+    if ('isCustom' in sensation && sensation.isCustom) {
+      return customImages.get(sensation.id) || getSensationImage(sensation.name);
+    }
+    return getSensationImage(sensation.name);
+  };
+
+  // Combine built-in and custom sensations
+  const allSensations = [...bodySensations, ...customEffects];
+
   return (
     <div>
       <div className="mb-4">
@@ -92,10 +143,8 @@ export const SensationSelector = ({ mode, selectedSensation, onModeChange, onSen
         <p className="mt-3"><strong>Tip:</strong> Think about the signals your body gives you. Where do you feel tension, energy, or change when a big feeling shows up?</p>
       </div>
 
-      {/* Remove the sensation mode button - sensations are now always available */}
-
       <div className="grid grid-cols-2 gap-3">
-        {bodySensations.map((sensation, index) => {
+        {allSensations.map((sensation, index) => {
           const isSelected = selectedSensation?.name === sensation.name;
           
           return (
@@ -126,7 +175,7 @@ export const SensationSelector = ({ mode, selectedSensation, onModeChange, onSen
               }}
             >
               <img 
-                src={getSensationImage(sensation.name)} 
+                src={getSensationImageForDisplay(sensation)} 
                 alt={sensation.name}
                 className={`w-6 h-6 mb-2 object-contain ${isSelected ? 'opacity-100' : 'opacity-80'}`}
               />
@@ -136,6 +185,17 @@ export const SensationSelector = ({ mode, selectedSensation, onModeChange, onSen
             </button>
           );
         })}
+        
+        {/* Create Custom Effect Button */}
+        <button
+          className="flex flex-col items-center p-3 border border-dashed border-foreground/40 rounded-lg transition-all outline-none focus:outline-none hover:bg-muted hover:border-foreground/60"
+          onClick={() => setShowCreateDialog(true)}
+        >
+          <Plus size={24} className="mb-2 text-muted-foreground" />
+          <span className="text-xs text-center text-muted-foreground">
+            Create Custom
+          </span>
+        </button>
       </div>
 
       {selectedSensation && (
@@ -148,6 +208,13 @@ export const SensationSelector = ({ mode, selectedSensation, onModeChange, onSen
           </p>
         </div>
       )}
+
+      {/* Custom Effect Creation Dialog */}
+      <CustomEffectDialog
+        open={showCreateDialog}
+        onOpenChange={setShowCreateDialog}
+        onCreateEffect={handleCreateCustomEffect}
+      />
     </div>
   );
 };

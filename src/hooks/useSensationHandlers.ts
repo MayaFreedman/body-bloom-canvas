@@ -8,7 +8,13 @@ interface UseSensationHandlersProps {
 }
 
 export const useSensationHandlers = ({ multiplayer }: UseSensationHandlersProps) => {
-  const handleSensationClick = useCallback((position: THREE.Vector3, sensation: { icon: string; color: string; name: string }) => {
+  const handleSensationClick = useCallback((position: THREE.Vector3, sensation: { 
+    icon: string; 
+    color: string; 
+    name: string;
+    movementBehavior?: 'gentle' | 'moderate' | 'energetic';
+    isCustom?: boolean;
+  }) => {
     console.log('🔥 MULTIPLAYER SENSATION: Sensation clicked:', position, sensation);
     console.log('🔥 MULTIPLAYER SENSATION: Is connected?', multiplayer.isConnected);
     
@@ -19,7 +25,9 @@ export const useSensationHandlers = ({ multiplayer }: UseSensationHandlersProps)
         icon: sensation.icon,
         color: sensation.color,
         name: sensation.name, // Include the name to determine particle image
-        size: 0.1
+        size: 0.1,
+        movementBehavior: sensation.movementBehavior,
+        isCustom: sensation.isCustom
       };
       multiplayer.broadcastSensation(sensationMark);
     }

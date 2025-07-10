@@ -1,6 +1,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { BodyMapperMode, SelectedSensation, SensationMark, DrawingTarget, DrawingMark } from '@/types/bodyMapperTypes';
+import { CustomSensation } from '@/types/customEffectTypes';
 import { useActionHistory } from './useActionHistory';
 import { useStrokeManager } from './useStrokeManager';
 import { useSpatialIndex } from './useSpatialIndex';
@@ -121,16 +122,24 @@ export const useEnhancedBodyMapperState = ({
   };
 
   // Enhanced sensation handling with action history tracking
-  const handleSensationClick = (position: any, sensation: SelectedSensation) => {
+  const handleSensationClick = (position: any, sensation: SelectedSensation | CustomSensation) => {
     console.log('🔥 LOCAL SENSATION: useEnhancedBodyMapperState - handleSensationClick called with:', sensation.name, 'at position:', position);
     
-    const newSensationMark: SensationMark = {
+    // Create enhanced sensation mark with custom properties
+    const newSensationMark: SensationMark & { 
+      movementBehavior?: 'gentle' | 'moderate' | 'energetic';
+      isCustom?: boolean;
+    } = {
       id: `sensation-${Date.now()}-${Math.random()}`,
       position,
       icon: sensation.icon,
       color: sensation.color,
       size: 0.1,
-      name: sensation.name
+      name: sensation.name,
+      ...(('isCustom' in sensation && sensation.isCustom) ? {
+        movementBehavior: sensation.movementBehavior,
+        isCustom: true
+      } : {})
     };
     
     // Update state

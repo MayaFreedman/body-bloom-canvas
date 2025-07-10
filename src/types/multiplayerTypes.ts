@@ -49,6 +49,8 @@ export interface SensationData {
   name: string; // Add name field for particle image determination
   size: number;
   playerId: string;
+  movementBehavior?: 'gentle' | 'moderate' | 'energetic';
+  isCustom?: boolean;
 }
 
 export interface BodyPartFill {

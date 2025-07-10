@@ -58,6 +58,8 @@ interface SensationParticlesProps {
     color: string;
     size: number;
     name?: string;
+    movementBehavior?: 'gentle' | 'moderate' | 'energetic';
+    isCustom?: boolean;
   }>;
 }
 
@@ -104,7 +106,13 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
   }, []);
 
   // Map sensation names to textures
-  const getSensationTexture = (sensationName: string) => {
+  const getSensationTexture = (sensationName: string, isCustom?: boolean, customIcon?: string) => {
+    // Handle custom effects with generated textures
+    if (isCustom && customIcon) {
+      // For custom effects, we'll use a basic star texture as fallback
+      // In a full implementation, we'd generate these dynamically
+      return textureMap.star;
+    }
     
     const textureMapping: { [key: string]: keyof typeof textureMap } = {
       'Nerves': 'butterfly',
@@ -326,6 +334,38 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
     return config.min + Math.random() * (config.max - config.min);
   };
 
+  // Get custom effect parameters based on movement behavior
+  const getCustomEffectParams = (behavior: 'gentle' | 'moderate' | 'energetic') => {
+    const params = {
+      gentle: {
+        particleCount: 8,
+        dispersion: 0.05,
+        size: { base: 0.06, variance: 0.03, multiplier: 2.2 },
+        lifespan: { min: 200, max: 350 },
+        speed: 0.4,
+        intensity: 0.5,
+      },
+      moderate: {
+        particleCount: 15,
+        dispersion: 0.08,
+        size: { base: 0.045, variance: 0.025, multiplier: 1.7 },
+        lifespan: { min: 120, max: 200 },
+        speed: 1.0,
+        intensity: 0.8,
+      },
+      energetic: {
+        particleCount: 25,
+        dispersion: 0.12,
+        size: { base: 0.035, variance: 0.02, multiplier: 1.4 },
+        lifespan: { min: 60, max: 120 },
+        speed: 2.0,
+        intensity: 1.2,
+      },
+    };
+    
+    return params[behavior];
+  };
+
   // Create particle system for each sensation mark
   const particleSystems = useMemo(() => {
     
@@ -384,9 +424,19 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
           return densityMapping[sensationName] || 12;
         };
         
-        const particleCount = getParticleCount(mark.name || mark.icon);
+        // Handle custom effects differently
+        let particleCount, dispersion;
         
-        const dispersion = getDispersionLevel(mark.name || mark.icon);
+        if (mark.isCustom && mark.movementBehavior) {
+          // Custom effect parameters based on movement behavior
+          const customParams = getCustomEffectParams(mark.movementBehavior);
+          particleCount = customParams.particleCount;
+          dispersion = customParams.dispersion;
+        } else {
+          // Built-in sensation parameters  
+          particleCount = getParticleCount(mark.name || mark.icon);
+          dispersion = getDispersionLevel(mark.name || mark.icon);
+        }
         
         for (let i = 0; i < particleCount; i++) {
           // Create initial velocity that matches the sensation's animation pattern
@@ -421,6 +471,15 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
               (Math.random() - 0.5) * 0.001,
               (Math.random() - 0.5) * 0.0015
             );
+          } else if (mark.isCustom && mark.movementBehavior) {
+            // Custom effect initial velocity based on movement behavior
+            const customParams = getCustomEffectParams(mark.movementBehavior);
+            const speedMultiplier = customParams.speed;
+            initialVelocity = new THREE.Vector3(
+              (Math.random() - 0.5) * 0.0006 * speedMultiplier,
+              Math.random() * 0.0008 * speedMultiplier,
+              (Math.random() - 0.5) * 0.0006 * speedMultiplier
+            );
           } else {
             // Default gentle floating movement for other sensations
             initialVelocity = new THREE.Vector3(
@@ -428,6 +487,19 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
               Math.random() * 0.0008, // Natural floating tendency
               (Math.random() - 0.5) * 0.0006
             );
+          }
+          
+          // Handle custom vs built-in particle properties
+          let maxLife, size;
+          
+          if (mark.isCustom && mark.movementBehavior) {
+            const customParams = getCustomEffectParams(mark.movementBehavior);
+            const lifespan = customParams.lifespan;
+            maxLife = lifespan.min + Math.random() * (lifespan.max - lifespan.min);
+            size = (customParams.size.base + Math.random() * customParams.size.variance) * customParams.size.multiplier;
+          } else {
+            maxLife = getParticleLifespan(mark.name || mark.icon);
+            size = getParticleSize(mark.name || mark.icon);
           }
           
           const baseParticle = {
@@ -438,8 +510,8 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             ),
             velocity: initialVelocity,
             life: Math.random() * 100,
-            maxLife: getParticleLifespan(mark.name || mark.icon),
-            size: getParticleSize(mark.name || mark.icon),
+            maxLife,
+            size,
             rotation: Math.random() * Math.PI * 2,
             rotationSpeed: (Math.random() - 0.5) * 0.15,
             oscillationPhase: Math.random() * Math.PI * 2,
@@ -857,8 +929,8 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
     meshRefsRef.current.set(mark.id, meshes);
 
     // Get the appropriate texture for this sensation mark
-    const sensationTexture = getSensationTexture(mark.name || mark.icon);
-    const normalizedScale = getNormalizedScale(mark.name || mark.icon);
+    const sensationTexture = getSensationTexture(mark.name || mark.icon, mark.isCustom, mark.icon);
+    const normalizedScale = mark.isCustom ? 1.0 : getNormalizedScale(mark.name || mark.icon);
     
     
 
