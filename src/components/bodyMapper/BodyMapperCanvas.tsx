@@ -206,6 +206,7 @@ export const BodyMapperCanvas = ({
         <TextRenderer 
           textMarks={textMarks.filter(mark => mark.surface === 'whiteboard')} 
           onTextClick={onTextClick}
+          rotation={0}
         />
         
         <ModelDrawing
