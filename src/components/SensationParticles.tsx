@@ -781,7 +781,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
         // Handle custom effect animation profiles
         let animProfile;
         if (mark.isCustom && mark.movementBehavior) {
-          console.log('🎨 Custom effect with behavior:', mark.movementBehavior);
+          
           const customParams = getCustomEffectParams(mark.movementBehavior);
           animProfile = {
             speed: customParams.speed,
@@ -792,7 +792,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
           };
         } else if (customIconNames.includes(mark.icon || '')) {
           // Fallback for detected custom effects
-          console.log('⚠️ Custom icon detected but no behavior - using moderate fallback');
+          
           const customParams = getCustomEffectParams('moderate');
           animProfile = {
             speed: customParams.speed,
@@ -947,7 +947,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             particle.velocity.multiplyScalar(0.97);
             
           } else if (customBehavior === 'energetic') {
-            console.log('⚡ Energetic behavior active');
+            
             // Energetic bursting movement
             const burstForce = Math.sin(time * 6 + particle.life * 0.4) * 0.002 * animProfile.intensity;
             const quickMovement = Math.cos(time * 8 + particle.life * 0.5) * 0.0015 * animProfile.intensity;
@@ -1100,7 +1100,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
     const sensationTexture = getSensationTexture(mark.name || mark.icon, mark.isCustom, mark.icon);
     const normalizedScale = mark.isCustom ? 1.0 : getNormalizedScale(mark.name || mark.icon);
     
-    console.log('🎆 Using texture for rendering:', !!sensationTexture, 'Scale:', normalizedScale);
+    
 
     return particles.map((particle, index) => {
       const opacity = 1 - (particle.life / particle.maxLife);

@@ -46,7 +46,7 @@ export const HumanModel = ({ bodyPartColors = {} }: HumanModelProps) => {
   
   const groupRef = useRef<Group>(null);
   const { scene } = useGLTF('/body.glb');
-  console.log('🎭 HumanModel: GLTF scene loaded:', !!scene, scene ? 'Scene exists' : 'No scene');
+  
   const originalColors = useRef<{ [key: string]: string }>({});
 
   // Subtle breathing animation - slower and more gentle
@@ -56,7 +56,7 @@ export const HumanModel = ({ bodyPartColors = {} }: HumanModelProps) => {
       groupRef.current.scale.setScalar(breathe);
       // Only log occasionally to avoid spam
       if (Math.floor(state.clock.elapsedTime) % 5 === 0 && state.clock.elapsedTime % 1 < 0.016) {
-        console.log('🫁 HumanModel: Breathing animation active, time:', state.clock.elapsedTime.toFixed(2));
+        
       }
     }
   });
@@ -137,7 +137,7 @@ export const HumanModel = ({ bodyPartColors = {} }: HumanModelProps) => {
           
           child.userData.bodyPart = bodyPart || child.name || 'body';
           
-          console.log(`Mesh: ${child.name}, assigned bodyPart: ${child.userData.bodyPart}`);
+          
           
           // Apply colors with correction if specified, otherwise reset to original
           if (child.material) {
@@ -219,10 +219,7 @@ export const HumanModel = ({ bodyPartColors = {} }: HumanModelProps) => {
     }
   }, [scene, bodyPartColors]);
 
-  console.log('🎭 HumanModel: About to render group, scene exists:', !!scene);
-  
   if (!scene) {
-    console.log('🎭 HumanModel: ⚠️ No scene available, rendering null');
     return null;
   }
 

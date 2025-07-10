@@ -7,8 +7,6 @@ export const generateCustomEffectId = (): string => {
 
 // Convert form data to custom sensation
 export const createCustomSensation = (form: CustomEffectForm): CustomSensation => {
-  console.log('🔧 customEffectGenerator - Creating custom sensation from form:', form);
-  
   const customSensation: CustomSensation = {
     id: generateCustomEffectId(),
     name: form.name,
@@ -19,8 +17,6 @@ export const createCustomSensation = (form: CustomEffectForm): CustomSensation =
     movementBehavior: form.movementBehavior,
     createdAt: Date.now(),
   };
-  
-  console.log('🔧 customEffectGenerator - Created custom sensation:', customSensation);
   return customSensation;
 };
 
@@ -96,7 +92,6 @@ export const saveCustomEffects = (effects: CustomSensation[]): void => {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(effects));
   } catch (error) {
-    console.warn('Failed to save custom effects:', error);
   }
 };
 
@@ -106,7 +101,6 @@ export const loadCustomEffects = (): CustomSensation[] => {
     if (!stored) return [];
     
     const effects = JSON.parse(stored);
-    console.log('📦 Loading custom effects:', effects.length, 'found');
     
     return effects.map((effect: any) => ({
       ...effect,
@@ -114,7 +108,6 @@ export const loadCustomEffects = (): CustomSensation[] => {
       movementBehavior: effect.movementBehavior || 'moderate'
     }));
   } catch (error) {
-    console.error('❌ Error loading custom effects:', error);
     return [];
   }
 };

@@ -70,7 +70,7 @@ export const BodyMapperControls = React.forwardRef<
   const [activeTab, setActiveTab] = useState('feelings');
   
   const handleTabChange = (tab: string) => {
-    console.log('🎯 TabContainer - Switching to tab:', tab);
+    
     setActiveTab(tab);
   };
   const [emotions, setEmotions] = useState<CustomEmotion[]>(defaultEmotions);
@@ -195,7 +195,7 @@ export const BodyMapperControls = React.forwardRef<
           textToPlace={textToPlace}
           drawingTarget={drawingTarget}
           onModeChange={(newMode) => {
-            console.log('🎯 BodyMapperControls - Mode changing to:', newMode, 'clearing sensation');
+            
             onModeChange(newMode);
             // Clear sensation when switching to draw/fill/erase modes
             onSensationChange(null);

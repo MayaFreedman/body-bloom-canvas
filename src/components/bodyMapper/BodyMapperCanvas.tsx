@@ -144,7 +144,6 @@ export const BodyMapperCanvas = ({
           preserveDrawingBuffer: true
         }}
         onCreated={(state) => {
-          console.log('🎨 Canvas: Created with GL context:', !!state.gl);
         }}
       >
         <color attach="background" args={[whiteboardBackground]} />
@@ -257,9 +256,6 @@ export const BodyMapperCanvas = ({
           maxPolarAngle={Math.PI}
           minPolarAngle={0}
           enabled={true}
-          onStart={() => console.log('🎮 OrbitControls: Start interaction')}
-          onEnd={() => console.log('🎮 OrbitControls: End interaction')}
-          onChange={() => console.log('🎮 OrbitControls: Camera changed')}
         />
         
         {screenshotRef && <ScreenshotCapture ref={screenshotRef} />}
