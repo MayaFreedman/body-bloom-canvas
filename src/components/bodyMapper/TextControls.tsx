@@ -66,7 +66,7 @@ export const TextControls = ({
           {/* Text Input */}
           <div className="space-y-2">
             <div className="flex items-center gap-3">
-              <h5 className="font-medium text-gray-800 text-[16px] whitespace-nowrap">Text to Place</h5>
+              <h5 className="font-medium text-gray-800 text-[16px] whitespace-nowrap">Text to Place:</h5>
               <Input
                 value={currentText}
                 onChange={(e) => handleTextChange(e.target.value)}
@@ -82,15 +82,20 @@ export const TextControls = ({
 
           {/* Font Size */}
           <div className="space-y-2">
-            <h5 className="font-medium text-gray-800 text-[16px] mb-2">Size: {textSettings.fontSize}px</h5>
-            <Slider
-              value={[textSettings.fontSize]}
-              onValueChange={([value]) => onTextSettingsChange({ fontSize: value })}
-              min={10}
-              max={48}
-              step={1}
-              className="w-full"
-            />
+            <div className="flex items-center gap-3">
+              <h5 className="font-medium text-gray-800 text-[16px] whitespace-nowrap">Size:</h5>
+              <div className="flex-1">
+                <Slider
+                  value={[textSettings.fontSize]}
+                  onValueChange={([value]) => onTextSettingsChange({ fontSize: value })}
+                  min={10}
+                  max={48}
+                  step={1}
+                  className="w-full"
+                />
+              </div>
+              <span className="text-sm text-gray-600 font-medium min-w-[40px] text-right">{textSettings.fontSize}px</span>
+            </div>
           </div>
 
           {/* Font Family and Style in one row */}
