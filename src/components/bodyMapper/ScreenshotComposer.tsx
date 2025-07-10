@@ -32,9 +32,9 @@ export const ScreenshotComposer = ({
     const legendItems = generateLegendData(emotions, sensationMarks);
     console.log('📊 Legend items generated:', legendItems, 'from emotions:', emotions, 'sensations:', sensationMarks);
     
-    return new Promise((resolve) => {
+    return new Promise(async (resolve) => {
       const img = new Image();
-      img.onload = () => {
+      img.onload = async () => {
         // Separate emotions and sensations for sidebar calculation
         const emotions = legendItems.filter(item => item.type === 'emotion');
         const sensations = legendItems.filter(item => item.type === 'sensation');
@@ -71,7 +71,7 @@ export const ScreenshotComposer = ({
         // Add overlays to main image
         drawLogo(ctx, img.width, img.height);
         drawDate(ctx);
-        drawSidebarLegend(ctx, legendItems, img.width, sidebarWidth, img.height);
+        await drawSidebarLegend(ctx, legendItems, img.width, sidebarWidth, img.height);
         
         resolve(canvas.toDataURL('image/png'));
       };
@@ -79,21 +79,31 @@ export const ScreenshotComposer = ({
     });
   }, [screenshotCaptureRef, emotions, sensationMarks]);
 
-  // Helper function to get icon symbol for sensation
-  const getIconSymbol = (iconName: string): string => {
-    const iconMap: Record<string, string> = {
-      'butterfly': '🦋',
-      'Zap': '⚡',
-      'Wind': '💨', 
-      'Droplet': '💧',
-      'Snowflake': '❄️',
-      'Thermometer': '🌡️',
-      'Heart': '❤️',
-      'Activity': '📊',
-      'Star': '⭐',
-      'Sparkles': '✨'
+  // Helper function to get image path for sensation
+  const getImagePath = (iconName: string): string => {
+    const imageMap: Record<string, string> = {
+      'butterfly': '/src/Assets/particleEffects/butterfly.png',
+      'Zap': '/src/Assets/particleEffects/lightning-bolt.png',
+      'Wind': '/src/Assets/particleEffects/wind.png',
+      'Droplet': '/src/Assets/particleEffects/water.png',
+      'Snowflake': '/src/Assets/particleEffects/snowflakes.png',
+      'Thermometer': '/src/Assets/particleEffects/fire.png',
+      'Heart': '/src/Assets/particleEffects/heart.png',
+      'Activity': '/src/Assets/particleEffects/shake.png',
+      'Star': '/src/Assets/particleEffects/star.png',
+      'Sparkles': '/src/Assets/particleEffects/sparkle.png'
     };
-    return iconMap[iconName] || '◆';
+    return imageMap[iconName] || '/src/Assets/particleEffects/plus.png';
+  };
+
+  // Helper function to load an image
+  const loadImage = (src: string): Promise<HTMLImageElement> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+      img.src = src;
+    });
   };
 
   const drawLogo = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
@@ -127,7 +137,7 @@ export const ScreenshotComposer = ({
     ctx.restore();
   };
 
-  const drawSidebarLegend = (ctx: CanvasRenderingContext2D, legendItems: LegendItem[], mainImageWidth: number, sidebarWidth: number, height: number) => {
+  const drawSidebarLegend = async (ctx: CanvasRenderingContext2D, legendItems: LegendItem[], mainImageWidth: number, sidebarWidth: number, height: number) => {
     console.log('🎨 Drawing sidebar legend with', legendItems.length, 'items:', legendItems);
     if (legendItems.length === 0) return;
     
@@ -136,7 +146,7 @@ export const ScreenshotComposer = ({
     const sensations = legendItems.filter(item => item.type === 'sensation');
     
     const padding = 20;
-    const itemHeight = 55; // Increased for larger text
+    const itemHeight = 55;
     const sectionSpacing = 40;
     const sidebarX = mainImageWidth + padding;
     const headerHeight = 60;
@@ -171,7 +181,7 @@ export const ScreenshotComposer = ({
         // Draw color circle - larger
         ctx.fillStyle = item.color;
         ctx.beginPath();
-        ctx.arc(sidebarX + 18, itemY, 14, 0, Math.PI * 2); // Increased size
+        ctx.arc(sidebarX + 18, itemY, 14, 0, Math.PI * 2);
         ctx.fill();
         
         // Add subtle border to color circle
@@ -181,7 +191,7 @@ export const ScreenshotComposer = ({
         
         // Draw emotion name - larger text
         ctx.fillStyle = '#2E315E'; // --deep-navy
-        ctx.font = '24px Arial, sans-serif'; // Increased from 20px
+        ctx.font = '24px Arial, sans-serif';
         ctx.fillText(item.name, sidebarX + 45, itemY + 8);
       });
       
@@ -208,33 +218,52 @@ export const ScreenshotComposer = ({
       
       currentY += headerHeight + 25;
       
-      sensations.forEach((item, index) => {
+      // Load and draw sensation images
+      for (let index = 0; index < sensations.length; index++) {
+        const item = sensations[index];
         const itemY = currentY + index * itemHeight;
         
-        // Draw icon background circle
-        ctx.fillStyle = item.color;
-        ctx.beginPath();
-        ctx.arc(sidebarX + 18, itemY, 12, 0, Math.PI * 2);
-        ctx.fill();
-        
-        // Add subtle border
-        ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)';
-        ctx.lineWidth = 1;
-        ctx.stroke();
-        
-        // Draw specific icon symbol for this sensation
-        ctx.fillStyle = '#FFFFFF';
-        ctx.font = 'bold 16px Arial, sans-serif';
-        ctx.textAlign = 'center';
-        const iconSymbol = getIconSymbol(item.icon || '');
-        ctx.fillText(iconSymbol, sidebarX + 18, itemY + 5);
-        ctx.textAlign = 'left';
+        try {
+          // Load the actual image file
+          const imagePath = getImagePath(item.icon || '');
+          const iconImage = await loadImage(imagePath);
+          
+          // Draw icon image
+          const iconSize = 24; // Size of the icon
+          ctx.drawImage(
+            iconImage,
+            sidebarX + 18 - iconSize/2, // Center horizontally
+            itemY - iconSize/2, // Center vertically
+            iconSize,
+            iconSize
+          );
+        } catch (error) {
+          // Fallback to colored circle with emoji if image fails to load
+          console.warn(`Failed to load image for ${item.icon}, using fallback`);
+          
+          ctx.fillStyle = item.color;
+          ctx.beginPath();
+          ctx.arc(sidebarX + 18, itemY, 12, 0, Math.PI * 2);
+          ctx.fill();
+          
+          // Add subtle border
+          ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)';
+          ctx.lineWidth = 1;
+          ctx.stroke();
+          
+          // Fallback icon symbol
+          ctx.fillStyle = '#FFFFFF';
+          ctx.font = 'bold 16px Arial, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText('◆', sidebarX + 18, itemY + 5);
+          ctx.textAlign = 'left';
+        }
         
         // Draw sensation name - larger text
         ctx.fillStyle = '#2E315E'; // --deep-navy
-        ctx.font = '24px Arial, sans-serif'; // Increased from 20px
+        ctx.font = '24px Arial, sans-serif';
         ctx.fillText(item.name, sidebarX + 45, itemY + 8);
-      });
+      }
     }
     
     ctx.restore();
