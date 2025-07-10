@@ -14,7 +14,7 @@ export const DrawingTargetSelector = ({
   return (
     <div className="flex gap-2">
       <Button
-        variant={drawingTarget === 'body' ? 'default' : 'outline'}
+        variant={drawingTarget === 'body' ? 'navy' : 'outline'}
         size="sm"
         onClick={() => onTargetChange('body')}
         className="flex-1"
@@ -22,7 +22,7 @@ export const DrawingTargetSelector = ({
         Body
       </Button>
       <Button
-        variant={drawingTarget === 'whiteboard' ? 'default' : 'outline'}
+        variant={drawingTarget === 'whiteboard' ? 'navy' : 'outline'}
         size="sm"
         onClick={() => onTargetChange('whiteboard')}
         className="flex-1"
