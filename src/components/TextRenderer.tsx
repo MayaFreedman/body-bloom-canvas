@@ -25,8 +25,8 @@ const TextMarkComponent = ({
   };
 
   const fontStyle = useMemo(() => {
-    // Apply different scaling based on surface to account for coordinate system differences
-    const scaleFactor = textMark.surface === 'whiteboard' ? 235 : 300;
+    // Consistent scaling for both surfaces - text placement now handles coordinate systems
+    const scaleFactor = textMark.surface === 'whiteboard' ? 235 : 200;
     
     return {
       fontSize: textMark.fontSize / scaleFactor,
@@ -37,26 +37,18 @@ const TextMarkComponent = ({
     };
   }, [textMark]);
 
-  // Calculate offset position to prevent text from getting occluded during breathing
-  const offsetPosition = useMemo(() => {
+  // Calculate position for proper surface rendering
+  const renderPosition = useMemo(() => {
     if (textMark.surface === 'whiteboard') {
-      return textMark.position; // No offset needed for whiteboard
+      return textMark.position; // Whiteboard text uses world coordinates
     }
     
-    // For body surface, add larger outward offset to prevent z-fighting during breathing
-    const offset = 0.025; // Increased from 0.015 to 0.025 for better clearance
-    const pos = textMark.position.clone();
-    
-    // Add offset along the normal (outward from center)
-    const center = new THREE.Vector3(0, 0, 0);
-    const direction = pos.clone().sub(center).normalize();
-    pos.add(direction.multiplyScalar(offset));
-    
-    return pos;
+    // Body text is already in local coordinates with surface offset applied during placement
+    return textMark.position;
   }, [textMark.position, textMark.surface]);
 
   return (
-    <group position={offsetPosition}>
+    <group position={renderPosition}>
       <Text
         {...fontStyle}
         maxWidth={2}

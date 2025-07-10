@@ -13,9 +13,9 @@ import { ClickHandler } from './ClickHandler';
 import { HoverDetector } from './HoverDetector';
 import { EraserHandler } from './EraserHandler';
 import { WhiteboardPlane } from './WhiteboardPlane';
-import { TextPlacementHandler } from './TextPlacementHandler';
 import { InlineTextEditor } from './InlineTextEditor';
 import { TextRenderer } from '@/components/TextRenderer';
+import { ModelText } from '@/components/ModelText';
 import { useSidebarHover } from '@/hooks/useSidebarHover';
 import { DrawingMark, SensationMark, Effect, BodyPartColors, BodyMapperMode, SelectedSensation } from '@/types/bodyMapperTypes';
 import { WorldDrawingPoint } from '@/types/multiplayerTypes';
@@ -50,7 +50,7 @@ interface BodyMapperCanvasProps {
   onSensationDeselect: () => void;
   onErase: (center: THREE.Vector3, radius: number, surface: 'body' | 'whiteboard') => void;
   onWhiteboardFill?: (color: string) => void;
-  onTextPlace?: (position: THREE.Vector3, surface: 'body' | 'whiteboard') => void;
+  onAddTextMark: (position: THREE.Vector3, text: string, surface: 'body' | 'whiteboard', color: string) => TextMark;
   onTextClick?: (textMark: TextMark) => void;
   onTextSave?: (text: string) => void;
   onTextCancel?: () => void;
@@ -87,7 +87,7 @@ export const BodyMapperCanvas = ({
   onSensationDeselect,
   onErase,
   onWhiteboardFill,
-  onTextPlace,
+  onAddTextMark,
   onTextClick,
   onTextSave,
   onTextCancel,
@@ -229,6 +229,14 @@ export const BodyMapperCanvas = ({
           modelRef={modelRef}
         />
         
+        <ModelText
+          isTextMode={mode === 'text'}
+          selectedColor={selectedColor}
+          drawingTarget={drawingTarget}
+          textToPlace={textToPlace}
+          onAddTextMark={onAddTextMark}
+          modelRef={modelRef}
+        />
         
         <EffectsRenderer effects={effects} />
         
@@ -240,7 +248,6 @@ export const BodyMapperCanvas = ({
           onBodyPartClick={onBodyPartClick}
           onSensationClick={handleSensationClick}
           onWhiteboardFill={onWhiteboardFill}
-          onTextPlace={onTextPlace}
         />
         
         <HoverDetector onHoverChange={setIsHoveringBody} />
