@@ -110,7 +110,6 @@ export const useEnhancedBodyMapperState = ({
 
   // Enhanced drawing handlers with state tracking
   const handleStartDrawing = () => {
-    console.log('🎬 ENHANCED STATE: handleStartDrawing called - mode:', mode, 'activelyDrawing:', isActivelyDrawing);
     setIsActivelyDrawing(true);
     drawingOps.handleStartDrawing();
   };

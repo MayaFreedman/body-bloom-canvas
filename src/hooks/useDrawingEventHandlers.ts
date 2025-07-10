@@ -62,9 +62,7 @@ export const useDrawingEventHandlers = ({
       
       // Handle body part intersection
       if (intersect.object.userData.bodyPart && drawingTarget === 'body') {
-        console.log('✅ Hit body part:', intersect.object.userData.bodyPart);
         if (onStrokeStart && !strokeStarted.current) {
-          console.log('🎬 BODY STROKE START: Starting body stroke in mode:', mode);
           onStrokeStart();
           strokeStarted.current = true;
         }
@@ -99,7 +97,6 @@ export const useDrawingEventHandlers = ({
           z: intersect.point.z.toFixed(3)
         }, 'object userData:', intersect.object.userData);
         if (onStrokeStart && !strokeStarted.current) {
-          console.log('🎬 Starting whiteboard stroke');
           onStrokeStart();
           strokeStarted.current = true;
         }

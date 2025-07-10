@@ -103,9 +103,18 @@ export const saveCustomEffects = (effects: CustomSensation[]): void => {
 export const loadCustomEffects = (): CustomSensation[] => {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : [];
+    if (!stored) return [];
+    
+    const effects = JSON.parse(stored);
+    console.log('📦 Loading custom effects:', effects.length, 'found');
+    
+    return effects.map((effect: any) => ({
+      ...effect,
+      isCustom: true,
+      movementBehavior: effect.movementBehavior || 'moderate'
+    }));
   } catch (error) {
-    console.warn('Failed to load custom effects:', error);
+    console.error('❌ Error loading custom effects:', error);
     return [];
   }
 };

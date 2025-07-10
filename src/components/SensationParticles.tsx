@@ -796,7 +796,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
         // Handle custom effect animation profiles
         let animProfile;
         if (mark.isCustom && mark.movementBehavior) {
-          console.log('🎬 Applying custom animation profile for behavior:', mark.movementBehavior);
+          console.log('🎨 Custom effect with behavior:', mark.movementBehavior);
           const customParams = getCustomEffectParams(mark.movementBehavior);
           animProfile = {
             speed: customParams.speed,
@@ -805,10 +805,9 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             gravity: 0.0002,
             drift: new THREE.Vector3(0, 0.1, 0)
           };
-          console.log('🎬 Custom animation profile:', animProfile);
         } else if (customIconNames.includes(mark.icon || '')) {
           // Fallback for detected custom effects
-          console.log('🎬 Applying fallback custom animation profile for detected custom icon:', mark.icon);
+          console.log('⚠️ Custom icon detected but no behavior - using moderate fallback');
           const customParams = getCustomEffectParams('moderate');
           animProfile = {
             speed: customParams.speed,
@@ -817,11 +816,8 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             gravity: 0.0002,
             drift: new THREE.Vector3(0, 0.1, 0)
           };
-          console.log('🎬 Fallback animation profile:', animProfile);
         } else {
-          console.log('🎬 Applying built-in animation profile for:', mark.name || mark.icon);
           animProfile = getAnimationProfile(mark.name || mark.icon);
-          console.log('🎬 Built-in animation profile:', animProfile);
         }
 
         // Update position based on animation profile with natural physics
@@ -950,10 +946,8 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
         } else if (animProfile.pattern === 'custom') {
           // Custom effect movement based on movement behavior
           const customBehavior = mark.movementBehavior || 'moderate';
-          console.log('🎬 Executing custom movement pattern for behavior:', customBehavior, 'with profile:', animProfile);
           
           if (customBehavior === 'gentle') {
-            console.log('🎬 Applying gentle movement');
             // Gentle floating movement
             const gentleFloat = Math.sin(time * 1.5 + particle.life * 0.2) * 0.0004 * animProfile.intensity;
             const softDrift = Math.cos(time * 1.2 + particle.life * 0.15) * 0.0003 * animProfile.intensity;
@@ -968,7 +962,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             particle.velocity.multiplyScalar(0.97);
             
           } else if (customBehavior === 'energetic') {
-            console.log('🎬 Applying energetic movement');
+            console.log('⚡ Energetic behavior active');
             // Energetic bursting movement
             const burstForce = Math.sin(time * 6 + particle.life * 0.4) * 0.002 * animProfile.intensity;
             const quickMovement = Math.cos(time * 8 + particle.life * 0.5) * 0.0015 * animProfile.intensity;
@@ -992,7 +986,6 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             particle.velocity.multiplyScalar(0.92);
             
           } else {
-            console.log('🎬 Applying moderate movement (default)');
             // Moderate movement (default)
             const moderateFloat = Math.sin(time * 3 + particle.life * 0.3) * 0.0008 * animProfile.intensity;
             const naturalDrift = Math.cos(time * 2.5 + particle.life * 0.25) * 0.0006 * animProfile.intensity;
@@ -1096,16 +1089,6 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
     const particles = particleSystems[mark.id];
     
     if (!particles) return null;
-
-    console.log('🎆 Rendering particle system for mark:', {
-      id: mark.id,
-      name: mark.name,
-      icon: mark.icon,
-      isCustom: mark.isCustom,
-      color: mark.color,
-      movementBehavior: mark.movementBehavior,
-      allMarkProperties: Object.keys(mark)
-    });
 
     // Check if this should be treated as a custom effect for coloring
     const customIconNames = [
