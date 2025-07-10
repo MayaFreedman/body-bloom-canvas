@@ -115,25 +115,25 @@ export const ScreenshotComposer = ({
       ctx.save();
       ctx.fillStyle = '#6D6A75'; // --warm-gray
       ctx.font = '28px Arial, sans-serif'; // Increased from 18px to 28px
-      ctx.fillText('Body Mapping by', 24, height - 120); // Moved up more to make room for bigger logo
+      ctx.fillText('Body Mapping by', 24, height - 100); // Moved closer - was height - 120
       
-      // Draw PlaySpace logo - much bigger
+      // Draw PlaySpace logo - much bigger and closer
       const logoHeight = 48; // Increased from 32px to 48px
       const logoWidth = logoImage.width * (logoHeight / logoImage.height); // Maintain aspect ratio
-      ctx.drawImage(logoImage, 24, height - 85, logoWidth, logoHeight); // Positioned below text
+      ctx.drawImage(logoImage, 24, height - 70, logoWidth, logoHeight); // Moved closer - was height - 85
       
       ctx.restore();
     } catch (error) {
       console.warn('Failed to load PlaySpace logo, using fallback text');
-      // Fallback to text if logo fails to load - also bigger
+      // Fallback to text if logo fails to load - also bigger and closer
       ctx.save();
       ctx.fillStyle = '#6D6A75'; // --warm-gray
       ctx.font = '28px Arial, sans-serif'; // Increased from 18px
-      ctx.fillText('Body Mapping by', 24, height - 120);
+      ctx.fillText('Body Mapping by', 24, height - 100); // Moved closer
       
       ctx.fillStyle = '#2E315E'; // --deep-navy
       ctx.font = 'bold 32px Arial, sans-serif'; // Increased from 20px
-      ctx.fillText('PlaySpace', 24, height - 80);
+      ctx.fillText('PlaySpace', 24, height - 65); // Moved closer - was height - 80
       ctx.restore();
     }
   };
