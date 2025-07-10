@@ -53,7 +53,7 @@ const TextMarkComponent = ({
   }, [textMark.position]);
 
   return (
-    <group position={offsetPosition} rotation={[0, rotation, 0]}>
+    <group position={offsetPosition} rotation={[0, rotation + Math.PI, 0]}>
       <Text
         {...fontStyle}
         maxWidth={2}
