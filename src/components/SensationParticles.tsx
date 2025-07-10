@@ -1064,6 +1064,23 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       movementBehavior: mark.movementBehavior
     });
 
+    // Check if this should be treated as a custom effect for coloring
+    const customIconNames = [
+      'flower', 'tornado', 'chicken', 'storm', 'explosion', 'supportheart', 'baloon', 'musical-note',
+      'cat', 'dog', 'racecar', 'roller-coaster', 'broken-heart', 'robot', 'biceps',
+      'wings', 'alarm', 'lightbulb', 'spaceship', 'shield'
+    ];
+    const isDetectedCustom = mark.isCustom === true || customIconNames.includes(mark.icon || '');
+    const finalColor = isDetectedCustom && mark.color ? mark.color : '#ffffff';
+    
+    console.log('🎨 Color application logic:', {
+      markIsCustom: mark.isCustom,
+      markIcon: mark.icon,
+      markColor: mark.color,
+      isDetectedCustom,
+      finalColor
+    });
+
     // Store mesh refs for this mark
     const meshes: THREE.Object3D[] = [];
     meshRefsRef.current.set(mark.id, meshes);
@@ -1093,7 +1110,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             map={sensationTexture} 
             transparent 
             opacity={opacity * 0.8}
-            color={mark.isCustom && mark.color ? mark.color : '#ffffff'}
+            color={finalColor}
           />
         </sprite>
       );
