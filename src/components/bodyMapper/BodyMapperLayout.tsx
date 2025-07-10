@@ -171,7 +171,6 @@ export const BodyMapperLayout = ({
           screenshotRef={screenshotRef}
           bodyPartColors={bodyPartColors}
           sensationMarks={sensationMarks}
-          selectedColor={selectedColor}
         />
       </div>
 

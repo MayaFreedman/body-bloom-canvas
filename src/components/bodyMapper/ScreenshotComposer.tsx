@@ -3,25 +3,20 @@ import { ScreenshotCaptureHandle } from './ScreenshotCapture';
 import { generateLegendData, LegendItem } from '@/utils/legendGenerator';
 import { SensationMark } from '@/types/bodyMapperTypes';
 
-interface CustomEmotion {
-  color: string;
-  name: string;
-}
-
 interface ScreenshotComposerProps {
   screenshotCaptureRef: React.RefObject<ScreenshotCaptureHandle>;
-  selectedEmotions: CustomEmotion[];
+  bodyPartColors: Record<string, string>;
   sensationMarks: SensationMark[];
 }
 
 export const ScreenshotComposer = ({
   screenshotCaptureRef,
-  selectedEmotions,
+  bodyPartColors,
   sensationMarks
 }: ScreenshotComposerProps) => {
   console.log('🖼️ ScreenshotComposer mounted with:', { 
     hasRef: !!screenshotCaptureRef.current,
-    selectedEmotions, 
+    bodyPartColors, 
     sensationMarks: sensationMarks.length 
   });
   
@@ -34,8 +29,8 @@ export const ScreenshotComposer = ({
     const webglDataUrl = screenshotCaptureRef.current.captureScreenshot();
     
     // Generate legend data
-    const legendItems = generateLegendData(selectedEmotions, sensationMarks);
-    console.log('📊 Legend items generated:', legendItems, 'from emotions:', selectedEmotions, 'sensations:', sensationMarks);
+    const legendItems = generateLegendData(bodyPartColors, sensationMarks);
+    console.log('📊 Legend items generated:', legendItems, 'from colors:', bodyPartColors, 'sensations:', sensationMarks);
     
     return new Promise((resolve) => {
       const img = new Image();
@@ -60,7 +55,7 @@ export const ScreenshotComposer = ({
       };
       img.src = webglDataUrl;
     });
-  }, [screenshotCaptureRef, selectedEmotions, sensationMarks]);
+  }, [screenshotCaptureRef, bodyPartColors, sensationMarks]);
 
   const drawLogo = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
     // Draw "Body Mapping by" text
