@@ -109,9 +109,9 @@ export const useUndoRedoOperations = ({
         break;
       case 'textPlace':
         console.log('Undoing text place action');
-        if (actionToUndo.data.previousTextMarks !== undefined) {
-          setTextMarks(actionToUndo.data.previousTextMarks);
-          console.log('Restored previous text marks:', actionToUndo.data.previousTextMarks);
+        if (actionToUndo.data.textMark) {
+          setTextMarks(prev => prev.filter(mark => mark.id !== actionToUndo.data.textMark.id));
+          console.log('Removed specific text mark:', actionToUndo.data.textMark.id);
         }
         break;
       case 'textEdit':
