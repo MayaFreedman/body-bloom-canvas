@@ -87,55 +87,70 @@ export const ScreenshotComposer = ({
     console.log('🎨 Drawing legend with', legendItems.length, 'items:', legendItems);
     if (legendItems.length === 0) return;
     
-    const legendWidth = 250;
-    const itemHeight = 28;
-    const padding = 16;
-    const legendHeight = legendItems.length * itemHeight + padding * 2;
+    // Much larger and more visible legend
+    const legendWidth = 320;
+    const itemHeight = 40;
+    const padding = 24;
+    const legendHeight = legendItems.length * itemHeight + padding * 3;
     
-    const legendX = width - legendWidth - 16;
-    const legendY = 60; // Start below the date
+    const legendX = width - legendWidth - 24;
+    const legendY = 80; // Start below the date with more space
     
-    // Draw legend background
+    // Draw legend background with shadow
     ctx.save();
-    ctx.fillStyle = 'rgba(254, 254, 254, 0.95)'; // --cream with transparency
+    
+    // Draw shadow
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+    ctx.roundRect(legendX + 4, legendY + 4, legendWidth, legendHeight, 12);
+    ctx.fill();
+    
+    // Draw main background
+    ctx.fillStyle = 'rgba(254, 254, 254, 0.98)'; // --cream with high opacity
     ctx.strokeStyle = '#B8C9B5'; // --sage-green
-    ctx.lineWidth = 1;
-    ctx.roundRect(legendX, legendY, legendWidth, legendHeight, 8);
+    ctx.lineWidth = 2;
+    ctx.roundRect(legendX, legendY, legendWidth, legendHeight, 12);
     ctx.fill();
     ctx.stroke();
     
     // Draw legend title
     ctx.fillStyle = '#2E315E'; // --deep-navy
-    ctx.font = 'bold 16px Arial, sans-serif';
-    ctx.fillText('Legend', legendX + padding, legendY + 24);
+    ctx.font = 'bold 20px Arial, sans-serif';
+    ctx.fillText('Legend', legendX + padding, legendY + 32);
     
     // Draw legend items
     legendItems.forEach((item, index) => {
-      const itemY = legendY + 40 + index * itemHeight;
+      const itemY = legendY + 60 + index * itemHeight;
       
       // Draw color swatch or icon indicator
       ctx.fillStyle = item.color;
       if (item.type === 'emotion') {
-        // Draw color circle for emotions
+        // Draw larger color circle for emotions
         ctx.beginPath();
-        ctx.arc(legendX + padding + 8, itemY, 8, 0, Math.PI * 2);
+        ctx.arc(legendX + padding + 12, itemY, 12, 0, Math.PI * 2);
         ctx.fill();
+        
+        // Add border
+        ctx.strokeStyle = '#2E315E';
+        ctx.lineWidth = 2;
+        ctx.stroke();
       } else {
-        // Draw smaller circle for sensations
+        // Draw icon background for sensations
         ctx.beginPath();
-        ctx.arc(legendX + padding + 8, itemY, 6, 0, Math.PI * 2);
+        ctx.arc(legendX + padding + 12, itemY, 10, 0, Math.PI * 2);
         ctx.fill();
         
         // Draw small icon indicator
-        ctx.fillStyle = '#2E315E';
-        ctx.font = '10px Arial, sans-serif';
-        ctx.fillText('◆', legendX + padding + 5, itemY + 3);
+        ctx.fillStyle = '#FEFEFE';
+        ctx.font = 'bold 12px Arial, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('◆', legendX + padding + 12, itemY + 4);
+        ctx.textAlign = 'left'; // Reset alignment
       }
       
-      // Draw item name
+      // Draw item name with larger font
       ctx.fillStyle = '#2E315E'; // --deep-navy
-      ctx.font = '14px Arial, sans-serif';
-      ctx.fillText(item.name, legendX + padding + 24, itemY + 5);
+      ctx.font = '16px Arial, sans-serif';
+      ctx.fillText(item.name, legendX + padding + 36, itemY + 6);
     });
     
     ctx.restore();

@@ -17,9 +17,21 @@ export function generateLegendData(
   // Find active emotions (colors that are actually used)
   const usedColors = new Set(Object.values(bodyPartColors));
   console.log('🎨 Used colors from bodyPartColors:', usedColors, bodyPartColors);
+  console.log('🎨 Available emotional colors:', emotionalColors.map(e => ({ name: e.name, color: e.color })));
   
+  // Check for exact matches and case-insensitive matches
   emotionalColors.forEach(emotion => {
-    if (usedColors.has(emotion.color)) {
+    const hasExactMatch = usedColors.has(emotion.color);
+    const hasUppercaseMatch = usedColors.has(emotion.color.toUpperCase());
+    const hasLowercaseMatch = usedColors.has(emotion.color.toLowerCase());
+    
+    console.log(`🔍 Checking emotion ${emotion.name} (${emotion.color}):`, {
+      hasExactMatch,
+      hasUppercaseMatch, 
+      hasLowercaseMatch
+    });
+    
+    if (hasExactMatch || hasUppercaseMatch || hasLowercaseMatch) {
       console.log('✅ Adding emotion to legend:', emotion.name, emotion.color);
       legendItems.push({
         type: 'emotion',
