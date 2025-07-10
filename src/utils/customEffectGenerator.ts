@@ -19,8 +19,8 @@ export const createCustomSensation = (form: CustomEffectForm): CustomSensation =
   };
 };
 
-// Generate a colored icon image using canvas
-export const generateCustomEffectImage = (
+// Generate a colored icon image using existing PNG and color overlay
+export const generateCustomEffectImage = async (
   iconName: AvailableIcon, 
   color: string
 ): Promise<string> => {
@@ -31,93 +31,88 @@ export const generateCustomEffectImage = (
     canvas.width = 64;
     canvas.height = 64;
     
-    // Clear canvas
-    ctx.clearRect(0, 0, 64, 64);
+    // Import map for the PNG files
+    const iconImageMap: Record<AvailableIcon, string> = {
+      'alarm': '/src/Assets/particleEffects/alarm.png',
+      'baloon': '/src/Assets/particleEffects/baloon.png',
+      'biceps': '/src/Assets/particleEffects/biceps.png',
+      'broken-heart': '/src/Assets/particleEffects/broken-heart.png',
+      'butterfly': '/src/Assets/particleEffects/butterfly.png',
+      'cat': '/src/Assets/particleEffects/cat.png',
+      'chicken': '/src/Assets/particleEffects/chicken.png',
+      'create': '/src/Assets/particleEffects/create.png',
+      'desert': '/src/Assets/particleEffects/desert.png',
+      'dog': '/src/Assets/particleEffects/dog.png',
+      'explosion': '/src/Assets/particleEffects/explosion.png',
+      'feet': '/src/Assets/particleEffects/feet.png',
+      'feetred': '/src/Assets/particleEffects/feetred.png',
+      'fidget-spinner': '/src/Assets/particleEffects/fidget-spinner.png',
+      'fire': '/src/Assets/particleEffects/fire.png',
+      'flower': '/src/Assets/particleEffects/flower.png',
+      'frog': '/src/Assets/particleEffects/frog.png',
+      'goosebump': '/src/Assets/particleEffects/goosebump.png',
+      'heart': '/src/Assets/particleEffects/heart.png',
+      'lightbulb': '/src/Assets/particleEffects/lightbulb.png',
+      'lightning-bolt': '/src/Assets/particleEffects/lightning-bolt.png',
+      'monkey': '/src/Assets/particleEffects/monkey.png',
+      'musical-note': '/src/Assets/particleEffects/musical-note.png',
+      'nautical-knot': '/src/Assets/particleEffects/nautical-knot.png',
+      'pain': '/src/Assets/particleEffects/pain.png',
+      'plate': '/src/Assets/particleEffects/plate.png',
+      'plus': '/src/Assets/particleEffects/plus.png',
+      'racecar': '/src/Assets/particleEffects/racecar.png',
+      'relax': '/src/Assets/particleEffects/relax.png',
+      'resistor': '/src/Assets/particleEffects/resistor.png',
+      'robot': '/src/Assets/particleEffects/robot.png',
+      'roller-coaster': '/src/Assets/particleEffects/roller-coaster.png',
+      'shake': '/src/Assets/particleEffects/shake.png',
+      'shield': '/src/Assets/particleEffects/shield.png',
+      'snail': '/src/Assets/particleEffects/snail.png',
+      'snowflakes': '/src/Assets/particleEffects/snowflakes.png',
+      'spaceship': '/src/Assets/particleEffects/spaceship.png',
+      'star': '/src/Assets/particleEffects/star.png',
+      'statue': '/src/Assets/particleEffects/statue.png',
+      'stone': '/src/Assets/particleEffects/stone.png',
+      'storm': '/src/Assets/particleEffects/storm.png',
+      'supportheart': '/src/Assets/particleEffects/supportheart.png',
+      'sweat': '/src/Assets/particleEffects/sweat.png',
+      'swirl': '/src/Assets/particleEffects/swirl.png',
+      'tornado': '/src/Assets/particleEffects/tornado.png',
+      'turtle': '/src/Assets/particleEffects/turtle.png',
+      'virus': '/src/Assets/particleEffects/virus.png',
+      'water': '/src/Assets/particleEffects/water.png',
+      'wavy': '/src/Assets/particleEffects/wavy.png',
+      'wind': '/src/Assets/particleEffects/wind.png',
+      'wings': '/src/Assets/particleEffects/wings.png',
+      'zzz': '/src/Assets/particleEffects/zzz.png',
+    };
     
-    // Create simple icon representations
-    ctx.fillStyle = color;
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 3;
+    const img = new Image();
+    img.onload = () => {
+      // Clear canvas
+      ctx.clearRect(0, 0, 64, 64);
+      
+      // Draw the original image
+      ctx.drawImage(img, 0, 0, 64, 64);
+      
+      // Apply color overlay (simplified approach)
+      ctx.globalCompositeOperation = 'source-atop';
+      ctx.fillStyle = color;
+      ctx.fillRect(0, 0, 64, 64);
+      
+      // Convert to data URL
+      resolve(canvas.toDataURL('image/png'));
+    };
     
-    const centerX = 32;
-    const centerY = 32;
+    img.onerror = () => {
+      // Fallback: create a simple colored square with text
+      ctx.clearRect(0, 0, 64, 64);
+      ctx.fillStyle = color;
+      ctx.fillRect(16, 16, 32, 32);
+      resolve(canvas.toDataURL('image/png'));
+    };
     
-    switch (iconName) {
-      case 'heart':
-        // Simple heart shape
-        ctx.beginPath();
-        ctx.moveTo(centerX, centerY + 8);
-        ctx.bezierCurveTo(centerX, centerY - 4, centerX - 16, centerY - 12, centerX - 16, centerY);
-        ctx.bezierCurveTo(centerX - 16, centerY + 8, centerX, centerY + 16, centerX, centerY + 8);
-        ctx.bezierCurveTo(centerX, centerY + 16, centerX + 16, centerY + 8, centerX + 16, centerY);
-        ctx.bezierCurveTo(centerX + 16, centerY - 12, centerX, centerY - 4, centerX, centerY + 8);
-        ctx.fill();
-        break;
-        
-      case 'star':
-        // 5-pointed star
-        ctx.beginPath();
-        for (let i = 0; i < 5; i++) {
-          const angle = (i * 144 - 90) * Math.PI / 180;
-          const outerRadius = 16;
-          const innerRadius = 8;
-          
-          const outerX = centerX + Math.cos(angle) * outerRadius;
-          const outerY = centerY + Math.sin(angle) * outerRadius;
-          
-          const innerAngle = ((i + 0.5) * 144 - 90) * Math.PI / 180;
-          const innerX = centerX + Math.cos(innerAngle) * innerRadius;
-          const innerY = centerY + Math.sin(innerAngle) * innerRadius;
-          
-          if (i === 0) ctx.moveTo(outerX, outerY);
-          else ctx.lineTo(outerX, outerY);
-          ctx.lineTo(innerX, innerY);
-        }
-        ctx.closePath();
-        ctx.fill();
-        break;
-        
-      case 'lightning-bolt':
-        // Lightning bolt
-        ctx.beginPath();
-        ctx.moveTo(centerX - 4, centerY - 16);
-        ctx.lineTo(centerX + 8, centerY - 16);
-        ctx.lineTo(centerX - 2, centerY - 2);
-        ctx.lineTo(centerX + 6, centerY - 2);
-        ctx.lineTo(centerX - 8, centerY + 16);
-        ctx.lineTo(centerX + 2, centerY + 2);
-        ctx.lineTo(centerX - 6, centerY + 2);
-        ctx.closePath();
-        ctx.fill();
-        break;
-        
-      case 'circle':
-        // Simple circle
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, 14, 0, 2 * Math.PI);
-        ctx.fill();
-        break;
-        
-      case 'triangle':
-        // Triangle
-        ctx.beginPath();
-        ctx.moveTo(centerX, centerY - 14);
-        ctx.lineTo(centerX - 12, centerY + 10);
-        ctx.lineTo(centerX + 12, centerY + 10);
-        ctx.closePath();
-        ctx.fill();
-        break;
-        
-      default:
-        // Default to circle for unrecognized icons
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, 12, 0, 2 * Math.PI);
-        ctx.fill();
-        break;
-    }
-    
-    // Convert to data URL
-    resolve(canvas.toDataURL('image/png'));
+    img.src = iconImageMap[iconName];
   });
 };
 
