@@ -142,29 +142,28 @@ export const CustomEffectDialog: React.FC<CustomEffectDialogProps> = ({
           </div>
 
           {/* Color Selection */}
-          <div className="space-y-3">
+          <div className="space-y-2">
             <Label>Select Color</Label>
-            <div className="grid grid-cols-6 gap-2">
-              {PRESET_COLORS.map((color) => (
-                <button
-                  key={color}
-                  type="button"
-                  onClick={() => updateForm({ color })}
-                  className={`w-8 h-8 rounded-lg border-2 transition-all ${
-                    form.color === color ? 'border-foreground scale-110' : 'border-border'
-                  }`}
-                  style={{ backgroundColor: color }}
-                />
-              ))}
-            </div>
             <div className="flex items-center gap-2">
-              <Label htmlFor="custom-color" className="text-sm">Custom:</Label>
+              <div className="grid grid-cols-8 gap-1 flex-1">
+                {PRESET_COLORS.map((color) => (
+                  <button
+                    key={color}
+                    type="button"
+                    onClick={() => updateForm({ color })}
+                    className={`w-6 h-6 rounded border transition-all ${
+                      form.color === color ? 'border-foreground scale-110' : 'border-border'
+                    }`}
+                    style={{ backgroundColor: color }}
+                  />
+                ))}
+              </div>
               <input
-                id="custom-color"
                 type="color"
                 value={form.color}
                 onChange={(e) => updateForm({ color: e.target.value })}
-                className="w-12 h-8 rounded border cursor-pointer"
+                className="w-8 h-6 rounded border cursor-pointer"
+                title="Custom color"
               />
             </div>
           </div>
