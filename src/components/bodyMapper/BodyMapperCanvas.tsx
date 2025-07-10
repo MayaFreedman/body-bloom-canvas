@@ -17,7 +17,6 @@ import { WhiteboardPlane } from './WhiteboardPlane';
 import { InlineTextEditor } from './InlineTextEditor';
 import { TextRenderer } from '@/components/TextRenderer';
 import { useSidebarHover } from '@/hooks/useSidebarHover';
-import { ScreenshotCapture } from './ScreenshotCapture';
 import { DrawingMark, SensationMark, Effect, BodyPartColors, BodyMapperMode, SelectedSensation } from '@/types/bodyMapperTypes';
 import { WorldDrawingPoint } from '@/types/multiplayerTypes';
 import { TextMark } from '@/types/textTypes';
@@ -42,7 +41,6 @@ interface BodyMapperCanvasProps {
   textToPlace?: string;
   textSettings?: any;
   modelRef: React.RefObject<THREE.Group>;
-  screenshotRef?: React.MutableRefObject<(() => void) | null>;
   onAddDrawingMark: (mark: DrawingMark) => void;
   onDrawingStrokeStart: () => void;
   onDrawingStrokeComplete: () => void;
@@ -95,9 +93,11 @@ export const BodyMapperCanvas = ({
   onTextCancel,
   onTextDelete,
   onRotateLeft,
-  onRotateRight,
-  screenshotRef
+  onRotateRight
 }: BodyMapperCanvasProps) => {
+  
+  console.log("working version note");
+  console.log('🎯 BodyMapperCanvas: Rendering with mode:', mode, 'selectedSensation:', selectedSensation?.name);
   
   const [isHoveringBody, setIsHoveringBody] = useState(false);
   const isHoveringSidebar = useSidebarHover();
@@ -107,7 +107,6 @@ export const BodyMapperCanvas = ({
     onSensationClick(position, sensation);
     onSensationDeselect(); // Auto-deselect after placing
   };
-
   
   return (
     <div style={{ 
@@ -140,11 +139,12 @@ export const BodyMapperCanvas = ({
         gl={{ 
           outputColorSpace: 'srgb',
           toneMapping: 0, // NoToneMapping
-          toneMappingExposure: 1,
-          preserveDrawingBuffer: true
+          toneMappingExposure: 1
+        }}
+        onCreated={(state) => {
+          console.log('🎨 Canvas: Created with GL context:', !!state.gl);
         }}
       >
-        <ScreenshotCapture screenshotRef={screenshotRef} />
         <color attach="background" args={[whiteboardBackground]} />
         <ambientLight intensity={1.0} />
         <directionalLight position={[10, 10, 5]} intensity={0.5} />
@@ -255,6 +255,9 @@ export const BodyMapperCanvas = ({
           maxPolarAngle={Math.PI}
           minPolarAngle={0}
           enabled={true}
+          onStart={() => console.log('🎮 OrbitControls: Start interaction')}
+          onEnd={() => console.log('🎮 OrbitControls: End interaction')}
+          onChange={() => console.log('🎮 OrbitControls: Camera changed')}
         />
       </Canvas>
       

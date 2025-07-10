@@ -179,7 +179,6 @@ export const useEnhancedBodyMapperState = ({
 
   const handleResetAll = () => {
     console.log('🔄 Resetting all content');
-    console.log('🔄 Current bodyPartColors before reset:', bodyPartColors);
     
     // Get all current content for action history
     const allContent = {

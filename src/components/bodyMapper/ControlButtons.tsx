@@ -14,7 +14,6 @@ interface ControlButtonsProps {
   mode?: string;
   isActivelyDrawing?: boolean;
   onControlButtonsHover?: (isHovering: boolean) => void;
-  onCaptureScreenshot?: () => void;
 }
 
 export const ControlButtons = ({ 
@@ -27,33 +26,43 @@ export const ControlButtons = ({
   drawingTarget = 'body',
   mode = 'draw',
   isActivelyDrawing = false,
-  onControlButtonsHover,
-  onCaptureScreenshot
+  onControlButtonsHover
 }: ControlButtonsProps) => {
-  const captureScreenshot = () => {
-    console.log('🎬 ControlButtons: Screenshot button clicked');
-    console.log('🎬 ControlButtons: onCaptureScreenshot exists:', !!onCaptureScreenshot);
-    if (onCaptureScreenshot) {
-      console.log('🎬 ControlButtons: Calling onCaptureScreenshot');
-      onCaptureScreenshot();
-    } else {
-      console.warn('🎬 ControlButtons: Screenshot function not provided');
+  const captureScreenshot = async () => {
+    if (!canvasRef.current) return;
+    
+    try {
+      const canvas = await html2canvas(canvasRef.current, {
+        backgroundColor: '#f8f9fa',
+        useCORS: true,
+        scale: 2
+      });
+      
+      const link = document.createElement('a');
+      link.download = `emotional-body-map-${new Date().toISOString().split('T')[0]}.png`;
+      link.href = canvas.toDataURL();
+      link.click();
+    } catch (error) {
+      console.error('Failed to capture screenshot:', error);
     }
   };
 
   const handleUndo = () => {
+    console.log('Undo clicked, canUndo:', canUndo);
     if (onUndo && canUndo) {
       onUndo();
     }
   };
 
   const handleRedo = () => {
+    console.log('Redo clicked, canRedo:', canRedo);
     if (onRedo && canRedo) {
       onRedo();
     }
   };
 
   const handleResetAll = () => {
+    console.log('YAY!');
     onResetAll();
   };
 
@@ -66,13 +75,21 @@ export const ControlButtons = ({
       <div 
         className="reset-button-container-top-right control-buttons"
         style={{ pointerEvents: shouldDisablePointerEvents ? 'none' : 'auto' }}
-        onMouseEnter={() => onControlButtonsHover?.(true)}
-        onMouseLeave={() => onControlButtonsHover?.(false)}
+        onMouseEnter={() => {
+          console.log('🎯 Reset container mouse enter');
+          onControlButtonsHover?.(true);
+        }}
+        onMouseLeave={() => {
+          console.log('🎯 Reset container mouse leave');
+          onControlButtonsHover?.(false);
+        }}
       >
         <button 
           onClick={handleResetAll} 
           className="control-button-with-text-red"
           aria-label="Reset all changes to the body model"
+          onMouseEnter={() => console.log('🔥 Reset button hover enter')}
+          onMouseLeave={() => console.log('🔥 Reset button hover leave')}
         >
           Reset
         </button>
@@ -82,13 +99,21 @@ export const ControlButtons = ({
       <div 
         className="undo-redo-container-top-left control-buttons"
         style={{ pointerEvents: shouldDisablePointerEvents ? 'none' : 'auto' }}
-        onMouseEnter={() => onControlButtonsHover?.(true)}
-        onMouseLeave={() => onControlButtonsHover?.(false)}
+        onMouseEnter={() => {
+          console.log('🎯 Undo/Redo container mouse enter');
+          onControlButtonsHover?.(true);
+        }}
+        onMouseLeave={() => {
+          console.log('🎯 Undo/Redo container mouse leave');
+          onControlButtonsHover?.(false);
+        }}
       >
         <button 
           onClick={handleUndo}
           disabled={!canUndo}
           className={`control-button-with-text ${!canUndo ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'}`}
+          onMouseEnter={() => console.log('🔥 Undo button hover enter, canUndo:', canUndo)}
+          onMouseLeave={() => console.log('🔥 Undo button hover leave')}
         >
           <Undo2 size={16} />
           <span className="ml-2">Undo</span>
@@ -98,6 +123,8 @@ export const ControlButtons = ({
           onClick={handleRedo}
           disabled={!canRedo}
           className={`control-button-with-text ${!canRedo ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'}`}
+          onMouseEnter={() => console.log('🔥 Redo button hover enter, canRedo:', canRedo)}
+          onMouseLeave={() => console.log('🔥 Redo button hover leave')}
         >
           <Redo2 size={16} />
           <span className="ml-2">Redo</span>
@@ -108,12 +135,20 @@ export const ControlButtons = ({
       <div 
         className="snapshot-button-container control-buttons"
         style={{ pointerEvents: shouldDisablePointerEvents ? 'none' : 'auto' }}
-        onMouseEnter={() => onControlButtonsHover?.(true)}
-        onMouseLeave={() => onControlButtonsHover?.(false)}
+        onMouseEnter={() => {
+          console.log('🎯 Snapshot container mouse enter');
+          onControlButtonsHover?.(true);
+        }}
+        onMouseLeave={() => {
+          console.log('🎯 Snapshot container mouse leave');
+          onControlButtonsHover?.(false);
+        }}
       >
         <button 
           onClick={captureScreenshot} 
           className="main-snapshot-button"
+          onMouseEnter={() => console.log('🔥 Snapshot button hover enter')}
+          onMouseLeave={() => console.log('🔥 Snapshot button hover leave')}
         >
           <Camera size={20} className="mr-2" />
           Snapshot
