@@ -41,7 +41,7 @@ export const SensationPlacementPopup = ({ selectedSensation, isVisible }: Sensat
   if (!isVisible || !selectedSensation) return null;
 
   return (
-    <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 bg-primary text-primary-foreground px-6 py-3 rounded-lg shadow-lg border border-primary/20 animate-fade-in">
+    <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 bg-[hsl(var(--deep-navy))]/80 text-white px-6 py-3 rounded-lg shadow-lg border border-[hsl(var(--deep-navy))]/30 animate-fade-in">
       <div className="flex items-center space-x-3">
         <img 
           src={getSensationImage(selectedSensation.name)} 
