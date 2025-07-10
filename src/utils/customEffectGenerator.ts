@@ -31,7 +31,7 @@ export const generateCustomEffectImage = async (
     canvas.width = 64;
     canvas.height = 64;
     
-    // Import map for the PNG files (only selected ones from reference image)
+    // Import map for the PNG files (selected ones from reference, minus create)
     const iconImageMap: Record<AvailableIcon, string> = {
       'flower': '/src/Assets/particleEffects/flower.png',
       'tornado': '/src/Assets/particleEffects/tornado.png',
@@ -48,7 +48,6 @@ export const generateCustomEffectImage = async (
       'broken-heart': '/src/Assets/particleEffects/broken-heart.png',
       'robot': '/src/Assets/particleEffects/robot.png',
       'biceps': '/src/Assets/particleEffects/biceps.png',
-      'create': '/src/Assets/particleEffects/create.png',
       'wings': '/src/Assets/particleEffects/wings.png',
       'alarm': '/src/Assets/particleEffects/alarm.png',
       'lightbulb': '/src/Assets/particleEffects/lightbulb.png',

@@ -1,11 +1,12 @@
 
 import React, { useState, useEffect } from 'react';
-import { Sparkles, Activity, Zap, Wind, Droplet, Snowflake, Thermometer, Heart, Star, Plus } from 'lucide-react';
+import { Sparkles, Activity, Zap, Wind, Droplet, Snowflake, Thermometer, Heart, Star } from 'lucide-react';
 import { bodySensations } from '@/constants/bodyMapperConstants';
 import { BodyMapperMode, SelectedSensation } from '@/types/bodyMapperTypes';
 import { CustomSensation, CustomEffectForm } from '@/types/customEffectTypes';
 import { CustomEffectDialog } from './CustomEffectDialog';
 import { createCustomSensation, generateCustomEffectImage, saveCustomEffects, loadCustomEffects } from '@/utils/customEffectGenerator';
+import createIcon from '@/Assets/particleEffects/create.png';
 
 // Import particle effect images for previews
 import butterflyImg from '@/Assets/particleEffects/butterfly.png';
@@ -191,7 +192,11 @@ export const SensationSelector = ({ mode, selectedSensation, onModeChange, onSen
           className="flex flex-col items-center p-3 border border-dashed border-foreground/40 rounded-lg transition-all outline-none focus:outline-none hover:bg-muted hover:border-foreground/60"
           onClick={() => setShowCreateDialog(true)}
         >
-          <Plus size={24} className="mb-2 text-muted-foreground" />
+          <img 
+            src={createIcon} 
+            alt="Create custom effect"
+            className="w-6 h-6 mb-2 object-contain opacity-80"
+          />
           <span className="text-xs text-center text-muted-foreground">
             Create Custom
           </span>

@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { CustomEffectForm, AVAILABLE_ICONS, AvailableIcon } from '@/types/customEffectTypes';
 
-// Import only the selected PNG images from the reference
+// Import only the selected PNG images from the reference (minus create.png)
 import flowerImg from '@/Assets/particleEffects/flower.png';
 import tornadoImg from '@/Assets/particleEffects/tornado.png';
 import chickenImg from '@/Assets/particleEffects/chicken.png';
@@ -27,7 +27,6 @@ import rollerCoasterImg from '@/Assets/particleEffects/roller-coaster.png';
 import brokenHeartImg from '@/Assets/particleEffects/broken-heart.png';
 import robotImg from '@/Assets/particleEffects/robot.png';
 import bicepsImg from '@/Assets/particleEffects/biceps.png';
-import createImg from '@/Assets/particleEffects/create.png';
 import wingsImg from '@/Assets/particleEffects/wings.png';
 import alarmImg from '@/Assets/particleEffects/alarm.png';
 import lightbulbImg from '@/Assets/particleEffects/lightbulb.png';
@@ -56,7 +55,6 @@ const ICON_IMAGES = {
   'broken-heart': brokenHeartImg,
   robot: robotImg,
   biceps: bicepsImg,
-  create: createImg,
   wings: wingsImg,
   alarm: alarmImg,
   lightbulb: lightbulbImg,

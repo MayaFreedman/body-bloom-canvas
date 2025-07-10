@@ -17,7 +17,7 @@ export interface CustomEffectForm {
 
 export const AVAILABLE_ICONS = [
   'flower', 'tornado', 'chicken', 'storm', 'explosion', 'supportheart', 'baloon', 'musical-note',
-  'cat', 'dog', 'racecar', 'roller-coaster', 'broken-heart', 'robot', 'biceps', 'create',
+  'cat', 'dog', 'racecar', 'roller-coaster', 'broken-heart', 'robot', 'biceps',
   'wings', 'alarm', 'lightbulb', 'spaceship', 'shield'
 ] as const;
 
