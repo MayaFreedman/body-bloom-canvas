@@ -81,20 +81,22 @@ export const TextControls = ({
           </div>
 
           {/* Font Size */}
-          <div>
-            <h5 className="font-medium text-gray-800 text-[16px] mb-3">Size</h5>
-            <div className="space-y-3">
-              <Slider
-                value={[textSettings.fontSize]}
-                onValueChange={([value]) => onTextSettingsChange({ fontSize: value })}
-                min={10}
-                max={48}
-                step={1}
-                className="mb-2"
-              />
-              <div className="flex justify-center">
-                <span className="text-sm text-gray-600">Size: {textSettings.fontSize}px</span>
+          <div className="space-y-2">
+            <div className="flex items-center gap-3">
+              <h5 className="font-medium text-gray-800 text-[16px] whitespace-nowrap">Size:</h5>
+              <div className="flex-1">
+                <Slider
+                  value={[textSettings.fontSize]}
+                  onValueChange={([value]) => onTextSettingsChange({ fontSize: value })}
+                  min={10}
+                  max={48}
+                  step={1}
+                  className="w-full"
+                />
               </div>
+            </div>
+            <div className="flex justify-center">
+              <span className="text-sm text-gray-600">Size: {textSettings.fontSize}px</span>
             </div>
           </div>
 
