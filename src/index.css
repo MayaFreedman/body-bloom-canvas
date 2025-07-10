@@ -117,13 +117,13 @@
     width: 60px; /* Collapsed state shows only toggle button */
   }
 
-  /* Right Column with Tabbed Interface - updated to hit top of screen */
+  /* Right Column with Tabbed Interface - full height */
   #rightColumn {
     background-color: rgba(255, 255, 255, 0.8);
     border-radius: 10px;
     width: 100%;
-    height: calc(100% - 20px); /* Reduced margin space */
-    margin: 0 0 20px 0; /* No top margin, only bottom */
+    height: 100%; /* Full height */
+    margin: 0; /* No margins */
     display: flex;
     flex-direction: column;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
