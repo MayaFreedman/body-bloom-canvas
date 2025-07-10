@@ -39,7 +39,7 @@ export const PaintingModeSelector = ({
       {/* Drawing tools */}
       <div className="flex gap-2">
         <button
-          className={`game-button-primary flex-1 flex items-center justify-center px-3 py-2 text-sm ${mode === 'draw' ? 'opacity-100' : 'opacity-70'}`}
+          className={`game-button-navy flex-1 flex items-center justify-center px-3 py-2 text-sm ${mode === 'draw' ? 'opacity-100' : 'opacity-70'}`}
           onClick={() => onModeChange('draw')}
         >
           Draw

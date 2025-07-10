@@ -368,13 +368,29 @@
   }
 
   .game-button-primary:hover {
-    background-color: hsl(var(--sage-green));
-    color: hsl(var(--deep-navy));
+    background-color: hsl(var(--primary-purple) / 0.8);
+    color: white;
   }
 
   .game-button-primary:active,
   .game-button-primary.active {
     background-color: hsl(var(--deep-navy));
+    color: white;
+  }
+
+  .game-button-navy {
+    background-color: hsl(var(--deep-navy));
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.2s;
+  }
+
+  .game-button-navy:hover {
+    background-color: hsl(var(--deep-navy) / 0.8);
     color: white;
   }
 
