@@ -19,12 +19,17 @@ export function generateLegendData(
   console.log('🎨 Used colors from bodyPartColors:', usedColors, bodyPartColors);
   console.log('🎨 Available emotional colors:', emotionalColors.map(e => ({ name: e.name, color: e.color })));
   
-  // For colors that don't match emotional colors exactly, we'll still show them
-  // First, add exact matches from emotional colors
+  // Check for exact matches and case-insensitive matches
   emotionalColors.forEach(emotion => {
     const hasExactMatch = usedColors.has(emotion.color);
     const hasUppercaseMatch = usedColors.has(emotion.color.toUpperCase());
     const hasLowercaseMatch = usedColors.has(emotion.color.toLowerCase());
+    
+    console.log(`🔍 Checking emotion ${emotion.name} (${emotion.color}):`, {
+      hasExactMatch,
+      hasUppercaseMatch, 
+      hasLowercaseMatch
+    });
     
     if (hasExactMatch || hasUppercaseMatch || hasLowercaseMatch) {
       console.log('✅ Adding emotion to legend:', emotion.name, emotion.color);
@@ -32,22 +37,6 @@ export function generateLegendData(
         type: 'emotion',
         name: emotion.name,
         color: emotion.color
-      });
-    }
-  });
-
-  // Add any colors that weren't matched as "Custom Color"
-  Object.values(bodyPartColors).forEach((color, index) => {
-    const isAlreadyAdded = legendItems.some(item => 
-      item.color.toLowerCase() === color.toLowerCase()
-    );
-    
-    if (!isAlreadyAdded) {
-      console.log('✅ Adding custom color to legend:', color);
-      legendItems.push({
-        type: 'emotion',
-        name: `Custom Color ${index + 1}`,
-        color: color
       });
     }
   });
