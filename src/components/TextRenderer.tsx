@@ -22,10 +22,6 @@ const TextMarkComponent = ({
     event.stopPropagation();
   };
 
-  const handleDoubleClick = (event: any) => {
-    event.stopPropagation();
-    onTextClick?.(textMark);
-  };
 
   const fontStyle = useMemo(() => {
     // Apply different scaling based on surface to account for coordinate system differences
@@ -61,7 +57,6 @@ const TextMarkComponent = ({
         anchorX="center"
         anchorY="middle"
         onPointerDown={handlePointerDown}
-        onDoubleClick={handleDoubleClick}
         rotation={[0, -rotation, 0]}
       >
         {textMark.text}
@@ -70,7 +65,6 @@ const TextMarkComponent = ({
       {/* Invisible clickable area for better interaction */}
       <mesh
         onPointerDown={handlePointerDown}
-        onDoubleClick={handleDoubleClick}
       >
         <planeGeometry args={[Math.max(textMark.text.length * 0.08, 0.5), 0.3]} />
         <meshBasicMaterial transparent opacity={0} />
