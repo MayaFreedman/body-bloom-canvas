@@ -365,7 +365,7 @@
 
   .game-button-primary:active,
   .game-button-primary.active {
-    background-color: #6B6FA3; /* Darker purple for active states */
+    background-color: #1e3a8a; /* Navy blue for active states */
     color: white;
   }
 
