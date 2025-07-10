@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { Heart } from 'lucide-react';
 
 interface TabContainerProps {
   activeTab: string;
@@ -27,12 +26,6 @@ export const TabContainer = ({ activeTab, onTabChange, children }: TabContainerP
         </button>
       </div>
       {children}
-      
-      {/* Stylish Footer */}
-      <div className="sidebar-footer">
-        <Heart className="footer-icon" />
-        <span>Made with care</span>
-      </div>
     </div>
   );
 };
