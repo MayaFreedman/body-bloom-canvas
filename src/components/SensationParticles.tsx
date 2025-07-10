@@ -150,10 +150,14 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
 
   // Map sensation names to textures
   const getSensationTexture = (sensationName: string, isCustom?: boolean, customIcon?: string) => {
+    console.log('🎨 getSensationTexture called:', { sensationName, isCustom, customIcon });
+    
     // Handle custom effects with their selected PNG icons
     if (isCustom && customIcon) {
+      console.log('🎨 Processing custom effect with icon:', customIcon);
       // Use the custom icon texture if available, fallback to star
       const texture = textureMap[customIcon as keyof typeof textureMap];
+      console.log('🎨 Found texture for custom icon:', !!texture, 'Available keys:', Object.keys(textureMap));
       return texture || textureMap.star;
     }
     
@@ -1036,6 +1040,15 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
     
     if (!particles) return null;
 
+    console.log('🎆 Rendering particle system for mark:', {
+      id: mark.id,
+      name: mark.name,
+      icon: mark.icon,
+      isCustom: mark.isCustom,
+      color: mark.color,
+      movementBehavior: mark.movementBehavior
+    });
+
     // Store mesh refs for this mark
     const meshes: THREE.Object3D[] = [];
     meshRefsRef.current.set(mark.id, meshes);
@@ -1044,7 +1057,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
     const sensationTexture = getSensationTexture(mark.name || mark.icon, mark.isCustom, mark.icon);
     const normalizedScale = mark.isCustom ? 1.0 : getNormalizedScale(mark.name || mark.icon);
     
-    
+    console.log('🎆 Using texture for rendering:', !!sensationTexture, 'Scale:', normalizedScale);
 
     return particles.map((particle, index) => {
       const opacity = 1 - (particle.life / particle.maxLife);

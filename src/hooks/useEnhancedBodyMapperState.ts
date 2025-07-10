@@ -132,7 +132,9 @@ export const useEnhancedBodyMapperState = ({
     } = {
       id: `sensation-${Date.now()}-${Math.random()}`,
       position,
-      icon: sensation.icon,
+      icon: ('isCustom' in sensation && sensation.isCustom) 
+        ? (sensation as CustomSensation).selectedIcon  // Use selectedIcon for custom effects
+        : sensation.icon,                              // Use icon for built-in sensations
       color: sensation.color,
       size: 0.1,
       name: sensation.name,
@@ -143,6 +145,12 @@ export const useEnhancedBodyMapperState = ({
     };
     
     // Update state
+    console.log('🎯 Custom effect data being stored:', {
+      sensationName: sensation.name,
+      sensationIcon: sensation.icon,
+      isCustomSensation: 'isCustom' in sensation && sensation.isCustom,
+      customIcon: ('isCustom' in sensation && sensation.isCustom) ? (sensation as any).selectedIcon : undefined
+    });
     console.log('🎯 useEnhancedBodyMapperState - About to add sensation mark:', newSensationMark);
     setSensationMarks(prev => {
       console.log('🎯 useEnhancedBodyMapperState - Previous sensation marks:', prev);
