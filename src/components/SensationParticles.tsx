@@ -157,12 +157,22 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
   const getSensationTexture = (sensationName: string, isCustom?: boolean, customIcon?: string) => {
     console.log('🎨 getSensationTexture called:', { sensationName, isCustom, customIcon });
     
+    // List of custom effect icon names to detect custom effects
+    const customIconNames = [
+      'flower', 'tornado', 'chicken', 'storm', 'explosion', 'supportheart', 'baloon', 'musical-note',
+      'cat', 'dog', 'racecar', 'roller-coaster', 'broken-heart', 'robot', 'biceps',
+      'wings', 'alarm', 'lightbulb', 'spaceship', 'shield'
+    ];
+    
     // Handle custom effects with their selected PNG icons
-    if (isCustom && customIcon) {
-      console.log('🎨 Processing custom effect with icon:', customIcon);
+    // Detect custom effect by checking if the icon is in our custom list
+    const isActuallyCustom = isCustom === true || customIconNames.includes(customIcon || '');
+    
+    if (isActuallyCustom && customIcon) {
+      console.log('🎨 Processing custom effect with icon:', customIcon, 'Is detected as custom:', isActuallyCustom);
       // Use the custom icon texture if available, fallback to star
       const texture = textureMap[customIcon as keyof typeof textureMap];
-      console.log('🎨 Found texture for custom icon:', !!texture, 'Available keys:', Object.keys(textureMap));
+      console.log('🎨 Found texture for custom icon:', !!texture, 'Texture object:', texture);
       return texture || textureMap.star;
     }
     
