@@ -13,16 +13,16 @@ export const BrushSizeControl = ({ brushSize, selectedColor, onBrushSizeChange }
     <div>
       <h5 className="font-medium text-gray-800 text-[16px] mb-3">Brush Size</h5>
       <div className="space-y-3">
-        <div className="flex items-center gap-3">
-          <Slider
-            value={brushSize}
-            onValueChange={onBrushSizeChange}
-            max={20}
-            min={3}
-            step={1}
-            className="flex-1"
-          />
-          <span className="text-sm text-gray-600 font-medium min-w-[40px] text-right">{brushSize[0]}px</span>
+        <Slider
+          value={brushSize}
+          onValueChange={onBrushSizeChange}
+          max={20}
+          min={3}
+          step={1}
+          className="mb-2"
+        />
+        <div className="flex justify-center">
+          <span className="text-sm text-gray-600">Size: {brushSize[0]}</span>
         </div>
       </div>
     </div>
