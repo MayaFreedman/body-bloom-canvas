@@ -99,8 +99,6 @@ export const BodyMapperCanvas = ({
   onRotateRight
 }: BodyMapperCanvasProps) => {
   
-  console.log("working version note");
-  console.log('🎯 BodyMapperCanvas: Rendering with mode:', mode, 'selectedSensation:', selectedSensation?.name);
   
   const [isHoveringBody, setIsHoveringBody] = useState(false);
   const isHoveringSidebar = useSidebarHover();
