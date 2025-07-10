@@ -103,8 +103,8 @@ export const SensationSelector = ({ mode, selectedSensation, onModeChange, onSen
               key={index}
               className={`flex flex-col items-center p-3 border-2 rounded-lg transition-all ${
                 isSelected 
-                  ? 'border-green-500 bg-green-50 shadow-md transform scale-105' 
-                  : 'border-gray-200 hover:bg-gray-50 hover:border-gray-300'
+                  ? 'border-primary bg-primary/10 shadow-md transform scale-105' 
+                  : 'border-border hover:bg-muted hover:border-primary/30'
               }`}
               onClick={() => {
                 console.log('🎯 SensationSelector - Sensation clicked:', sensation.name, 'isCurrentlySelected:', isSelected);
@@ -130,7 +130,7 @@ export const SensationSelector = ({ mode, selectedSensation, onModeChange, onSen
                 alt={sensation.name}
                 className={`w-6 h-6 mb-2 object-contain ${isSelected ? 'opacity-100' : 'opacity-80'}`}
               />
-              <span className={`text-xs text-center ${isSelected ? 'text-green-600 font-medium' : 'text-gray-600'}`}>
+              <span className={`text-xs text-center ${isSelected ? 'text-primary font-medium' : 'text-muted-foreground'}`}>
                 {sensation.name}
               </span>
             </button>
@@ -139,11 +139,11 @@ export const SensationSelector = ({ mode, selectedSensation, onModeChange, onSen
       </div>
 
       {selectedSensation && (
-        <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
-          <p className="text-sm text-green-800">
+        <div className="mt-4 p-3 bg-primary/10 border border-primary/30 rounded-lg">
+          <p className="text-sm text-primary">
             <strong>Selected:</strong> {selectedSensation.name}
           </p>
-          <p className="text-xs text-green-600 mt-1">
+          <p className="text-xs text-muted-foreground mt-1">
             Click on the body model to place this sensation
           </p>
         </div>
