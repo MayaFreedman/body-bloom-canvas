@@ -89,6 +89,13 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
   const particleSystemsRef = useRef<Map<string, SensationParticle[]>>(new Map());
   const meshRefsRef = useRef<Map<string, THREE.Object3D[]>>(new Map());
   
+  // List of custom effect icon names for detection
+  const customIconNames = [
+    'flower', 'tornado', 'chicken', 'storm', 'explosion', 'supportheart', 'baloon', 'musical-note',
+    'cat', 'dog', 'racecar', 'roller-coaster', 'broken-heart', 'robot', 'biceps',
+    'wings', 'alarm', 'lightbulb', 'spaceship', 'shield'
+  ];
+  
   // Load all particle textures
   const textureMap = useMemo(() => {
     console.log('🎨 SensationParticles - Loading textures...');
@@ -156,13 +163,6 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
   // Map sensation names to textures
   const getSensationTexture = (sensationName: string, isCustom?: boolean, customIcon?: string) => {
     console.log('🎨 getSensationTexture called:', { sensationName, isCustom, customIcon });
-    
-    // List of custom effect icon names to detect custom effects
-    const customIconNames = [
-      'flower', 'tornado', 'chicken', 'storm', 'explosion', 'supportheart', 'baloon', 'musical-note',
-      'cat', 'dog', 'racecar', 'roller-coaster', 'broken-heart', 'robot', 'biceps',
-      'wings', 'alarm', 'lightbulb', 'spaceship', 'shield'
-    ];
     
     // Handle custom effects with their selected PNG icons
     // Detect custom effect by checking if the icon is in our custom list
@@ -491,11 +491,21 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
         
         if (mark.isCustom && mark.movementBehavior) {
           // Custom effect parameters based on movement behavior
+          console.log('🚀 Using custom effect parameters for movement behavior:', mark.movementBehavior);
           const customParams = getCustomEffectParams(mark.movementBehavior);
+          console.log('🚀 Custom parameters:', customParams);
+          particleCount = customParams.particleCount;
+          dispersion = customParams.dispersion;
+        } else if (customIconNames.includes(mark.icon || '')) {
+          // Fallback: detect custom by icon name and use moderate behavior
+          console.log('🚀 Detected custom effect by icon, using moderate behavior as fallback:', mark.icon);
+          const customParams = getCustomEffectParams('moderate');
+          console.log('🚀 Fallback custom parameters:', customParams);
           particleCount = customParams.particleCount;
           dispersion = customParams.dispersion;
         } else {
           // Built-in sensation parameters  
+          console.log('🚀 Using built-in sensation parameters for:', mark.name || mark.icon);
           particleCount = getParticleCount(mark.name || mark.icon);
           dispersion = getDispersionLevel(mark.name || mark.icon);
         }
@@ -555,13 +565,25 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
           let maxLife, size;
           
           if (mark.isCustom && mark.movementBehavior) {
+            console.log('🚀 Applying custom particle properties for behavior:', mark.movementBehavior);
             const customParams = getCustomEffectParams(mark.movementBehavior);
             const lifespan = customParams.lifespan;
             maxLife = lifespan.min + Math.random() * (lifespan.max - lifespan.min);
             size = (customParams.size.base + Math.random() * customParams.size.variance) * customParams.size.multiplier;
+            console.log('🚀 Custom particle properties - maxLife:', maxLife, 'size:', size);
+          } else if (customIconNames.includes(mark.icon || '')) {
+            // Fallback for detected custom effects
+            console.log('🚀 Applying fallback custom particle properties for detected custom icon:', mark.icon);
+            const customParams = getCustomEffectParams('moderate');
+            const lifespan = customParams.lifespan;
+            maxLife = lifespan.min + Math.random() * (lifespan.max - lifespan.min);
+            size = (customParams.size.base + Math.random() * customParams.size.variance) * customParams.size.multiplier;
+            console.log('🚀 Fallback custom particle properties - maxLife:', maxLife, 'size:', size);
           } else {
+            console.log('🚀 Applying built-in particle properties for:', mark.name || mark.icon);
             maxLife = getParticleLifespan(mark.name || mark.icon);
             size = getParticleSize(mark.name || mark.icon);
+            console.log('🚀 Built-in particle properties - maxLife:', maxLife, 'size:', size);
           }
           
           const baseParticle = {
@@ -774,6 +796,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
         // Handle custom effect animation profiles
         let animProfile;
         if (mark.isCustom && mark.movementBehavior) {
+          console.log('🎬 Applying custom animation profile for behavior:', mark.movementBehavior);
           const customParams = getCustomEffectParams(mark.movementBehavior);
           animProfile = {
             speed: customParams.speed,
@@ -782,8 +805,23 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             gravity: 0.0002,
             drift: new THREE.Vector3(0, 0.1, 0)
           };
+          console.log('🎬 Custom animation profile:', animProfile);
+        } else if (customIconNames.includes(mark.icon || '')) {
+          // Fallback for detected custom effects
+          console.log('🎬 Applying fallback custom animation profile for detected custom icon:', mark.icon);
+          const customParams = getCustomEffectParams('moderate');
+          animProfile = {
+            speed: customParams.speed,
+            intensity: customParams.intensity,
+            pattern: 'custom',
+            gravity: 0.0002,
+            drift: new THREE.Vector3(0, 0.1, 0)
+          };
+          console.log('🎬 Fallback animation profile:', animProfile);
         } else {
+          console.log('🎬 Applying built-in animation profile for:', mark.name || mark.icon);
           animProfile = getAnimationProfile(mark.name || mark.icon);
+          console.log('🎬 Built-in animation profile:', animProfile);
         }
 
         // Update position based on animation profile with natural physics
@@ -912,8 +950,10 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
         } else if (animProfile.pattern === 'custom') {
           // Custom effect movement based on movement behavior
           const customBehavior = mark.movementBehavior || 'moderate';
+          console.log('🎬 Executing custom movement pattern for behavior:', customBehavior, 'with profile:', animProfile);
           
           if (customBehavior === 'gentle') {
+            console.log('🎬 Applying gentle movement');
             // Gentle floating movement
             const gentleFloat = Math.sin(time * 1.5 + particle.life * 0.2) * 0.0004 * animProfile.intensity;
             const softDrift = Math.cos(time * 1.2 + particle.life * 0.15) * 0.0003 * animProfile.intensity;
@@ -928,6 +968,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             particle.velocity.multiplyScalar(0.97);
             
           } else if (customBehavior === 'energetic') {
+            console.log('🎬 Applying energetic movement');
             // Energetic bursting movement
             const burstForce = Math.sin(time * 6 + particle.life * 0.4) * 0.002 * animProfile.intensity;
             const quickMovement = Math.cos(time * 8 + particle.life * 0.5) * 0.0015 * animProfile.intensity;
@@ -951,6 +992,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             particle.velocity.multiplyScalar(0.92);
             
           } else {
+            console.log('🎬 Applying moderate movement (default)');
             // Moderate movement (default)
             const moderateFloat = Math.sin(time * 3 + particle.life * 0.3) * 0.0008 * animProfile.intensity;
             const naturalDrift = Math.cos(time * 2.5 + particle.life * 0.25) * 0.0006 * animProfile.intensity;
