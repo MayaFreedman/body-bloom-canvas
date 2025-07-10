@@ -31,10 +31,11 @@ export const EmotionColorManager = ({
   return (
     <div className="mb-6">
       <div className="flex items-center justify-between mb-2">
-        <h4 className="font-semibold text-gray-800">Colors & Emotions</h4>
+        <h4 className="font-semibold text-foreground">Colors & Emotions</h4>
         <Button
           onClick={onAddColor}
-          className="bg-green-500 hover:bg-green-600 text-white font-medium transition-colors duration-200 flex items-center px-4 py-1.5 h-auto text-sm"
+          variant="secondary"
+          className="font-medium transition-colors duration-200 flex items-center px-4 py-1.5 h-auto text-sm"
         >
           <Plus className="w-4 h-4 mr-1" />
           ADD
@@ -58,7 +59,7 @@ export const EmotionColorManager = ({
             {index >= 3 && (
               <button
                 onClick={() => onDeleteColor(index)}
-                className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full transition-colors"
+                className="p-2 text-destructive hover:text-destructive/80 hover:bg-destructive/10 rounded-full transition-colors"
                 title="Delete this color"
               >
                 <X className="w-4 h-4" />
