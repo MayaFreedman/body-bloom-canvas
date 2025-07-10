@@ -37,18 +37,21 @@ const TextMarkComponent = ({
     };
   }, [textMark]);
 
-  // Calculate position for proper surface rendering
-  const renderPosition = useMemo(() => {
-    if (textMark.surface === 'whiteboard') {
-      return textMark.position; // Whiteboard text uses world coordinates
-    }
-    
-    // Body text is already in local coordinates with surface offset applied during placement
-    return textMark.position;
-  }, [textMark.position, textMark.surface]);
+  // Calculate position and rotation for proper surface rendering
+  const renderTransform = useMemo(() => {
+    const position = textMark.surface === 'whiteboard' 
+      ? textMark.position 
+      : textMark.position; // Body text is already in local coordinates with surface offset applied during placement
+
+    const rotation = textMark.rotation 
+      ? [textMark.rotation.x, textMark.rotation.y, textMark.rotation.z] as [number, number, number]
+      : [0, 0, 0] as [number, number, number];
+
+    return { position, rotation };
+  }, [textMark.position, textMark.surface, textMark.rotation]);
 
   return (
-    <group position={renderPosition}>
+    <group position={renderTransform.position} rotation={renderTransform.rotation}>
       <Text
         {...fontStyle}
         maxWidth={2}
