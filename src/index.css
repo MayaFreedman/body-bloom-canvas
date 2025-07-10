@@ -203,7 +203,6 @@
     padding: 15px;
     flex: 1;
     overflow-y: auto;
-    max-height: calc(90vh - 50px);
   }
 
   .tab-content.active {
