@@ -119,34 +119,44 @@ export const ScreenshotComposer = ({
     const sensations = legendItems.filter(item => item.type === 'sensation');
     
     const padding = 20;
-    const itemHeight = 40;
-    const sectionSpacing = 30;
+    const itemHeight = 50; // Increased from 40
+    const sectionSpacing = 40; // Increased spacing
     const sidebarX = mainImageWidth + padding;
+    const headerHeight = 60; // Height for styled headers
     
     ctx.save();
     
-    let currentY = 60; // Start position
+    let currentY = 40; // Start position
     
     // Draw "Feeling Colours" section
     if (emotions.length > 0) {
-      ctx.fillStyle = '#2E315E'; // --deep-navy
-      ctx.font = 'bold 20px Arial, sans-serif';
-      ctx.fillText('Feeling Colours', sidebarX, currentY);
-      currentY += 40;
+      // Draw purple header background
+      ctx.fillStyle = '#898AC4'; // --primary-purple
+      ctx.roundRect(sidebarX, currentY - 10, sidebarWidth - padding * 2, headerHeight, 8);
+      ctx.fill();
+      
+      // Draw header text
+      ctx.fillStyle = '#FFFFFF'; // White text on purple background
+      ctx.font = 'bold 24px Arial, sans-serif'; // Increased from 20px
+      ctx.textAlign = 'center';
+      ctx.fillText('Feeling Colours', sidebarX + (sidebarWidth - padding * 2) / 2, currentY + 25);
+      ctx.textAlign = 'left';
+      
+      currentY += headerHeight + 20;
       
       emotions.forEach((item, index) => {
         const itemY = currentY + index * itemHeight;
         
-        // Draw color circle
+        // Draw color circle - larger
         ctx.fillStyle = item.color;
         ctx.beginPath();
-        ctx.arc(sidebarX + 12, itemY, 8, 0, Math.PI * 2);
+        ctx.arc(sidebarX + 15, itemY, 12, 0, Math.PI * 2); // Increased from 8 to 12
         ctx.fill();
         
-        // Draw emotion name
+        // Draw emotion name - larger text
         ctx.fillStyle = '#2E315E'; // --deep-navy
-        ctx.font = '16px Arial, sans-serif';
-        ctx.fillText(item.name, sidebarX + 30, itemY + 5);
+        ctx.font = '20px Arial, sans-serif'; // Increased from 16px
+        ctx.fillText(item.name, sidebarX + 40, itemY + 7);
       });
       
       currentY += emotions.length * itemHeight + sectionSpacing;
@@ -154,31 +164,40 @@ export const ScreenshotComposer = ({
     
     // Draw "Body Sensations" section
     if (sensations.length > 0) {
-      ctx.fillStyle = '#2E315E'; // --deep-navy
-      ctx.font = 'bold 20px Arial, sans-serif';
-      ctx.fillText('Body Sensations', sidebarX, currentY);
-      currentY += 40;
+      // Draw purple header background
+      ctx.fillStyle = '#898AC4'; // --primary-purple
+      ctx.roundRect(sidebarX, currentY - 10, sidebarWidth - padding * 2, headerHeight, 8);
+      ctx.fill();
+      
+      // Draw header text
+      ctx.fillStyle = '#FFFFFF'; // White text on purple background
+      ctx.font = 'bold 24px Arial, sans-serif'; // Increased from 20px
+      ctx.textAlign = 'center';
+      ctx.fillText('Body Sensations', sidebarX + (sidebarWidth - padding * 2) / 2, currentY + 25);
+      ctx.textAlign = 'left';
+      
+      currentY += headerHeight + 20;
       
       sensations.forEach((item, index) => {
         const itemY = currentY + index * itemHeight;
         
-        // Draw icon placeholder (diamond shape)
+        // Draw icon placeholder - larger
         ctx.fillStyle = item.color;
         ctx.beginPath();
-        ctx.arc(sidebarX + 12, itemY, 6, 0, Math.PI * 2);
+        ctx.arc(sidebarX + 15, itemY, 10, 0, Math.PI * 2); // Increased from 6 to 10
         ctx.fill();
         
-        // Draw icon symbol
+        // Draw icon symbol - larger
         ctx.fillStyle = '#FFFFFF';
-        ctx.font = 'bold 10px Arial, sans-serif';
+        ctx.font = 'bold 14px Arial, sans-serif'; // Increased from 10px
         ctx.textAlign = 'center';
-        ctx.fillText('◆', sidebarX + 12, itemY + 3);
+        ctx.fillText('◆', sidebarX + 15, itemY + 4);
         ctx.textAlign = 'left';
         
-        // Draw sensation name
+        // Draw sensation name - larger text
         ctx.fillStyle = '#2E315E'; // --deep-navy
-        ctx.font = '16px Arial, sans-serif';
-        ctx.fillText(item.name, sidebarX + 30, itemY + 5);
+        ctx.font = '20px Arial, sans-serif'; // Increased from 16px
+        ctx.fillText(item.name, sidebarX + 40, itemY + 7);
       });
     }
     
