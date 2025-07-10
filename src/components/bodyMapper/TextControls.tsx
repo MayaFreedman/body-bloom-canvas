@@ -114,7 +114,7 @@ export const TextControls = ({
                   }}
                   min={10}
                   max={48}
-                  className="w-16 h-8 text-center"
+                  className="w-16 h-8 text-center [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
                 />
                 <Button
                   variant="outline"
