@@ -114,7 +114,7 @@ export const TextControls = ({
                   }}
                   min={10}
                   max={48}
-                  className="w-16 h-8 text-center pr-3"
+                  className="w-16 h-8 text-center"
                 />
                 <Button
                   variant="outline"
