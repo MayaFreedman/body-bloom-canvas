@@ -73,8 +73,18 @@ export const TextPlacementHandler = ({
 
     if (intersects.length > 0) {
       const intersect = intersects[0];
-      console.log('📝 Text placement on', drawingTarget, 'at point:', intersect.point, 'object:', intersect.object.userData);
-      onTextPlace(intersect.point, drawingTarget);
+      let finalPosition = new THREE.Vector3();
+      
+      if (drawingTarget === 'body' && modelRef?.current) {
+        // For body, convert to model local space (same as drawing marks)
+        modelRef.current.worldToLocal(finalPosition.copy(intersect.point));
+      } else {
+        // For whiteboard, use world coordinates directly
+        finalPosition.copy(intersect.point);
+      }
+      
+      console.log('📝 Text placement on', drawingTarget, 'at point:', finalPosition, 'object:', intersect.object.userData);
+      onTextPlace(finalPosition, drawingTarget);
     } else {
       console.log('📝 No intersection found for text placement in', drawingTarget, 'mode. Available meshes:', meshes.length);
       meshes.forEach((mesh, i) => {
