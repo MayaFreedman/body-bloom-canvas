@@ -49,10 +49,7 @@ export const ControlButtons = ({
 
   const captureScreenshot = async () => {
     try {
-      console.log('📸 Starting enhanced screenshot capture...');
-      
       if (!screenshotRef?.current || !screenshotComposer) {
-        console.error('❌ Screenshot capture ref is not available');
         return;
       }
 
@@ -71,29 +68,23 @@ export const ControlButtons = ({
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
-      
-      console.log('✅ Enhanced screenshot downloaded successfully');
     } catch (error) {
-      console.error('❌ Enhanced screenshot capture failed:', error);
     }
   };
 
   const handleUndo = () => {
-    console.log('Undo clicked, canUndo:', canUndo);
     if (onUndo && canUndo) {
       onUndo();
     }
   };
 
   const handleRedo = () => {
-    console.log('Redo clicked, canRedo:', canRedo);
     if (onRedo && canRedo) {
       onRedo();
     }
   };
 
   const handleResetAll = () => {
-    console.log('YAY!');
     onResetAll();
   };
 
@@ -107,11 +98,9 @@ export const ControlButtons = ({
         className="reset-button-container-top-right control-buttons"
         style={{ pointerEvents: shouldDisablePointerEvents ? 'none' : 'auto' }}
         onMouseEnter={() => {
-          console.log('🎯 Reset container mouse enter');
           onControlButtonsHover?.(true);
         }}
         onMouseLeave={() => {
-          console.log('🎯 Reset container mouse leave');
           onControlButtonsHover?.(false);
         }}
       >
@@ -119,8 +108,8 @@ export const ControlButtons = ({
           onClick={handleResetAll} 
           className="control-button-with-text-red"
           aria-label="Reset all changes to the body model"
-          onMouseEnter={() => console.log('🔥 Reset button hover enter')}
-          onMouseLeave={() => console.log('🔥 Reset button hover leave')}
+          onMouseEnter={() => {}}
+          onMouseLeave={() => {}}
         >
           Reset
         </button>
@@ -131,11 +120,9 @@ export const ControlButtons = ({
         className="undo-redo-container-top-left control-buttons"
         style={{ pointerEvents: shouldDisablePointerEvents ? 'none' : 'auto' }}
         onMouseEnter={() => {
-          console.log('🎯 Undo/Redo container mouse enter');
           onControlButtonsHover?.(true);
         }}
         onMouseLeave={() => {
-          console.log('🎯 Undo/Redo container mouse leave');
           onControlButtonsHover?.(false);
         }}
       >
@@ -143,8 +130,8 @@ export const ControlButtons = ({
           onClick={handleUndo}
           disabled={!canUndo}
           className={`control-button-with-text ${!canUndo ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'}`}
-          onMouseEnter={() => console.log('🔥 Undo button hover enter, canUndo:', canUndo)}
-          onMouseLeave={() => console.log('🔥 Undo button hover leave')}
+          onMouseEnter={() => {}}
+          onMouseLeave={() => {}}
         >
           <Undo2 size={16} />
           <span className="ml-2">Undo</span>
@@ -154,8 +141,8 @@ export const ControlButtons = ({
           onClick={handleRedo}
           disabled={!canRedo}
           className={`control-button-with-text ${!canRedo ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'}`}
-          onMouseEnter={() => console.log('🔥 Redo button hover enter, canRedo:', canRedo)}
-          onMouseLeave={() => console.log('🔥 Redo button hover leave')}
+          onMouseEnter={() => {}}
+          onMouseLeave={() => {}}
         >
           <Redo2 size={16} />
           <span className="ml-2">Redo</span>
@@ -167,19 +154,17 @@ export const ControlButtons = ({
         className="snapshot-button-container control-buttons"
         style={{ pointerEvents: shouldDisablePointerEvents ? 'none' : 'auto' }}
         onMouseEnter={() => {
-          console.log('🎯 Snapshot container mouse enter');
           onControlButtonsHover?.(true);
         }}
         onMouseLeave={() => {
-          console.log('🎯 Snapshot container mouse leave');
           onControlButtonsHover?.(false);
         }}
       >
         <button 
           onClick={captureScreenshot} 
           className="main-snapshot-button"
-          onMouseEnter={() => console.log('🔥 Snapshot button hover enter')}
-          onMouseLeave={() => console.log('🔥 Snapshot button hover leave')}
+          onMouseEnter={() => {}}
+          onMouseLeave={() => {}}
         >
           <Camera size={20} className="mr-2" />
           Snapshot

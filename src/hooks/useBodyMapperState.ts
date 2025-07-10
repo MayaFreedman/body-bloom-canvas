@@ -19,7 +19,7 @@ export const useBodyMapperState = () => {
   const optimization = useDrawingOptimization();
 
   const handleAddDrawingMark = useCallback((mark: DrawingMark) => {
-    console.log('🔵 useBodyMapperState.handleAddDrawingMark received mark:', {id: mark.id, surface: mark.surface, hasAllProps: Object.keys(mark)});
+    
     setDrawingMarks(prev => {
       const newMarks = [...prev, mark];
       

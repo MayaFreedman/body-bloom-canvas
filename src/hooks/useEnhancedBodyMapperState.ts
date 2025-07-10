@@ -115,14 +115,14 @@ export const useEnhancedBodyMapperState = ({
   };
 
   const handleFinishDrawing = () => {
-    console.log('🏁 ENHANCED STATE: handleFinishDrawing called - mode:', mode, 'activelyDrawing:', isActivelyDrawing);
+    
     setIsActivelyDrawing(false);
     drawingOps.handleFinishDrawing();
   };
 
   // Enhanced sensation handling with action history tracking
   const handleSensationClick = (position: any, sensation: SelectedSensation | CustomSensation) => {
-    console.log('🔥 LOCAL SENSATION: useEnhancedBodyMapperState - handleSensationClick called with:', sensation.name, 'at position:', position);
+    
     
     // Create enhanced sensation mark with custom properties
     const newSensationMark: SensationMark & { 

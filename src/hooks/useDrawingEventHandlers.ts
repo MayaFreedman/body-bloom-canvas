@@ -35,9 +35,7 @@ export const useDrawingEventHandlers = ({
   const strokeStarted = useRef(false);
 
   const handlePointerDown = useCallback((event: PointerEvent) => {
-    console.log('🖱️ Pointer down - isDrawing:', isDrawing, 'mode:', mode, 'target:', drawingTarget);
     if (!isDrawing || mode === 'sensation') return;
-    console.log('🖱️ Pointer down - starting drawing, target:', drawingTarget);
     isMouseDown.current = true;
     strokeStarted.current = false;
     

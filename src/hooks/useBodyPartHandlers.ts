@@ -20,7 +20,7 @@ export const useBodyPartHandlers = ({
   }, [baseHandleBodyPartClick, multiplayer]);
 
   const handleIncomingBodyPartFill = useCallback((partName: string, color: string) => {
-    console.log('📨 Handling incoming body part fill:', partName, color);
+    
     baseHandleBodyPartClick(partName, color);
   }, [baseHandleBodyPartClick]);
 

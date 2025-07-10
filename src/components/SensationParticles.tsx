@@ -1084,13 +1084,6 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
     const isDetectedCustom = mark.isCustom === true || customIconNames.includes(mark.icon || '');
     const finalColor = isDetectedCustom && mark.color ? mark.color : '#ffffff';
     
-    console.log('🎨 Color application logic:', {
-      markIsCustom: mark.isCustom,
-      markIcon: mark.icon,
-      markColor: mark.color,
-      isDetectedCustom,
-      finalColor
-    });
 
     // Store mesh refs for this mark
     const meshes: THREE.Object3D[] = [];

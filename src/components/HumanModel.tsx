@@ -33,14 +33,10 @@ const correctColorFor3D = (hexColor: string): string => {
 };
 
 export const HumanModel = ({ bodyPartColors = {} }: HumanModelProps) => {
-  console.log('🎭 HumanModel: Component rendering, bodyPartColors:', bodyPartColors);
-  console.log('🎭 HumanModel: bodyPartColors reference changed:', Object.keys(bodyPartColors).length, 'keys');
   
   // Add a mount/unmount logger
   React.useEffect(() => {
-    console.log('🎭 HumanModel: MOUNTED');
     return () => {
-      console.log('🎭 HumanModel: UNMOUNTED');
     };
   }, []);
   

@@ -87,12 +87,9 @@ export const CustomEffectDialog: React.FC<CustomEffectDialogProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('🎨 CustomEffectDialog - Form submitted with data:', form);
     
     if (form.name.trim()) {
-      console.log('🎨 CustomEffectDialog - About to call onCreateEffect with:', form);
       onCreateEffect(form);
-      console.log('🎨 CustomEffectDialog - Called onCreateEffect successfully');
       
       setForm({
         name: '',
@@ -101,8 +98,6 @@ export const CustomEffectDialog: React.FC<CustomEffectDialogProps> = ({
         movementBehavior: 'moderate',
       });
       onOpenChange(false);
-    } else {
-      console.warn('🎨 CustomEffectDialog - Form submission blocked: name is empty');
     }
   };
 
