@@ -1,11 +1,7 @@
-import React, { useMemo, useRef, useEffect } from 'react';
+import React, { useMemo } from 'react';
+import { Text } from '@react-three/drei';
 import { TextMark } from '@/types/textTypes';
 import * as THREE from 'three';
-import { extend, useLoader } from '@react-three/fiber';
-import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
-import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
-
-extend({ TextGeometry });
 
 interface TextRendererProps {
   textMarks: TextMark[];
@@ -19,8 +15,6 @@ const TextMarkComponent = ({
   textMark: TextMark; 
   onTextClick?: (textMark: TextMark) => void; 
 }) => {
-  const meshRef = useRef<THREE.Mesh>(null);
-  
   const handlePointerDown = (event: any) => {
     event.stopPropagation();
   };
@@ -30,51 +24,37 @@ const TextMarkComponent = ({
     onTextClick?.(textMark);
   };
 
-  // Load a basic font (fallback to default if not available)
-  const font = useLoader(FontLoader, 'https://threejs.org/examples/fonts/helvetiker_regular.typeface.json');
-
-  const textGeometry = useMemo(() => {
-    if (!font) return null;
-    
+  const fontStyle = useMemo(() => {
     // Apply different scaling based on surface to account for coordinate system differences
-    const scaleFactor = textMark.surface === 'whiteboard' ? 1200 : 1500;
+    const scaleFactor = textMark.surface === 'whiteboard' ? 235 : 300;
     
-    const geometry = new TextGeometry(textMark.text, {
-      font: font,
-      size: textMark.fontSize / scaleFactor,
-      depth: 0.01, // Very thin for 2D-like appearance
-      curveSegments: 12,
-      bevelEnabled: false,
-    });
-    
-    // Center the geometry
-    geometry.computeBoundingBox();
-    if (geometry.boundingBox) {
-      const centerX = -0.5 * (geometry.boundingBox.max.x - geometry.boundingBox.min.x);
-      const centerY = -0.5 * (geometry.boundingBox.max.y - geometry.boundingBox.min.y);
-      geometry.translate(centerX, centerY, 0);
-    }
-    
-    return geometry;
-  }, [font, textMark.text, textMark.fontSize, textMark.surface]);
+    return {
+      fontSize: textMark.fontSize / scaleFactor,
+      color: textMark.color,
+      fontFamily: textMark.fontFamily,
+      fontWeight: textMark.fontWeight,
+      fontStyle: textMark.fontStyle
+    };
+  }, [textMark]);
 
   // Use position directly since body text is now rendered inside the model group
   const offsetPosition = useMemo(() => {
     return textMark.position; // Direct position for both body and whiteboard
   }, [textMark.position]);
 
-  if (!textGeometry) return null;
-
   return (
     <group position={offsetPosition}>
-      <mesh
-        ref={meshRef}
-        geometry={textGeometry}
+      <Text
+        {...fontStyle}
+        maxWidth={2}
+        lineHeight={1.2}
+        anchorX="center"
+        anchorY="middle"
         onPointerDown={handlePointerDown}
         onDoubleClick={handleDoubleClick}
       >
-        <meshBasicMaterial color={textMark.color} />
-      </mesh>
+        {textMark.text}
+      </Text>
       
       {/* Invisible clickable area for better interaction */}
       <mesh
