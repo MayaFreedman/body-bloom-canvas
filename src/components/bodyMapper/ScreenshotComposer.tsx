@@ -14,6 +14,11 @@ export const ScreenshotComposer = ({
   bodyPartColors,
   sensationMarks
 }: ScreenshotComposerProps) => {
+  console.log('🖼️ ScreenshotComposer mounted with:', { 
+    hasRef: !!screenshotCaptureRef.current,
+    bodyPartColors, 
+    sensationMarks: sensationMarks.length 
+  });
   
   const generateScreenshot = useCallback(async (): Promise<string> => {
     if (!screenshotCaptureRef.current) {
