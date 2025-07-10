@@ -156,7 +156,7 @@
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
     border: 1px solid hsl(var(--warm-gray) / 0.3);
-    border-bottom: 1px solid hsl(var(--warm-gray) / 0.3);
+    border-bottom: 0.5px solid hsl(var(--warm-gray) / 0.2);
   }
 
   .tab-button {
@@ -165,7 +165,7 @@
     background-color: hsl(var(--background));
     border: none;
     border-right: 1px solid hsl(var(--warm-gray) / 0.3);
-    border-bottom: 1px solid hsl(var(--warm-gray) / 0.3);
+    border-bottom: 0.5px solid hsl(var(--warm-gray) / 0.2);
     cursor: pointer;
     font-weight: bold;
     transition: all 0.2s;
@@ -194,7 +194,7 @@
   .tab-button.active {
     background-color: hsl(var(--primary-purple));
     color: white;
-    border-bottom: 1px solid hsl(var(--primary-purple));
+    border-bottom: 0.5px solid hsl(var(--primary-purple));
   }
 
   .tab-content {
