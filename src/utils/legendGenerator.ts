@@ -8,46 +8,26 @@ export interface LegendItem {
   icon?: string;
 }
 
+interface CustomEmotion {
+  color: string;
+  name: string;
+}
+
 export function generateLegendData(
-  bodyPartColors: Record<string, string>,
+  selectedEmotions: CustomEmotion[],
   sensationMarks: SensationMark[]
 ): LegendItem[] {
   const legendItems: LegendItem[] = [];
 
-  // Find active emotions (colors that are actually used)
-  const usedColors = new Set(Object.values(bodyPartColors));
-  console.log('🎨 Used colors from bodyPartColors:', usedColors, bodyPartColors);
-  console.log('🎨 Available emotional colors:', emotionalColors.map(e => ({ name: e.name, color: e.color })));
-  
-  // For colors that don't match emotional colors exactly, we'll still show them
-  // First, add exact matches from emotional colors
-  emotionalColors.forEach(emotion => {
-    const hasExactMatch = usedColors.has(emotion.color);
-    const hasUppercaseMatch = usedColors.has(emotion.color.toUpperCase());
-    const hasLowercaseMatch = usedColors.has(emotion.color.toLowerCase());
-    
-    if (hasExactMatch || hasUppercaseMatch || hasLowercaseMatch) {
-      console.log('✅ Adding emotion to legend:', emotion.name, emotion.color);
+  // Add emotions that have been configured (have names)
+  selectedEmotions.forEach((emotion, index) => {
+    // Only include emotions that have been given a name (not just default placeholder)
+    if (emotion.name && emotion.name.trim() !== '' && emotion.name !== 'Enter emotion') {
+      console.log('✅ Adding selected emotion to legend:', emotion.name, emotion.color);
       legendItems.push({
         type: 'emotion',
         name: emotion.name,
         color: emotion.color
-      });
-    }
-  });
-
-  // Add any colors that weren't matched as "Custom Color"
-  Object.values(bodyPartColors).forEach((color, index) => {
-    const isAlreadyAdded = legendItems.some(item => 
-      item.color.toLowerCase() === color.toLowerCase()
-    );
-    
-    if (!isAlreadyAdded) {
-      console.log('✅ Adding custom color to legend:', color);
-      legendItems.push({
-        type: 'emotion',
-        name: `Custom Color ${index + 1}`,
-        color: color
       });
     }
   });

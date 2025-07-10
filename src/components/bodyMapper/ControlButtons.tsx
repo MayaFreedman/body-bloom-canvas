@@ -18,14 +18,15 @@ interface ControlButtonsProps {
   screenshotRef?: React.RefObject<ScreenshotCaptureHandle>;
   bodyPartColors?: Record<string, string>;
   sensationMarks?: SensationMark[];
+  selectedColor?: string; // Add selectedColor to know what's currently selected
 }
 
-export const ControlButtons = ({ 
-  onResetAll, 
-  onUndo, 
-  onRedo, 
-  canUndo = false, 
-  canRedo = false, 
+export const ControlButtons = ({
+  onResetAll,
+  onUndo,
+  onRedo,
+  canUndo = false,
+  canRedo = false,
   canvasRef,
   drawingTarget = 'body',
   mode = 'draw',
@@ -33,12 +34,20 @@ export const ControlButtons = ({
   onControlButtonsHover,
   screenshotRef,
   bodyPartColors = {},
-  sensationMarks = []
+  sensationMarks = [],
+  selectedColor = '#f44336'
 }: ControlButtonsProps) => {
+  // Create default emotions list to determine what should be in legend
+  const defaultEmotions = [
+    { color: '#ffeb3b', name: 'Joy' },
+    { color: '#2196f3', name: 'Sadness' },
+    { color: '#f44336', name: 'Anger' },
+  ];
+  
   // Enhanced screenshot functionality with legend
   const screenshotComposer = screenshotRef ? ScreenshotComposer({
     screenshotCaptureRef: screenshotRef,
-    bodyPartColors,
+    selectedEmotions: defaultEmotions,
     sensationMarks
   }) : null;
 
