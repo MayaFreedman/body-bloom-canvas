@@ -101,9 +101,9 @@ export const TextControls = ({
           </div>
 
           {/* Font Family and Style in one row */}
-          <div className="space-y-3">
-            <h5 className="font-medium text-gray-800 text-[16px] mb-2">Font & Style</h5>
+          <div className="space-y-2">
             <div className="flex gap-2 items-center">
+              <h5 className="font-medium text-gray-800 text-[16px] whitespace-nowrap">Style:</h5>
               {/* Font Family */}
               <Select
                 value={textSettings.fontFamily}
