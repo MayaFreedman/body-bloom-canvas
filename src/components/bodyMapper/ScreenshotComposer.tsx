@@ -56,13 +56,13 @@ export const ScreenshotComposer = ({
         // Draw the original screenshot on the left
         ctx.drawImage(img, 0, 0);
         
-        // Draw sidebar background
-        ctx.fillStyle = 'rgba(254, 254, 254, 0.98)';
+        // Draw sidebar background - match real sidebar styling
+        ctx.fillStyle = 'rgba(254, 254, 254, 0.95)'; // --cream with transparency
         ctx.fillRect(img.width, 0, sidebarWidth, img.height);
         
-        // Draw sidebar border
-        ctx.strokeStyle = '#B8C9B5';
-        ctx.lineWidth = 2;
+        // Draw sidebar border - grey like real sidebar
+        ctx.strokeStyle = 'rgba(109, 106, 117, 0.3)'; // --warm-gray with transparency
+        ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.moveTo(img.width, 0);
         ctx.lineTo(img.width, img.height);
@@ -78,6 +78,23 @@ export const ScreenshotComposer = ({
       img.src = webglDataUrl;
     });
   }, [screenshotCaptureRef, emotions, sensationMarks]);
+
+  // Helper function to get icon symbol for sensation
+  const getIconSymbol = (iconName: string): string => {
+    const iconMap: Record<string, string> = {
+      'butterfly': '🦋',
+      'Zap': '⚡',
+      'Wind': '💨', 
+      'Droplet': '💧',
+      'Snowflake': '❄️',
+      'Thermometer': '🌡️',
+      'Heart': '❤️',
+      'Activity': '📊',
+      'Star': '⭐',
+      'Sparkles': '✨'
+    };
+    return iconMap[iconName] || '◆';
+  };
 
   const drawLogo = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
     // Draw "Body Mapping by" text - normal size, positioned on main image
@@ -119,30 +136,34 @@ export const ScreenshotComposer = ({
     const sensations = legendItems.filter(item => item.type === 'sensation');
     
     const padding = 20;
-    const itemHeight = 50; // Increased from 40
-    const sectionSpacing = 40; // Increased spacing
+    const itemHeight = 55; // Increased for larger text
+    const sectionSpacing = 40;
     const sidebarX = mainImageWidth + padding;
-    const headerHeight = 60; // Height for styled headers
+    const headerHeight = 60;
     
     ctx.save();
     
-    let currentY = 40; // Start position
+    let currentY = 40;
     
     // Draw "Feeling Colours" section
     if (emotions.length > 0) {
-      // Draw purple header background
+      // Draw purple header background with subtle styling
       ctx.fillStyle = '#898AC4'; // --primary-purple
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.1)';
+      ctx.shadowBlur = 4;
+      ctx.shadowOffsetY = 2;
       ctx.roundRect(sidebarX, currentY - 10, sidebarWidth - padding * 2, headerHeight, 8);
       ctx.fill();
+      ctx.shadowBlur = 0; // Reset shadow
       
       // Draw header text
-      ctx.fillStyle = '#FFFFFF'; // White text on purple background
-      ctx.font = 'bold 24px Arial, sans-serif'; // Increased from 20px
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = 'bold 24px Arial, sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText('Feeling Colours', sidebarX + (sidebarWidth - padding * 2) / 2, currentY + 25);
       ctx.textAlign = 'left';
       
-      currentY += headerHeight + 20;
+      currentY += headerHeight + 25;
       
       emotions.forEach((item, index) => {
         const itemY = currentY + index * itemHeight;
@@ -150,13 +171,18 @@ export const ScreenshotComposer = ({
         // Draw color circle - larger
         ctx.fillStyle = item.color;
         ctx.beginPath();
-        ctx.arc(sidebarX + 15, itemY, 12, 0, Math.PI * 2); // Increased from 8 to 12
+        ctx.arc(sidebarX + 18, itemY, 14, 0, Math.PI * 2); // Increased size
         ctx.fill();
+        
+        // Add subtle border to color circle
+        ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
         
         // Draw emotion name - larger text
         ctx.fillStyle = '#2E315E'; // --deep-navy
-        ctx.font = '20px Arial, sans-serif'; // Increased from 16px
-        ctx.fillText(item.name, sidebarX + 40, itemY + 7);
+        ctx.font = '24px Arial, sans-serif'; // Increased from 20px
+        ctx.fillText(item.name, sidebarX + 45, itemY + 8);
       });
       
       currentY += emotions.length * itemHeight + sectionSpacing;
@@ -164,40 +190,50 @@ export const ScreenshotComposer = ({
     
     // Draw "Body Sensations" section
     if (sensations.length > 0) {
-      // Draw purple header background
+      // Draw purple header background with subtle styling
       ctx.fillStyle = '#898AC4'; // --primary-purple
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.1)';
+      ctx.shadowBlur = 4;
+      ctx.shadowOffsetY = 2;
       ctx.roundRect(sidebarX, currentY - 10, sidebarWidth - padding * 2, headerHeight, 8);
       ctx.fill();
+      ctx.shadowBlur = 0; // Reset shadow
       
       // Draw header text
-      ctx.fillStyle = '#FFFFFF'; // White text on purple background
-      ctx.font = 'bold 24px Arial, sans-serif'; // Increased from 20px
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = 'bold 24px Arial, sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText('Body Sensations', sidebarX + (sidebarWidth - padding * 2) / 2, currentY + 25);
       ctx.textAlign = 'left';
       
-      currentY += headerHeight + 20;
+      currentY += headerHeight + 25;
       
       sensations.forEach((item, index) => {
         const itemY = currentY + index * itemHeight;
         
-        // Draw icon placeholder - larger
+        // Draw icon background circle
         ctx.fillStyle = item.color;
         ctx.beginPath();
-        ctx.arc(sidebarX + 15, itemY, 10, 0, Math.PI * 2); // Increased from 6 to 10
+        ctx.arc(sidebarX + 18, itemY, 12, 0, Math.PI * 2);
         ctx.fill();
         
-        // Draw icon symbol - larger
+        // Add subtle border
+        ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        
+        // Draw specific icon symbol for this sensation
         ctx.fillStyle = '#FFFFFF';
-        ctx.font = 'bold 14px Arial, sans-serif'; // Increased from 10px
+        ctx.font = 'bold 16px Arial, sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText('◆', sidebarX + 15, itemY + 4);
+        const iconSymbol = getIconSymbol(item.icon || '');
+        ctx.fillText(iconSymbol, sidebarX + 18, itemY + 5);
         ctx.textAlign = 'left';
         
         // Draw sensation name - larger text
         ctx.fillStyle = '#2E315E'; // --deep-navy
-        ctx.font = '20px Arial, sans-serif'; // Increased from 16px
-        ctx.fillText(item.name, sidebarX + 40, itemY + 7);
+        ctx.font = '24px Arial, sans-serif'; // Increased from 20px
+        ctx.fillText(item.name, sidebarX + 45, itemY + 8);
       });
     }
     
