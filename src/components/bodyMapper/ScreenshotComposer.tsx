@@ -69,7 +69,7 @@ export const ScreenshotComposer = ({
         ctx.stroke();
         
         // Add overlays to main image
-        drawLogo(ctx, img.width, img.height);
+        await drawLogo(ctx, img.width, img.height);
         drawDate(ctx);
         await drawSidebarLegend(ctx, legendItems, img.width, sidebarWidth, img.height);
         
@@ -106,18 +106,36 @@ export const ScreenshotComposer = ({
     });
   };
 
-  const drawLogo = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
-    // Draw "Body Mapping by" text - normal size, positioned on main image
-    ctx.save();
-    ctx.fillStyle = '#6D6A75'; // --warm-gray
-    ctx.font = '14px Arial, sans-serif';
-    ctx.fillText('Body Mapping by', 16, height - 50);
-    
-    // Draw "PlaySpace" text - normal size
-    ctx.fillStyle = '#2E315E'; // --deep-navy
-    ctx.font = 'bold 16px Arial, sans-serif';
-    ctx.fillText('PlaySpace', 16, height - 28);
-    ctx.restore();
+  const drawLogo = async (ctx: CanvasRenderingContext2D, width: number, height: number) => {
+    try {
+      // Load the PlaySpace logo
+      const logoImage = await loadImage('/lovable-uploads/924b5d58-1cee-4f88-95a3-4534f584bbaf.png');
+      
+      // Draw "Body Mapping by" text - larger
+      ctx.save();
+      ctx.fillStyle = '#6D6A75'; // --warm-gray
+      ctx.font = '18px Arial, sans-serif'; // Increased from 14px
+      ctx.fillText('Body Mapping by', 20, height - 80); // Moved up more to make room
+      
+      // Draw PlaySpace logo - sized up
+      const logoHeight = 32; // Increased from ~20px (h-5)
+      const logoWidth = logoImage.width * (logoHeight / logoImage.height); // Maintain aspect ratio
+      ctx.drawImage(logoImage, 20, height - 60, logoWidth, logoHeight); // Positioned below text
+      
+      ctx.restore();
+    } catch (error) {
+      console.warn('Failed to load PlaySpace logo, using fallback text');
+      // Fallback to text if logo fails to load
+      ctx.save();
+      ctx.fillStyle = '#6D6A75'; // --warm-gray
+      ctx.font = '18px Arial, sans-serif';
+      ctx.fillText('Body Mapping by', 20, height - 80);
+      
+      ctx.fillStyle = '#2E315E'; // --deep-navy
+      ctx.font = 'bold 20px Arial, sans-serif';
+      ctx.fillText('PlaySpace', 20, height - 50);
+      ctx.restore();
+    }
   };
 
   const drawDate = (ctx: CanvasRenderingContext2D) => {
@@ -132,8 +150,8 @@ export const ScreenshotComposer = ({
     
     ctx.save();
     ctx.fillStyle = '#2E315E'; // --deep-navy
-    ctx.font = '14px Arial, sans-serif';
-    ctx.fillText(dateString, 16, 30);
+    ctx.font = 'bold 36px Arial, sans-serif'; // WAY bigger - increased from 14px to 36px
+    ctx.fillText(dateString, 20, 50); // Adjusted positioning
     ctx.restore();
   };
 
@@ -146,7 +164,7 @@ export const ScreenshotComposer = ({
     const sensations = legendItems.filter(item => item.type === 'sensation');
     
     const padding = 20;
-    const itemHeight = 55;
+    const itemHeight = 60; // Increased from 55 for slightly bigger items
     const sectionSpacing = 40;
     const sidebarX = mainImageWidth + padding;
     const headerHeight = 60;
@@ -178,10 +196,10 @@ export const ScreenshotComposer = ({
       emotions.forEach((item, index) => {
         const itemY = currentY + index * itemHeight;
         
-        // Draw color circle - larger
+        // Draw color circle - slightly larger
         ctx.fillStyle = item.color;
         ctx.beginPath();
-        ctx.arc(sidebarX + 18, itemY, 14, 0, Math.PI * 2);
+        ctx.arc(sidebarX + 18, itemY, 16, 0, Math.PI * 2); // Increased from 14 to 16
         ctx.fill();
         
         // Add subtle border to color circle
@@ -189,10 +207,10 @@ export const ScreenshotComposer = ({
         ctx.lineWidth = 1;
         ctx.stroke();
         
-        // Draw emotion name - larger text
+        // Draw emotion name - slightly larger text
         ctx.fillStyle = '#2E315E'; // --deep-navy
-        ctx.font = '24px Arial, sans-serif';
-        ctx.fillText(item.name, sidebarX + 45, itemY + 8);
+        ctx.font = '26px Arial, sans-serif'; // Increased from 24px to 26px
+        ctx.fillText(item.name, sidebarX + 45, itemY + 9); // Adjusted y position
       });
       
       currentY += emotions.length * itemHeight + sectionSpacing;
@@ -228,8 +246,8 @@ export const ScreenshotComposer = ({
           const imagePath = getImagePath(item.icon || '');
           const iconImage = await loadImage(imagePath);
           
-          // Draw icon image
-          const iconSize = 24; // Size of the icon
+          // Draw icon image - slightly larger
+          const iconSize = 28; // Increased from 24 to 28
           ctx.drawImage(
             iconImage,
             sidebarX + 18 - iconSize/2, // Center horizontally
@@ -259,10 +277,10 @@ export const ScreenshotComposer = ({
           ctx.textAlign = 'left';
         }
         
-        // Draw sensation name - larger text
+        // Draw sensation name - slightly larger text
         ctx.fillStyle = '#2E315E'; // --deep-navy
-        ctx.font = '24px Arial, sans-serif';
-        ctx.fillText(item.name, sidebarX + 45, itemY + 8);
+        ctx.font = '26px Arial, sans-serif'; // Increased from 24px to 26px
+        ctx.fillText(item.name, sidebarX + 45, itemY + 9); // Adjusted y position
       }
     }
     
