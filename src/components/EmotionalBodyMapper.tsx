@@ -1,5 +1,5 @@
 
-import React, { useRef } from 'react';
+import React, { useRef, useState, useCallback } from 'react';
 import { BottomBrand } from './bodyMapper/BottomBrand';
 import { MultiplayerMessageHandler } from './bodyMapper/MultiplayerMessageHandler';
 import { BodyMapperLayout } from './bodyMapper/BodyMapperLayout';
@@ -21,6 +21,16 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
   const currentUserId = React.useMemo(() => `user-${Date.now()}-${Math.random()}`, []);
 
   const multiplayer = useMultiplayer(roomId);
+
+  // Manage emotions state locally
+  const [emotions, setEmotions] = useState([
+    { color: '#ffeb3b', name: 'Joy' },
+    { color: '#2196f3', name: 'Sadness' },
+    { color: '#f44336', name: 'Anger' },
+    { color: '#4caf50', name: '' },
+    { color: '#9c27b0', name: '' },
+    { color: '#ff9800', name: '' }
+  ]);
 
   const {
     mode,
@@ -110,6 +120,48 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     multiplayer 
   });
 
+  // Handle emotions updates from controls - now that handleEmotionsUpdate is available
+  const handleLocalEmotionsUpdate = useCallback((updateData: any) => {
+    switch (updateData.type) {
+      case 'emotionsInit':
+        if (updateData.emotions) {
+          setEmotions(updateData.emotions);
+        }
+        break;
+      case 'emotionColorChange':
+        if (updateData.index !== undefined && updateData.value) {
+          setEmotions(prev => {
+            const newEmotions = [...prev];
+            newEmotions[updateData.index].color = updateData.value;
+            return newEmotions;
+          });
+        }
+        break;
+      case 'emotionNameChange':
+        if (updateData.index !== undefined && updateData.value !== undefined) {
+          setEmotions(prev => {
+            const newEmotions = [...prev];
+            newEmotions[updateData.index].name = updateData.value;
+            return newEmotions;
+          });
+        }
+        break;
+      case 'addEmotion':
+        if (updateData.emotion) {
+          setEmotions(prev => [...prev, updateData.emotion]);
+        }
+        break;
+      case 'deleteEmotion':
+        if (updateData.index !== undefined) {
+          setEmotions(prev => prev.filter((_, i) => i !== updateData.index));
+        }
+        break;
+    }
+    
+    // Also broadcast to multiplayer
+    handleEmotionsUpdate(updateData);
+  }, [handleEmotionsUpdate]);
+
   // Handle multiplayer erasing - broadcast to other users
   const handleMultiplayerErase = (center: THREE.Vector3, radius: number, surface: 'body' | 'whiteboard' = 'body') => {
     console.log('🧹 MULTIPLAYER ERASE: Local', surface, 'erase requested at', center, 'with radius', radius);
@@ -190,6 +242,7 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
         modelRef={modelRef}
         textToPlace={textToPlace}
         bodyPartColors={bodyPartColors}
+        emotions={emotions}
         whiteboardBackground={whiteboardBackground}
         rotation={rotation}
         textSettings={textSettings}
@@ -223,7 +276,7 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
         onResetAll={handleResetAll}
         onUndo={handleUndo}
         onRedo={handleRedo}
-        onEmotionsUpdate={handleEmotionsUpdate}
+        onEmotionsUpdate={handleLocalEmotionsUpdate}
       />
 
       <BottomBrand

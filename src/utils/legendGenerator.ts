@@ -8,18 +8,20 @@ export interface LegendItem {
   icon?: string;
 }
 
+interface CustomEmotion {
+  color: string;
+  name: string;
+}
+
 export function generateLegendData(
-  bodyPartColors: Record<string, string>,
+  emotions: CustomEmotion[],
   sensationMarks: SensationMark[]
 ): LegendItem[] {
   const legendItems: LegendItem[] = [];
 
-  // Find active emotions (colors that are actually used)
-  const usedColors = new Set(Object.values(bodyPartColors));
-  console.log('🎨 Used colors from bodyPartColors:', usedColors, bodyPartColors);
-  
-  emotionalColors.forEach(emotion => {
-    if (usedColors.has(emotion.color)) {
+  // Find active emotions (emotions with non-empty names)
+  emotions.forEach(emotion => {
+    if (emotion.name && emotion.name.trim() !== '') {
       console.log('✅ Adding emotion to legend:', emotion.name, emotion.color);
       legendItems.push({
         type: 'emotion',

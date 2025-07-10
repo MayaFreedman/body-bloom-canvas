@@ -27,6 +27,7 @@ interface BodyMapperLayoutProps {
   textToPlace?: string;
   editingTextId: string | null;
   bodyPartColors: Record<string, string>;
+  emotions?: Array<{ color: string; name: string }>;
   whiteboardBackground?: string;
   rotation: number;
   modelRef: React.RefObject<THREE.Group>;
@@ -76,6 +77,7 @@ export const BodyMapperLayout = ({
   textToPlace,
   editingTextId,
   bodyPartColors,
+  emotions,
   whiteboardBackground,
   rotation,
   modelRef,
@@ -169,7 +171,7 @@ export const BodyMapperLayout = ({
           isActivelyDrawing={isActivelyDrawing}
           onControlButtonsHover={setIsHoveringControlButtons}
           screenshotRef={screenshotRef}
-          bodyPartColors={bodyPartColors}
+          emotions={emotions || []}
           sensationMarks={sensationMarks}
         />
       </div>

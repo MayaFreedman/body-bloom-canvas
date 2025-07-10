@@ -4,6 +4,11 @@ import { ScreenshotCaptureHandle } from './ScreenshotCapture';
 import { ScreenshotComposer } from './ScreenshotComposer';
 import { SensationMark } from '@/types/bodyMapperTypes';
 
+interface CustomEmotion {
+  color: string;
+  name: string;
+}
+
 interface ControlButtonsProps {
   onResetAll: () => void;
   onUndo?: () => void;
@@ -16,7 +21,7 @@ interface ControlButtonsProps {
   isActivelyDrawing?: boolean;
   onControlButtonsHover?: (isHovering: boolean) => void;
   screenshotRef?: React.RefObject<ScreenshotCaptureHandle>;
-  bodyPartColors?: Record<string, string>;
+  emotions?: CustomEmotion[];
   sensationMarks?: SensationMark[];
 }
 
@@ -32,13 +37,13 @@ export const ControlButtons = ({
   isActivelyDrawing = false,
   onControlButtonsHover,
   screenshotRef,
-  bodyPartColors = {},
+  emotions = [],
   sensationMarks = []
 }: ControlButtonsProps) => {
   // Enhanced screenshot functionality with legend
   const screenshotComposer = screenshotRef ? ScreenshotComposer({
     screenshotCaptureRef: screenshotRef,
-    bodyPartColors,
+    emotions,
     sensationMarks
   }) : null;
 
