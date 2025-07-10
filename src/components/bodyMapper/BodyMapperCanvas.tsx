@@ -207,7 +207,8 @@ export const BodyMapperCanvas = ({
         gl={{ 
           outputColorSpace: 'srgb',
           toneMapping: 0, // NoToneMapping
-          toneMappingExposure: 1
+          toneMappingExposure: 1,
+          preserveDrawingBuffer: true
         }}
         onCreated={(state) => {
           setGlRenderer(state.gl);
