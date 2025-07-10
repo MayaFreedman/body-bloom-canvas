@@ -42,8 +42,7 @@ const MOVEMENT_BEHAVIORS = [
 
 const PRESET_COLORS = [
   '#ef4444', '#f97316', '#eab308', '#22c55e', 
-  '#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899',
-  '#f43f5e', '#84cc16', '#06b6d4', '#6366f1'
+  '#3b82f6', '#8b5cf6', '#ec4899', '#06b6d4'
 ];
 
 export const CustomEffectDialog: React.FC<CustomEffectDialogProps> = ({
@@ -142,28 +141,25 @@ export const CustomEffectDialog: React.FC<CustomEffectDialogProps> = ({
           </div>
 
           {/* Color Selection */}
-          <div className="space-y-2">
-            <Label>Select Color</Label>
-            <div className="flex items-center gap-2">
-              <div className="grid grid-cols-8 gap-1 flex-1">
-                {PRESET_COLORS.map((color) => (
-                  <button
-                    key={color}
-                    type="button"
-                    onClick={() => updateForm({ color })}
-                    className={`w-6 h-6 rounded border transition-all ${
-                      form.color === color ? 'border-foreground scale-110' : 'border-border'
-                    }`}
-                    style={{ backgroundColor: color }}
-                  />
-                ))}
-              </div>
+          <div className="space-y-1">
+            <Label className="text-sm">Color</Label>
+            <div className="flex items-center gap-1">
+              {PRESET_COLORS.map((color) => (
+                <button
+                  key={color}
+                  type="button"
+                  onClick={() => updateForm({ color })}
+                  className={`w-5 h-5 rounded border ${
+                    form.color === color ? 'border-foreground' : 'border-border'
+                  }`}
+                  style={{ backgroundColor: color }}
+                />
+              ))}
               <input
                 type="color"
                 value={form.color}
                 onChange={(e) => updateForm({ color: e.target.value })}
-                className="w-8 h-6 rounded border cursor-pointer"
-                title="Custom color"
+                className="w-5 h-5 rounded border cursor-pointer ml-1"
               />
             </div>
           </div>
