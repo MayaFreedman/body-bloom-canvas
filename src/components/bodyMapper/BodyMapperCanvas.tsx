@@ -176,7 +176,7 @@ export const BodyMapperCanvas = ({
           <TextRenderer 
             textMarks={textMarks.filter(mark => mark.surface === 'body')} 
             onTextClick={onTextClick}
-            rotation={rotation + Math.PI / 2}
+            rotation={rotation}
           />
         </group>
         

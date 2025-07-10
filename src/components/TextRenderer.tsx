@@ -56,8 +56,10 @@ const TextMarkComponent = ({
     
     // Add small Z offset in the direction the model is facing to prevent clipping during breathing
     const zOffset = 0.08;
-    const facingX = Math.sin(rotation);
-    const facingZ = Math.cos(rotation);
+    // Account for the model's base rotation of Math.PI / 2
+    const adjustedRotation = rotation + Math.PI / 2;
+    const facingX = Math.sin(adjustedRotation);
+    const facingZ = Math.cos(adjustedRotation);
     
     basePos.x += facingX * zOffset;
     basePos.z += facingZ * zOffset;
