@@ -169,7 +169,7 @@
   }
 
   .tab-button.active {
-    background-color: #A2AADB; /* Purple from new palette */
+    background-color: #6B6FA3; /* Darker purple for active states */
     color: white;
   }
 
@@ -294,7 +294,7 @@
     align-items: center;
     justify-content: center;
     padding: 16px 32px;
-    background-color: #898AC4;
+    background-color: #6B6FA3; /* Darker purple for active states */
     color: white;
     border: none;
     border-radius: 8px;
@@ -307,7 +307,7 @@
   }
 
   .main-snapshot-button:hover {
-    background-color: #7A7BB5;
+    background-color: #898AC4;
     transform: scale(1.05);
     box-shadow: 0 4px 8px rgba(0,0,0,0.3);
   }
@@ -361,6 +361,12 @@
   .game-button-primary:hover {
     background-color: #C0C9EE; /* Light purple hover */
     color: #222;
+  }
+
+  .game-button-primary:active,
+  .game-button-primary.active {
+    background-color: #6B6FA3; /* Darker purple for active states */
+    color: white;
   }
 
   .game-button-destructive {
