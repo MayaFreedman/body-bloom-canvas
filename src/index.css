@@ -7,13 +7,13 @@
 
 @layer base {
   :root {
-    --background: 32 50% 98%; /* Light Cream #FDFBF8 */
+    --background: 32 30% 99%; /* Very Light Cream #FEFEFE */
     --foreground: 235 33% 28%; /* Deep Navy #2E315E */
 
-    --card: 32 50% 98%; /* Light Cream #FDFBF8 */
+    --card: 32 30% 99%; /* Very Light Cream #FEFEFE */
     --card-foreground: 235 33% 28%; /* Deep Navy #2E315E */
 
-    --popover: 32 50% 98%; /* Light Cream #FDFBF8 */
+    --popover: 32 30% 99%; /* Very Light Cream #FEFEFE */
     --popover-foreground: 235 33% 28%; /* Deep Navy #2E315E */
 
     --primary: 240 39% 66%; /* Primary Purple #898AC4 */
@@ -22,7 +22,7 @@
     --secondary: 108 25% 69%; /* Sage Green #A7C2A0 */
     --secondary-foreground: 235 33% 28%; /* Deep Navy #2E315E */
 
-    --muted: 32 50% 98%; /* Light Cream #FDFBF8 */
+    --muted: 32 30% 99%; /* Very Light Cream #FEFEFE */
     --muted-foreground: 264 7% 44%; /* Warm Gray #6D6A75 */
 
     --accent: 240 39% 66%; /* Primary Purple #898AC4 */
@@ -34,7 +34,7 @@
     /* Custom color variables for expanded palette */
     --primary-purple: 240 39% 66%; /* #898AC4 */
     --deep-navy: 235 33% 28%; /* #2E315E */
-    --cream: 32 50% 98%; /* #FDFBF8 */
+    --cream: 32 30% 99%; /* #FEFEFE */
     --soft-coral: 6 85% 74%; /* #F58A82 */
     --sage-green: 108 25% 69%; /* #A7C2A0 */
     --warm-gray: 264 7% 44%; /* #6D6A75 */
