@@ -118,21 +118,19 @@ export const BodyMapperCanvas = ({
       {/* Left Rotation Button */}
       <Button
         variant="outline"
-        size="icon"
-        className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10 bg-white/80 hover:bg-white"
+        className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10 h-12 w-12 bg-white/90 hover:bg-white border-2 border-gray-200 hover:border-gray-300 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
         onClick={onRotateLeft}
       >
-        <CornerDownLeft className="w-6 h-6" />
+        <CornerDownLeft className="w-8 h-8" />
       </Button>
 
       {/* Right Rotation Button */}
       <Button
         variant="outline"
-        size="icon"
-        className="absolute right-4 top-1/2 transform -translate-y-1/2 z-10 bg-white/80 hover:bg-white"
+        className="absolute right-4 top-1/2 transform -translate-y-1/2 z-10 h-12 w-12 bg-white/90 hover:bg-white border-2 border-gray-200 hover:border-gray-300 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
         onClick={onRotateRight}
       >
-        <CornerDownRight className="w-6 h-6" />
+        <CornerDownRight className="w-8 h-8" />
       </Button>
 
       <Canvas 
