@@ -65,7 +65,7 @@ export const EmotionRow = ({
         value={emotion}
         placeholder={placeholder}
         onChange={(e) => onEmotionChange(e.target.value)}
-        className="flex-1 border border-foreground/20 rounded-lg px-4 py-2 text-base hover:border-foreground/40 focus:border-foreground focus:outline-none transition-all"
+        className="flex-1 border border-foreground/20 rounded-lg px-4 py-2 text-base hover:border-foreground/40 focus:border-foreground focus:outline-none focus:ring-0 transition-all"
       />
     </div>
   );

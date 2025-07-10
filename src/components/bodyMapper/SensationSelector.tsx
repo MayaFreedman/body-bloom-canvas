@@ -101,7 +101,7 @@ export const SensationSelector = ({ mode, selectedSensation, onModeChange, onSen
           return (
             <button
               key={index}
-              className={`flex flex-col items-center p-3 border rounded-lg transition-all ${
+              className={`flex flex-col items-center p-3 border rounded-lg transition-all outline-none focus:outline-none ${
                 isSelected 
                   ? 'border-foreground bg-primary/10 shadow-md transform scale-105' 
                   : 'border-foreground/20 hover:bg-muted hover:border-foreground/40'
