@@ -35,6 +35,27 @@ import goosebumpTexture from '@/Assets/particleEffects/goosebump.png';
 import relaxTexture from '@/Assets/particleEffects/relax.png';
 import sweatTexture from '@/Assets/particleEffects/sweat.png';
 
+// Import custom effect icons for particle rendering
+import flowerTexture from '@/Assets/particleEffects/flower.png';
+import tornadoTexture from '@/Assets/particleEffects/tornado.png';
+import chickenTexture from '@/Assets/particleEffects/chicken.png';
+import stormTexture from '@/Assets/particleEffects/storm.png';
+import explosionTexture from '@/Assets/particleEffects/explosion.png';
+import supportheartTexture from '@/Assets/particleEffects/supportheart.png';
+import baloonTexture from '@/Assets/particleEffects/baloon.png';
+import musicalNoteTexture from '@/Assets/particleEffects/musical-note.png';
+import catTexture from '@/Assets/particleEffects/cat.png';
+import dogTexture from '@/Assets/particleEffects/dog.png';
+import racecarTexture from '@/Assets/particleEffects/racecar.png';
+import rollerCoasterTexture from '@/Assets/particleEffects/roller-coaster.png';
+import brokenHeartTexture from '@/Assets/particleEffects/broken-heart.png';
+import robotTexture from '@/Assets/particleEffects/robot.png';
+import bicepsTexture from '@/Assets/particleEffects/biceps.png';
+import wingsTexture from '@/Assets/particleEffects/wings.png';
+import alarmTexture from '@/Assets/particleEffects/alarm.png';
+import spaceshipTexture from '@/Assets/particleEffects/spaceship.png';
+import shieldTexture from '@/Assets/particleEffects/shield.png';
+
 interface SensationParticle {
   position: THREE.Vector3;
   velocity: THREE.Vector3;
@@ -73,6 +94,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
     const loader = new TextureLoader();
     
     return {
+      // Built-in sensation textures
       butterfly: loader.load(butterflyTexture),
       pain: loader.load(painTexture),
       swirl: loader.load(swirlTexture),
@@ -101,17 +123,38 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       wavy: loader.load(wavyTexture),
       goosebump: loader.load(goosebumpTexture),
       relax: loader.load(relaxTexture),
-      sweat: loader.load(sweatTexture)
+      sweat: loader.load(sweatTexture),
+
+      // Custom effect textures
+      flower: loader.load(flowerTexture),
+      tornado: loader.load(tornadoTexture),
+      chicken: loader.load(chickenTexture),
+      storm: loader.load(stormTexture),
+      explosion: loader.load(explosionTexture),
+      supportheart: loader.load(supportheartTexture),
+      baloon: loader.load(baloonTexture),
+      'musical-note': loader.load(musicalNoteTexture),
+      cat: loader.load(catTexture),
+      dog: loader.load(dogTexture),
+      racecar: loader.load(racecarTexture),
+      'roller-coaster': loader.load(rollerCoasterTexture),
+      'broken-heart': loader.load(brokenHeartTexture),
+      robot: loader.load(robotTexture),
+      biceps: loader.load(bicepsTexture),
+      wings: loader.load(wingsTexture),
+      alarm: loader.load(alarmTexture),
+      spaceship: loader.load(spaceshipTexture),
+      shield: loader.load(shieldTexture)
     };
   }, []);
 
   // Map sensation names to textures
   const getSensationTexture = (sensationName: string, isCustom?: boolean, customIcon?: string) => {
-    // Handle custom effects with generated textures
+    // Handle custom effects with their selected PNG icons
     if (isCustom && customIcon) {
-      // For custom effects, we'll use a basic star texture as fallback
-      // In a full implementation, we'd generate these dynamically
-      return textureMap.star;
+      // Use the custom icon texture if available, fallback to star
+      const texture = textureMap[customIcon as keyof typeof textureMap];
+      return texture || textureMap.star;
     }
     
     const textureMapping: { [key: string]: keyof typeof textureMap } = {
@@ -709,7 +752,20 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
           return profiles[sensationName] || { speed: 0.8, intensity: 0.6, pattern: 'flow', gravity: 0.0002, drift: new THREE.Vector3(0, 0.2, 0) };
         };
         
-        const animProfile = getAnimationProfile(mark.name || mark.icon);
+        // Handle custom effect animation profiles
+        let animProfile;
+        if (mark.isCustom && mark.movementBehavior) {
+          const customParams = getCustomEffectParams(mark.movementBehavior);
+          animProfile = {
+            speed: customParams.speed,
+            intensity: customParams.intensity,
+            pattern: 'custom',
+            gravity: 0.0002,
+            drift: new THREE.Vector3(0, 0.1, 0)
+          };
+        } else {
+          animProfile = getAnimationProfile(mark.name || mark.icon);
+        }
 
         // Update position based on animation profile with natural physics
         if (animProfile.pattern === 'electrical' || mark.icon === 'Activity' || mark.name === 'Nerves' || mark.name === 'Tingling') {
@@ -834,6 +890,62 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
           particle.position.add(particle.velocity);
           particle.velocity.multiplyScalar(0.98); // More damping for realistic movement
           
+        } else if (animProfile.pattern === 'custom') {
+          // Custom effect movement based on movement behavior
+          const customBehavior = mark.movementBehavior || 'moderate';
+          
+          if (customBehavior === 'gentle') {
+            // Gentle floating movement
+            const gentleFloat = Math.sin(time * 1.5 + particle.life * 0.2) * 0.0004 * animProfile.intensity;
+            const softDrift = Math.cos(time * 1.2 + particle.life * 0.15) * 0.0003 * animProfile.intensity;
+            
+            particle.velocity.x += gentleFloat * clampedDelta;
+            particle.velocity.y += softDrift * clampedDelta;
+            particle.velocity.z += (gentleFloat * 0.5) * clampedDelta;
+            
+            // Apply gravity and movement
+            particle.velocity.y += (animProfile.gravity || 0.0001) * clampedDelta;
+            particle.position.add(particle.velocity);
+            particle.velocity.multiplyScalar(0.97);
+            
+          } else if (customBehavior === 'energetic') {
+            // Energetic bursting movement
+            const burstForce = Math.sin(time * 6 + particle.life * 0.4) * 0.002 * animProfile.intensity;
+            const quickMovement = Math.cos(time * 8 + particle.life * 0.5) * 0.0015 * animProfile.intensity;
+            
+            // Occasional quick bursts
+            if (Math.random() < 0.03) {
+              particle.velocity.add(new THREE.Vector3(
+                (Math.random() - 0.5) * 0.002,
+                (Math.random() - 0.5) * 0.0015,
+                (Math.random() - 0.5) * 0.002
+              ));
+            }
+            
+            particle.velocity.x += burstForce * clampedDelta;
+            particle.velocity.y += quickMovement * clampedDelta;
+            particle.velocity.z += (burstForce * 0.8) * clampedDelta;
+            
+            // Apply gravity and movement
+            particle.velocity.y += (animProfile.gravity || 0.0003) * clampedDelta;
+            particle.position.add(particle.velocity);
+            particle.velocity.multiplyScalar(0.92);
+            
+          } else {
+            // Moderate movement (default)
+            const moderateFloat = Math.sin(time * 3 + particle.life * 0.3) * 0.0008 * animProfile.intensity;
+            const naturalDrift = Math.cos(time * 2.5 + particle.life * 0.25) * 0.0006 * animProfile.intensity;
+            
+            particle.velocity.x += moderateFloat * clampedDelta;
+            particle.velocity.y += naturalDrift * clampedDelta;
+            particle.velocity.z += (moderateFloat * 0.6) * clampedDelta;
+            
+            // Apply gravity and movement
+            particle.velocity.y += (animProfile.gravity || 0.0002) * clampedDelta;
+            particle.position.add(particle.velocity);
+            particle.velocity.multiplyScalar(0.95);
+          }
+          
         } else {
           // Default fluid movement for all other sensations
           
@@ -953,6 +1065,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             map={sensationTexture} 
             transparent 
             opacity={opacity * 0.8}
+            color={mark.isCustom && mark.color ? mark.color : '#ffffff'}
           />
         </sprite>
       );
