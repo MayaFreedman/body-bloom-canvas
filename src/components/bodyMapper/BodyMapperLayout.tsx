@@ -48,7 +48,7 @@ interface BodyMapperLayoutProps {
   onSensationClick: (position: THREE.Vector3, sensation: SelectedSensation) => void;
   onErase: (center: THREE.Vector3, radius: number, surface: 'body' | 'whiteboard') => void;
   onWhiteboardFill?: (color: string) => void;
-  onAddTextMark: (position: THREE.Vector3, text: string, surface: 'body' | 'whiteboard', color: string) => TextMark;
+  onTextPlace?: (position: THREE.Vector3, surface: 'body' | 'whiteboard') => void;
   onTextClick?: (textMark: TextMark) => void;
   onTextSave?: (text: string) => void;
   onTextCancel?: () => void;
@@ -97,7 +97,7 @@ export const BodyMapperLayout = ({
   onSensationClick,
   onErase,
   onWhiteboardFill,
-  onAddTextMark,
+  onTextPlace,
   onTextClick,
   onTextSave,
   onTextCancel,
@@ -144,7 +144,7 @@ export const BodyMapperLayout = ({
             onSensationDeselect={() => setSelectedSensation(null)}
             onErase={onErase}
             onWhiteboardFill={onWhiteboardFill}
-            onAddTextMark={onAddTextMark}
+            onTextPlace={onTextPlace}
             onTextClick={onTextClick}
             onTextSave={onTextSave}
             onTextCancel={onTextCancel}
