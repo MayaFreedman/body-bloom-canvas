@@ -53,7 +53,7 @@ const TextMarkComponent = ({
   }, [textMark.position]);
 
   return (
-    <group position={offsetPosition} rotation={[0, rotation + Math.PI, 0]}>
+    <group position={offsetPosition}>
       <Text
         {...fontStyle}
         maxWidth={2}
@@ -62,6 +62,7 @@ const TextMarkComponent = ({
         anchorY="middle"
         onPointerDown={handlePointerDown}
         onDoubleClick={handleDoubleClick}
+        rotation={[0, -rotation, 0]}
       >
         {textMark.text}
       </Text>
