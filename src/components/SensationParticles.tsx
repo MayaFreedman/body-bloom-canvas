@@ -1103,7 +1103,8 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       icon: mark.icon,
       isCustom: mark.isCustom,
       color: mark.color,
-      movementBehavior: mark.movementBehavior
+      movementBehavior: mark.movementBehavior,
+      allMarkProperties: Object.keys(mark)
     });
 
     // Check if this should be treated as a custom effect for coloring
