@@ -44,41 +44,13 @@ const TextMarkComponent = ({
   // Ensure position is a proper THREE.Vector3, handling serialized positions
   const offsetPosition = useMemo(() => {
     const pos = textMark.position;
-    let basePos: THREE.Vector3;
-    
     if (pos instanceof THREE.Vector3) {
-      basePos = pos.clone();
-    } else {
-      // Handle serialized positions that lost their Vector3 prototype
-      const posObj = pos as { x: number; y: number; z: number };
-      basePos = new THREE.Vector3(posObj.x || 0, posObj.y || 0, posObj.z || 0);
+      return pos;
     }
-    
-    // Add small Z offset in the direction the model is facing to prevent clipping during breathing
-    const zOffset = 0.08;
-    // Account for the model's base rotation of Math.PI / 2
-    const adjustedRotation = rotation + Math.PI / 2;
-    const facingX = Math.sin(adjustedRotation);
-    const facingZ = Math.cos(adjustedRotation);
-    
-    console.log('📍 TextMark position calc:', {
-      id: textMark.id,
-      originalPos: pos,
-      basePos: basePos,
-      rotation,
-      adjustedRotation,
-      facingX,
-      facingZ,
-      zOffset
-    });
-    
-    basePos.x += facingX * zOffset;
-    basePos.z += facingZ * zOffset;
-    
-    console.log('📍 Final text position:', basePos);
-    
-    return basePos;
-  }, [textMark.position, rotation, textMark.id]);
+    // Handle serialized positions that lost their Vector3 prototype
+    const posObj = pos as { x: number; y: number; z: number };
+    return new THREE.Vector3(posObj.x || 0, posObj.y || 0, posObj.z || 0);
+  }, [textMark.position]);
 
   return (
     <group position={offsetPosition}>
@@ -108,8 +80,6 @@ const TextMarkComponent = ({
 };
 
 export const TextRenderer = ({ textMarks, onTextClick, rotation }: TextRendererProps) => {
-  console.log('📝 TextRenderer: Rendering', textMarks.length, 'text marks, rotation:', rotation);
-  
   return (
     <>
       {textMarks.map((textMark) => (
