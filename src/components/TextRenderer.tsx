@@ -6,14 +6,17 @@ import * as THREE from 'three';
 interface TextRendererProps {
   textMarks: TextMark[];
   onTextClick?: (textMark: TextMark) => void;
+  rotation?: number;
 }
 
 const TextMarkComponent = ({ 
   textMark, 
-  onTextClick 
+  onTextClick,
+  rotation = 0
 }: { 
   textMark: TextMark; 
   onTextClick?: (textMark: TextMark) => void; 
+  rotation?: number;
 }) => {
   const handlePointerDown = (event: any) => {
     event.stopPropagation();
@@ -50,7 +53,7 @@ const TextMarkComponent = ({
   }, [textMark.position]);
 
   return (
-    <group position={offsetPosition}>
+    <group position={offsetPosition} rotation={[0, rotation, 0]}>
       <Text
         {...fontStyle}
         maxWidth={2}
@@ -75,7 +78,7 @@ const TextMarkComponent = ({
   );
 };
 
-export const TextRenderer = ({ textMarks, onTextClick }: TextRendererProps) => {
+export const TextRenderer = ({ textMarks, onTextClick, rotation }: TextRendererProps) => {
   return (
     <>
       {textMarks.map((textMark) => (
@@ -83,6 +86,7 @@ export const TextRenderer = ({ textMarks, onTextClick }: TextRendererProps) => {
           key={textMark.id}
           textMark={textMark}
           onTextClick={onTextClick}
+          rotation={rotation}
         />
       ))}
     </>
