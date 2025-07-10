@@ -111,6 +111,7 @@ export const BodyMapperLayout = ({
 }: BodyMapperLayoutProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isHoveringControlButtons, setIsHoveringControlButtons] = useState(false);
+  const screenshotRef = React.useRef<(() => void) | null>(null);
 
   return (
     <div className="game-container">
@@ -151,6 +152,7 @@ export const BodyMapperLayout = ({
             onTextDelete={onTextDelete}
             onRotateLeft={onRotateLeft}
             onRotateRight={onRotateRight}
+            screenshotRef={screenshotRef}
           />
         </div>
         
@@ -165,6 +167,7 @@ export const BodyMapperLayout = ({
           mode={mode}
           isActivelyDrawing={isActivelyDrawing}
           onControlButtonsHover={setIsHoveringControlButtons}
+          onCaptureScreenshot={() => screenshotRef.current?.()}
         />
       </div>
 

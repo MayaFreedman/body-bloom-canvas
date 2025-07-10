@@ -14,6 +14,7 @@ interface ControlButtonsProps {
   mode?: string;
   isActivelyDrawing?: boolean;
   onControlButtonsHover?: (isHovering: boolean) => void;
+  onCaptureScreenshot?: () => void;
 }
 
 export const ControlButtons = ({ 
@@ -26,24 +27,14 @@ export const ControlButtons = ({
   drawingTarget = 'body',
   mode = 'draw',
   isActivelyDrawing = false,
-  onControlButtonsHover
+  onControlButtonsHover,
+  onCaptureScreenshot
 }: ControlButtonsProps) => {
-  const captureScreenshot = async () => {
-    if (!canvasRef.current) return;
-    
-    try {
-      const canvas = await html2canvas(canvasRef.current, {
-        backgroundColor: '#f8f9fa',
-        useCORS: true,
-        scale: 2
-      });
-      
-      const link = document.createElement('a');
-      link.download = `emotional-body-map-${new Date().toISOString().split('T')[0]}.png`;
-      link.href = canvas.toDataURL();
-      link.click();
-    } catch (error) {
-      console.error('Failed to capture screenshot:', error);
+  const captureScreenshot = () => {
+    if (onCaptureScreenshot) {
+      onCaptureScreenshot();
+    } else {
+      console.warn('Screenshot function not provided');
     }
   };
 

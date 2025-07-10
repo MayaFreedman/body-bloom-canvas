@@ -41,6 +41,7 @@ interface BodyMapperCanvasProps {
   textToPlace?: string;
   textSettings?: any;
   modelRef: React.RefObject<THREE.Group>;
+  screenshotRef?: React.MutableRefObject<(() => void) | null>;
   onAddDrawingMark: (mark: DrawingMark) => void;
   onDrawingStrokeStart: () => void;
   onDrawingStrokeComplete: () => void;
@@ -93,13 +94,15 @@ export const BodyMapperCanvas = ({
   onTextCancel,
   onTextDelete,
   onRotateLeft,
-  onRotateRight
+  onRotateRight,
+  screenshotRef
 }: BodyMapperCanvasProps) => {
   
   console.log("working version note");
   console.log('🎯 BodyMapperCanvas: Rendering with mode:', mode, 'selectedSensation:', selectedSensation?.name);
   
   const [isHoveringBody, setIsHoveringBody] = useState(false);
+  const [glRenderer, setGlRenderer] = useState<THREE.WebGLRenderer | null>(null);
   const isHoveringSidebar = useSidebarHover();
   
   // Handle sensation click with auto-deselect
@@ -107,6 +110,36 @@ export const BodyMapperCanvas = ({
     onSensationClick(position, sensation);
     onSensationDeselect(); // Auto-deselect after placing
   };
+
+  // Screenshot capture function using Three.js renderer
+  const captureScreenshot = React.useCallback(() => {
+    if (!glRenderer) {
+      console.warn('WebGL renderer not available for screenshot');
+      return;
+    }
+    
+    try {
+      // Get the data URL from the canvas directly 
+      const dataURL = glRenderer.domElement.toDataURL('image/png');
+      
+      // Create download link
+      const link = document.createElement('a');
+      link.download = `emotional-body-map-${new Date().toISOString().split('T')[0]}.png`;
+      link.href = dataURL;
+      link.click();
+      
+      console.log('Screenshot captured successfully');
+    } catch (error) {
+      console.error('Failed to capture screenshot:', error);
+    }
+  }, [glRenderer]);
+
+  // Expose screenshot function through ref
+  React.useEffect(() => {
+    if (screenshotRef) {
+      screenshotRef.current = captureScreenshot;
+    }
+  }, [captureScreenshot, screenshotRef]);
   
   return (
     <div style={{ 
@@ -143,6 +176,7 @@ export const BodyMapperCanvas = ({
         }}
         onCreated={(state) => {
           console.log('🎨 Canvas: Created with GL context:', !!state.gl);
+          setGlRenderer(state.gl);
         }}
       >
         <color attach="background" args={[whiteboardBackground]} />
