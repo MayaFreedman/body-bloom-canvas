@@ -98,9 +98,6 @@ export const BodyMapperCanvas = ({
   screenshotRef
 }: BodyMapperCanvasProps) => {
   
-  console.log("working version note");
-  console.log('🎯 BodyMapperCanvas: Rendering with mode:', mode, 'selectedSensation:', selectedSensation?.name);
-  
   const [isHoveringBody, setIsHoveringBody] = useState(false);
   const [glRenderer, setGlRenderer] = useState<THREE.WebGLRenderer | null>(null);
   const isHoveringSidebar = useSidebarHover();
@@ -213,12 +210,6 @@ export const BodyMapperCanvas = ({
           toneMappingExposure: 1
         }}
         onCreated={(state) => {
-          console.log('🎨 Canvas: Created with GL context:', !!state.gl);
-          console.log('🎨 Canvas: Renderer details:', {
-            domElement: !!state.gl.domElement,
-            width: state.gl.domElement?.width,
-            height: state.gl.domElement?.height
-          });
           setGlRenderer(state.gl);
         }}
       >
@@ -332,9 +323,6 @@ export const BodyMapperCanvas = ({
           maxPolarAngle={Math.PI}
           minPolarAngle={0}
           enabled={true}
-          onStart={() => console.log('🎮 OrbitControls: Start interaction')}
-          onEnd={() => console.log('🎮 OrbitControls: End interaction')}
-          onChange={() => console.log('🎮 OrbitControls: Camera changed')}
         />
       </Canvas>
       
