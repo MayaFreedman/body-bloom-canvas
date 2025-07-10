@@ -56,6 +56,7 @@ const TextMarkComponent = ({
         lineHeight={1.2}
         anchorX="center"
         anchorY="middle"
+        rotation={[0, 0, 0]}
         onPointerDown={handlePointerDown}
         onDoubleClick={handleDoubleClick}
       >
