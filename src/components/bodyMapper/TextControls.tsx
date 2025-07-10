@@ -75,7 +75,7 @@ export const TextControls = ({
               />
             </div>
             {hasError && (
-              <p className="text-xs text-red-500 ml-1">Text field cannot be empty</p>
+              <p className="text-xs text-red-500 ml-[130px] -mt-1">Text field cannot be empty</p>
             )}
           </div>
 
