@@ -37,9 +37,15 @@ const TextMarkComponent = ({
     };
   }, [textMark]);
 
-  // Use position directly since body text is now rendered inside the model group
+  // Ensure position is a proper THREE.Vector3, handling serialized positions
   const offsetPosition = useMemo(() => {
-    return textMark.position; // Direct position for both body and whiteboard
+    const pos = textMark.position;
+    if (pos instanceof THREE.Vector3) {
+      return pos;
+    }
+    // Handle serialized positions that lost their Vector3 prototype
+    const posObj = pos as { x: number; y: number; z: number };
+    return new THREE.Vector3(posObj.x || 0, posObj.y || 0, posObj.z || 0);
   }, [textMark.position]);
 
   return (
