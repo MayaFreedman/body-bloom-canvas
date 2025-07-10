@@ -149,13 +149,24 @@ export const useEnhancedBodyMapperState = ({
       sensationName: sensation.name,
       sensationIcon: sensation.icon,
       isCustomSensation: 'isCustom' in sensation && sensation.isCustom,
-      customIcon: ('isCustom' in sensation && sensation.isCustom) ? (sensation as any).selectedIcon : undefined
+      customIcon: ('isCustom' in sensation && sensation.isCustom) ? (sensation as any).selectedIcon : undefined,
+      finalIconValue: ('isCustom' in sensation && sensation.isCustom) 
+        ? (sensation as CustomSensation).selectedIcon  
+        : sensation.icon
     });
     console.log('🎯 useEnhancedBodyMapperState - About to add sensation mark:', newSensationMark);
     setSensationMarks(prev => {
       console.log('🎯 useEnhancedBodyMapperState - Previous sensation marks:', prev);
       const newMarks = [...prev, newSensationMark];
       console.log('🎯 useEnhancedBodyMapperState - New sensation marks:', newMarks);
+      console.log('🎯 useEnhancedBodyMapperState - New mark details:', {
+        id: newSensationMark.id,
+        icon: newSensationMark.icon,
+        isCustom: newSensationMark.isCustom,
+        name: newSensationMark.name,
+        color: newSensationMark.color,
+        movementBehavior: (newSensationMark as any).movementBehavior
+      });
       return newMarks;
     });
     

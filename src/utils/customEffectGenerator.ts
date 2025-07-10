@@ -7,16 +7,21 @@ export const generateCustomEffectId = (): string => {
 
 // Convert form data to custom sensation
 export const createCustomSensation = (form: CustomEffectForm): CustomSensation => {
-  return {
+  console.log('🔧 customEffectGenerator - Creating custom sensation from form:', form);
+  
+  const customSensation: CustomSensation = {
     id: generateCustomEffectId(),
     name: form.name,
-    icon: form.selectedIcon,
+    icon: form.selectedIcon, // This becomes the main icon field
+    selectedIcon: form.selectedIcon, // Store the selected PNG name here too
     color: form.color,
-    selectedIcon: form.selectedIcon,
-    movementBehavior: form.movementBehavior,
     isCustom: true,
+    movementBehavior: form.movementBehavior,
     createdAt: Date.now(),
   };
+  
+  console.log('🔧 customEffectGenerator - Created custom sensation:', customSensation);
+  return customSensation;
 };
 
 // Generate a colored icon image using existing PNG and color overlay

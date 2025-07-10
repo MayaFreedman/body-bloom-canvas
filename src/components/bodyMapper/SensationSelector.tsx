@@ -111,18 +111,32 @@ export const SensationSelector = ({ mode, selectedSensation, onModeChange, onSen
 
   // Handle creating new custom effect
   const handleCreateCustomEffect = async (form: CustomEffectForm) => {
+    console.log('🎯 SensationSelector - handleCreateCustomEffect called with form:', form);
+    
     try {
       const customSensation = createCustomSensation(form);
+      console.log('🎯 SensationSelector - Created custom sensation:', customSensation);
+      console.log('🎯 SensationSelector - Custom effect details:', {
+        name: customSensation.name,
+        selectedIcon: customSensation.selectedIcon,
+        icon: customSensation.icon,
+        color: customSensation.color,
+        movementBehavior: customSensation.movementBehavior,
+        isCustom: customSensation.isCustom
+      });
+      
       const imageUrl = await generateCustomEffectImage(customSensation.selectedIcon as any, customSensation.color);
+      console.log('🎯 SensationSelector - Generated image URL:', imageUrl);
       
       const updatedEffects = [...customEffects, customSensation];
       setCustomEffects(updatedEffects);
       setCustomImages(prev => new Map(prev).set(customSensation.id, imageUrl));
       saveCustomEffects(updatedEffects);
       
+      console.log('🎯 SensationSelector - Updated custom effects list:', updatedEffects);
       console.log('✨ Created custom effect:', customSensation);
     } catch (error) {
-      console.error('Failed to create custom effect:', error);
+      console.error('🎯 SensationSelector - Failed to create custom effect:', error);
     }
   };
 

@@ -91,9 +91,10 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
   
   // Load all particle textures
   const textureMap = useMemo(() => {
+    console.log('🎨 SensationParticles - Loading textures...');
     const loader = new TextureLoader();
     
-    return {
+    const textures = {
       // Built-in sensation textures
       butterfly: loader.load(butterflyTexture),
       pain: loader.load(painTexture),
@@ -146,6 +147,10 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       spaceship: loader.load(spaceshipTexture),
       shield: loader.load(shieldTexture)
     };
+    
+    console.log('🎨 SensationParticles - Loaded texture keys:', Object.keys(textures));
+    
+    return textures;
   }, []);
 
   // Map sensation names to textures
