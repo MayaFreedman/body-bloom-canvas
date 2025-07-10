@@ -40,6 +40,9 @@ export const useBodyPartOperations = ({
   }, [bodyPartColors, actionHistory, setBodyPartColors]);
 
   const clearAll = useCallback(() => {
+    console.log('🔄 bodyPartOps.clearAll called');
+    console.log('🔄 Current bodyPartColors:', bodyPartColors);
+    
     // Clear all strokes and store them for undo (global system)
     const allStrokes = [...strokeManager.completedStrokes];
     const previousColors = { ...bodyPartColors };
@@ -48,7 +51,10 @@ export const useBodyPartOperations = ({
     strokeManager.completedStrokes.forEach(stroke => {
       strokeManager.removeStroke(stroke.id);
     });
+    
+    console.log('🔄 About to call setBodyPartColors({})');
     setBodyPartColors({});
+    console.log('🔄 setBodyPartColors({}) called');
 
     actionHistory.addAction({
       type: 'clear',
