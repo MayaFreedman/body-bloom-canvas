@@ -11,59 +11,31 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { CustomEffectForm, AVAILABLE_ICONS, AvailableIcon } from '@/types/customEffectTypes';
 
-// Import all the PNG images
+// Import only the unused PNG images
 import alarmImg from '@/Assets/particleEffects/alarm.png';
 import baloonImg from '@/Assets/particleEffects/baloon.png';
 import bicepsImg from '@/Assets/particleEffects/biceps.png';
 import brokenHeartImg from '@/Assets/particleEffects/broken-heart.png';
-import butterflyImg from '@/Assets/particleEffects/butterfly.png';
 import catImg from '@/Assets/particleEffects/cat.png';
 import chickenImg from '@/Assets/particleEffects/chicken.png';
 import createImg from '@/Assets/particleEffects/create.png';
-import desertImg from '@/Assets/particleEffects/desert.png';
 import dogImg from '@/Assets/particleEffects/dog.png';
 import explosionImg from '@/Assets/particleEffects/explosion.png';
-import feetImg from '@/Assets/particleEffects/feet.png';
-import feetredImg from '@/Assets/particleEffects/feetred.png';
-import fidgetSpinnerImg from '@/Assets/particleEffects/fidget-spinner.png';
-import fireImg from '@/Assets/particleEffects/fire.png';
 import flowerImg from '@/Assets/particleEffects/flower.png';
-import frogImg from '@/Assets/particleEffects/frog.png';
-import goosebumpImg from '@/Assets/particleEffects/goosebump.png';
-import heartImg from '@/Assets/particleEffects/heart.png';
-import lightbulbImg from '@/Assets/particleEffects/lightbulb.png';
-import lightningBoltImg from '@/Assets/particleEffects/lightning-bolt.png';
-import monkeyImg from '@/Assets/particleEffects/monkey.png';
 import musicalNoteImg from '@/Assets/particleEffects/musical-note.png';
-import nauticalKnotImg from '@/Assets/particleEffects/nautical-knot.png';
-import painImg from '@/Assets/particleEffects/pain.png';
-import plateImg from '@/Assets/particleEffects/plate.png';
 import plusImg from '@/Assets/particleEffects/plus.png';
 import racecarImg from '@/Assets/particleEffects/racecar.png';
-import relaxImg from '@/Assets/particleEffects/relax.png';
 import resistorImg from '@/Assets/particleEffects/resistor.png';
 import robotImg from '@/Assets/particleEffects/robot.png';
 import rollerCoasterImg from '@/Assets/particleEffects/roller-coaster.png';
-import shakeImg from '@/Assets/particleEffects/shake.png';
 import shieldImg from '@/Assets/particleEffects/shield.png';
-import snailImg from '@/Assets/particleEffects/snail.png';
-import snowflakesImg from '@/Assets/particleEffects/snowflakes.png';
 import spaceshipImg from '@/Assets/particleEffects/spaceship.png';
-import starImg from '@/Assets/particleEffects/star.png';
-import statueImg from '@/Assets/particleEffects/statue.png';
-import stoneImg from '@/Assets/particleEffects/stone.png';
 import stormImg from '@/Assets/particleEffects/storm.png';
 import supportheartImg from '@/Assets/particleEffects/supportheart.png';
-import sweatImg from '@/Assets/particleEffects/sweat.png';
-import swirlImg from '@/Assets/particleEffects/swirl.png';
 import tornadoImg from '@/Assets/particleEffects/tornado.png';
 import turtleImg from '@/Assets/particleEffects/turtle.png';
 import virusImg from '@/Assets/particleEffects/virus.png';
-import waterImg from '@/Assets/particleEffects/water.png';
-import wavyImg from '@/Assets/particleEffects/wavy.png';
-import windImg from '@/Assets/particleEffects/wind.png';
 import wingsImg from '@/Assets/particleEffects/wings.png';
-import zzzImg from '@/Assets/particleEffects/zzz.png';
 
 interface CustomEffectDialogProps {
   open: boolean;
@@ -76,54 +48,26 @@ const ICON_IMAGES = {
   baloon: baloonImg,
   biceps: bicepsImg,
   'broken-heart': brokenHeartImg,
-  butterfly: butterflyImg,
   cat: catImg,
   chicken: chickenImg,
   create: createImg,
-  desert: desertImg,
   dog: dogImg,
   explosion: explosionImg,
-  feet: feetImg,
-  feetred: feetredImg,
-  'fidget-spinner': fidgetSpinnerImg,
-  fire: fireImg,
   flower: flowerImg,
-  frog: frogImg,
-  goosebump: goosebumpImg,
-  heart: heartImg,
-  lightbulb: lightbulbImg,
-  'lightning-bolt': lightningBoltImg,
-  monkey: monkeyImg,
   'musical-note': musicalNoteImg,
-  'nautical-knot': nauticalKnotImg,
-  pain: painImg,
-  plate: plateImg,
   plus: plusImg,
   racecar: racecarImg,
-  relax: relaxImg,
   resistor: resistorImg,
   robot: robotImg,
   'roller-coaster': rollerCoasterImg,
-  shake: shakeImg,
   shield: shieldImg,
-  snail: snailImg,
-  snowflakes: snowflakesImg,
   spaceship: spaceshipImg,
-  star: starImg,
-  statue: statueImg,
-  stone: stoneImg,
   storm: stormImg,
   supportheart: supportheartImg,
-  sweat: sweatImg,
-  swirl: swirlImg,
   tornado: tornadoImg,
   turtle: turtleImg,
   virus: virusImg,
-  water: waterImg,
-  wavy: wavyImg,
-  wind: windImg,
   wings: wingsImg,
-  zzz: zzzImg,
 } as const;
 
 const MOVEMENT_BEHAVIORS = [
@@ -144,7 +88,7 @@ export const CustomEffectDialog: React.FC<CustomEffectDialogProps> = ({
 }) => {
   const [form, setForm] = useState<CustomEffectForm>({
     name: '',
-    selectedIcon: 'heart',
+    selectedIcon: 'alarm', // Changed from 'heart' to available icon
     color: '#ef4444',
     movementBehavior: 'moderate',
   });
@@ -155,7 +99,7 @@ export const CustomEffectDialog: React.FC<CustomEffectDialogProps> = ({
       onCreateEffect(form);
       setForm({
         name: '',
-        selectedIcon: 'heart',
+        selectedIcon: 'alarm', // Updated to use available icon
         color: '#ef4444',
         movementBehavior: 'moderate',
       });
