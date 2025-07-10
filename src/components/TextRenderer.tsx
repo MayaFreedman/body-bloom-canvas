@@ -37,23 +37,10 @@ const TextMarkComponent = ({
     };
   }, [textMark]);
 
-  // Calculate offset position to prevent text from getting occluded during breathing
+  // Use position directly since body text is now rendered inside the model group
   const offsetPosition = useMemo(() => {
-    if (textMark.surface === 'whiteboard') {
-      return textMark.position; // No offset needed for whiteboard
-    }
-    
-    // For body surface, add larger outward offset to prevent z-fighting during breathing
-    const offset = 0.025; // Increased from 0.015 to 0.025 for better clearance
-    const pos = textMark.position.clone();
-    
-    // Add offset along the normal (outward from center)
-    const center = new THREE.Vector3(0, 0, 0);
-    const direction = pos.clone().sub(center).normalize();
-    pos.add(direction.multiplyScalar(offset));
-    
-    return pos;
-  }, [textMark.position, textMark.surface]);
+    return textMark.position; // Direct position for both body and whiteboard
+  }, [textMark.position]);
 
   return (
     <group position={offsetPosition}>
