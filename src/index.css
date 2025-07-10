@@ -169,7 +169,7 @@
   }
 
   .tab-button.active {
-    background-color: #6B6FA3; /* Darker purple for active states */
+    background-color: #898AC4; /* Updated to requested color */
     color: white;
   }
 
@@ -294,7 +294,7 @@
     align-items: center;
     justify-content: center;
     padding: 16px 32px;
-    background-color: #6B6FA3; /* Darker purple for active states */
+    background-color: #898AC4; /* Updated to requested color */
     color: white;
     border: none;
     border-radius: 8px;
