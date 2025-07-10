@@ -227,7 +227,7 @@ export const HumanModel = ({ bodyPartColors = {} }: HumanModelProps) => {
   }
 
   return (
-    <group ref={groupRef} position={[0, -1, 0]} rotation={[0, Math.PI / 2, 0]}>
+    <group ref={groupRef} position={[0, -1, 0]} rotation={[0, 0, 0]}>
       <primitive object={scene} />
     </group>
   );

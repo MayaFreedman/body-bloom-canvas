@@ -150,7 +150,7 @@ export const BodyMapperCanvas = ({
         <directionalLight position={[10, 10, 5]} intensity={0.5} />
         <directionalLight position={[-10, -10, -5]} intensity={0.2} />
         
-        <group ref={modelRef} rotation={[0, rotation, 0]}>
+        <group ref={modelRef} rotation={[0, rotation + Math.PI / 2, 0]}>
           <HumanModel bodyPartColors={bodyPartColors} />
           
           {/* Render drawing marks as children of the model group so they rotate with it */}

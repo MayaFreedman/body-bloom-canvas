@@ -37,14 +37,6 @@ const TextMarkComponent = ({
     };
   }, [textMark]);
 
-  // Calculate counter-rotation to compensate for HumanModel's rotation
-  const counterRotation = useMemo(() => {
-    if (textMark.surface === 'body') {
-      // Counter-rotate to compensate for HumanModel's [0, Math.PI / 2, 0] rotation
-      return [0, -Math.PI / 2, 0] as [number, number, number];
-    }
-    return [0, 0, 0] as [number, number, number];
-  }, [textMark.surface]);
 
   // Ensure position is a proper THREE.Vector3, handling serialized positions
   const offsetPosition = useMemo(() => {
@@ -65,7 +57,7 @@ const TextMarkComponent = ({
         lineHeight={1.2}
         anchorX="center"
         anchorY="middle"
-        rotation={counterRotation}
+        rotation={[0, 0, 0]}
         onPointerDown={handlePointerDown}
         onDoubleClick={handleDoubleClick}
       >
