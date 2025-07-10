@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { Type, Bold, Italic } from 'lucide-react';
+import { Type, Bold, Italic, Minus, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { TextSettings } from '@/types/textTypes';
 import { BodyMapperMode } from '@/types/bodyMapperTypes';
@@ -84,19 +83,37 @@ export const TextControls = ({
           <div className="space-y-2">
             <div className="flex items-center gap-3">
               <h5 className="font-medium text-gray-800 text-[16px] whitespace-nowrap">Size:</h5>
-              <div className="flex-1">
-                <Slider
-                  value={[textSettings.fontSize]}
-                  onValueChange={([value]) => onTextSettingsChange({ fontSize: value })}
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-9 w-9 p-0"
+                  onClick={() => onTextSettingsChange({ fontSize: Math.max(10, textSettings.fontSize - 1) })}
+                >
+                  <Minus className="w-4 h-4" />
+                </Button>
+                <Input
+                  type="number"
+                  value={textSettings.fontSize}
+                  onChange={(e) => {
+                    const value = parseInt(e.target.value) || 10;
+                    if (value >= 10 && value <= 48) {
+                      onTextSettingsChange({ fontSize: value });
+                    }
+                  }}
                   min={10}
                   max={48}
-                  step={1}
-                  className="w-full"
+                  className="w-16 h-9 text-center"
                 />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-9 w-9 p-0"
+                  onClick={() => onTextSettingsChange({ fontSize: Math.min(48, textSettings.fontSize + 1) })}
+                >
+                  <Plus className="w-4 h-4" />
+                </Button>
               </div>
-            </div>
-            <div className="flex justify-center">
-              <span className="text-sm text-gray-600">Size: {textSettings.fontSize}px</span>
             </div>
           </div>
 
