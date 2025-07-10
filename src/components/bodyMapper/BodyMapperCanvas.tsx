@@ -13,6 +13,7 @@ import { ClickHandler } from './ClickHandler';
 import { HoverDetector } from './HoverDetector';
 import { EraserHandler } from './EraserHandler';
 import { WhiteboardPlane } from './WhiteboardPlane';
+import { ScreenshotCapture, ScreenshotCaptureHandle } from './ScreenshotCapture';
 
 import { InlineTextEditor } from './InlineTextEditor';
 import { TextRenderer } from '@/components/TextRenderer';
@@ -41,6 +42,7 @@ interface BodyMapperCanvasProps {
   textToPlace?: string;
   textSettings?: any;
   modelRef: React.RefObject<THREE.Group>;
+  screenshotRef?: React.RefObject<ScreenshotCaptureHandle>;
   onAddDrawingMark: (mark: DrawingMark) => void;
   onDrawingStrokeStart: () => void;
   onDrawingStrokeComplete: () => void;
@@ -78,6 +80,7 @@ export const BodyMapperCanvas = ({
   textToPlace = '',
   textSettings,
   modelRef,
+  screenshotRef,
   onAddDrawingMark,
   onDrawingStrokeStart,
   onDrawingStrokeComplete,
@@ -139,7 +142,8 @@ export const BodyMapperCanvas = ({
         gl={{ 
           outputColorSpace: 'srgb',
           toneMapping: 0, // NoToneMapping
-          toneMappingExposure: 1
+          toneMappingExposure: 1,
+          preserveDrawingBuffer: true
         }}
         onCreated={(state) => {
           console.log('🎨 Canvas: Created with GL context:', !!state.gl);
@@ -259,6 +263,8 @@ export const BodyMapperCanvas = ({
           onEnd={() => console.log('🎮 OrbitControls: End interaction')}
           onChange={() => console.log('🎮 OrbitControls: Camera changed')}
         />
+        
+        {screenshotRef && <ScreenshotCapture ref={screenshotRef} />}
       </Canvas>
       
       {/* Custom cursor outside Canvas for global mouse tracking */}
