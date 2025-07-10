@@ -111,29 +111,29 @@ export const ScreenshotComposer = ({
       // Load the PlaySpace logo
       const logoImage = await loadImage('/lovable-uploads/924b5d58-1cee-4f88-95a3-4534f584bbaf.png');
       
-      // Draw "Body Mapping by" text - larger
+      // Draw "Body Mapping by" text - much bigger
       ctx.save();
       ctx.fillStyle = '#6D6A75'; // --warm-gray
-      ctx.font = '18px Arial, sans-serif'; // Increased from 14px
-      ctx.fillText('Body Mapping by', 20, height - 80); // Moved up more to make room
+      ctx.font = '28px Arial, sans-serif'; // Increased from 18px to 28px
+      ctx.fillText('Body Mapping by', 24, height - 120); // Moved up more to make room for bigger logo
       
-      // Draw PlaySpace logo - sized up
-      const logoHeight = 32; // Increased from ~20px (h-5)
+      // Draw PlaySpace logo - much bigger
+      const logoHeight = 48; // Increased from 32px to 48px
       const logoWidth = logoImage.width * (logoHeight / logoImage.height); // Maintain aspect ratio
-      ctx.drawImage(logoImage, 20, height - 60, logoWidth, logoHeight); // Positioned below text
+      ctx.drawImage(logoImage, 24, height - 85, logoWidth, logoHeight); // Positioned below text
       
       ctx.restore();
     } catch (error) {
       console.warn('Failed to load PlaySpace logo, using fallback text');
-      // Fallback to text if logo fails to load
+      // Fallback to text if logo fails to load - also bigger
       ctx.save();
       ctx.fillStyle = '#6D6A75'; // --warm-gray
-      ctx.font = '18px Arial, sans-serif';
-      ctx.fillText('Body Mapping by', 20, height - 80);
+      ctx.font = '28px Arial, sans-serif'; // Increased from 18px
+      ctx.fillText('Body Mapping by', 24, height - 120);
       
       ctx.fillStyle = '#2E315E'; // --deep-navy
-      ctx.font = 'bold 20px Arial, sans-serif';
-      ctx.fillText('PlaySpace', 20, height - 50);
+      ctx.font = 'bold 32px Arial, sans-serif'; // Increased from 20px
+      ctx.fillText('PlaySpace', 24, height - 80);
       ctx.restore();
     }
   };
