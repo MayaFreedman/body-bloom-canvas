@@ -32,9 +32,17 @@ export const useTextManager = ({
     surface: 'body' | 'whiteboard',
     color: string
   ) => {
+    // Add a small z-offset for body text to prevent it from being hidden by breathing animation
+    const adjustedPosition = position.clone();
+    if (surface === 'body') {
+      // Calculate outward normal direction from model center (0,0,0) and add small offset
+      const normalDirection = adjustedPosition.clone().normalize();
+      adjustedPosition.add(normalDirection.multiplyScalar(0.02)); // Small offset outward
+    }
+
     const newTextMark: TextMark = {
       id: `text-${Date.now()}-${Math.random()}`,
-      position: position.clone(),
+      position: adjustedPosition,
       text,
       fontSize: textSettings.fontSize,
       fontFamily: textSettings.fontFamily,
