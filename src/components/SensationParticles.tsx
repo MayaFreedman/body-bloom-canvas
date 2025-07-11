@@ -951,27 +951,28 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             
           } else if (customBehavior === 'energetic') {
             
-            // Energetic bursting movement
-            const burstForce = Math.sin(time * 6 + particle.life * 0.4) * 0.002 * animProfile.intensity;
-            const quickMovement = Math.cos(time * 8 + particle.life * 0.5) * 0.0015 * animProfile.intensity;
-            
-            // Occasional quick bursts
-            if (Math.random() < 0.03) {
+            // Simple energetic movement - similar to moderate but faster and more random
+            // Occasional quick directional changes instead of wave patterns
+            if (Math.random() < 0.08) { // More frequent than before but simpler
               particle.velocity.add(new THREE.Vector3(
+                (Math.random() - 0.5) * 0.003, // Faster random movements
                 (Math.random() - 0.5) * 0.002,
-                (Math.random() - 0.5) * 0.0015,
-                (Math.random() - 0.5) * 0.002
+                (Math.random() - 0.5) * 0.003
               ));
             }
             
-            particle.velocity.x += burstForce * clampedDelta;
-            particle.velocity.y += quickMovement * clampedDelta;
-            particle.velocity.z += (burstForce * 0.8) * clampedDelta;
+            // Simple floating with higher speed multiplier (no sine/cosine waves)
+            const energeticFloat = (Math.random() - 0.5) * 0.0012 * animProfile.intensity;
+            const quickDrift = (Math.random() - 0.5) * 0.001 * animProfile.intensity;
+            
+            particle.velocity.x += energeticFloat * clampedDelta;
+            particle.velocity.y += energeticFloat * clampedDelta; 
+            particle.velocity.z += quickDrift * clampedDelta;
             
             // Apply gravity and movement
             particle.velocity.y += (animProfile.gravity || 0.0003) * clampedDelta;
             particle.position.add(particle.velocity);
-            particle.velocity.multiplyScalar(0.92);
+            particle.velocity.multiplyScalar(0.91); // Slightly less damping for more movement
             
           } else {
             // Moderate movement (default)
