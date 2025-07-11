@@ -367,7 +367,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       'Nerves': { min: 80, max: 140 }, // Match Increased Temperature
       'Change in Breathing': { min: 80, max: 140 }, // Match Increased Temperature
       'Shaky': { min: 80, max: 140 }, // Match Increased Temperature
-      'Stomping': { min: 135, max: 210 }, // Reduced by 25% - now 3/4 as long
+      'Stomping': { min: 180, max: 280 }, // Longer lasting stomping particles
       'Change in Appetite': { min: 80, max: 140 }, // Match Increased Temperature
       'Fidgety': { min: 80, max: 140 }, // Match Increased Temperature
       'Clenched': { min: 80, max: 140 }, // Match Increased Temperature
@@ -462,7 +462,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             'Change in Energy': 20,     // Energy bursts
             'Fidgety': 12,              // Match Increased Temperature
       'Pacing': 18,               // Movement patterns
-      'Stomping': 3,              // Reduced by 75% from 12 to 3
+      'Stomping': 12,             // Match Increased Temperature
             'Avoiding Eye Contact': 12, // Nervous behavior
             'Scrunched Face': 10,       // Facial tension
             
@@ -523,14 +523,6 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
               (Math.random() - 0.5) * 0.0008,
               (Math.random() - 0.5) * 0.001
             );
-          } else if (mark.name === 'Stomping') {
-            // Stomping particles start with upward movement and initial pulse
-            const pulseMultiplier = 1 + Math.sin(Math.random() * Math.PI * 2) * 0.5; // Random pulse on spawn
-            initialVelocity = new THREE.Vector3(
-              (Math.random() - 0.5) * 0.0003 * pulseMultiplier, // Pulse affects horizontal
-              (0.0005 + Math.random() * 0.0004) * pulseMultiplier, // Strong upward with pulse
-              (Math.random() - 0.5) * 0.0002 * pulseMultiplier  // Pulse affects depth
-            );
           } else if (mark.isCustom && mark.movementBehavior) {
             // Custom effect initial velocity based on movement behavior
             const customParams = getCustomEffectParams(mark.movementBehavior);
@@ -575,7 +567,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
               (Math.random() - 0.5) * dispersion
             ),
             velocity: initialVelocity,
-            life: mark.name === 'Stomping' ? i * (180 / particleCount) : Math.random() * 100, // Stagger stomping particles to prevent clumping
+            life: Math.random() * 100,
             maxLife,
             size,
             rotation: Math.random() * Math.PI * 2,
@@ -731,14 +723,6 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
               -0.0003 - Math.random() * (isSnow ? 0.0002 : 0.0004), // Snow falls more gently
               (Math.random() - 0.5) * (isSnow ? 0.0004 : 0.0002)  // Snow has more depth movement
             );
-          } else if (mark.name === 'Stomping') {
-            // Reset stomping velocity with upward movement and pulse
-            const pulseMultiplier = 1 + Math.sin(Math.random() * Math.PI * 2) * 0.5; // Random pulse on regeneration
-            particle.velocity.set(
-              (Math.random() - 0.5) * 0.0003 * pulseMultiplier, // Pulse affects horizontal
-              (0.0005 + Math.random() * 0.0004) * pulseMultiplier, // Strong upward with pulse
-              (Math.random() - 0.5) * 0.0002 * pulseMultiplier  // Pulse affects depth
-            );
           } else if (mark.isCustom && mark.movementBehavior) {
             // Custom effect initial velocity based on movement behavior - REGENERATION FIX!
             const customParams = getCustomEffectParams(mark.movementBehavior);
@@ -785,7 +769,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             'Shaky': { speed: 0.8, intensity: 0.6, pattern: 'flow', gravity: 0.0002, drift: new THREE.Vector3(0, 0.2, 0) },
             'Fidgety': { speed: 0.8, intensity: 0.6, pattern: 'flow', gravity: 0.0002, drift: new THREE.Vector3(0, 0.2, 0) },
             'Pacing': { speed: 0.05, intensity: 0.1, pattern: 'gentle' }, // Keep minimal movement
-            'Stomping': { speed: 0.4, intensity: 0.8, pattern: 'stomp', gravity: -0.0004, drift: new THREE.Vector3(0, 0.3, 0) }, // Upward stomping like reverse tears
+            'Stomping': { speed: 3.8, intensity: 3.5, pattern: 'custom', gravity: 0.0002, drift: new THREE.Vector3(0, 0.1, 0) }, // Energetic stomping like custom effect
             
             // FLOW effects - dripping with strong downward movement (negative Y = down)
             'Tears': { speed: 0.2, intensity: 0.4, pattern: 'drip', gravity: 0.0002, drift: new THREE.Vector3(0, -0.15, 0) },
@@ -922,37 +906,21 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             particle.velocity.y -= animProfile.gravity * clampedDelta; // Subtract to go down
           }
           
-        } else if (animProfile.pattern === 'stomp') {
-          // Stomping: reverse tears with upward movement and pulse
-          
-          // Apply strong upward gravity (positive Y = up)
-          if (animProfile.gravity) {
-            particle.velocity.y -= animProfile.gravity * clampedDelta; // Subtract negative gravity = add upward force
-          }
-          
-          // Apply upward drift force  
+          // Apply downward drift force  
           if (animProfile.drift) {
             const driftForce = animProfile.drift.clone().multiplyScalar(0.001 * animProfile.intensity * clampedDelta);
-            particle.velocity.add(driftForce); // drift Y is positive for upward
+            particle.velocity.add(driftForce); // drift Y is already negative
           }
           
-          // Add pulse effect for stomping
-          const pulseForce = Math.sin(time * 8 * animProfile.speed) * 0.002 * animProfile.intensity;
-          particle.velocity.y += pulseForce * clampedDelta;
-          
-          // Very minimal side-to-side oscillation like tears
+          // Very minimal side-to-side oscillation for natural drip variation
           const gentleSway = Math.sin(particle.oscillationPhase * animProfile.speed * 0.5) * 0.0001 * animProfile.intensity;
           particle.velocity.x += gentleSway * clampedDelta;
           
-          // Apply movement with gentle bounding
+          // Apply movement
           particle.position.add(particle.velocity);
           
-          // Add gentle bounding to keep particles within reasonable range
-          const boundingRadius = 0.15; // Increased from 0.08 for more freedom
-          if (particle.position.length() > boundingRadius) {
-            particle.position.normalize().multiplyScalar(boundingRadius);
-            particle.velocity.multiplyScalar(0.8); // Gentler slowdown from 0.5 to 0.8
-          }
+          // Minimal damping - let gravity do the work
+          particle.velocity.multiplyScalar(0.998);
           
           
         } else if (animProfile.pattern === 'custom') {
@@ -1058,17 +1026,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
           const opacity = 1 - (particle.life / particle.maxLife);
           const normalizedScale = getNormalizedScale(mark.name || mark.icon);
           
-          if (mark.name === 'Stomping') {
-            // Special opacity for stomping - stay opaque way longer
-            const stompOpacity = Math.max(0.8, 1 - Math.pow(particle.life / particle.maxLife, 3)); // Cubic falloff for longer opacity
-            mesh.scale.setScalar(particle.size * normalizedScale);
-            
-            // Update sprite material opacity
-            const material = (mesh as any).material;
-            if (material) {
-              material.opacity = stompOpacity;
-            }
-          } else if (mark.name === 'Tingling') {
+          if (mark.name === 'Tingling') {
             const flickerIntensity = particle.flickerPhase !== undefined ? 0.4 + Math.sin(particle.flickerPhase) * 0.5 : 1;
             const pulseScale = particle.electricalPulse !== undefined ? 1 + Math.sin(particle.electricalPulse) * 0.8 : 1;
             mesh.scale.setScalar(particle.size * normalizedScale * pulseScale);
