@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Type, Bold, Italic, Minus, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { TextSettings } from '@/types/textTypes';
 import { BodyMapperMode } from '@/types/bodyMapperTypes';
 
@@ -15,15 +14,6 @@ interface TextControlsProps {
   textToPlace?: string;
   onTextToPlaceChange?: (text: string) => void;
 }
-
-const fontFamilies = [
-  'Arial',
-  'Helvetica',
-  'Times New Roman',
-  'Georgia',
-  'Verdana',
-  'Courier New'
-];
 
 export const TextControls = ({
   mode,
@@ -76,7 +66,7 @@ export const TextControls = ({
             </div>
           </div>
 
-          {/* Font Size */}
+          {/* Font Size and Style Controls in one row */}
           <div className="space-y-2">
             <div className="flex items-center gap-3">
               <h5 className="font-medium text-gray-800 text-[16px] whitespace-nowrap">Size:</h5>
@@ -122,51 +112,30 @@ export const TextControls = ({
                   <Plus className="w-4 h-4" />
                 </Button>
               </div>
-            </div>
-          </div>
-
-          {/* Font Family and Style in one row */}
-          <div className="space-y-2">
-            <div className="flex gap-2 items-center">
-              <h5 className="font-medium text-gray-800 text-[16px] whitespace-nowrap">Style:</h5>
-              {/* Font Family */}
-              <Select
-                value={textSettings.fontFamily}
-                onValueChange={(value) => onTextSettingsChange({ fontFamily: value })}
-              >
-                <SelectTrigger className="flex-1 h-9">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {fontFamilies.map((font) => (
-                    <SelectItem key={font} value={font}>
-                      <span style={{ fontFamily: font }}>{font}</span>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
               
-              {/* Style Buttons - matching height */}
-              <Button
-                variant={textSettings.fontWeight === 'bold' ? 'default' : 'outline'}
-                size="sm"
-                className="h-9 px-3"
-                onClick={() => onTextSettingsChange({ 
-                  fontWeight: textSettings.fontWeight === 'bold' ? 'normal' : 'bold' 
-                })}
-              >
-                <Bold className="w-4 h-4" />
-              </Button>
-              <Button
-                variant={textSettings.fontStyle === 'italic' ? 'default' : 'outline'}
-                size="sm"
-                className="h-9 px-3"
-                onClick={() => onTextSettingsChange({ 
-                  fontStyle: textSettings.fontStyle === 'italic' ? 'normal' : 'italic' 
-                })}
-              >
-                <Italic className="w-4 h-4" />
-              </Button>
+              {/* Style Buttons - Bold and Italic inline */}
+              <div className="flex items-center gap-1 ml-2">
+                <Button
+                  variant={textSettings.fontWeight === 'bold' ? 'default' : 'outline'}
+                  size="sm"
+                  className="h-8 px-3"
+                  onClick={() => onTextSettingsChange({ 
+                    fontWeight: textSettings.fontWeight === 'bold' ? 'normal' : 'bold' 
+                  })}
+                >
+                  <Bold className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant={textSettings.fontStyle === 'italic' ? 'default' : 'outline'}
+                  size="sm"
+                  className="h-8 px-3"
+                  onClick={() => onTextSettingsChange({ 
+                    fontStyle: textSettings.fontStyle === 'italic' ? 'normal' : 'italic' 
+                  })}
+                >
+                  <Italic className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
           </div>
 

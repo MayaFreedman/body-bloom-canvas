@@ -5,7 +5,6 @@ export interface TextMark {
   position: THREE.Vector3;
   text: string;
   fontSize: number;
-  fontFamily: string;
   color: string;
   rotation?: { x: number; y: number; z: number };
   surface: 'body' | 'whiteboard';
@@ -19,7 +18,6 @@ export interface TextMark {
 
 export interface TextSettings {
   fontSize: number;
-  fontFamily: string;
   fontWeight: 'normal' | 'bold';
   fontStyle: 'normal' | 'italic';
   backgroundColor?: string;

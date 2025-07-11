@@ -20,7 +20,6 @@ export const useTextManager = ({
   const [textMarks, setTextMarks] = useState<TextMark[]>([]);
   const [textSettings, setTextSettings] = useState<TextSettings>({
     fontSize: 16,
-    fontFamily: 'Arial',
     fontWeight: 'normal',
     fontStyle: 'normal'
   });
@@ -45,10 +44,8 @@ export const useTextManager = ({
       position: adjustedPosition,
       text,
       fontSize: textSettings.fontSize,
-      fontFamily: textSettings.fontFamily,
       color,
       surface,
-      
       fontWeight: textSettings.fontWeight,
       fontStyle: textSettings.fontStyle,
       userId: currentUserId,

@@ -65,7 +65,6 @@ export const InlineTextEditor = ({
       onBlur={handleBlur}
       className="absolute z-50 bg-background border border-border rounded px-2 py-1 text-sm min-w-[100px] shadow-lg"
       style={{
-        fontFamily: textMark.fontFamily,
         fontSize: `${textMark.fontSize}px`,
         fontWeight: textMark.fontWeight,
         fontStyle: textMark.fontStyle,
