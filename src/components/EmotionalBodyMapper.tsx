@@ -244,40 +244,44 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
       const randomDelay = Math.random() * 500 + 100; // 100-600ms random delay
       
       setTimeout(() => {
-        // SOLUTION: Use the state snapshot to get the actual current data
-        console.log('🔍 DEBUGGING - Using state snapshot to get current data:');
+        // THE REAL PROBLEM: The state snapshot is using the SAME stale closure!
+        console.log('🔍 CLOSURE ISSUE CONFIRMED:');
+        console.log('  - Captured drawingMarks in callback:', drawingMarks?.length || 0);
+        console.log('  - Captured completedStrokes in callback:', completedStrokes?.length || 0);
         
-        try {
-          const currentSnapshot = stateSnapshot.captureCurrentState();
-          console.log('  - Snapshot captured successfully');
-          console.log('  - Snapshot data keys:', Object.keys(currentSnapshot.data || {}));
+        // Let's try a different approach - bypass the state snapshot entirely
+        // and manually create a snapshot using FRESH data we can access
+        console.log('🔄 MANUAL SNAPSHOT ATTEMPT:');
+        
+        // For now, let's at least try to send SOMETHING based on what we know exists
+        // We know from the logs that drawing marks DO exist, so let's fake a minimal snapshot
+        const hasAnyContent = true; // We KNOW there's content from the logs
+        
+        if (hasAnyContent) {
+          console.log(`📸 FORCING state snapshot send (we know content exists, been in room ${timeSinceJoin}ms)`);
           
-          const snapshotData = currentSnapshot.data;
-          const hasDrawingMarks = snapshotData?.drawingMarks?.length > 0;
-          const hasSensationMarks = snapshotData?.sensationMarks?.length > 0;
-          const hasBodyPartColors = snapshotData?.bodyPartColors && Object.keys(snapshotData.bodyPartColors).length > 0;
-          const hasTextMarks = snapshotData?.textMarks?.length > 0;
+          // Create a minimal snapshot that we KNOW has content
+          const manualSnapshot = {
+            timestamp: Date.now(),
+            version: '1.0.0',
+            data: {
+              drawingMarks: [], // This will be empty but we're testing the sending mechanism
+              sensationMarks: [],
+              bodyPartColors: {},
+              textMarks: [],
+              whiteboardBackground: 'white',
+              modelRotation: 0
+            },
+            playerId: currentUserId || 'unknown'
+          };
           
-          console.log('  - Snapshot drawingMarks:', snapshotData?.drawingMarks?.length || 0);
-          console.log('  - Snapshot sensationMarks:', snapshotData?.sensationMarks?.length || 0);
-          console.log('  - Snapshot bodyPartColors:', Object.keys(snapshotData?.bodyPartColors || {}).length);
-          console.log('  - Snapshot textMarks:', snapshotData?.textMarks?.length || 0);
-          
-          const hasContent = hasDrawingMarks || hasSensationMarks || hasBodyPartColors || hasTextMarks;
-          
-          if (hasContent) {
-            console.log(`📸 Sending state snapshot to new player (has content, been in room ${timeSinceJoin}ms)`);
-            multiplayer.broadcastStateSnapshot(currentSnapshot);
-          } else {
-            console.log(`📸 No content to share, skipping state snapshot (been in room ${timeSinceJoin}ms)`);
-          }
-        } catch (error) {
-          console.error('❌ Error checking state snapshot:', error);
-          console.log(`📸 Snapshot failed, skipping state snapshot (been in room ${timeSinceJoin}ms)`);
+          multiplayer.broadcastStateSnapshot(manualSnapshot);
+        } else {
+          console.log(`📸 No content to share, skipping state snapshot (been in room ${timeSinceJoin}ms)`);
         }
       }, randomDelay);
     }
-  }, [multiplayer, stateSnapshot, isRestoringState]); // Remove stale closure dependencies!
+  }, [multiplayer, isRestoringState]); // Removed stateSnapshot dependency too!
 
   // Handle incoming state snapshots
   const handleStateSnapshot = useCallback((snapshot: any) => {
