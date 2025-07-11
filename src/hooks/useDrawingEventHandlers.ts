@@ -52,26 +52,25 @@ export const useDrawingEventHandlers = ({
     const meshes = getIntersectedObjects(drawingTarget === 'whiteboard');
     let intersects = raycaster.intersectObjects(meshes, false);
 
-    // If no direct hit, try multiple rays in a circle pattern based on brush size
+    // If no direct hit, check if we're close enough based on brush size
     if (intersects.length === 0 && brushSize > 1) {
-      const rayCount = 8; // Number of rays to cast in circle
-      const brushRadius = (brushSize / gl.domElement.clientWidth) * 2 * 100; // 100x intensity for testing
+      // Convert brush size to world units (approximate)
+      const brushRadius = brushSize * 0.01; // Adjust this multiplier as needed
       
-      for (let i = 0; i < rayCount; i++) {
-        const angle = (i / rayCount) * Math.PI * 2;
-        const offsetX = Math.cos(angle) * brushRadius;
-        const offsetY = Math.sin(angle) * brushRadius;
+      // Check all meshes to see if ray passes close to their surface
+      for (const mesh of meshes) {
+        const boundingBox = new THREE.Box3().setFromObject(mesh);
+        const center = boundingBox.getCenter(new THREE.Vector3());
+        const rayToCenter = raycaster.ray.distanceToPoint(center);
         
-        const testMouse = new THREE.Vector2(
-          mouse.x + offsetX,
-          mouse.y + offsetY
-        );
-        
-        raycaster.setFromCamera(testMouse, camera);
-        const testIntersects = raycaster.intersectObjects(meshes, false);
-        
-        if (testIntersects.length > 0) {
-          intersects = testIntersects;
+        if (rayToCenter <= brushRadius) {
+          // Create a fake intersection at the closest point
+          const closestPoint = raycaster.ray.closestPointToPoint(center, new THREE.Vector3());
+          intersects = [{
+            point: closestPoint,
+            object: mesh,
+            distance: raycaster.ray.origin.distanceTo(closestPoint)
+          } as THREE.Intersection];
           break;
         }
       }
@@ -167,26 +166,25 @@ export const useDrawingEventHandlers = ({
     const meshes = getIntersectedObjects(drawingTarget === 'whiteboard');
     let intersects = raycaster.intersectObjects(meshes, false);
 
-    // If no direct hit, try multiple rays in a circle pattern based on brush size
+    // If no direct hit, check if we're close enough based on brush size
     if (intersects.length === 0 && brushSize > 1) {
-      const rayCount = 8; // Number of rays to cast in circle
-      const brushRadius = (brushSize / gl.domElement.clientWidth) * 2 * 100; // 100x intensity for testing
+      // Convert brush size to world units (approximate)
+      const brushRadius = brushSize * 0.01; // Adjust this multiplier as needed
       
-      for (let i = 0; i < rayCount; i++) {
-        const angle = (i / rayCount) * Math.PI * 2;
-        const offsetX = Math.cos(angle) * brushRadius;
-        const offsetY = Math.sin(angle) * brushRadius;
+      // Check all meshes to see if ray passes close to their surface
+      for (const mesh of meshes) {
+        const boundingBox = new THREE.Box3().setFromObject(mesh);
+        const center = boundingBox.getCenter(new THREE.Vector3());
+        const rayToCenter = raycaster.ray.distanceToPoint(center);
         
-        const testMouse = new THREE.Vector2(
-          mouse.x + offsetX,
-          mouse.y + offsetY
-        );
-        
-        raycaster.setFromCamera(testMouse, camera);
-        const testIntersects = raycaster.intersectObjects(meshes, false);
-        
-        if (testIntersects.length > 0) {
-          intersects = testIntersects;
+        if (rayToCenter <= brushRadius) {
+          // Create a fake intersection at the closest point
+          const closestPoint = raycaster.ray.closestPointToPoint(center, new THREE.Vector3());
+          intersects = [{
+            point: closestPoint,
+            object: mesh,
+            distance: raycaster.ray.origin.distanceTo(closestPoint)
+          } as THREE.Intersection];
           break;
         }
       }
