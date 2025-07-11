@@ -55,7 +55,7 @@ export const useDrawingEventHandlers = ({
     // If no direct hit, try multiple rays in a circle pattern based on brush size
     if (intersects.length === 0 && brushSize > 1) {
       const rayCount = 8; // Number of rays to cast in circle
-      const brushRadius = (brushSize / gl.domElement.clientWidth) * 2; // Convert to NDC units
+      const brushRadius = (brushSize / gl.domElement.clientWidth) * 2 * 100; // 100x intensity for testing
       
       for (let i = 0; i < rayCount; i++) {
         const angle = (i / rayCount) * Math.PI * 2;
@@ -170,7 +170,7 @@ export const useDrawingEventHandlers = ({
     // If no direct hit, try multiple rays in a circle pattern based on brush size
     if (intersects.length === 0 && brushSize > 1) {
       const rayCount = 8; // Number of rays to cast in circle
-      const brushRadius = (brushSize / gl.domElement.clientWidth) * 2; // Convert to NDC units
+      const brushRadius = (brushSize / gl.domElement.clientWidth) * 2 * 100; // 100x intensity for testing
       
       for (let i = 0; i < rayCount; i++) {
         const angle = (i / rayCount) * Math.PI * 2;
