@@ -576,8 +576,8 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             oscillationSpeed: 0.8 + Math.random() * 2.2
           };
 
-          // Add special properties for nerves/electrical particles  
-          if (mark.icon === 'Activity' || mark.name === 'Tingling') {
+          // Add special properties for tingling particles  
+          if (mark.name === 'Tingling') {
             particles.push({
               ...baseParticle,
               sparkIntensity: Math.random(),
@@ -825,7 +825,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
         }
 
         // Update position based on animation profile with natural physics
-        if (animProfile.pattern === 'electrical' || mark.icon === 'Activity' || mark.name === 'Tingling') {
+        if (animProfile.pattern === 'electrical' || mark.name === 'Tingling') {
           // Electrical effects: gentler sparking with fluid movement
           const electricalJitter = Math.sin(particle.electricalPulse! * animProfile.speed) * 0.0005 * animProfile.intensity;
           const sparkDirection = Math.cos(time * 4 * animProfile.speed + particle.life * 0.1) * 0.0004 * animProfile.intensity;
