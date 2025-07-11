@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect, useImperativeHandle, forwardRef } from 'react';
-import { Sparkles, Activity, Zap, Wind, Droplet, Snowflake, Thermometer, Heart, Star, Trash2 } from 'lucide-react';
+import { Sparkles, Activity, Zap, Wind, Droplet, Snowflake, Thermometer, Heart, Star, Trash2, Search } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 import { bodySensations } from '@/constants/bodyMapperConstants';
 import { BodyMapperMode, SelectedSensation } from '@/types/bodyMapperTypes';
 import { CustomSensation, CustomEffectForm } from '@/types/customEffectTypes';
@@ -145,6 +146,40 @@ interface SensationSelectorPropsWithMultiplayer extends SensationSelectorProps {
   onCustomEffectDeleted?: (effectId: string) => void;
 }
 
+// Keyword mappings for enhanced search functionality
+const SENSATION_KEYWORDS: { [key: string]: string[] } = {
+  'Nerves': ['nervous', 'anxiety', 'worried', 'butterflies', 'jittery', 'anxious', 'tense', 'stress'],
+  'Pain': ['hurt', 'ache', 'sore', 'painful', 'discomfort', 'ouch', 'agony', 'sharp', 'dull'],
+  'Nausea': ['sick', 'queasy', 'dizzy', 'motion sickness', 'car sick', 'throw up', 'upset stomach'],
+  'Tears': ['crying', 'sad', 'weeping', 'emotional', 'upset', 'teary', 'watery eyes'],
+  'Decreased Temperature': ['cold', 'chilly', 'freezing', 'cool', 'shiver', 'goosebumps'],
+  'Increased Temperature': ['hot', 'warm', 'fever', 'burning', 'flushed', 'sweaty'],
+  'Increased Heart Rate': ['fast heart', 'racing', 'pounding', 'rapid pulse', 'thumping'],
+  'Decreased Heart Rate': ['slow heart', 'calm pulse', 'relaxed heart', 'steady'],
+  'Tired': ['exhausted', 'sleepy', 'fatigued', 'drowsy', 'weary', 'worn out'],
+  'Change in Breathing': ['breathless', 'shallow', 'deep breaths', 'hyperventilating', 'holding breath'],
+  'Tingling': ['pins needles', 'prickly', 'electric', 'buzzing', 'numb'],
+  'Shaky': ['trembling', 'vibrating', 'quivering', 'unsteady', 'wobbly', 'jittery', 'nervous'],
+  'Pacing': ['walking', 'restless', 'moving', 'can\'t sit still', 'fidgety feet'],
+  'Stomping': ['heavy steps', 'angry walking', 'frustrated', 'marching'],
+  'Tight': ['tense', 'stiff', 'constricted', 'cramped', 'squeezed', 'rigid', 'locked', 'bound'],
+  'Lump in Throat': ['choking', 'swallowing', 'throat closing', 'can\'t speak'],
+  'Change in Appetite': ['hungry', 'not hungry', 'eating', 'food', 'starving', 'full'],
+  'Heaviness': ['weighted', 'dense', 'sinking', 'gravity', 'burden', 'pressure'],
+  'Fidgety': ['restless', 'can\'t sit still', 'antsy', 'squirmy', 'wiggly'],
+  'Frozen/Stiff': ['paralyzed', 'immobile', 'stuck', 'rigid', 'can\'t move'],
+  'Ache': ['dull pain', 'throbbing', 'constant pain', 'chronic'],
+  'Feeling Small': ['tiny', 'insignificant', 'invisible', 'shrinking', 'mini'],
+  'Dry Mouth': ['thirsty', 'parched', 'cottonmouth', 'dehydrated'],
+  'Clenched': ['tight fist', 'gripping', 'holding tight', 'tense hands'],
+  'Change in Energy': ['energetic', 'hyper', 'low energy', 'burst', 'drained'],
+  'Avoiding Eye Contact': ['looking away', 'shy', 'hiding', 'can\'t look'],
+  'Scrunched Face': ['wrinkled', 'squinting', 'grimacing', 'frowning'],
+  'Goosebumps': ['bumps', 'raised skin', 'chills', 'hair standing'],
+  'Relaxed': ['calm', 'peaceful', 'loose', 'comfortable', 'at ease', 'chill', 'serene', 'tranquil'],
+  'Sweat': ['sweating', 'perspiring', 'damp', 'moist', 'clammy']
+};
+
 export const SensationSelector = forwardRef<any, SensationSelectorPropsWithMultiplayer>(({ 
   mode, 
   selectedSensation, 
@@ -156,6 +191,7 @@ export const SensationSelector = forwardRef<any, SensationSelectorPropsWithMulti
   const [customEffects, setCustomEffects] = useState<CustomSensation[]>([]);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [customImages, setCustomImages] = useState<Map<string, string>>(new Map());
+  const [searchTerm, setSearchTerm] = useState('');
 
   // Load custom effects on mount
   useEffect(() => {
@@ -309,8 +345,29 @@ export const SensationSelector = forwardRef<any, SensationSelectorPropsWithMulti
     return getSensationImage(sensation.name);
   };
 
+  // Search functionality
+  const filterSensations = (sensations: (SelectedSensation | CustomSensation)[], search: string) => {
+    if (!search.trim()) return sensations;
+    
+    const searchLower = search.toLowerCase().trim();
+    
+    return sensations.filter(sensation => {
+      // Check direct name match
+      if (sensation.name.toLowerCase().includes(searchLower)) {
+        return true;
+      }
+      
+      // Check keyword matches for built-in sensations
+      const keywords = SENSATION_KEYWORDS[sensation.name] || [];
+      return keywords.some(keyword => keyword.toLowerCase().includes(searchLower));
+    });
+  };
+
   // Combine built-in and custom sensations
   const allSensations = [...bodySensations, ...customEffects];
+  
+  // Filter sensations based on search term
+  const filteredSensations = filterSensations(allSensations, searchTerm);
 
   return (
     <div>
@@ -319,8 +376,26 @@ export const SensationSelector = forwardRef<any, SensationSelectorPropsWithMulti
         <p className="mt-3"><strong>Tip:</strong> Think about the signals your body gives you. Where do you feel tension, energy, or change when a big feeling shows up?</p>
       </div>
 
+      {/* Search Input */}
+      <div className="mb-4 relative">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+        <Input
+          type="text"
+          placeholder="Search sensations..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="pl-10"
+        />
+      </div>
+
       <div className="grid grid-cols-2 gap-3">
-        {allSensations.map((sensation, index) => {
+        {filteredSensations.length === 0 && searchTerm.trim() ? (
+          <div className="col-span-2 text-center py-8 text-muted-foreground">
+            <p>No sensations found matching "{searchTerm}"</p>
+            <p className="text-sm mt-1">Try different keywords or create a custom sensation</p>
+          </div>
+        ) : (
+          filteredSensations.map((sensation, index) => {
           const isSelected = selectedSensation?.name === sensation.name;
           const isCustom = 'isCustom' in sensation && sensation.isCustom;
           
@@ -391,9 +466,10 @@ export const SensationSelector = forwardRef<any, SensationSelectorPropsWithMulti
               )}
             </div>
           );
-        })}
+        })
+        )}
         
-        {/* Create Custom Effect Button */}
+        {/* Create Custom Effect Button - Always show */}
         <button
           className="flex flex-col items-center p-3 border border-dashed border-foreground/40 rounded-lg transition-all outline-none focus:outline-none hover:bg-muted hover:border-foreground/60"
           onClick={() => setShowCreateDialog(true)}
