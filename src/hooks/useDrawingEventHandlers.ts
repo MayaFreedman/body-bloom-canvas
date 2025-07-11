@@ -53,13 +53,32 @@ export const useDrawingEventHandlers = ({
       const mesh = hit.object as THREE.Mesh;
       const geometry = mesh.geometry;
       
+      console.log('🎯 MESH INFO:', {
+        bodyPart: mesh.userData.bodyPart,
+        position: { x: mesh.position.x, y: mesh.position.y, z: mesh.position.z },
+        scale: { x: mesh.scale.x, y: mesh.scale.y, z: mesh.scale.z },
+        rotation: { x: mesh.rotation.x, y: mesh.rotation.y, z: mesh.rotation.z }
+      });
+      
       if (geometry && geometry.boundingBox) {
         geometry.computeBoundingBox();
         const box = geometry.boundingBox!;
         
-        console.log('📦 BOUNDING BOX:', {
+        console.log('📦 GEOMETRY BOUNDING BOX (local space):', {
           min: { x: box.min.x.toFixed(3), y: box.min.y.toFixed(3), z: box.min.z.toFixed(3) },
-          max: { x: box.max.x.toFixed(3), y: box.max.y.toFixed(3), z: box.max.z.toFixed(3) }
+          max: { x: box.max.x.toFixed(3), y: box.max.y.toFixed(3), z: box.max.z.toFixed(3) },
+          size: { 
+            x: (box.max.x - box.min.x).toFixed(3), 
+            y: (box.max.y - box.min.y).toFixed(3), 
+            z: (box.max.z - box.min.z).toFixed(3) 
+          }
+        });
+        
+        // Get world bounding box too for comparison
+        const worldBox = new THREE.Box3().setFromObject(mesh);
+        console.log('🌍 WORLD BOUNDING BOX:', {
+          min: { x: worldBox.min.x.toFixed(3), y: worldBox.min.y.toFixed(3), z: worldBox.min.z.toFixed(3) },
+          max: { x: worldBox.max.x.toFixed(3), y: worldBox.max.y.toFixed(3), z: worldBox.max.z.toFixed(3) }
         });
         
         // Transform hit point to local mesh coordinates
@@ -67,10 +86,10 @@ export const useDrawingEventHandlers = ({
         const worldPoint = hit.point.clone();
         mesh.worldToLocal(localPoint);
         
-        console.log('🌍 WORLD POINT:', { x: worldPoint.x.toFixed(3), y: worldPoint.y.toFixed(3), z: worldPoint.z.toFixed(3) });
-        console.log('🏠 LOCAL POINT:', { x: localPoint.x.toFixed(3), y: localPoint.y.toFixed(3), z: localPoint.z.toFixed(3) });
+        console.log('🌍 WORLD HIT POINT:', { x: worldPoint.x.toFixed(3), y: worldPoint.y.toFixed(3), z: worldPoint.z.toFixed(3) });
+        console.log('🏠 LOCAL HIT POINT:', { x: localPoint.x.toFixed(3), y: localPoint.y.toFixed(3), z: localPoint.z.toFixed(3) });
         
-        // Calculate distance to nearest edge
+        // Calculate distance to nearest edge using local coordinates
         const distToEdgeX = Math.min(
           Math.abs(localPoint.x - box.min.x),
           Math.abs(localPoint.x - box.max.x)
@@ -83,6 +102,27 @@ export const useDrawingEventHandlers = ({
           Math.abs(localPoint.z - box.min.z),
           Math.abs(localPoint.z - box.max.z)
         );
+        
+        console.log('📏 RAW EDGE DISTANCES:', {
+          X: distToEdgeX.toFixed(3),
+          Y: distToEdgeY.toFixed(3), 
+          Z: distToEdgeZ.toFixed(3)
+        });
+        
+        // Also try world space calculation for comparison
+        const worldDistY = Math.min(
+          Math.abs(worldPoint.y - worldBox.min.y),
+          Math.abs(worldPoint.y - worldBox.max.y)
+        );
+        const worldDistZ = Math.min(
+          Math.abs(worldPoint.z - worldBox.min.z),
+          Math.abs(worldPoint.z - worldBox.max.z)
+        );
+        
+        console.log('🌍 WORLD EDGE DISTANCES:', {
+          Y: worldDistY.toFixed(3),
+          Z: worldDistZ.toFixed(3)
+        });
         
         const minDistToEdge = Math.min(distToEdgeY, distToEdgeZ); // Only consider Y and Z, ignore X
         
