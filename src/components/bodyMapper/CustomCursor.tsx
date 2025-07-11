@@ -136,9 +136,26 @@ export const CustomCursor: React.FC<CustomCursorProps> = ({
             alt={selectedSensation.name}
             className={`w-8 h-8 object-contain ${isHoveringBody ? 'w-6 h-6' : ''} transition-all duration-150`}
             style={{
-              filter: isHoveringBody ? 'drop-shadow(2px 2px 4px rgba(0,0,0,0.3))' : 'drop-shadow(1px 1px 2px rgba(0,0,0,0.2))'
+              filter: `hue-rotate(${selectedSensation.color ? 0 : 0}deg) saturate(${selectedSensation.color ? 1.2 : 1}) ${isHoveringBody ? 'drop-shadow(2px 2px 4px rgba(0,0,0,0.3))' : 'drop-shadow(1px 1px 2px rgba(0,0,0,0.2))'}`,
+              // Apply color tint for custom effects
+              ...(selectedSensation.isCustom && selectedSensation.color ? {
+                filter: `drop-shadow(0 0 0 ${selectedSensation.color}) ${isHoveringBody ? 'drop-shadow(2px 2px 4px rgba(0,0,0,0.3))' : 'drop-shadow(1px 1px 2px rgba(0,0,0,0.2))'}`,
+                mixBlendMode: 'multiply' as const
+              } : {})
             }}
           />
+          {/* Color overlay for custom effects */}
+          {selectedSensation.isCustom && selectedSensation.color && (
+            <div 
+              className="absolute inset-0 w-8 h-8 object-contain transition-all duration-150"
+              style={{
+                backgroundColor: selectedSensation.color,
+                mixBlendMode: 'multiply',
+                borderRadius: '4px',
+                opacity: 0.6
+              }}
+            />
+          )}
         </div>
       </div>
     );

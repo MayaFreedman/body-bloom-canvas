@@ -19,6 +19,8 @@ export interface SensationMark {
   color: string;
   size: number;
   name?: string;
+  movementBehavior?: 'gentle' | 'moderate' | 'energetic';
+  isCustom?: boolean;
 }
 
 export interface Effect {
@@ -42,4 +44,7 @@ export interface SelectedSensation {
   icon: string;
   color: string;
   name: string;
+  movementBehavior?: 'gentle' | 'moderate' | 'energetic';
+  isCustom?: boolean;
+  id?: string;
 }

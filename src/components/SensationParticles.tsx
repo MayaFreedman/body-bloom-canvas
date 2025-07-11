@@ -396,28 +396,28 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
   const getCustomEffectParams = (behavior: 'gentle' | 'moderate' | 'energetic') => {
     const params = {
       gentle: {
-        particleCount: 8,
-        dispersion: 0.05,
-        size: { base: 0.06, variance: 0.03, multiplier: 2.2 },
-        lifespan: { min: 200, max: 350 },
-        speed: 0.4,
-        intensity: 0.5,
+        particleCount: 5, // Much fewer particles
+        dispersion: 0.03, // Smaller spread
+        size: { base: 0.08, variance: 0.04, multiplier: 2.8 }, // Larger particles
+        lifespan: { min: 350, max: 600 }, // Much longer lifespan
+        speed: 0.15, // Much slower speed
+        intensity: 0.3, // Lower intensity
       },
       moderate: {
-        particleCount: 15,
+        particleCount: 15, // Standard amount
         dispersion: 0.08,
         size: { base: 0.045, variance: 0.025, multiplier: 1.7 },
         lifespan: { min: 120, max: 200 },
-        speed: 1.0,
+        speed: 1.0, // Standard speed
         intensity: 0.8,
       },
       energetic: {
-        particleCount: 25,
-        dispersion: 0.12,
-        size: { base: 0.035, variance: 0.02, multiplier: 1.4 },
-        lifespan: { min: 60, max: 120 },
-        speed: 2.0,
-        intensity: 1.2,
+        particleCount: 35, // Much more particles
+        dispersion: 0.15, // Much larger spread
+        size: { base: 0.025, variance: 0.015, multiplier: 1.2 }, // Smaller particles
+        lifespan: { min: 30, max: 80 }, // Much shorter lifespan
+        speed: 3.5, // Much faster speed
+        intensity: 1.5, // Higher intensity
       },
     };
     

@@ -84,6 +84,7 @@ export const ScreenshotComposer = ({
     // Use import.meta.url to get correct paths that work in both dev and production
     const baseUrl = new URL('../../../src/Assets/particleEffects/', import.meta.url).href;
     const imageMap: Record<string, string> = {
+      // Built-in sensations
       'butterfly': `${baseUrl}butterfly.png`,
       'Zap': `${baseUrl}lightning-bolt.png`,
       'Wind': `${baseUrl}wind.png`,
@@ -93,7 +94,29 @@ export const ScreenshotComposer = ({
       'Heart': `${baseUrl}heart.png`,
       'Activity': `${baseUrl}shake.png`,
       'Star': `${baseUrl}star.png`,
-      'Sparkles': `${baseUrl}sparkle.png`
+      'Sparkles': `${baseUrl}sparkle.png`,
+      
+      // Custom effect icons
+      'flower': `${baseUrl}flower.png`,
+      'tornado': `${baseUrl}tornado.png`,
+      'chicken': `${baseUrl}chicken.png`,
+      'storm': `${baseUrl}storm.png`,
+      'explosion': `${baseUrl}explosion.png`,
+      'supportheart': `${baseUrl}supportheart.png`,
+      'baloon': `${baseUrl}baloon.png`,
+      'musical-note': `${baseUrl}musical-note.png`,
+      'cat': `${baseUrl}cat.png`,
+      'dog': `${baseUrl}dog.png`,
+      'racecar': `${baseUrl}racecar.png`,
+      'roller-coaster': `${baseUrl}roller-coaster.png`,
+      'broken-heart': `${baseUrl}broken-heart.png`,
+      'robot': `${baseUrl}robot.png`,
+      'biceps': `${baseUrl}biceps.png`,
+      'wings': `${baseUrl}wings.png`,
+      'alarm': `${baseUrl}alarm.png`,
+      'lightbulb': `${baseUrl}lightbulb.png`,
+      'spaceship': `${baseUrl}spaceship.png`,
+      'shield': `${baseUrl}shield.png`
     };
     return imageMap[iconName] || `${baseUrl}plus.png`;
   };
