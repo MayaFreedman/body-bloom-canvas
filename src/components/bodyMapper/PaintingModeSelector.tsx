@@ -81,7 +81,7 @@ export const PaintingModeSelector = ({
         <div className="mt-4 flex flex-col items-start">
           <button
             className={`control-button-with-text-red ${
-              clearFillMode ? 'bg-soft-coral text-white' : ''
+              clearFillMode ? 'bg-red-500 text-white border-red-500' : ''
             }`}
             onClick={() => handleClearFillModeChange(!clearFillMode)}
           >

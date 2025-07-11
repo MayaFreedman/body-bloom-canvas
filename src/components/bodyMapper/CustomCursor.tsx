@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { X } from 'lucide-react';
+import { X, Trash2 } from 'lucide-react';
 import { SelectedSensation } from '@/types/bodyMapperTypes';
 import { getSensationImage } from './SensationSelector';
 
@@ -14,6 +14,7 @@ interface CustomCursorProps {
   textToPlace?: string;
   textSettings?: any;
   selectedColor?: string;
+  clearFillMode?: boolean;
 }
 
 export const CustomCursor: React.FC<CustomCursorProps> = ({ 
@@ -26,7 +27,8 @@ export const CustomCursor: React.FC<CustomCursorProps> = ({
   isActivelyDrawing = false,
   textToPlace = '',
   textSettings,
-  selectedColor = '#000000'
+  selectedColor = '#000000',
+  clearFillMode = false
 }) => {
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
 
@@ -68,6 +70,14 @@ export const CustomCursor: React.FC<CustomCursorProps> = ({
         // Hide default cursor when in text mode (we show custom cursor)
         document.body.style.setProperty('cursor', 'none', 'important');
       }
+    } else if (mode === 'fill' && clearFillMode) {
+      if (isHoveringSidebar || isHoveringControlButtons) {
+        // Show default cursor when hovering sidebar or control buttons in clear fill mode
+        document.body.style.setProperty('cursor', 'default', 'important');
+      } else {
+        // Hide default cursor when in clear fill mode (we show custom cursor)
+        document.body.style.setProperty('cursor', 'none', 'important');
+      }
     } else {
       // Default cursor when no sensation selected
       document.body.style.setProperty('cursor', 'default', 'important');
@@ -77,11 +87,30 @@ export const CustomCursor: React.FC<CustomCursorProps> = ({
     return () => {
       document.body.style.cursor = 'default';
     };
-  }, [selectedSensation, isHoveringBody, showNotAllowed, mode, isHoveringSidebar, isHoveringControlButtons]);
+  }, [selectedSensation, isHoveringBody, showNotAllowed, mode, isHoveringSidebar, isHoveringControlButtons, clearFillMode]);
 
-  // Show custom cursor for sensations OR text mode, but not when hovering sidebar or control buttons
-  if ((!selectedSensation && mode !== 'text') || isHoveringSidebar || isHoveringControlButtons) {
+  // Show custom cursor for sensations OR text mode OR clear fill mode, but not when hovering sidebar or control buttons
+  if ((!selectedSensation && mode !== 'text' && !(mode === 'fill' && clearFillMode)) || isHoveringSidebar || isHoveringControlButtons) {
     return null;
+  }
+
+  // For clear fill mode, show trash icon
+  if (mode === 'fill' && clearFillMode) {
+    return (
+      <div
+        className="fixed pointer-events-none z-[9999] transition-opacity duration-150"
+        style={{
+          left: cursorPosition.x,
+          top: cursorPosition.y,
+          transform: 'translate(-12px, -12px)',
+          opacity: isHoveringBody ? 0.8 : 1
+        }}
+      >
+        <div className="bg-red-500 text-white p-1.5 rounded-md shadow-lg">
+          <Trash2 size={16} />
+        </div>
+      </div>
+    );
   }
 
   // For text mode, show text preview

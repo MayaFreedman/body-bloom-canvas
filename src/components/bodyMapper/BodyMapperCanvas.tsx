@@ -276,6 +276,7 @@ export const BodyMapperCanvas = ({
         textToPlace={textToPlace}
         textSettings={textSettings}
         selectedColor={selectedColor}
+        clearFillMode={clearFillMode}
       />
       
       {/* Inline Text Editor */}
