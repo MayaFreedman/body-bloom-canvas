@@ -293,9 +293,9 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
   const getParticleSize = (sensationName: string) => {
     const sizeMap: { [key: string]: { base: number; variance: number; multiplier: number } } = {
       // VERY SLOW/STATIC = largest, regenerate least frequently
-      'Frozen/Stiff': { base: 0.09, variance: 0.045, multiplier: 3.0 }, // Biggest, almost static
-      'Heaviness': { base: 0.08, variance: 0.04, multiplier: 2.7 }, // Heavy, weighty feeling
-      'Lump in Throat': { base: 0.075, variance: 0.035, multiplier: 2.5 }, // Significant blockage feeling
+      'Frozen/Stiff': { base: 0.02, variance: 0.01, multiplier: 1.0 }, // Much smaller, static
+      'Heaviness': { base: 0.02, variance: 0.01, multiplier: 1.0 }, // Much smaller, static
+      'Lump in Throat': { base: 0.02, variance: 0.01, multiplier: 1.0 }, // 75% smaller
       
       // SLOW/CALM = large, infrequent regeneration  
       'Relaxed': { base: 0.07, variance: 0.035, multiplier: 2.3 }, // Calm, visible
@@ -371,7 +371,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       'Change in Appetite': { min: 80, max: 140 }, // Match Increased Temperature
       'Fidgety': { min: 120, max: 180 }, // More chill respawn rate
       'Clenched': { min: 80, max: 140 }, // Match Increased Temperature
-      'Avoiding Eye Contact': { min: 160, max: 240 }, // Slower respawn rate
+      'Avoiding Eye Contact': { min: 300, max: 450 }, // Much slower respawn rate
       'Tense': { min: 80, max: 140 }, // Match Increased Temperature
       'Change in Energy': { min: 50, max: 100 }, // Energy bursts
       'Pacing': { min: 400, max: 600 }, // Very long lifespan, minimal respawning
@@ -784,8 +784,8 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             'Ache': { speed: 0.5, intensity: 0.7, pattern: 'throb', gravity: 0.0001 },
             
             // STATIC/SLOW effects
-            'Frozen/Stiff': { speed: 0.1, intensity: 0.3, pattern: 'minimal', gravity: 0.0001 }, // Barely moving
-            'Heaviness': { speed: 0.2, intensity: 0.4, pattern: 'sink', gravity: 0.0006, drift: new THREE.Vector3(0, -0.8, 0) },
+            'Frozen/Stiff': { speed: 0.01, intensity: 0.1, pattern: 'static', gravity: 0.0 }, // Almost no movement
+            'Heaviness': { speed: 0.01, intensity: 0.1, pattern: 'static', gravity: 0.0 }, // Almost no movement
             'Relaxed': { speed: 0.4, intensity: 0.5, pattern: 'gentle', gravity: 0.0001 },
             
             // TENSION effects - reset to reasonable defaults
