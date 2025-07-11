@@ -189,9 +189,9 @@ export const BodyMapperControls = React.forwardRef<
     });
   }, []);
 
-  // Auto-scroll when mode changes to draw or text
+  // Auto-scroll when mode changes to draw, text, or fill
   useEffect(() => {
-    if (mode === 'draw' || mode === 'text') {
+    if (mode === 'draw' || mode === 'text' || mode === 'fill') {
       // Find the active tab content and scroll to show relevant controls
       const activeTabContent = document.querySelector('.tab-content.active');
       if (activeTabContent) {
