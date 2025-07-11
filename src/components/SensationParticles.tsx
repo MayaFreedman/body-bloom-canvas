@@ -413,11 +413,11 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       },
       energetic: {
         particleCount: 20, // Keep the same count
-        dispersion: 0.15, // Reeled in from 0.25 - more contained
+        dispersion: 0.15, // Perfect spawn area - keep it!
         size: { base: 0.04, variance: 0.02, multiplier: 1.4 }, // Same as moderate size
         lifespan: { min: 50, max: 120 }, // Same lifespan
-        speed: 3.2, // Cranked up from 2.6 - much faster!
-        intensity: 2.2, // Cranked up from 1.8 - even more intense
+        speed: 5.5, // MAXIMUM CHAOS SPEED!
+        intensity: 4.0, // EXTREME RANDOMNESS AND INTENSITY!
       },
     };
     
