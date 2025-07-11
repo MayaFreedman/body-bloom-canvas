@@ -384,7 +384,7 @@ export const SensationSelector = forwardRef<any, SensationSelectorPropsWithMulti
           placeholder="Search sensations..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-11 pr-4 border border-foreground/20 rounded-lg py-2 text-base text-foreground placeholder:text-muted-foreground hover:border-foreground/40 focus:border-foreground focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+          className="pl-10 pr-4 border border-foreground/20 rounded-lg py-2 text-base text-foreground placeholder:text-muted-foreground hover:border-foreground/40 focus:border-foreground focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0"
         />
       </div>
 
