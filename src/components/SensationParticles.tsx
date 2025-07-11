@@ -413,7 +413,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       },
       energetic: {
         particleCount: 20, // Keep the same count
-        dispersion: 0.15, // Perfect spawn area - keep it!
+        dispersion: 0.12, // Slightly tighter spawn area
         size: { base: 0.04, variance: 0.02, multiplier: 1.4 }, // Same as moderate size
         lifespan: { min: 30, max: 60 }, // Shorter lifespan to contain movement
         speed: 4.2, // Toned down from 5.5
