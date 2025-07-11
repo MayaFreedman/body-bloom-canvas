@@ -988,6 +988,10 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             particle.velocity.multiplyScalar(0.995);
           }
           
+        } else if (animProfile.pattern === 'static') {
+          // Static particles - absolutely no movement
+          // Do nothing - particles stay exactly where they are
+          
         } else {
           // Default fluid movement for all other sensations
           
