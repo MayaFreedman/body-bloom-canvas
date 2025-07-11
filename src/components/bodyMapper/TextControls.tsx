@@ -101,7 +101,7 @@ export const TextControls = ({
                   }}
                   min={10}
                   max={48}
-                  className="w-16 h-8 text-center [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
+                  className="w-16 h-8 text-center border border-foreground/20 rounded-lg px-4 py-2 text-base text-foreground hover:border-foreground/40 focus:border-foreground focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
                 />
                 <Button
                   variant="outline"
@@ -116,7 +116,7 @@ export const TextControls = ({
               {/* Style Buttons - Bold and Italic inline */}
               <div className="flex items-center gap-1 ml-2">
                 <Button
-                  variant={textSettings.fontWeight === 'bold' ? 'default' : 'outline'}
+                  variant={textSettings.fontWeight === 'bold' ? 'navy' : 'outline'}
                   size="sm"
                   className="h-8 px-3"
                   onClick={() => onTextSettingsChange({ 
@@ -126,7 +126,7 @@ export const TextControls = ({
                   <Bold className="w-4 h-4" />
                 </Button>
                 <Button
-                  variant={textSettings.fontStyle === 'italic' ? 'default' : 'outline'}
+                  variant={textSettings.fontStyle === 'italic' ? 'navy' : 'outline'}
                   size="sm"
                   className="h-8 px-3"
                   onClick={() => onTextSettingsChange({ 
