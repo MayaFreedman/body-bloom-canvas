@@ -109,7 +109,7 @@ export const CustomEffectDialog: React.FC<CustomEffectDialogProps> = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Create Custom Particle Effect</DialogTitle>
+          <DialogTitle className="text-foreground font-semibold">Create Custom Particle Effect</DialogTitle>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -189,12 +189,18 @@ export const CustomEffectDialog: React.FC<CustomEffectDialogProps> = ({
                   style={{ backgroundColor: color }}
                 />
               ))}
-              <input
-                type="color"
-                value={form.color}
-                onChange={(e) => updateForm({ color: e.target.value })}
-                className="w-5 h-5 rounded border cursor-pointer ml-1"
-              />
+              <div className="relative ml-1">
+                <div 
+                  className="w-5 h-5 rounded border border-border cursor-pointer hover:border-foreground/60 transition-colors"
+                  style={{ backgroundColor: form.color }}
+                />
+                <input
+                  type="color"
+                  value={form.color}
+                  onChange={(e) => updateForm({ color: e.target.value })}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                />
+              </div>
             </div>
           </div>
 
