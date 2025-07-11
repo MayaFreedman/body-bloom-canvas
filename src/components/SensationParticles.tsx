@@ -992,13 +992,16 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             // No damping - let velocities accumulate for maximum chaos!
             
           } else {
-            // Moderate movement (default)
+            // Moderate movement - match Increased Temperature flow pattern
             const moderateFloat = Math.sin(time * 3 + particle.life * 0.3) * 0.0008 * animProfile.intensity;
             const naturalDrift = Math.cos(time * 2.5 + particle.life * 0.25) * 0.0006 * animProfile.intensity;
             
             particle.velocity.x += moderateFloat * clampedDelta;
             particle.velocity.y += naturalDrift * clampedDelta;
             particle.velocity.z += (moderateFloat * 0.6) * clampedDelta;
+            
+            // Add upward drift like Increased Temperature (0.2 upward drift)
+            particle.velocity.y += 0.0002 * clampedDelta; // Upward flow
             
             // Apply gravity and movement
             particle.velocity.y += (animProfile.gravity || 0.0002) * clampedDelta;
