@@ -989,7 +989,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             // Apply gravity and movement
             particle.velocity.y += (animProfile.gravity || 0.0002) * clampedDelta;
             particle.position.add(particle.velocity);
-            particle.velocity.multiplyScalar(0.85); // Much less damping for very chaotic movement
+            particle.velocity.multiplyScalar(0.98); // Reduced damping for more flowing movement
             
           } else {
             // Moderate movement (default)
