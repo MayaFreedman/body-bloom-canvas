@@ -124,13 +124,9 @@ export const useDrawingEventHandlers = ({
     
     // Include whiteboard in intersection detection based on drawing target
     const meshes = getIntersectedObjects(drawingTarget === 'whiteboard');
-    console.log('🎯 Found meshes for intersection:', meshes.length, 'includeWhiteboard:', drawingTarget === 'whiteboard');
-    meshes.forEach((mesh, i) => {
-      console.log(`  Mesh ${i}:`, mesh.userData.bodyPart || 'whiteboard', mesh.userData);
-    });
     
     const intersect = findBrushIntersection(meshes);
-    console.log('🎯 Brush intersection result:', intersect ? 'HIT' : 'MISS');
+    
 
     if (intersect) {
       
@@ -165,11 +161,6 @@ export const useDrawingEventHandlers = ({
       }
       // Handle whiteboard intersection
       else if (intersect.object.userData.isWhiteboard && drawingTarget === 'whiteboard') {
-        console.log('✅ Hit whiteboard at world coords:', {
-          x: intersect.point.x.toFixed(3),
-          y: intersect.point.y.toFixed(3),
-          z: intersect.point.z.toFixed(3)
-        }, 'object userData:', intersect.object.userData);
         if (onStrokeStart && !strokeStarted.current) {
           onStrokeStart();
           strokeStarted.current = true;
@@ -198,7 +189,7 @@ export const useDrawingEventHandlers = ({
         lastMarkTime.current = Date.now();
       }
     } else {
-      console.log('❌ No brush intersection found for', drawingTarget);
+      
     }
   }, [isDrawing, addMarkAtPosition, onStrokeStart, onAddToStroke, camera, gl, raycaster, mouse, getIntersectedObjects, drawingTarget, findBrushIntersection]);
 
@@ -256,11 +247,6 @@ export const useDrawingEventHandlers = ({
       // Handle whiteboard drawing
       else if (intersect.object.userData.isWhiteboard && drawingTarget === 'whiteboard') {
         const currentPosition = intersect.point;
-        console.log('🖼️ Whiteboard move - world coords:', {
-          x: currentPosition.x.toFixed(3),
-          y: currentPosition.y.toFixed(3),
-          z: currentPosition.z.toFixed(3)
-        });
         
         addMarkAtPosition(currentPosition, intersect, 'whiteboard');
         
@@ -292,15 +278,15 @@ export const useDrawingEventHandlers = ({
   }, [isDrawing, addMarkAtPosition, onAddToStroke, interpolateMarks, camera, gl, raycaster, mouse, getIntersectedObjects, findBrushIntersection]);
 
   const handlePointerUp = useCallback(() => {
-    console.log('🖱️ Pointer up - ending drawing, mode:', mode, 'strokeStarted:', strokeStarted.current, 'mouseDown:', isMouseDown.current);
+    
     // Only complete strokes when actually in drawing mode
     if (isMouseDown.current && strokeStarted.current && mode === 'draw') {
-      console.log('🏁 STROKE COMPLETE: Completing stroke in draw mode');
+      
       if (onStrokeComplete) {
         onStrokeComplete();
       }
     } else {
-      console.log('🚫 STROKE SKIP: Not completing stroke - mode:', mode, 'strokeStarted:', strokeStarted.current, 'mouseDown:', isMouseDown.current);
+      
     }
     
     isMouseDown.current = false;

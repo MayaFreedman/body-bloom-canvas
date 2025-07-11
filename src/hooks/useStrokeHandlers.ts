@@ -335,16 +335,12 @@ export const useStrokeHandlers = ({
   const handleDrawingStrokeStart = useCallback(() => {
     handleStartDrawing();
     if (multiplayer.isConnected) {
-      console.log('🎨 Starting multiplayer stroke with current state:', {
-        color: selectedColor,
-        size: brushSize[0]
-      });
       multiplayer.startDrawingStroke(selectedColor, brushSize[0]);
     }
   }, [handleStartDrawing, multiplayer.isConnected, multiplayer.startDrawingStroke, selectedColor, brushSize]);
 
   const handleDrawingStrokeComplete = useCallback(() => {
-    console.log('🎨 Completing drawing stroke - this should add ONE action to history');
+    
     handleFinishDrawing();
     if (multiplayer.isConnected) {
       multiplayer.finishDrawingStroke();

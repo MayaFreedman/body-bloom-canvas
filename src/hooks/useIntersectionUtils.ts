@@ -11,13 +11,13 @@ export const useIntersectionUtils = ({ modelRef }: UseIntersectionUtilsProps) =>
     const meshes: THREE.Mesh[] = [];
     const modelGroup = modelRef?.current;
     
-    console.log('🔍 getIntersectedObjects called, includeWhiteboard:', includeWhiteboard, 'modelGroup:', !!modelGroup);
+    
     
     // Get body meshes from inside the model group
     if (modelGroup) {
       modelGroup.traverse((child) => {
         if (child instanceof THREE.Mesh && child.userData.bodyPart) {
-          console.log('🔍 Found body mesh in model group:', child.userData.bodyPart);
+          
           meshes.push(child);
         }
       });
@@ -25,16 +25,16 @@ export const useIntersectionUtils = ({ modelRef }: UseIntersectionUtilsProps) =>
     
     // Get whiteboard meshes ONLY from scene (outside model group) to prevent coordinate transformation issues
     if (includeWhiteboard && modelGroup?.parent) {
-      console.log('🔍 Checking scene for whiteboard meshes...');
+      
       modelGroup.parent.traverse((child) => {
         if (child instanceof THREE.Mesh && child.userData.isWhiteboard) {
-          console.log('🔍 Found whiteboard in scene:', child.userData);
+          
           meshes.push(child);
         }
       });
     }
     
-    console.log('🔍 Total meshes found:', meshes.length);
+    
     return meshes;
   }, [modelRef]);
 
@@ -70,7 +70,7 @@ export const useIntersectionUtils = ({ modelRef }: UseIntersectionUtilsProps) =>
 
     const intersects = raycaster.intersectObjects(meshes, false);
     if (intersects.length > 0 && intersects[0].object.userData.bodyPart) {
-      console.log('🎯 Raycasting found body part:', intersects[0].object.userData.bodyPart, 'at position');
+      
       return intersects[0].object.userData.bodyPart;
     }
 
@@ -97,13 +97,6 @@ export const useIntersectionUtils = ({ modelRef }: UseIntersectionUtilsProps) =>
     });
 
     if (closestBodyPart) {
-      console.log('🎯 Distance-based found body part:', closestBodyPart, 'distance:', closestDistance.toFixed(3));
-    } else {
-      console.log('❌ No body part found at position:', {
-        x: worldPosition.x.toFixed(3),
-        y: worldPosition.y.toFixed(3), 
-        z: worldPosition.z.toFixed(3)
-      });
     }
 
     return closestBodyPart;

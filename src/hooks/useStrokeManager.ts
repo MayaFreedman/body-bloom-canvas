@@ -31,7 +31,7 @@ export const useStrokeManager = ({ currentUserId }: UseStrokeManagerProps) => {
   }, [currentUserId]);
 
   const addMarkToStroke = useCallback((mark: Omit<DrawingMark, 'strokeId' | 'timestamp' | 'userId'>) => {
-    console.log('🟡 useStrokeManager.addMarkToStroke received mark:', {id: mark.id, surface: mark.surface, hasAllProps: Object.keys(mark)});
+    
     if (!currentStroke || !currentUserId) return null;
 
     const enhancedMark: ActionDrawingMark = {
@@ -40,7 +40,7 @@ export const useStrokeManager = ({ currentUserId }: UseStrokeManagerProps) => {
       timestamp: Date.now(),
       userId: currentUserId
     };
-    console.log('🟡 useStrokeManager.addMarkToStroke enhanced mark:', {id: enhancedMark.id, surface: enhancedMark.surface, hasAllProps: Object.keys(enhancedMark)});
+    
 
     setCurrentStroke(prev => {
       if (!prev) return null;
