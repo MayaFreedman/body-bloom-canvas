@@ -404,12 +404,12 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
         intensity: 0.3, // Lower intensity
       },
       moderate: {
-        particleCount: 15, // Standard amount
-        dispersion: 0.08,
-        size: { base: 0.045, variance: 0.025, multiplier: 1.7 },
-        lifespan: { min: 120, max: 200 },
-        speed: 1.0, // Standard speed
-        intensity: 0.8,
+        particleCount: 15, // Standard amount  
+        dispersion: 0.06, // Same as Increased Temperature default
+        size: { base: 0.04, variance: 0.02, multiplier: 1.5 }, // Same as Increased Temperature default
+        lifespan: { min: 80, max: 140 }, // Same as Increased Temperature default
+        speed: 0.8, // Same as Increased Temperature default
+        intensity: 0.6, // Same as Increased Temperature default
       },
       energetic: {
         particleCount: 20, // Keep the same count
