@@ -524,11 +524,11 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
               (Math.random() - 0.5) * 0.001
             );
           } else if (mark.name === 'Stomping') {
-            // Stomping particles start with strong pulse-like burst
+            // Stomping particles start with upward movement like reverse tears
             initialVelocity = new THREE.Vector3(
-              (Math.random() - 0.5) * 0.003,  // Strong initial burst
-              (Math.random() - 0.5) * 0.004,  // Extra strong vertical pulse
-              (Math.random() - 0.5) * 0.003
+              (Math.random() - 0.5) * 0.0003, // Minimal horizontal like tears
+              0.0005 + Math.random() * 0.0004, // Strong upward movement (opposite of tears)
+              (Math.random() - 0.5) * 0.0002  // Minimal depth like tears
             );
           } else if (mark.isCustom && mark.movementBehavior) {
             // Custom effect initial velocity based on movement behavior
@@ -731,11 +731,11 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
               (Math.random() - 0.5) * (isSnow ? 0.0004 : 0.0002)  // Snow has more depth movement
             );
           } else if (mark.name === 'Stomping') {
-            // Reset stomping velocity with strong pulse burst
+            // Reset stomping velocity with upward movement like reverse tears
             particle.velocity.set(
-              (Math.random() - 0.5) * 0.003,  // Strong regeneration burst
-              (Math.random() - 0.5) * 0.004,  // Extra strong vertical pulse
-              (Math.random() - 0.5) * 0.003
+              (Math.random() - 0.5) * 0.0003, // Minimal horizontal like tears
+              0.0005 + Math.random() * 0.0004, // Strong upward movement (opposite of tears)
+              (Math.random() - 0.5) * 0.0002  // Minimal depth like tears
             );
           } else if (mark.isCustom && mark.movementBehavior) {
             // Custom effect initial velocity based on movement behavior - REGENERATION FIX!
@@ -783,7 +783,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             'Shaky': { speed: 0.8, intensity: 0.6, pattern: 'flow', gravity: 0.0002, drift: new THREE.Vector3(0, 0.2, 0) },
             'Fidgety': { speed: 0.8, intensity: 0.6, pattern: 'flow', gravity: 0.0002, drift: new THREE.Vector3(0, 0.2, 0) },
             'Pacing': { speed: 0.05, intensity: 0.1, pattern: 'gentle' }, // Keep minimal movement
-            'Stomping': { speed: 5.2, intensity: 4.5, pattern: 'custom', gravity: 0.0002, drift: new THREE.Vector3(0, 0.1, 0) }, // Even faster stomping
+            'Stomping': { speed: 0.4, intensity: 0.8, pattern: 'stomp', gravity: -0.0004, drift: new THREE.Vector3(0, 0.3, 0) }, // Upward stomping like reverse tears
             
             // FLOW effects - dripping with strong downward movement (negative Y = down)
             'Tears': { speed: 0.2, intensity: 0.4, pattern: 'drip', gravity: 0.0002, drift: new THREE.Vector3(0, -0.15, 0) },
@@ -920,20 +920,32 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             particle.velocity.y -= animProfile.gravity * clampedDelta; // Subtract to go down
           }
           
-          // Apply downward drift force  
-          if (animProfile.drift) {
-            const driftForce = animProfile.drift.clone().multiplyScalar(0.001 * animProfile.intensity * clampedDelta);
-            particle.velocity.add(driftForce); // drift Y is already negative
+        } else if (animProfile.pattern === 'stomp') {
+          // Stomping: reverse tears with upward movement and pulse
+          
+          // Apply strong upward gravity (positive Y = up)
+          if (animProfile.gravity) {
+            particle.velocity.y -= animProfile.gravity * clampedDelta; // Subtract negative gravity = add upward force
           }
           
-          // Very minimal side-to-side oscillation for natural drip variation
+          // Apply upward drift force  
+          if (animProfile.drift) {
+            const driftForce = animProfile.drift.clone().multiplyScalar(0.001 * animProfile.intensity * clampedDelta);
+            particle.velocity.add(driftForce); // drift Y is positive for upward
+          }
+          
+          // Add pulse effect for stomping
+          const pulseForce = Math.sin(time * 8 * animProfile.speed) * 0.002 * animProfile.intensity;
+          particle.velocity.y += pulseForce * clampedDelta;
+          
+          // Very minimal side-to-side oscillation like tears
           const gentleSway = Math.sin(particle.oscillationPhase * animProfile.speed * 0.5) * 0.0001 * animProfile.intensity;
           particle.velocity.x += gentleSway * clampedDelta;
           
           // Apply movement
           particle.position.add(particle.velocity);
           
-          // Minimal damping - let gravity do the work
+          // Minimal damping - let upward gravity do the work
           particle.velocity.multiplyScalar(0.998);
           
           
