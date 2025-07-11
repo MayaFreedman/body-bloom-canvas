@@ -141,6 +141,7 @@ export const CustomEffectDialog: React.FC<CustomEffectDialogProps> = ({
               onChange={(e) => updateForm({ name: e.target.value })}
               placeholder="Enter effect name..."
               maxLength={20}
+              className="border border-foreground/20 rounded-lg px-4 py-2 text-base text-foreground placeholder:text-muted-foreground hover:border-foreground/40 focus:border-foreground focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0"
             />
           </div>
 
@@ -200,11 +201,11 @@ export const CustomEffectDialog: React.FC<CustomEffectDialogProps> = ({
           {/* Movement Behavior */}
           <div className="space-y-2">
             <Label className="text-sm">Movement Behavior</Label>
-            <div className="space-y-1">
+            <div className="flex gap-2">
               {MOVEMENT_BEHAVIORS.map((behavior) => (
                 <label
                   key={behavior.id}
-                  className={`flex items-start p-2 rounded border cursor-pointer transition-all ${
+                  className={`flex-1 p-3 rounded-lg border cursor-pointer transition-all text-center ${
                     form.movementBehavior === behavior.id
                       ? 'border-primary bg-primary/10'
                       : 'border-border hover:bg-muted/50'
@@ -218,10 +219,8 @@ export const CustomEffectDialog: React.FC<CustomEffectDialogProps> = ({
                     onChange={(e) => updateForm({ movementBehavior: e.target.value as any })}
                     className="sr-only"
                   />
-                  <div className="flex-1">
-                    <div className="font-medium text-sm">{behavior.name}</div>
-                    <div className="text-xs text-muted-foreground">{behavior.description}</div>
-                  </div>
+                  <div className="font-medium text-sm">{behavior.name}</div>
+                  <div className="text-xs text-muted-foreground mt-1">{behavior.description}</div>
                 </label>
               ))}
             </div>
