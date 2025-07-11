@@ -130,8 +130,37 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     whiteboardBackground,
     rotation,
     setDrawingMarks: (marks) => {
-      // This needs to properly restore drawing marks through the stroke manager
-      marks.forEach(mark => handleAddDrawingMark(mark));
+      console.log('🔄 Restoring drawing marks from state snapshot:', marks.length);
+      
+      // Group marks by strokeId to reconstruct strokes
+      const strokesMap = new Map();
+      marks.forEach(mark => {
+        if (!mark.strokeId) {
+          console.warn('⚠️ Mark without strokeId, skipping:', mark);
+          return;
+        }
+        
+        if (!strokesMap.has(mark.strokeId)) {
+          strokesMap.set(mark.strokeId, {
+            id: mark.strokeId,
+            marks: [],
+            userId: mark.userId || 'unknown',
+            startTime: mark.timestamp || Date.now(),
+            endTime: mark.timestamp || Date.now(),
+            brushSize: mark.size || 3,
+            color: mark.color || '#ffeb3b',
+            isComplete: true
+          });
+        }
+        
+        strokesMap.get(mark.strokeId).marks.push(mark);
+      });
+      
+      // Restore each stroke
+      strokesMap.forEach(stroke => {
+        console.log('🔄 Restoring stroke from snapshot:', stroke.id, 'with', stroke.marks.length, 'marks');
+        restoreStroke(stroke);
+      });
     },
     setSensationMarks,
     setBodyPartColors: (colors) => {
