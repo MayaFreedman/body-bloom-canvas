@@ -7,6 +7,7 @@ import { useEnhancedBodyMapperState } from '@/hooks/useEnhancedBodyMapperState';
 import { useMultiplayer } from '@/hooks/useMultiplayer';
 import { useMultiplayerDrawingHandlers } from '@/hooks/useMultiplayerDrawingHandlers';
 import { useRotationHandlers } from '@/hooks/useRotationHandlers';
+import { useStateSnapshot } from '@/hooks/useStateSnapshot';
 import * as THREE from 'three';
 
 interface EmotionalBodyMapperProps {
@@ -119,6 +120,61 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     setRotation, 
     multiplayer 
   });
+
+  // State synchronization functionality
+  const stateSnapshot = useStateSnapshot({
+    drawingMarks,
+    sensationMarks,
+    bodyPartColors,
+    textMarks,
+    whiteboardBackground,
+    rotation,
+    setDrawingMarks: (marks) => {
+      // This needs to properly restore drawing marks through the stroke manager
+      marks.forEach(mark => handleAddDrawingMark(mark));
+    },
+    setSensationMarks,
+    setBodyPartColors: (colors) => {
+      Object.entries(colors).forEach(([partName, color]) => {
+        baseHandleBodyPartClick(partName, color);
+      });
+    },
+    setTextMarks: (marks) => {
+      // Clear existing text marks and add new ones
+      textMarks.forEach(mark => handleDeleteTextMark(mark.id));
+      marks.forEach(mark => {
+        handleAddTextMark(mark.position, mark.text, mark.surface, mark.color);
+      });
+    },
+    setWhiteboardBackground: handleWhiteboardFill,
+    setRotation,
+    currentPlayerId: currentUserId
+  });
+
+  // Handle state requests from new players
+  const handleStateRequest = useCallback(() => {
+    if (multiplayer.isConnected) {
+      console.log('📸 Sending state snapshot to new player');
+      const snapshot = stateSnapshot.captureCurrentState();
+      multiplayer.broadcastStateSnapshot(snapshot);
+    }
+  }, [multiplayer, stateSnapshot]);
+
+  // Handle incoming state snapshots
+  const handleStateSnapshot = useCallback((snapshot: any) => {
+    try {
+      console.log('📸 Received state snapshot:', snapshot);
+      
+      if (stateSnapshot.validateSnapshot(snapshot)) {
+        stateSnapshot.restoreFromSnapshot(snapshot);
+        console.log('✅ Successfully restored state from snapshot');
+      } else {
+        console.warn('⚠️ Invalid snapshot received, ignoring');
+      }
+    } catch (error) {
+      console.error('❌ Error handling state snapshot:', error);
+    }
+  }, [stateSnapshot]);
 
   // Handle emotions updates from controls - now that handleEmotionsUpdate is available
   const handleLocalEmotionsUpdate = useCallback((updateData: any) => {
@@ -300,6 +356,8 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
         onIncomingErase={handleIncomingErase}
         onIncomingSensation={handleIncomingSensation}
         onIncomingCustomEffect={handleIncomingCustomEffect}
+        onStateRequest={handleStateRequest}
+        onStateSnapshot={handleStateSnapshot}
       />
     </div>
   );

@@ -19,6 +19,8 @@ interface MultiplayerMessageHandlerProps {
   onIncomingErase?: (center: THREE.Vector3, radius: number, surface?: 'body' | 'whiteboard') => void;
   onIncomingSensation?: (sensationMark: SensationMark) => void;
   onIncomingCustomEffect?: (customEffect: any) => void;
+  onStateRequest?: () => void;
+  onStateSnapshot?: (snapshot: any) => void;
 }
 
 export const MultiplayerMessageHandler = ({
@@ -35,7 +37,9 @@ export const MultiplayerMessageHandler = ({
   onIncomingRedo,
   onIncomingErase,
   onIncomingSensation,
-  onIncomingCustomEffect
+  onIncomingCustomEffect,
+  onStateRequest,
+  onStateSnapshot
 }: MultiplayerMessageHandlerProps) => {
   // Store the unsubscribe function returned by onMessage
   const unsubscribeRef = useRef<(() => void) | null>(null);
@@ -209,6 +213,20 @@ export const MultiplayerMessageHandler = ({
             clearAll();
             break;
           }
+          case 'stateRequest': {
+            console.log('📸 Processing state request from new player');
+            if (onStateRequest) {
+              onStateRequest();
+            }
+            break;
+          }
+          case 'stateSnapshot': {
+            console.log('📸 Processing state snapshot:', messageData);
+            if (onStateSnapshot) {
+              onStateSnapshot(messageData);
+            }
+            break;
+          }
           default:
             console.log('🤷 Unknown message type:', message.type);
         }
@@ -237,7 +255,7 @@ export const MultiplayerMessageHandler = ({
       // Clear the unsubscribe reference
       unsubscribeRef.current = null;
     };
-  }, [room, setDrawingMarks, setSensationMarks, setBodyPartColors, setRotation, clearAll, modelRef, controlsRef, onIncomingOptimizedStroke, onIncomingUndo, onIncomingRedo, onIncomingErase, onIncomingSensation]);
+  }, [room, setDrawingMarks, setSensationMarks, setBodyPartColors, setRotation, clearAll, modelRef, controlsRef, onIncomingOptimizedStroke, onIncomingUndo, onIncomingRedo, onIncomingErase, onIncomingSensation, onStateRequest, onStateSnapshot]);
 
   return null;
 };
