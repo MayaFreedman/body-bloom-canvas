@@ -991,21 +991,31 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             // No damping - let velocities accumulate for maximum chaos!
             
           } else {
-            // Moderate movement - match Increased Temperature flow pattern
-            const moderateFloat = Math.sin(time * 3 + particle.life * 0.3) * 0.0008 * animProfile.intensity;
-            const naturalDrift = Math.cos(time * 2.5 + particle.life * 0.25) * 0.0006 * animProfile.intensity;
+            // Moderate movement - use EXACT same pattern as default "Increased Temperature" flow
+            // Apply gravity and drift forces (same as default flow behavior)
+            if (animProfile.gravity) {
+              particle.velocity.y += animProfile.gravity * clampedDelta;
+            }
             
-            particle.velocity.x += moderateFloat * clampedDelta;
-            particle.velocity.y += naturalDrift * clampedDelta;
-            particle.velocity.z += (moderateFloat * 0.6) * clampedDelta;
+            if (animProfile.drift) {
+              const driftForce = animProfile.drift.clone().multiplyScalar(0.001 * animProfile.intensity * clampedDelta);
+              particle.velocity.add(driftForce);
+            }
             
-            // Add upward drift like Increased Temperature (0.2 upward drift)
-            particle.velocity.y += 0.0002 * clampedDelta; // Upward flow
+            // Add barely perceptible drift movement - EXACTLY like default flow
+            const gentleDriftX = Math.sin(time * 0.02 + particle.life * 0.001) * 0.000005 * animProfile.intensity;
+            const gentleDriftY = Math.cos(time * 0.015) * 0.000002 * animProfile.intensity;
+            const gentleDriftZ = 0; // No Z movement to reduce nausea
             
-            // Apply gravity and movement
-            particle.velocity.y += (animProfile.gravity || 0.0002) * clampedDelta;
+            particle.velocity.x += gentleDriftX * clampedDelta;
+            particle.velocity.y += gentleDriftY * clampedDelta;
+            particle.velocity.z += gentleDriftZ * clampedDelta;
+            
+            // Apply movement
             particle.position.add(particle.velocity);
-            particle.velocity.multiplyScalar(0.95);
+            
+            // Natural damping - EXACTLY like default flow
+            particle.velocity.multiplyScalar(0.995);
           }
           
         } else {
