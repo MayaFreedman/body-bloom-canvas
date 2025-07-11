@@ -8,6 +8,7 @@ interface UseDrawingEventHandlersProps {
   isDrawing: boolean;
   drawingTarget: 'body' | 'whiteboard';
   mode: string;
+  brushSize: number;
   onStrokeStart?: () => void;
   onStrokeComplete?: () => void;
   onAddToStroke?: (worldPoint: WorldDrawingPoint) => void;
@@ -20,6 +21,7 @@ export const useDrawingEventHandlers = ({
   isDrawing,
   drawingTarget,
   mode,
+  brushSize,
   onStrokeStart,
   onStrokeComplete,
   onAddToStroke,
@@ -40,23 +42,40 @@ export const useDrawingEventHandlers = ({
     strokeStarted.current = false;
     
     const rect = gl.domElement.getBoundingClientRect();
-    mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-    mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+    const centerX = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    const centerY = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
-    raycaster.setFromCamera(mouse, camera);
+    // Test multiple positions around the cursor based on brush size
+    const brushRadius = brushSize * 2; // Convert brush size to screen pixels
+    const offsetPixels = brushRadius / 2; // Half the brush size
+    const positions = [
+      { x: centerX, y: centerY }, // Center
+      { x: centerX + (offsetPixels / rect.width) * 2, y: centerY }, // Right
+      { x: centerX - (offsetPixels / rect.width) * 2, y: centerY }, // Left
+      { x: centerX, y: centerY + (offsetPixels / rect.height) * 2 }, // Up
+      { x: centerX, y: centerY - (offsetPixels / rect.height) * 2 }, // Down
+    ];
+
+    let bestIntersect: THREE.Intersection | null = null;
     
     // Include whiteboard in intersection detection based on drawing target
     const meshes = getIntersectedObjects(drawingTarget === 'whiteboard');
-    console.log('🎯 Found meshes for intersection:', meshes.length, 'includeWhiteboard:', drawingTarget === 'whiteboard');
-    meshes.forEach((mesh, i) => {
-      console.log(`  Mesh ${i}:`, mesh.userData.bodyPart || 'whiteboard', mesh.userData);
-    });
     
-    const intersects = raycaster.intersectObjects(meshes, false);
-    console.log('🎯 Raycaster intersections:', intersects.length);
+    // Test each position until we find a valid intersection
+    for (const pos of positions) {
+      mouse.x = pos.x;
+      mouse.y = pos.y;
+      raycaster.setFromCamera(mouse, camera);
+      
+      const intersects = raycaster.intersectObjects(meshes, false);
+      if (intersects.length > 0) {
+        bestIntersect = intersects[0];
+        break; // Early exit on first valid intersection
+      }
+    }
 
-    if (intersects.length > 0) {
-      const intersect = intersects[0];
+    if (bestIntersect) {
+      const intersect = bestIntersect;
       
       // Handle body part intersection
       if (intersect.object.userData.bodyPart && drawingTarget === 'body') {
@@ -122,10 +141,7 @@ export const useDrawingEventHandlers = ({
         lastMarkTime.current = Date.now();
       }
     } else {
-      console.log('❌ No valid intersection found for', drawingTarget);
-      if (intersects.length > 0) {
-        console.log('  First intersect object userData:', intersects[0].object.userData);
-      }
+      console.log('❌ No valid intersection found for', drawingTarget, 'with brush edge detection');
     }
   }, [isDrawing, addMarkAtPosition, onStrokeStart, onAddToStroke, camera, gl, raycaster, mouse, getIntersectedObjects, drawingTarget]);
 
@@ -139,16 +155,39 @@ export const useDrawingEventHandlers = ({
     if (now - lastMarkTime.current < THROTTLE_TIME) return;
 
     const rect = gl.domElement.getBoundingClientRect();
-    mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-    mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+    const centerX = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    const centerY = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
-    raycaster.setFromCamera(mouse, camera);
+    // Test multiple positions around the cursor based on brush size
+    const brushRadius = brushSize * 2; // Convert brush size to screen pixels
+    const offsetPixels = brushRadius / 2; // Half the brush size
+    const positions = [
+      { x: centerX, y: centerY }, // Center
+      { x: centerX + (offsetPixels / rect.width) * 2, y: centerY }, // Right
+      { x: centerX - (offsetPixels / rect.width) * 2, y: centerY }, // Left
+      { x: centerX, y: centerY + (offsetPixels / rect.height) * 2 }, // Up
+      { x: centerX, y: centerY - (offsetPixels / rect.height) * 2 }, // Down
+    ];
+
+    let bestIntersect: THREE.Intersection | null = null;
     
     const meshes = getIntersectedObjects(drawingTarget === 'whiteboard');
-    const intersects = raycaster.intersectObjects(meshes, false);
+    
+    // Test each position until we find a valid intersection
+    for (const pos of positions) {
+      mouse.x = pos.x;
+      mouse.y = pos.y;
+      raycaster.setFromCamera(mouse, camera);
+      
+      const intersects = raycaster.intersectObjects(meshes, false);
+      if (intersects.length > 0) {
+        bestIntersect = intersects[0];
+        break; // Early exit on first valid intersection
+      }
+    }
 
-    if (intersects.length > 0) {
-      const intersect = intersects[0];
+    if (bestIntersect) {
+      const intersect = bestIntersect;
       
       // Handle body drawing
       if (intersect.object.userData.bodyPart && drawingTarget === 'body') {
@@ -217,7 +256,7 @@ export const useDrawingEventHandlers = ({
         lastMarkTime.current = now;
       }
     }
-  }, [isDrawing, addMarkAtPosition, onAddToStroke, interpolateMarks, camera, gl, raycaster, mouse, getIntersectedObjects]);
+  }, [isDrawing, addMarkAtPosition, onAddToStroke, interpolateMarks, camera, gl, raycaster, mouse, getIntersectedObjects, brushSize]);
 
   const handlePointerUp = useCallback(() => {
     console.log('🖱️ Pointer up - ending drawing, mode:', mode, 'strokeStarted:', strokeStarted.current, 'mouseDown:', isMouseDown.current);
