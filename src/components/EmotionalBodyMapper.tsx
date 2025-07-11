@@ -244,42 +244,36 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
       const randomDelay = Math.random() * 500 + 100; // 100-600ms random delay
       
       setTimeout(() => {
-        // DEBUGGING: Let's see what's actually in the enhanced state right now
-        console.log('🔍 DEBUGGING - Enhanced state variables:');
-        console.log('  - drawingMarks type:', typeof drawingMarks, 'length:', drawingMarks?.length);
-        console.log('  - sensationMarks type:', typeof sensationMarks, 'length:', sensationMarks?.length);
-        console.log('  - completedStrokes type:', typeof completedStrokes, 'length:', completedStrokes?.length);
-        console.log('  - bodyPartColors type:', typeof bodyPartColors, 'keys:', Object.keys(bodyPartColors || {}));
-        console.log('  - textMarks type:', typeof textMarks, 'length:', textMarks?.length);
+        // SOLUTION: Use the state snapshot to get the actual current data
+        console.log('🔍 DEBUGGING - Using state snapshot to get current data:');
         
-        // Let's also try to call the state snapshot directly to see what IT sees
-        console.log('🔍 DEBUGGING - State snapshot capture test:');
         try {
-          const testSnapshot = stateSnapshot.captureCurrentState();
-          console.log('  - Snapshot captured:', !!testSnapshot);
-          console.log('  - Snapshot structure:', Object.keys(testSnapshot || {}));
-          if (testSnapshot && (testSnapshot as any).drawingMarks) {
-            console.log('  - Snapshot drawingMarks length:', (testSnapshot as any).drawingMarks.length);
+          const currentSnapshot = stateSnapshot.captureCurrentState();
+          console.log('  - Snapshot captured successfully');
+          console.log('  - Snapshot data keys:', Object.keys(currentSnapshot.data || {}));
+          
+          const snapshotData = currentSnapshot.data;
+          const hasDrawingMarks = snapshotData?.drawingMarks?.length > 0;
+          const hasSensationMarks = snapshotData?.sensationMarks?.length > 0;
+          const hasBodyPartColors = snapshotData?.bodyPartColors && Object.keys(snapshotData.bodyPartColors).length > 0;
+          const hasTextMarks = snapshotData?.textMarks?.length > 0;
+          
+          console.log('  - Snapshot drawingMarks:', snapshotData?.drawingMarks?.length || 0);
+          console.log('  - Snapshot sensationMarks:', snapshotData?.sensationMarks?.length || 0);
+          console.log('  - Snapshot bodyPartColors:', Object.keys(snapshotData?.bodyPartColors || {}).length);
+          console.log('  - Snapshot textMarks:', snapshotData?.textMarks?.length || 0);
+          
+          const hasContent = hasDrawingMarks || hasSensationMarks || hasBodyPartColors || hasTextMarks;
+          
+          if (hasContent) {
+            console.log(`📸 Sending state snapshot to new player (has content, been in room ${timeSinceJoin}ms)`);
+            multiplayer.broadcastStateSnapshot(currentSnapshot);
+          } else {
+            console.log(`📸 No content to share, skipping state snapshot (been in room ${timeSinceJoin}ms)`);
           }
         } catch (error) {
-          console.log('  - Snapshot capture failed:', error);
-        }
-        
-        // Check multiple sources of content to ensure we catch everything
-        const hasDrawingMarks = drawingMarks && drawingMarks.length > 0;
-        const hasSensationMarks = sensationMarks && sensationMarks.length > 0;
-        const hasBodyPartColors = bodyPartColors && Object.keys(bodyPartColors).length > 0;
-        const hasTextMarks = textMarks && textMarks.length > 0;
-        const hasStrokeManagerContent = completedStrokes && completedStrokes.length > 0;
-        
-        const hasContent = hasDrawingMarks || hasSensationMarks || hasBodyPartColors || hasTextMarks || hasStrokeManagerContent;
-        
-        if (hasContent) {
-          console.log(`📸 Sending state snapshot to new player (has content, been in room ${timeSinceJoin}ms)`);
-          const snapshot = stateSnapshot.captureCurrentState();
-          multiplayer.broadcastStateSnapshot(snapshot);
-        } else {
-          console.log(`📸 No content to share, skipping state snapshot (been in room ${timeSinceJoin}ms)`);
+          console.error('❌ Error checking state snapshot:', error);
+          console.log(`📸 Snapshot failed, skipping state snapshot (been in room ${timeSinceJoin}ms)`);
         }
       }, randomDelay);
     }
