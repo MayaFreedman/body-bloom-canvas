@@ -38,7 +38,7 @@ export const useDrawingEventHandlers = ({
 
   // Helper function to check if ray passes near a mesh (for brush-based intersection)
   const findBrushIntersection = useCallback((meshes: THREE.Mesh[]) => {
-    const brushRadius = brushSize * 1.0; // Increased intensity 100x for testing
+    const brushRadius = brushSize * 10.0; // Increased intensity 1000x for testing
     const rayOrigin = new THREE.Vector3();
     const rayDirection = new THREE.Vector3();
     
