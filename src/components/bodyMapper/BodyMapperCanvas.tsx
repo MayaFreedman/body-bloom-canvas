@@ -161,15 +161,19 @@ export const BodyMapperCanvas = ({
             
             return bodyMarks.map((mark) => {
               console.log('🎨 Rendering body mark:', mark.id, 'position:', mark.position, 'size:', mark.size, 'color:', mark.color);
-              const renderSize = Math.max(mark.size, 0.05); // Ensure minimum visible size
-              console.log('🎨 Boosted size from', mark.size, 'to', renderSize);
               return (
-                <mesh key={mark.id} position={mark.position}>
-                  <sphereGeometry args={[renderSize, 8, 8]} />
+                <mesh 
+                  key={mark.id} 
+                  position={mark.position}
+                  renderOrder={1000} // Render on top
+                >
+                  <sphereGeometry args={[mark.size, 8, 8]} />
                   <meshBasicMaterial 
                     color={mark.color} 
                     toneMapped={false}
                     fog={false}
+                    depthTest={false} // Disable depth testing to ensure visibility
+                    transparent={false}
                   />      
                 </mesh>
               );
@@ -200,10 +204,9 @@ export const BodyMapperCanvas = ({
           
           return whiteboardMarks.map((mark) => {
             console.log('🎨 Rendering whiteboard mark:', mark.id, 'position:', mark.position, 'size:', mark.size, 'color:', mark.color);
-            const renderSize = Math.max(mark.size, 0.05); // Ensure minimum visible size
             return (
               <mesh key={mark.id} position={mark.position}>
-                <sphereGeometry args={[renderSize, 8, 8]} />
+                <sphereGeometry args={[mark.size, 8, 8]} />
                 <meshBasicMaterial 
                   color={mark.color} 
                   toneMapped={false}
