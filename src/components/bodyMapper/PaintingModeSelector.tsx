@@ -84,18 +84,23 @@ export const PaintingModeSelector = ({
       
       {/* Clear Fill sub-option for Fill mode */}
       {mode === 'fill' && (
-        <div className="mt-4 flex items-center gap-3">
-          <p className="text-sm text-gray-500 text-left flex-1">
-            Click on body parts or whiteboard to remove color
-          </p>
-          <button
-            className={`control-button-with-text-red w-12 h-12 flex items-center justify-center ${
-              clearFillMode ? 'bg-red-500 text-white border-red-500' : ''
-            }`}
-            onClick={() => handleClearFillModeChange(!clearFillMode)}
-          >
-            <Trash2 size={20} />
-          </button>
+        <div className="mt-4">
+          <h4 className="font-semibold text-gray-800 mb-3">Fill Eraser</h4>
+          <div className="flex items-center justify-start" style={{ marginLeft: '50%' }}>
+            <div className="flex items-center gap-3">
+              <p className="text-sm text-gray-500 text-left flex-1">
+                Click on body parts or whiteboard to remove color
+              </p>
+              <button
+                className={`control-button-with-text-red w-10 h-10 flex items-center justify-center ${
+                  clearFillMode ? 'bg-red-500 text-white border-red-500' : ''
+                }`}
+                onClick={() => handleClearFillModeChange(!clearFillMode)}
+              >
+                <Trash2 size={16} />
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
