@@ -293,9 +293,9 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
   const getParticleSize = (sensationName: string) => {
     const sizeMap: { [key: string]: { base: number; variance: number; multiplier: number } } = {
       // VERY SLOW/STATIC = largest, regenerate least frequently
-      'Frozen/Stiff': { base: 0.02, variance: 0.01, multiplier: 1.0 }, // Much smaller, static
-      'Heaviness': { base: 0.02, variance: 0.01, multiplier: 1.0 }, // Much smaller, static
-      'Lump in Throat': { base: 0.02, variance: 0.01, multiplier: 1.0 }, // 75% smaller
+      'Frozen/Stiff': { base: 0.1, variance: 0.05, multiplier: 5.0 }, // 5x larger, static
+      'Heaviness': { base: 0.1, variance: 0.05, multiplier: 5.0 }, // 5x larger, static
+      'Lump in Throat': { base: 0.1, variance: 0.05, multiplier: 5.0 }, // 5x larger
       
       // SLOW/CALM = large, infrequent regeneration  
       'Relaxed': { base: 0.07, variance: 0.035, multiplier: 2.3 }, // Calm, visible
@@ -989,8 +989,10 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
           }
           
         } else if (animProfile.pattern === 'static') {
-          // Static particles - absolutely no movement
-          // Do nothing - particles stay exactly where they are
+          // Static particles - absolutely no movement whatsoever
+          // Reset velocity to zero and don't apply any forces
+          particle.velocity.set(0, 0, 0);
+          // Position stays exactly the same - no movement at all
           
         } else {
           // Default fluid movement for all other sensations
