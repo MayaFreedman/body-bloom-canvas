@@ -244,30 +244,35 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
       const randomDelay = Math.random() * 500 + 100; // 100-600ms random delay
       
       setTimeout(() => {
-        // Get CURRENT state values instead of relying on closure
-        const currentDrawingMarks = drawingMarks;
-        const currentSensationMarks = sensationMarks;
-        const currentBodyPartColors = bodyPartColors;
-        const currentTextMarks = textMarks;
-        const currentCompletedStrokes = completedStrokes;
+        // DEBUGGING: Let's see what's actually in the enhanced state right now
+        console.log('🔍 DEBUGGING - Enhanced state variables:');
+        console.log('  - drawingMarks type:', typeof drawingMarks, 'length:', drawingMarks?.length);
+        console.log('  - sensationMarks type:', typeof sensationMarks, 'length:', sensationMarks?.length);
+        console.log('  - completedStrokes type:', typeof completedStrokes, 'length:', completedStrokes?.length);
+        console.log('  - bodyPartColors type:', typeof bodyPartColors, 'keys:', Object.keys(bodyPartColors || {}));
+        console.log('  - textMarks type:', typeof textMarks, 'length:', textMarks?.length);
+        
+        // Let's also try to call the state snapshot directly to see what IT sees
+        console.log('🔍 DEBUGGING - State snapshot capture test:');
+        try {
+          const testSnapshot = stateSnapshot.captureCurrentState();
+          console.log('  - Snapshot captured:', !!testSnapshot);
+          console.log('  - Snapshot structure:', Object.keys(testSnapshot || {}));
+          if (testSnapshot && (testSnapshot as any).drawingMarks) {
+            console.log('  - Snapshot drawingMarks length:', (testSnapshot as any).drawingMarks.length);
+          }
+        } catch (error) {
+          console.log('  - Snapshot capture failed:', error);
+        }
         
         // Check multiple sources of content to ensure we catch everything
-        const hasDrawingMarks = currentDrawingMarks.length > 0;
-        const hasSensationMarks = currentSensationMarks.length > 0;
-        const hasBodyPartColors = Object.keys(currentBodyPartColors).length > 0;
-        const hasTextMarks = currentTextMarks.length > 0;
-        const hasStrokeManagerContent = currentCompletedStrokes.length > 0;
+        const hasDrawingMarks = drawingMarks && drawingMarks.length > 0;
+        const hasSensationMarks = sensationMarks && sensationMarks.length > 0;
+        const hasBodyPartColors = bodyPartColors && Object.keys(bodyPartColors).length > 0;
+        const hasTextMarks = textMarks && textMarks.length > 0;
+        const hasStrokeManagerContent = completedStrokes && completedStrokes.length > 0;
         
         const hasContent = hasDrawingMarks || hasSensationMarks || hasBodyPartColors || hasTextMarks || hasStrokeManagerContent;
-        
-        console.log(`📊 FRESH state check (not closure):`, {
-          drawingMarks: currentDrawingMarks.length,
-          sensations: currentSensationMarks.length,
-          bodyColors: Object.keys(currentBodyPartColors).length,
-          textMarks: currentTextMarks.length,
-          completedStrokes: currentCompletedStrokes.length,
-          hasContent
-        });
         
         if (hasContent) {
           console.log(`📸 Sending state snapshot to new player (has content, been in room ${timeSinceJoin}ms)`);
