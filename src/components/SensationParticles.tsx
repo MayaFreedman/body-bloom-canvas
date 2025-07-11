@@ -161,14 +161,17 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
 
   // Map sensation names to textures
   const getSensationTexture = (sensationName: string, isCustom?: boolean, customIcon?: string) => {
+    console.log('🎨 getSensationTexture called with:', { sensationName, isCustom, customIcon });
     
     // Handle custom effects with their selected PNG icons
     // Detect custom effect by checking if the icon is in our custom list
     const isActuallyCustom = isCustom === true || customIconNames.includes(customIcon || '');
+    console.log('🎨 isActuallyCustom:', isActuallyCustom, 'customIconNames includes:', customIconNames.includes(customIcon || ''));
     
     if (isActuallyCustom && customIcon) {
       // Use the custom icon texture if available, fallback to star
       const texture = textureMap[customIcon as keyof typeof textureMap];
+      console.log('🎨 Custom texture found for', customIcon, ':', !!texture);
       return texture || textureMap.star;
     }
     
@@ -398,7 +401,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       gentle: {
         particleCount: 5, // Much fewer particles
         dispersion: 0.03, // Smaller spread
-        size: { base: 0.08, variance: 0.04, multiplier: 2.8 }, // Larger particles
+        size: { base: 0.05, variance: 0.025, multiplier: 2.0 }, // More subtle size difference
         lifespan: { min: 350, max: 600 }, // Much longer lifespan
         speed: 0.15, // Much slower speed
         intensity: 0.3, // Lower intensity
@@ -414,7 +417,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       energetic: {
         particleCount: 35, // Much more particles
         dispersion: 0.15, // Much larger spread
-        size: { base: 0.025, variance: 0.015, multiplier: 1.2 }, // Smaller particles
+        size: { base: 0.04, variance: 0.02, multiplier: 1.4 }, // More subtle size difference
         lifespan: { min: 30, max: 80 }, // Much shorter lifespan
         speed: 3.5, // Much faster speed
         intensity: 1.5, // Higher intensity
