@@ -37,6 +37,7 @@ interface BodyMapperControlsProps {
   onDrawingTargetChange?: (target: 'body' | 'whiteboard') => void;
   onEmotionsUpdate?: (update: EmotionUpdate) => void;
   onCustomEffectCreated?: (customEffect: any) => void;
+  onCustomEffectDeleted?: (effectId: string) => void;
   onIncomingCustomEffect?: (customEffect: any) => void;
 }
 
@@ -69,6 +70,7 @@ export const BodyMapperControls = React.forwardRef<
   onDrawingTargetChange,
   onEmotionsUpdate,
   onCustomEffectCreated,
+  onCustomEffectDeleted,
   onIncomingCustomEffect
 }, ref) => {
   const [activeTab, setActiveTab] = useState('feelings');
@@ -170,6 +172,11 @@ export const BodyMapperControls = React.forwardRef<
       if (sensationSelectorRef.current?.handleIncomingCustomEffect) {
         sensationSelectorRef.current.handleIncomingCustomEffect(customEffect);
       }
+    },
+    handleIncomingCustomEffectDelete: (effectId: string) => {
+      if (sensationSelectorRef.current?.handleIncomingCustomEffectDelete) {
+        sensationSelectorRef.current.handleIncomingCustomEffectDelete(effectId);
+      }
     }
   }));
 
@@ -231,6 +238,7 @@ export const BodyMapperControls = React.forwardRef<
           onModeChange={onModeChange}
           onSensationChange={onSensationChange}
           onCustomEffectCreated={onCustomEffectCreated}
+          onCustomEffectDeleted={onCustomEffectDeleted}
         />
       </div>
 

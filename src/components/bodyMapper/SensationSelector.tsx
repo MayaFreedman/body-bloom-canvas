@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useImperativeHandle, forwardRef } from 'react';
-import { Sparkles, Activity, Zap, Wind, Droplet, Snowflake, Thermometer, Heart, Star } from 'lucide-react';
+import { Sparkles, Activity, Zap, Wind, Droplet, Snowflake, Thermometer, Heart, Star, Trash2 } from 'lucide-react';
 import { bodySensations } from '@/constants/bodyMapperConstants';
 import { BodyMapperMode, SelectedSensation } from '@/types/bodyMapperTypes';
 import { CustomSensation, CustomEffectForm } from '@/types/customEffectTypes';
@@ -142,6 +142,7 @@ export const getSensationImage = (sensationName: string, customIcon?: string) =>
 
 interface SensationSelectorPropsWithMultiplayer extends SensationSelectorProps {
   onCustomEffectCreated?: (customEffect: any) => void;
+  onCustomEffectDeleted?: (effectId: string) => void;
 }
 
 export const SensationSelector = forwardRef<any, SensationSelectorPropsWithMultiplayer>(({ 
@@ -149,7 +150,8 @@ export const SensationSelector = forwardRef<any, SensationSelectorPropsWithMulti
   selectedSensation, 
   onModeChange, 
   onSensationChange, 
-  onCustomEffectCreated 
+  onCustomEffectCreated,
+  onCustomEffectDeleted 
 }, ref) => {
   const [customEffects, setCustomEffects] = useState<CustomSensation[]>([]);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
@@ -208,6 +210,37 @@ export const SensationSelector = forwardRef<any, SensationSelectorPropsWithMulti
     }
   };
 
+  // Handle deleting custom effect
+  const handleDeleteCustomEffect = (effectId: string) => {
+    console.log('🗑️ SensationSelector - Deleting custom effect:', effectId);
+    
+    // Remove from local state
+    const updatedEffects = customEffects.filter(effect => effect.id !== effectId);
+    setCustomEffects(updatedEffects);
+    
+    // Remove from custom images
+    setCustomImages(prev => {
+      const newMap = new Map(prev);
+      newMap.delete(effectId);
+      return newMap;
+    });
+    
+    // Save to localStorage
+    saveCustomEffects(updatedEffects);
+    
+    // If the deleted effect was selected, unselect it
+    if (selectedSensation && 'isCustom' in selectedSensation && 
+        customEffects.find(e => e.id === effectId && e.name === selectedSensation.name)) {
+      onSensationChange(null);
+    }
+    
+    // Broadcast the deletion to other players
+    if (onCustomEffectDeleted) {
+      console.log('🔥 SensationSelector - Broadcasting custom effect deletion:', effectId);
+      onCustomEffectDeleted(effectId);
+    }
+  };
+
   // Handle incoming custom effect from multiplayer
   const handleIncomingCustomEffect = async (customEffect: any) => {
     console.log('🎯 SensationSelector - Handling incoming custom effect:', customEffect);
@@ -237,9 +270,35 @@ export const SensationSelector = forwardRef<any, SensationSelectorPropsWithMulti
     }
   };
 
+  // Handle incoming custom effect deletion from multiplayer
+  const handleIncomingCustomEffectDelete = (effectId: string) => {
+    console.log('🗑️ SensationSelector - Handling incoming custom effect deletion:', effectId);
+    
+    // Remove from local state
+    const updatedEffects = customEffects.filter(effect => effect.id !== effectId);
+    setCustomEffects(updatedEffects);
+    
+    // Remove from custom images
+    setCustomImages(prev => {
+      const newMap = new Map(prev);
+      newMap.delete(effectId);
+      return newMap;
+    });
+    
+    // Save to localStorage
+    saveCustomEffects(updatedEffects);
+    
+    // If the deleted effect was selected, unselect it
+    if (selectedSensation && 'isCustom' in selectedSensation && 
+        customEffects.find(e => e.id === effectId && e.name === selectedSensation.name)) {
+      onSensationChange(null);
+    }
+  };
+
   // Expose methods via ref
   useImperativeHandle(ref, () => ({
-    handleIncomingCustomEffect
+    handleIncomingCustomEffect,
+    handleIncomingCustomEffectDelete
   }), [customEffects]);
 
   // Get image for sensation (including custom ones)
@@ -263,58 +322,74 @@ export const SensationSelector = forwardRef<any, SensationSelectorPropsWithMulti
       <div className="grid grid-cols-2 gap-3">
         {allSensations.map((sensation, index) => {
           const isSelected = selectedSensation?.name === sensation.name;
+          const isCustom = 'isCustom' in sensation && sensation.isCustom;
           
           return (
-            <button
-              key={index}
-              className={`flex flex-col items-center p-3 border rounded-lg transition-all outline-none focus:outline-none ${
-                isSelected 
-                  ? 'border-foreground bg-primary/10 shadow-md transform scale-105' 
-                  : 'border-foreground/20 hover:bg-muted hover:border-foreground/40'
-              }`}
-              onClick={() => {
-                console.log('🎯 SensationSelector - Sensation clicked:', sensation.name, 'isCurrentlySelected:', isSelected);
-                
-                if (isSelected) {
-                  // Unequip if clicking the same sensation
-                  console.log('🎯 SensationSelector - Unequipping sensation');
-                  onSensationChange(null);
-                } else {
-                  // Equip the new sensation and reset to draw mode (neutral state)
-                  console.log('🎯 SensationSelector - Equipping sensation:', sensation.name, 'and switching to draw mode');
-                  onModeChange('draw'); // Switch to draw mode to unequip other tools
+            <div key={index} className="relative">
+              <button
+                className={`flex flex-col items-center p-3 border rounded-lg transition-all outline-none focus:outline-none w-full ${
+                  isSelected 
+                    ? 'border-foreground bg-primary/10 shadow-md transform scale-105' 
+                    : 'border-foreground/20 hover:bg-muted hover:border-foreground/40'
+                }`}
+                onClick={() => {
+                  console.log('🎯 SensationSelector - Sensation clicked:', sensation.name, 'isCurrentlySelected:', isSelected);
                   
-                  // Handle custom vs built-in sensations
-                  if ('isCustom' in sensation && sensation.isCustom) {
-                    const customSensation = sensation as CustomSensation;
-                    console.log('🎯 SensationSelector - Selecting custom sensation:', customSensation);
-                    console.log('🎯 SensationSelector - Custom sensation icon:', customSensation.icon, 'selectedIcon:', customSensation.selectedIcon);
-                    onSensationChange({
-                      icon: customSensation.selectedIcon, // Use selectedIcon instead of icon for custom effects
-                      color: customSensation.color,
-                      name: customSensation.name,
-                      movementBehavior: customSensation.movementBehavior,
-                      isCustom: customSensation.isCustom
-                    });
+                  if (isSelected) {
+                    // Unequip if clicking the same sensation
+                    console.log('🎯 SensationSelector - Unequipping sensation');
+                    onSensationChange(null);
                   } else {
-                    onSensationChange({
-                      icon: sensation.icon,
-                      color: sensation.color,
-                      name: sensation.name
-                    });
+                    // Equip the new sensation and reset to draw mode (neutral state)
+                    console.log('🎯 SensationSelector - Equipping sensation:', sensation.name, 'and switching to draw mode');
+                    onModeChange('draw'); // Switch to draw mode to unequip other tools
+                    
+                    // Handle custom vs built-in sensations
+                    if (isCustom) {
+                      const customSensation = sensation as CustomSensation;
+                      console.log('🎯 SensationSelector - Selecting custom sensation:', customSensation);
+                      console.log('🎯 SensationSelector - Custom sensation icon:', customSensation.icon, 'selectedIcon:', customSensation.selectedIcon);
+                      onSensationChange({
+                        icon: customSensation.selectedIcon, // Use selectedIcon instead of icon for custom effects
+                        color: customSensation.color,
+                        name: customSensation.name,
+                        movementBehavior: customSensation.movementBehavior,
+                        isCustom: customSensation.isCustom
+                      });
+                    } else {
+                      onSensationChange({
+                        icon: sensation.icon,
+                        color: sensation.color,
+                        name: sensation.name
+                      });
+                    }
                   }
-                }
-              }}
-            >
-              <img 
-                src={getSensationImageForDisplay(sensation)} 
-                alt={sensation.name}
-                className={`w-6 h-6 mb-2 object-contain ${isSelected ? 'opacity-100' : 'opacity-80'}`}
-              />
-              <span className={`text-xs text-center ${isSelected ? 'text-primary font-medium' : 'text-muted-foreground'}`}>
-                {sensation.name}
-              </span>
-            </button>
+                }}
+              >
+                <img 
+                  src={getSensationImageForDisplay(sensation)} 
+                  alt={sensation.name}
+                  className={`w-6 h-6 mb-2 object-contain ${isSelected ? 'opacity-100' : 'opacity-80'}`}
+                />
+                <span className={`text-xs text-center ${isSelected ? 'text-primary font-medium' : 'text-muted-foreground'}`}>
+                  {sensation.name}
+                </span>
+              </button>
+              
+              {/* Delete button for custom effects */}
+              {isCustom && (
+                <button
+                  className="absolute -top-1 -right-1 w-6 h-6 bg-muted-foreground/80 hover:bg-destructive rounded-full flex items-center justify-center transition-colors z-10 group"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteCustomEffect((sensation as CustomSensation).id);
+                  }}
+                  title="Delete custom effect"
+                >
+                  <Trash2 className="w-3 h-3 text-background group-hover:text-destructive-foreground" />
+                </button>
+              )}
+            </div>
           );
         })}
         

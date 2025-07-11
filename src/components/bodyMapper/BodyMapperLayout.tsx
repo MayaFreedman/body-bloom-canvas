@@ -62,6 +62,7 @@ interface BodyMapperLayoutProps {
   onRedo: () => void;
   onEmotionsUpdate: (updateData: any) => void;
   onCustomEffectCreated?: (customEffect: any) => void;
+  onCustomEffectDeleted?: (effectId: string) => void;
   onIncomingCustomEffect?: (customEffect: any) => void;
 }
 
@@ -114,6 +115,7 @@ export const BodyMapperLayout = ({
   onRedo,
   onEmotionsUpdate,
   onCustomEffectCreated,
+  onCustomEffectDeleted,
   onIncomingCustomEffect
 }: BodyMapperLayoutProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -208,6 +210,7 @@ export const BodyMapperLayout = ({
             onTextToPlaceChange={setTextToPlace}
             onEmotionsUpdate={onEmotionsUpdate}
             onCustomEffectCreated={onCustomEffectCreated}
+            onCustomEffectDeleted={onCustomEffectDeleted}
             onIncomingCustomEffect={onIncomingCustomEffect}
           />
         </div>

@@ -19,6 +19,7 @@ interface MultiplayerMessageHandlerProps {
   onIncomingErase?: (center: THREE.Vector3, radius: number, surface?: 'body' | 'whiteboard') => void;
   onIncomingSensation?: (sensationMark: SensationMark) => void;
   onIncomingCustomEffect?: (customEffect: any) => void;
+  onIncomingCustomEffectDelete?: (effectId: string) => void;
 }
 
 export const MultiplayerMessageHandler = ({
@@ -35,7 +36,8 @@ export const MultiplayerMessageHandler = ({
   onIncomingRedo,
   onIncomingErase,
   onIncomingSensation,
-  onIncomingCustomEffect
+  onIncomingCustomEffect,
+  onIncomingCustomEffectDelete
 }: MultiplayerMessageHandlerProps) => {
   // Store the unsubscribe function returned by onMessage
   const unsubscribeRef = useRef<(() => void) | null>(null);
@@ -187,6 +189,24 @@ export const MultiplayerMessageHandler = ({
             }
             break;
           }
+          case 'customEffectDelete': {
+            const deleteData = messageData;
+            console.log('🗑️ Processing custom effect deletion:', deleteData);
+            
+            if (!deleteData || !deleteData.effectId) {
+              console.warn('⚠️ Invalid custom effect delete data:', deleteData);
+              return;
+            }
+            
+            try {
+              if (onIncomingCustomEffectDelete) {
+                onIncomingCustomEffectDelete(deleteData.effectId);
+              }
+            } catch (deleteError) {
+              console.error('❌ Error processing custom effect deletion:', deleteError, deleteData);
+            }
+            break;
+          }
           case 'bodyPartFill': {
             const fill = messageData;
             console.log('🎨 Processing body part fill:', fill);
@@ -237,7 +257,7 @@ export const MultiplayerMessageHandler = ({
       // Clear the unsubscribe reference
       unsubscribeRef.current = null;
     };
-  }, [room, setDrawingMarks, setSensationMarks, setBodyPartColors, setRotation, clearAll, modelRef, controlsRef, onIncomingOptimizedStroke, onIncomingUndo, onIncomingRedo, onIncomingErase, onIncomingSensation]);
+  }, [room, setDrawingMarks, setSensationMarks, setBodyPartColors, setRotation, clearAll, modelRef, controlsRef, onIncomingOptimizedStroke, onIncomingUndo, onIncomingRedo, onIncomingErase, onIncomingSensation, onIncomingCustomEffect, onIncomingCustomEffectDelete]);
 
   return null;
 };

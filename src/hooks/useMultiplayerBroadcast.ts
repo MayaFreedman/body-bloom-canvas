@@ -179,6 +179,29 @@ export const useMultiplayerBroadcast = (
     }
   }, [isConnected, room, currentPlayerId]);
 
+  // Broadcast custom effect deletion
+  const broadcastCustomEffectDelete = useCallback((effectId: string) => {
+    if (!isConnected || !room) {
+      console.log('🗑️ CUSTOM EFFECT DELETE BROADCAST: Not connected, skipping broadcast');
+      return;
+    }
+
+    console.log('🗑️ CUSTOM EFFECT DELETE BROADCAST: Broadcasting custom effect deletion:', effectId);
+    
+    try {
+      room.send('broadcast', {
+        type: 'customEffectDelete',
+        data: {
+          effectId,
+          playerId: currentPlayerId
+        }
+      });
+      console.log('🗑️ CUSTOM EFFECT DELETE BROADCAST: Successfully sent custom effect delete broadcast');
+    } catch (error) {
+      console.error('🗑️ CUSTOM EFFECT DELETE BROADCAST: Failed to broadcast custom effect deletion:', error);
+    }
+  }, [isConnected, room, currentPlayerId]);
+
   return {
     broadcastSensation,
     broadcastBodyPartFill,
@@ -191,6 +214,7 @@ export const useMultiplayerBroadcast = (
     broadcastTextUpdate,
     broadcastTextDelete,
     broadcastCustomEffect,
+    broadcastCustomEffectDelete,
     cleanup
   };
 };

@@ -207,6 +207,23 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     }
   }, [multiplayer]);
 
+  // Handle custom effect deletion and broadcast
+  const handleCustomEffectDeleted = useCallback((effectId: string) => {
+    console.log('🗑️ EmotionalBodyMapper - Broadcasting custom effect deletion:', effectId);
+    if (multiplayer.isConnected) {
+      multiplayer.broadcastCustomEffectDelete(effectId);
+    }
+  }, [multiplayer]);
+
+  // Handle incoming custom effect deletion from multiplayer
+  const handleIncomingCustomEffectDelete = useCallback((effectId: string) => {
+    console.log('🗑️ EmotionalBodyMapper - Handling incoming custom effect deletion:', effectId);
+    // Forward to the controls component to handle
+    if (controlsRef.current?.handleIncomingCustomEffectDelete) {
+      controlsRef.current.handleIncomingCustomEffectDelete(effectId);
+    }
+  }, []);
+
   // Combine local and multiplayer sensation handling (no auto-deselect)
   const combinedSensationClick = (position: THREE.Vector3, sensation: any) => {
     // Only call local handler once - it handles both state update and action history
@@ -277,6 +294,7 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
         onRedo={handleRedo}
         onEmotionsUpdate={handleLocalEmotionsUpdate}
         onCustomEffectCreated={handleCustomEffectCreated}
+        onCustomEffectDeleted={handleCustomEffectDeleted}
         onIncomingCustomEffect={handleIncomingCustomEffect}
       />
 
@@ -300,6 +318,7 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
         onIncomingErase={handleIncomingErase}
         onIncomingSensation={handleIncomingSensation}
         onIncomingCustomEffect={handleIncomingCustomEffect}
+        onIncomingCustomEffectDelete={handleIncomingCustomEffectDelete}
       />
     </div>
   );
