@@ -50,7 +50,7 @@ export const useDrawingEventHandlers = ({
     raycaster.setFromCamera(mouse, camera);
     
     // Expand raycaster detection radius based on brush size
-    const brushRadius = brushSize * 0.001; // Convert brush size to world units
+    const brushRadius = brushSize * 0.1; // Dramatically increased for testing
     raycaster.params.Points = { threshold: brushRadius };
     raycaster.params.Line = { threshold: brushRadius };
     
@@ -151,7 +151,7 @@ export const useDrawingEventHandlers = ({
     raycaster.setFromCamera(mouse, camera);
     
     // Expand raycaster detection radius based on brush size (same as pointer down)
-    const brushRadius = brushSize * 0.001;
+    const brushRadius = brushSize * 0.1; // Dramatically increased for testing
     raycaster.params.Points = { threshold: brushRadius };
     raycaster.params.Line = { threshold: brushRadius };
     
