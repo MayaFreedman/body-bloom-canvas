@@ -399,9 +399,9 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
         particleCount: 5, // Much fewer particles
         dispersion: 0.03, // Smaller spread
         size: { base: 0.05, variance: 0.025, multiplier: 2.0 }, // More subtle size difference
-        lifespan: { min: 280, max: 450 }, // Slightly faster respawn to ensure continuous coverage
-        speed: 0.15, // Much slower speed
-        intensity: 0.3, // Lower intensity
+        lifespan: { min: 200, max: 320 }, // Faster respawn for continuous coverage
+        speed: 0.25, // Increased movement from 0.15
+        intensity: 0.4, // Slightly more intensity for better visibility
       },
       moderate: {
         particleCount: 15, // Standard amount  
