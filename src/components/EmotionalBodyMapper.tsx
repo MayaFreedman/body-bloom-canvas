@@ -69,6 +69,7 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     restoreStroke,
     addAction,
     queryMarksInRadius,
+    completedStrokes,
     // Text functionality
     textMarks,
     textSettings,
@@ -196,6 +197,9 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
       setTimeout(() => {
         console.log('🔍 Drawing marks after restoration:', drawingMarks.length);
         console.log('🔍 First 3 drawing marks:', drawingMarks.slice(0, 3));
+        console.log('🔍 Completed strokes count:', completedStrokes.length);
+        console.log('🔍 First stroke details:', completedStrokes[0]);
+        console.log('🔍 Total marks in first stroke:', completedStrokes[0]?.marks?.length);
       }, 100);
     },
     setSensationMarks,
