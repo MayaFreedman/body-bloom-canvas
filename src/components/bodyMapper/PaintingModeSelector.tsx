@@ -86,7 +86,7 @@ export const PaintingModeSelector = ({
       {mode === 'fill' && (
         <div className="mt-4 flex items-center gap-3">
           <button
-            className={`control-button-with-text-red w-64 ${
+            className={`control-button-with-text-red w-64 text-center ${
               clearFillMode ? 'bg-red-500 text-white border-red-500' : ''
             }`}
             onClick={() => handleClearFillModeChange(!clearFillMode)}
