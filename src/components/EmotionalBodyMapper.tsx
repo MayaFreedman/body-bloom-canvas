@@ -144,10 +144,11 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
         strokeManager.restoreStroke(stroke);
       });
       
-      // CRITICAL: Verify marks are available after restoration
-      console.log('🎨 Triggering UI update with restored marks');
-      const allMarks = strokeManager.getAllMarks();
-      console.log('🎨 Total marks after restoration:', allMarks.length, 'strokes:', strokeManager.getAllStrokes().length);
+      // CRITICAL: Verify marks are available after restoration (with delay to ensure state updates)
+      setTimeout(() => {
+        console.log('🎨 Delayed check - Total marks after restoration:', strokeManager.getAllMarks().length, 'strokes:', strokeManager.getAllStrokes().length);
+        console.log('🎨 Stroke details:', strokeManager.getAllStrokes().map(s => ({ id: s.id, markCount: s.marks.length })));
+      }, 100);
       
       console.log('✅ Restored', data.drawingStrokes.length, 'strokes from snapshot');
     }
