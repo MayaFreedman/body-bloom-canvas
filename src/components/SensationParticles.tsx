@@ -929,30 +929,6 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
           // Minimal damping - let gravity do the work
           particle.velocity.multiplyScalar(0.998);
           
-        } else if (mark.icon === 'butterfly') {
-          // Butterfly: more realistic gentle movement
-          const gentleFloat = Math.sin(time * 2 + particle.life * 0.3) * 0.0008 * (animProfile.intensity || 0.6);
-          const naturalDrift = Math.cos(time * 1.5 + particle.life * 0.2) * 0.0006 * (animProfile.intensity || 0.6);
-          const softVertical = Math.sin(particle.oscillationPhase * 1.2) * 0.0004 * (animProfile.intensity || 0.6);
-          
-          // Occasional gentle direction changes (less frequent)
-          if (Math.random() < 0.015) {
-            particle.velocity.add(new THREE.Vector3(
-              (Math.random() - 0.5) * 0.0005,
-              (Math.random() - 0.5) * 0.0004,
-              (Math.random() - 0.5) * 0.0005
-            ));
-          }
-          
-          // Add gentle floating forces
-          particle.velocity.x += gentleFloat * clampedDelta;
-          particle.velocity.y += softVertical * clampedDelta;
-          particle.velocity.z += naturalDrift * clampedDelta;
-          
-          // Very subtle upward tendency
-          particle.velocity.y += 0.0001 * clampedDelta;
-          particle.position.add(particle.velocity);
-          particle.velocity.multiplyScalar(0.98); // More damping for realistic movement
           
         } else if (animProfile.pattern === 'custom') {
           // Custom effect movement based on movement behavior
