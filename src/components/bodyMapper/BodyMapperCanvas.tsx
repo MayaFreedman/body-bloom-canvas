@@ -157,17 +157,21 @@ export const BodyMapperCanvas = ({
           {/* Render drawing marks as children of the model group so they rotate with it */}
           {(() => {
             const bodyMarks = drawingMarks.filter(mark => mark.surface !== 'whiteboard');
+            console.log('🎨 BodyMapperCanvas - rendering body marks:', bodyMarks.length, 'total marks:', drawingMarks.length);
             
-            return bodyMarks.map((mark) => (
-            <mesh key={mark.id} position={mark.position}>
-              <sphereGeometry args={[mark.size, 8, 8]} />
-              <meshBasicMaterial 
-                color={mark.color} 
-                toneMapped={false}
-                fog={false}
-              />      
-            </mesh>
-            ));
+            return bodyMarks.map((mark) => {
+              console.log('🎨 Rendering body mark:', mark.id, 'position:', mark.position, 'size:', mark.size, 'color:', mark.color);
+              return (
+                <mesh key={mark.id} position={mark.position}>
+                  <sphereGeometry args={[mark.size, 8, 8]} />
+                  <meshBasicMaterial 
+                    color={mark.color} 
+                    toneMapped={false}
+                    fog={false}
+                  />      
+                </mesh>
+              );
+            });
           })()}
 
           {/* Render sensation particles as children of the model group */}
@@ -190,17 +194,21 @@ export const BodyMapperCanvas = ({
         {/* Render whiteboard marks outside the model group so they don't rotate */}
         {(() => {
           const whiteboardMarks = drawingMarks.filter(mark => mark.surface === 'whiteboard');
+          console.log('🎨 BodyMapperCanvas - rendering whiteboard marks:', whiteboardMarks.length);
           
-          return whiteboardMarks.map((mark) => (
-          <mesh key={mark.id} position={mark.position}>
-            <sphereGeometry args={[mark.size, 8, 8]} />
-            <meshBasicMaterial 
-              color={mark.color} 
-              toneMapped={false}
-              fog={false}
-            />      
-          </mesh>
-          ));
+          return whiteboardMarks.map((mark) => {
+            console.log('🎨 Rendering whiteboard mark:', mark.id, 'position:', mark.position, 'size:', mark.size, 'color:', mark.color);
+            return (
+              <mesh key={mark.id} position={mark.position}>
+                <sphereGeometry args={[mark.size, 8, 8]} />
+                <meshBasicMaterial 
+                  color={mark.color} 
+                  toneMapped={false}
+                  fog={false}
+                />      
+              </mesh>
+            );
+          });
         })()}
         
         {/* Render text marks on whiteboard outside the model group */}

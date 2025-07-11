@@ -255,6 +255,8 @@ export const useEnhancedBodyMapperState = ({
     };
   });
 
+  console.log('🔄 Enhanced state - total drawing marks:', drawingMarks.length, 'from', strokeManager.completedStrokes.length, 'completed strokes');
+
   return {
     mode,
     setMode,

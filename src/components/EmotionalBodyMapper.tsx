@@ -328,6 +328,8 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     surface: mark.surface  // ✅ FIXED: Include surface property
   }));
 
+  console.log('🎨 EmotionalBodyMapper - rendering with drawing marks:', legacyDrawingMarks.length);
+
   
 
   return (
