@@ -188,6 +188,15 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
           isComplete: true
         });
       });
+      
+      // Log final state for debugging
+      console.log('🔄 Restoration complete. Total strokes restored:', strokeGroups.length);
+      
+      // Debug: Check what's available in drawing marks after restoration
+      setTimeout(() => {
+        console.log('🔍 Drawing marks after restoration:', drawingMarks.length);
+        console.log('🔍 First 3 drawing marks:', drawingMarks.slice(0, 3));
+      }, 100);
     },
     setSensationMarks,
     setBodyPartColors: (colors) => {
