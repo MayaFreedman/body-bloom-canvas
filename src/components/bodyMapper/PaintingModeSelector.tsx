@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Brush, Palette, Eraser, Type } from 'lucide-react';
+import { Brush, Palette, Eraser, Type, Trash2 } from 'lucide-react';
 import { BodyMapperMode } from '@/types/bodyMapperTypes';
 import { DrawingTargetSelector } from './DrawingTargetSelector';
 
@@ -85,17 +85,17 @@ export const PaintingModeSelector = ({
       {/* Clear Fill sub-option for Fill mode */}
       {mode === 'fill' && (
         <div className="mt-4 flex items-center gap-3">
+          <p className="text-sm text-gray-500 text-left flex-1">
+            Click on body parts or whiteboard to remove color
+          </p>
           <button
-            className={`control-button-with-text-red w-64 text-center ${
+            className={`control-button-with-text-red w-12 h-12 flex items-center justify-center ${
               clearFillMode ? 'bg-red-500 text-white border-red-500' : ''
             }`}
             onClick={() => handleClearFillModeChange(!clearFillMode)}
           >
-            Clear Fill
+            <Trash2 size={20} />
           </button>
-          <p className="text-sm text-gray-500 text-center">
-            Click on body parts or whiteboard to remove color
-          </p>
         </div>
       )}
     </div>
