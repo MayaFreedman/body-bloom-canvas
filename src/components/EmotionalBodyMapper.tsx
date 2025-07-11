@@ -244,23 +244,28 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
       const randomDelay = Math.random() * 500 + 100; // 100-600ms random delay
       
       setTimeout(() => {
-        // Check multiple sources of content to ensure we catch everything
-        const hasDrawingMarks = drawingMarks.length > 0;
-        const hasSensationMarks = sensationMarks.length > 0;
-        const hasBodyPartColors = Object.keys(bodyPartColors).length > 0;
-        const hasTextMarks = textMarks.length > 0;
+        // Get CURRENT state values instead of relying on closure
+        const currentDrawingMarks = drawingMarks;
+        const currentSensationMarks = sensationMarks;
+        const currentBodyPartColors = bodyPartColors;
+        const currentTextMarks = textMarks;
+        const currentCompletedStrokes = completedStrokes;
         
-        // Also check completed strokes directly for more accurate drawing content detection
-        const hasStrokeManagerContent = completedStrokes.length > 0;
+        // Check multiple sources of content to ensure we catch everything
+        const hasDrawingMarks = currentDrawingMarks.length > 0;
+        const hasSensationMarks = currentSensationMarks.length > 0;
+        const hasBodyPartColors = Object.keys(currentBodyPartColors).length > 0;
+        const hasTextMarks = currentTextMarks.length > 0;
+        const hasStrokeManagerContent = currentCompletedStrokes.length > 0;
         
         const hasContent = hasDrawingMarks || hasSensationMarks || hasBodyPartColors || hasTextMarks || hasStrokeManagerContent;
         
-        console.log(`📊 Detailed state check:`, {
-          drawingMarks: drawingMarks.length,
-          sensations: sensationMarks.length,
-          bodyColors: Object.keys(bodyPartColors).length,
-          textMarks: textMarks.length,
-          completedStrokes: completedStrokes.length,
+        console.log(`📊 FRESH state check (not closure):`, {
+          drawingMarks: currentDrawingMarks.length,
+          sensations: currentSensationMarks.length,
+          bodyColors: Object.keys(currentBodyPartColors).length,
+          textMarks: currentTextMarks.length,
+          completedStrokes: currentCompletedStrokes.length,
           hasContent
         });
         
@@ -273,7 +278,7 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
         }
       }, randomDelay);
     }
-  }, [multiplayer, stateSnapshot, drawingMarks.length, sensationMarks.length, Object.keys(bodyPartColors).length, textMarks.length, isRestoringState]);
+  }, [multiplayer, stateSnapshot, isRestoringState]); // Remove stale closure dependencies!
 
   // Handle incoming state snapshots
   const handleStateSnapshot = useCallback((snapshot: any) => {
