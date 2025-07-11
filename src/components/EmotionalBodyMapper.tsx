@@ -131,7 +131,9 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     if (!data) return;
 
     // Clear existing state first
-    strokeManager.getAllStrokes().forEach(stroke => {
+    console.log('🧹 Clearing existing strokes before restoration');
+    const existingStrokes = strokeManager.getAllStrokes();
+    existingStrokes.forEach(stroke => {
       strokeManager.removeStroke(stroke.id);
     });
 
@@ -139,16 +141,21 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     if (data.drawingStrokes && Array.isArray(data.drawingStrokes)) {
       console.log('🔄 Restoring drawing strokes from state snapshot:', data.drawingStrokes.length);
       
-      data.drawingStrokes.forEach((stroke: any) => {
-        console.log('🔄 Restoring stroke from snapshot:', stroke.id);
+      data.drawingStrokes.forEach((stroke: any, index: number) => {
+        console.log(`🔄 Restoring stroke ${index + 1}/${data.drawingStrokes.length}: ${stroke.id}`);
         strokeManager.restoreStroke(stroke);
       });
       
-      // CRITICAL: Verify marks are available after restoration (with delay to ensure state updates)
+      // CRITICAL: Use longer delay and force re-render to ensure state updates complete
       setTimeout(() => {
-        console.log('🎨 Delayed check - Total marks after restoration:', strokeManager.getAllMarks().length, 'strokes:', strokeManager.getAllStrokes().length);
-        console.log('🎨 Stroke details:', strokeManager.getAllStrokes().map(s => ({ id: s.id, markCount: s.marks.length })));
-      }, 100);
+        const restoredStrokes = strokeManager.getAllStrokes();
+        const restoredMarks = strokeManager.getAllMarks();
+        console.log('🎨 Final verification - Total strokes:', restoredStrokes.length, 'marks:', restoredMarks.length);
+        console.log('🎨 Restored stroke details:', restoredStrokes.map(s => ({ id: s.id, markCount: s.marks.length })));
+        
+        // Force a re-render by updating state
+        setRotation(prev => prev);
+      }, 200);
       
       console.log('✅ Restored', data.drawingStrokes.length, 'strokes from snapshot');
     }
