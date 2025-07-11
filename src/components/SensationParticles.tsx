@@ -633,8 +633,8 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
         particle.rotation += particle.rotationSpeed * clampedDelta * 15;
         particle.oscillationPhase += particle.oscillationSpeed * clampedDelta;
         
-        // Update electrical properties for tingling
-        if (mark.name === 'Tingling' && particle.electricalPulse !== undefined) {
+        // Update electrical properties for nerves and tingling
+        if ((mark.icon === 'Activity' || mark.name === 'Tingling') && particle.electricalPulse !== undefined) {
           particle.electricalPulse += clampedDelta * 12;
           particle.flickerPhase! += clampedDelta * 20;
         }
@@ -1026,7 +1026,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
           const opacity = 1 - (particle.life / particle.maxLife);
           const normalizedScale = getNormalizedScale(mark.name || mark.icon);
           
-          if (mark.name === 'Tingling') {
+          if (mark.icon === 'Activity') {
             const flickerIntensity = particle.flickerPhase !== undefined ? 0.4 + Math.sin(particle.flickerPhase) * 0.5 : 1;
             const pulseScale = particle.electricalPulse !== undefined ? 1 + Math.sin(particle.electricalPulse) * 0.8 : 1;
             mesh.scale.setScalar(particle.size * normalizedScale * pulseScale);
