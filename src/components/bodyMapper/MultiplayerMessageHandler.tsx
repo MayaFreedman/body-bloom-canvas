@@ -209,6 +209,22 @@ export const MultiplayerMessageHandler = ({
             clearAll();
             break;
           }
+          case 'requestState': {
+            console.log('📞 Processing state request from:', messageData.playerId);
+            // Forward to parent component to handle
+            if (room && typeof window !== 'undefined' && (window as any).handleStateRequest) {
+              (window as any).handleStateRequest(messageData);
+            }
+            break;
+          }
+          case 'stateSnapshot': {
+            console.log('📸 Processing state snapshot:', messageData);
+            // Forward to parent component to handle
+            if (room && typeof window !== 'undefined' && (window as any).handleStateSnapshot) {
+              (window as any).handleStateSnapshot(message);
+            }
+            break;
+          }
           default:
             console.log('🤷 Unknown message type:', message.type);
         }
