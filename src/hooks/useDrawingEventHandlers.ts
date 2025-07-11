@@ -49,27 +49,26 @@ export const useDrawingEventHandlers = ({
 
     raycaster.setFromCamera(mouse, camera);
     
-    // Calculate world position for brush radius checking
-    const planeZ = drawingTarget === 'body' ? 0 : 5; // Approximate Z for intersection
-    const worldPosition = new THREE.Vector3();
-    raycaster.ray.at(planeZ, worldPosition);
+    // Expand raycaster detection radius based on brush size
+    const brushRadius = brushSize * 0.001; // Convert brush size to world units
+    raycaster.params.Points = { threshold: brushRadius };
+    raycaster.params.Line = { threshold: brushRadius };
     
-    // Check if we can draw at this position considering brush radius
-    if (canDrawAtPosition(worldPosition, brushSize, drawingTarget)) {
-      console.log('✅ Can draw at position with brush radius');
+    console.log('🎯 Using brush radius for intersection:', brushRadius, 'for brush size:', brushSize);
+    
+    // Get meshes and check intersections with expanded radius
+    const meshes = getIntersectedObjects(drawingTarget === 'whiteboard');
+    console.log('🎯 Found meshes for intersection:', meshes.length);
+    
+    const intersects = raycaster.intersectObjects(meshes, false);
+    console.log('🎯 Raycaster intersections with brush radius:', intersects.length);
+
+    if (intersects.length > 0) {
+      const intersect = intersects[0];
+      const worldPosition = intersect.point;
       
-      // Now get the actual intersection for precise positioning
-      const meshes = getIntersectedObjects(drawingTarget === 'whiteboard');
-      const intersects = raycaster.intersectObjects(meshes, false);
-      
-      let intersect: THREE.Intersection | undefined;
-      if (intersects.length > 0) {
-        intersect = intersects[0];
-        worldPosition.copy(intersect.point); // Use precise intersection point
-      }
-      
-      // Handle body drawing
-      if (drawingTarget === 'body') {
+      // Handle body part intersection
+      if (intersect.object.userData.bodyPart && drawingTarget === 'body') {
         if (onStrokeStart && !strokeStarted.current) {
           onStrokeStart();
           strokeStarted.current = true;
@@ -151,21 +150,17 @@ export const useDrawingEventHandlers = ({
 
     raycaster.setFromCamera(mouse, camera);
     
-    // Calculate world position for brush radius checking
-    const planeZ = drawingTarget === 'body' ? 0 : 5;
-    const worldPosition = new THREE.Vector3();
-    raycaster.ray.at(planeZ, worldPosition);
+    // Expand raycaster detection radius based on brush size (same as pointer down)
+    const brushRadius = brushSize * 0.001;
+    raycaster.params.Points = { threshold: brushRadius };
+    raycaster.params.Line = { threshold: brushRadius };
     
-    // Check if we can draw at this position considering brush radius
-    if (canDrawAtPosition(worldPosition, brushSize, drawingTarget)) {
-      const meshes = getIntersectedObjects(drawingTarget === 'whiteboard');
-      const intersects = raycaster.intersectObjects(meshes, false);
-      
-      let moveIntersect: THREE.Intersection | undefined;
-      if (intersects.length > 0) {
-        moveIntersect = intersects[0];
-        worldPosition.copy(moveIntersect.point);
-      }
+    const meshes = getIntersectedObjects(drawingTarget === 'whiteboard');
+    const intersects = raycaster.intersectObjects(meshes, false);
+    
+    if (intersects.length > 0) {
+      const moveIntersect = intersects[0];
+      const worldPosition = moveIntersect.point;
       
       // Handle body drawing
       if (drawingTarget === 'body') {
