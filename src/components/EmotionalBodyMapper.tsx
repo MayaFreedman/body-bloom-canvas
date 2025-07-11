@@ -1,5 +1,5 @@
 
-import React, { useRef, useState, useCallback } from 'react';
+import React, { useRef, useState, useCallback, useEffect } from 'react';
 import { BottomBrand } from './bodyMapper/BottomBrand';
 import { MultiplayerMessageHandler } from './bodyMapper/MultiplayerMessageHandler';
 import { BodyMapperLayout } from './bodyMapper/BodyMapperLayout';
@@ -20,6 +20,7 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
   const controlsRef = useRef<any>(null);
 
   const currentUserId = React.useMemo(() => `user-${Date.now()}-${Math.random()}`, []);
+  const [isRestoringState, setIsRestoringState] = useState(false);
 
   const multiplayer = useMultiplayer(roomId);
 
@@ -136,6 +137,7 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
       if (marks.length === 0) return;
       
       console.log('🔄 Restoring drawing marks without clearAll, count:', marks.length);
+      console.log('🔄 Setting isRestoringState to true during mark restoration');
       
       // Sort marks by timestamp to reconstruct stroke order
       const sortedMarks = [...marks].sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
@@ -222,22 +224,31 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
 
   // Handle state requests from new players - only respond if we have content
   const handleStateRequest = useCallback(() => {
-    if (multiplayer.isConnected) {
-      // Only respond if we have meaningful content to share
-      const hasContent = drawingMarks.length > 0 || 
-                        sensationMarks.length > 0 || 
-                        Object.keys(bodyPartColors).length > 0 || 
-                        textMarks.length > 0;
-      
-      if (hasContent) {
-        console.log('📸 Sending state snapshot to new player (has content)');
-        const snapshot = stateSnapshot.captureCurrentState();
-        multiplayer.broadcastStateSnapshot(snapshot);
-      } else {
-        console.log('📸 No content to share, skipping state snapshot');
-      }
+    // Don't respond to state requests if we're currently restoring state
+    if (isRestoringState) {
+      console.log('📤 Ignoring state request - currently restoring state');
+      return;
     }
-  }, [multiplayer, stateSnapshot, drawingMarks.length, sensationMarks.length, Object.keys(bodyPartColors).length, textMarks.length]);
+    
+    if (multiplayer.isConnected) {
+      // Add a small delay to ensure all reactive updates have completed
+      setTimeout(() => {
+        // Only respond if we have meaningful content to share
+        const hasContent = drawingMarks.length > 0 || 
+                          sensationMarks.length > 0 || 
+                          Object.keys(bodyPartColors).length > 0 || 
+                          textMarks.length > 0;
+        
+        if (hasContent) {
+          console.log('📸 Sending state snapshot to new player (has content)');
+          const snapshot = stateSnapshot.captureCurrentState();
+          multiplayer.broadcastStateSnapshot(snapshot);
+        } else {
+          console.log('📸 No content to share, skipping state snapshot');
+        }
+      }, 100); // Small delay to ensure reactive updates complete
+    }
+  }, [multiplayer, stateSnapshot, drawingMarks.length, sensationMarks.length, Object.keys(bodyPartColors).length, textMarks.length, isRestoringState]);
 
   // Handle incoming state snapshots
   const handleStateSnapshot = useCallback((snapshot: any) => {
@@ -251,7 +262,16 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
       }
       
       if (stateSnapshot.validateSnapshot(snapshot)) {
+        setIsRestoringState(true);
+        console.log('🔄 Starting state restoration...');
         stateSnapshot.restoreFromSnapshot(snapshot);
+        
+        // Clear the restoration flag after a delay to ensure all reactive updates complete
+        setTimeout(() => {
+          setIsRestoringState(false);
+          console.log('✅ State restoration complete');
+        }, 200);
+        
         console.log('✅ Successfully restored state from snapshot');
       } else {
         console.warn('⚠️ Invalid snapshot received, ignoring');
@@ -356,6 +376,14 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     handleSensationClick(position, sensation);
     // Sensation remains equipped after placement for multiple uses
   };
+
+  // Monitor when drawingMarks actually updates after restoration
+  useEffect(() => {
+    console.log('📊 DrawingMarks updated in EmotionalBodyMapper - count:', drawingMarks.length);
+    if (drawingMarks.length > 0) {
+      console.log('📊 First mark in updated drawingMarks:', drawingMarks[0]);
+    }
+  }, [drawingMarks.length]);
 
   const legacyDrawingMarks = drawingMarks.map(mark => ({
     id: mark.id,

@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { BodyMapperMode, SelectedSensation, SensationMark, DrawingTarget, DrawingMark } from '@/types/bodyMapperTypes';
 import { CustomSensation } from '@/types/customEffectTypes';
 import { useActionHistory } from './useActionHistory';
@@ -242,15 +242,20 @@ export const useEnhancedBodyMapperState = ({
   }, [strokeManager.completedStrokes, strokeManager.currentStroke, textManager.textMarks]);
 
   // Legacy compatibility - convert to old format for existing components
-  const drawingMarks = strokeManager.getAllMarks().map(mark => {
-    return {
-      id: mark.id,
-      position: mark.position,
-      color: mark.color,
-      size: mark.size,
-      surface: mark.surface
-    };
-  });
+  // Make this reactive to stroke manager state changes
+  const drawingMarks = useMemo(() => {
+    const allMarks = strokeManager.getAllMarks();
+    console.log('🔄 drawingMarks useMemo recomputed with', allMarks.length, 'marks from', strokeManager.completedStrokes.length, 'completed strokes');
+    return allMarks.map(mark => {
+      return {
+        id: mark.id,
+        position: mark.position,
+        color: mark.color,
+        size: mark.size,
+        surface: mark.surface
+      };
+    });
+  }, [strokeManager.completedStrokes, strokeManager.currentStroke]);
 
   return {
     mode,
