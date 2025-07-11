@@ -254,9 +254,9 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       'Nerves': 0.12, // Match energetic dispersion
       'Change in Breathing': 0.06, // Reset to reasonable default
       'Shaky': 0.06, // Reset to reasonable default
-      'Stomping': 0.06, // Reset to reasonable default
+      'Stomping': 0.12, // Match energetic dispersion
       'Change in Appetite': 0.06, // Reset to reasonable default
-      'Fidgety': 0.06, // Reset to reasonable default
+      'Fidgety': 0.12, // Match energetic dispersion
       'Clenched': 0.06, // Reset to reasonable default
       'Avoiding Eye Contact': 0.06, // Reset to reasonable default
       'Tense': 0.06, // Reset to reasonable default
@@ -317,9 +317,9 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       'Nerves': { base: 0.04, variance: 0.02, multiplier: 1.4 }, // Match energetic size
       'Change in Breathing': { base: 0.045, variance: 0.02, multiplier: 1.7 }, // Match Increased Temperature
       'Shaky': { base: 0.045, variance: 0.02, multiplier: 1.7 }, // Match Increased Temperature
-      'Stomping': { base: 0.065, variance: 0.035, multiplier: 2.2 }, // Larger stomping particles
+      'Stomping': { base: 0.04, variance: 0.02, multiplier: 1.4 }, // Match energetic size
       'Change in Appetite': { base: 0.045, variance: 0.02, multiplier: 1.7 }, // Match Increased Temperature
-      'Fidgety': { base: 0.045, variance: 0.02, multiplier: 1.7 }, // Match Increased Temperature
+      'Fidgety': { base: 0.04, variance: 0.02, multiplier: 1.4 }, // Match energetic size
       'Clenched': { base: 0.045, variance: 0.02, multiplier: 1.7 }, // Match Increased Temperature
       'Avoiding Eye Contact': { base: 0.045, variance: 0.02, multiplier: 1.7 }, // Match Increased Temperature
       'Tense': { base: 0.045, variance: 0.02, multiplier: 1.7 }, // Match Increased Temperature
@@ -367,9 +367,9 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       'Nerves': { min: 30, max: 60 }, // Match energetic lifespan
       'Change in Breathing': { min: 80, max: 140 }, // Match Increased Temperature
       'Shaky': { min: 80, max: 140 }, // Match Increased Temperature
-      'Stomping': { min: 180, max: 280 }, // Longer lasting stomping particles
+      'Stomping': { min: 30, max: 60 }, // Match energetic lifespan
       'Change in Appetite': { min: 80, max: 140 }, // Match Increased Temperature
-      'Fidgety': { min: 80, max: 140 }, // Match Increased Temperature
+      'Fidgety': { min: 30, max: 60 }, // Match energetic lifespan
       'Clenched': { min: 80, max: 140 }, // Match Increased Temperature
       'Avoiding Eye Contact': { min: 80, max: 140 }, // Match Increased Temperature
       'Tense': { min: 80, max: 140 }, // Match Increased Temperature
@@ -460,9 +460,9 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             
             // ACTIVE = higher count for movement
             'Change in Energy': 20,     // Energy bursts
-            'Fidgety': 12,              // Match Increased Temperature
+            'Fidgety': 20,              // Match energetic behavior
       'Pacing': 18,               // Movement patterns
-      'Stomping': 12,             // Match Increased Temperature
+      'Stomping': 20,             // Match energetic behavior
             'Avoiding Eye Contact': 12, // Nervous behavior
             'Scrunched Face': 10,       // Facial tension
             
@@ -736,8 +736,8 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             if (Date.now() % 2000 < 50) {
               console.log('🎨 REGENERATION: Using custom velocity for', mark.movementBehavior, 'speedMultiplier:', speedMultiplier);
             }
-          } else if (mark.name === 'Nerves' || mark.icon === 'butterfly') {
-            // Reset butterfly/nerves velocity with energetic behavior
+          } else if (mark.name === 'Nerves' || mark.name === 'Stomping' || mark.name === 'Fidgety' || mark.icon === 'butterfly') {
+            // Reset energetic particles (nerves, stomping, fidgety) with energetic behavior
             const speedMultiplier = 4.2; // Match energetic speed
             particle.velocity.set(
               (Math.random() - 0.5) * 0.0006 * speedMultiplier,
@@ -768,9 +768,9 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             
             // MOVEMENT effects - reset to reasonable defaults
             'Shaky': { speed: 0.8, intensity: 0.6, pattern: 'flow', gravity: 0.0002, drift: new THREE.Vector3(0, 0.2, 0) },
-            'Fidgety': { speed: 0.8, intensity: 0.6, pattern: 'flow', gravity: 0.0002, drift: new THREE.Vector3(0, 0.2, 0) },
+            'Fidgety': { speed: 4.2, intensity: 4.0, pattern: 'custom', gravity: 0.0002, drift: new THREE.Vector3(0, 0.1, 0) },
             'Pacing': { speed: 0.05, intensity: 0.1, pattern: 'gentle' }, // Keep minimal movement
-            'Stomping': { speed: 3.8, intensity: 3.5, pattern: 'custom', gravity: 0.0002, drift: new THREE.Vector3(0, 0.1, 0) }, // Energetic stomping like custom effect
+            'Stomping': { speed: 4.2, intensity: 4.0, pattern: 'custom', gravity: 0.0002, drift: new THREE.Vector3(0, 0.1, 0) },
             
             // FLOW effects - dripping with strong downward movement (negative Y = down)
             'Tears': { speed: 0.2, intensity: 0.4, pattern: 'drip', gravity: 0.0002, drift: new THREE.Vector3(0, -0.15, 0) },
