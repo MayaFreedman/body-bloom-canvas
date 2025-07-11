@@ -84,8 +84,8 @@ export const PaintingModeSelector = ({
       
       {/* Clear Fill sub-option for Fill mode */}
       {mode === 'fill' && (
-        <div className="mt-4">
-          <h4 className="text-sm text-gray-600 mb-3">Fill Eraser</h4>
+        <div className="max-h-[300px] overflow-y-auto space-y-4">
+          <h5 className="font-medium text-gray-800 text-[16px] mb-3">Fill Eraser</h5>
           <div className="flex items-center">
             <p className="text-sm text-gray-500 text-left w-1/2">
               Click on body parts or whiteboard to remove color
