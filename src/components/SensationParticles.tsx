@@ -251,7 +251,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
   // Get dispersion level based on sensation type (much larger areas for natural spread)
   const getDispersionLevel = (sensationName: string) => {
     const dispersionMap: { [key: string]: number } = {
-      'Nerves': 0.06, // Reset to reasonable default
+      'Nerves': 0.12, // Match energetic dispersion
       'Change in Breathing': 0.06, // Reset to reasonable default
       'Shaky': 0.06, // Reset to reasonable default
       'Stomping': 0.06, // Reset to reasonable default
@@ -314,7 +314,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       'Nausea': { base: 0.045, variance: 0.025, multiplier: 1.7 }, // Visible swirling
       'Increased Heart Rate': { base: 0.045, variance: 0.02, multiplier: 1.7 }, // Fast but visible beats
       'Increased Temperature': { base: 0.045, variance: 0.02, multiplier: 1.7 }, // Original setting
-      'Nerves': { base: 0.045, variance: 0.02, multiplier: 1.7 }, // Match Increased Temperature
+      'Nerves': { base: 0.04, variance: 0.02, multiplier: 1.4 }, // Match energetic size
       'Change in Breathing': { base: 0.045, variance: 0.02, multiplier: 1.7 }, // Match Increased Temperature
       'Shaky': { base: 0.045, variance: 0.02, multiplier: 1.7 }, // Match Increased Temperature
       'Stomping': { base: 0.065, variance: 0.035, multiplier: 2.2 }, // Larger stomping particles
@@ -364,7 +364,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       'Nausea': { min: 80, max: 140 }, // Swirling motion
       'Increased Heart Rate': { min: 60, max: 120 }, // Faster rhythm
       'Increased Temperature': { min: 80, max: 140 }, // Default behavior
-      'Nerves': { min: 80, max: 140 }, // Match Increased Temperature
+      'Nerves': { min: 30, max: 60 }, // Match energetic lifespan
       'Change in Breathing': { min: 80, max: 140 }, // Match Increased Temperature
       'Shaky': { min: 80, max: 140 }, // Match Increased Temperature
       'Stomping': { min: 180, max: 280 }, // Longer lasting stomping particles
@@ -467,7 +467,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             'Scrunched Face': 10,       // Facial tension
             
             // FAST/JERKY = high count, short-lived
-            'Nerves': 12,               // Match Increased Temperature
+            'Nerves': 20,               // Match energetic behavior
             'Tingling': 25,             // Sparkles
             'Shaky': 35,                // Rapid trembling
             'Goosebumps': 20,           // Small bumps
@@ -736,12 +736,13 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             if (Date.now() % 2000 < 50) {
               console.log('🎨 REGENERATION: Using custom velocity for', mark.movementBehavior, 'speedMultiplier:', speedMultiplier);
             }
-          } else if (mark.icon === 'butterfly') {
-            // Reset butterfly velocity with more natural variation
+          } else if (mark.name === 'Nerves' || mark.icon === 'butterfly') {
+            // Reset butterfly/nerves velocity with energetic behavior
+            const speedMultiplier = 4.2; // Match energetic speed
             particle.velocity.set(
-              (Math.random() - 0.5) * 0.0008,
-              Math.random() * 0.0006, // Slight upward bias
-              (Math.random() - 0.5) * 0.0008
+              (Math.random() - 0.5) * 0.0006 * speedMultiplier,
+              Math.random() * 0.0008 * speedMultiplier,
+              (Math.random() - 0.5) * 0.0006 * speedMultiplier
             );
           } else {
             // Default reset with natural variation
@@ -757,7 +758,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
         const getAnimationProfile = (sensationName: string) => {
           const profiles: { [key: string]: { speed: number; intensity: number; pattern: string; gravity?: number; drift?: THREE.Vector3 } } = {
             // ELECTRICAL/ACTIVE effects - reset to reasonable defaults
-            'Nerves': { speed: 0.8, intensity: 0.6, pattern: 'flow', gravity: 0.0002, drift: new THREE.Vector3(0, 0.2, 0) },
+            'Nerves': { speed: 4.2, intensity: 4.0, pattern: 'custom', gravity: 0.0002, drift: new THREE.Vector3(0, 0.1, 0) },
             'Tingling': { speed: 1.8, intensity: 1.2, pattern: 'electrical', gravity: 0.0001 }, // Keep original sparkly movement
             'Change in Energy': { speed: 1.5, intensity: 1.0, pattern: 'burst', gravity: 0.0001, drift: new THREE.Vector3(0, 0.3, 0) },
             
