@@ -462,7 +462,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             'Change in Energy': 20,     // Energy bursts
             'Fidgety': 12,              // Match Increased Temperature
       'Pacing': 18,               // Movement patterns
-      'Stomping': 12,             // Match Increased Temperature
+      'Stomping': 3,              // Reduced by 75% from 12 to 3
             'Avoiding Eye Contact': 12, // Nervous behavior
             'Scrunched Face': 10,       // Facial tension
             
@@ -524,11 +524,12 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
               (Math.random() - 0.5) * 0.001
             );
           } else if (mark.name === 'Stomping') {
-            // Stomping particles start with upward movement like reverse tears
+            // Stomping particles start with upward movement and initial pulse
+            const pulseMultiplier = 1 + Math.sin(Math.random() * Math.PI * 2) * 0.5; // Random pulse on spawn
             initialVelocity = new THREE.Vector3(
-              (Math.random() - 0.5) * 0.0003, // Minimal horizontal like tears
-              0.0005 + Math.random() * 0.0004, // Strong upward movement (opposite of tears)
-              (Math.random() - 0.5) * 0.0002  // Minimal depth like tears
+              (Math.random() - 0.5) * 0.0003 * pulseMultiplier, // Pulse affects horizontal
+              (0.0005 + Math.random() * 0.0004) * pulseMultiplier, // Strong upward with pulse
+              (Math.random() - 0.5) * 0.0002 * pulseMultiplier  // Pulse affects depth
             );
           } else if (mark.isCustom && mark.movementBehavior) {
             // Custom effect initial velocity based on movement behavior
@@ -731,11 +732,12 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
               (Math.random() - 0.5) * (isSnow ? 0.0004 : 0.0002)  // Snow has more depth movement
             );
           } else if (mark.name === 'Stomping') {
-            // Reset stomping velocity with upward movement like reverse tears
+            // Reset stomping velocity with upward movement and pulse
+            const pulseMultiplier = 1 + Math.sin(Math.random() * Math.PI * 2) * 0.5; // Random pulse on regeneration
             particle.velocity.set(
-              (Math.random() - 0.5) * 0.0003, // Minimal horizontal like tears
-              0.0005 + Math.random() * 0.0004, // Strong upward movement (opposite of tears)
-              (Math.random() - 0.5) * 0.0002  // Minimal depth like tears
+              (Math.random() - 0.5) * 0.0003 * pulseMultiplier, // Pulse affects horizontal
+              (0.0005 + Math.random() * 0.0004) * pulseMultiplier, // Strong upward with pulse
+              (Math.random() - 0.5) * 0.0002 * pulseMultiplier  // Pulse affects depth
             );
           } else if (mark.isCustom && mark.movementBehavior) {
             // Custom effect initial velocity based on movement behavior - REGENERATION FIX!
@@ -942,11 +944,15 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
           const gentleSway = Math.sin(particle.oscillationPhase * animProfile.speed * 0.5) * 0.0001 * animProfile.intensity;
           particle.velocity.x += gentleSway * clampedDelta;
           
-          // Apply movement
+          // Apply movement with bounding
           particle.position.add(particle.velocity);
           
-          // Minimal damping - let upward gravity do the work
-          particle.velocity.multiplyScalar(0.998);
+          // Add bounding to keep particles within reasonable range
+          const boundingRadius = 0.08;
+          if (particle.position.length() > boundingRadius) {
+            particle.position.normalize().multiplyScalar(boundingRadius);
+            particle.velocity.multiplyScalar(0.5); // Slow down when hitting bounds
+          }
           
           
         } else if (animProfile.pattern === 'custom') {
@@ -1052,7 +1058,17 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
           const opacity = 1 - (particle.life / particle.maxLife);
           const normalizedScale = getNormalizedScale(mark.name || mark.icon);
           
-          if (mark.name === 'Tingling') {
+          if (mark.name === 'Stomping') {
+            // Special opacity for stomping - stay opaque way longer
+            const stompOpacity = Math.max(0.8, 1 - Math.pow(particle.life / particle.maxLife, 3)); // Cubic falloff for longer opacity
+            mesh.scale.setScalar(particle.size * normalizedScale);
+            
+            // Update sprite material opacity
+            const material = (mesh as any).material;
+            if (material) {
+              material.opacity = stompOpacity;
+            }
+          } else if (mark.name === 'Tingling') {
             const flickerIntensity = particle.flickerPhase !== undefined ? 0.4 + Math.sin(particle.flickerPhase) * 0.5 : 1;
             const pulseScale = particle.electricalPulse !== undefined ? 1 + Math.sin(particle.electricalPulse) * 0.8 : 1;
             mesh.scale.setScalar(particle.size * normalizedScale * pulseScale);
