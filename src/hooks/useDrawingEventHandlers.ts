@@ -38,7 +38,7 @@ export const useDrawingEventHandlers = ({
 
   // Check if direct hit is too close to edge based on brush size
   const findBrushIntersection = useCallback((meshes: THREE.Mesh[]) => {
-    const edgeThreshold = Math.max(0.201, brushSize * 0.01); // Base threshold ~0.2, scales with brush
+    const edgeThreshold = 0.05; // Much smaller threshold - only reject very close edge hits
     console.log('🖌️ BRUSH DEBUG: brushSize:', brushSize, 'edgeThreshold:', edgeThreshold);
     
     // First, try normal intersections
@@ -84,7 +84,7 @@ export const useDrawingEventHandlers = ({
           Math.abs(localPoint.z - box.max.z)
         );
         
-        const minDistToEdge = Math.min(distToEdgeX, distToEdgeY, distToEdgeZ);
+        const minDistToEdge = Math.min(distToEdgeY, distToEdgeZ); // Only consider Y and Z, ignore X
         
         console.log(`🏃 Edge distances: X=${distToEdgeX.toFixed(3)}, Y=${distToEdgeY.toFixed(3)}, Z=${distToEdgeZ.toFixed(3)}`);
         console.log(`📏 Min edge distance: ${minDistToEdge.toFixed(3)}, threshold: ${edgeThreshold.toFixed(3)}`);
