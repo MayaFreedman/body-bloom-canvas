@@ -50,7 +50,9 @@ export const useDrawingEvents = ({
     onAddToStroke,
     getIntersectedObjects: intersectionUtils.getIntersectedObjects,
     addMarkAtPosition: drawingMarks.addMarkAtPosition,
-    interpolateMarks: drawingMarks.interpolateMarks
+    interpolateMarks: drawingMarks.interpolateMarks,
+    canDrawAtPosition: intersectionUtils.canDrawAtPosition,
+    brushSize
   });
 
   return eventHandlers;
