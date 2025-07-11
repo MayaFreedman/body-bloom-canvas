@@ -36,9 +36,9 @@ export const useDrawingEventHandlers = ({
   const lastBodyPart = useRef<string | null>(null);
   const strokeStarted = useRef(false);
 
-  // Only use brush detection when we already have a mesh hit (improves precision)
+  // Always find the closest mesh within brush radius for better edge detection
   const findBrushIntersection = useCallback((meshes: THREE.Mesh[]) => {
-    const brushRadius = brushSize * 0.05; // Small expansion for precision improvement
+    const brushRadius = brushSize * 0.05; // Reasonable brush expansion for edge detection
     console.log('🖌️ BRUSH DEBUG: brushSize:', brushSize, 'brushRadius:', brushRadius);
     
     const rayOrigin = new THREE.Vector3();
@@ -47,21 +47,24 @@ export const useDrawingEventHandlers = ({
     raycaster.ray.at(0, rayOrigin);
     rayDirection.copy(raycaster.ray.direction);
     
-    // First, try normal intersections
+    // Always check for closest mesh within brush radius (helps with edges)
+    let closestMesh: THREE.Mesh | null = null;
+    let closestDistance = Infinity;
+    let closestPoint = new THREE.Vector3();
+    let bestIntersection: THREE.Intersection | null = null;
+    
+    // First, try normal intersections and see if any are close
     const normalIntersects = raycaster.intersectObjects(meshes, false);
     console.log('🎯 NORMAL INTERSECTS:', normalIntersects.length);
     
-    if (normalIntersects.length === 0) {
-      console.log('❌ NO MESH HIT - brush detection disabled');
-      return null; // No brush help if no mesh hit
+    if (normalIntersects.length > 0) {
+      console.log('✅ DIRECT HIT found, using closest one');
+      return normalIntersects[0]; // Direct hit is always best
     }
     
-    console.log('✅ MESH HIT FOUND - checking if brush can find better match within radius:', brushRadius);
+    console.log('🔍 NO DIRECT HIT - checking brush radius for edge detection:', brushRadius);
     
-    // We have a hit! Now see if brush detection can find a better match
-    let bestMatch = normalIntersects[0]; // Default to normal intersection
-    let closestDistance = Infinity;
-    
+    // Find closest mesh within brush radius for edge detection
     for (let i = 0; i < meshes.length; i++) {
       const mesh = meshes[i];
       console.log(`  Checking mesh ${i}:`, mesh.userData.bodyPart || 'whiteboard');
@@ -82,30 +85,35 @@ export const useDrawingEventHandlers = ({
         
         if (distance <= brushRadius && distance < closestDistance) {
           closestDistance = distance;
+          closestMesh = mesh;
           
-          // Create improved intersection point
+          // Project the ray point onto the mesh surface for better positioning
           const directionToCenter = center.clone().sub(rayPoint).normalize();
-          const improvedPoint = rayPoint.clone().add(directionToCenter.multiplyScalar(distance * 0.8));
+          closestPoint.copy(rayPoint).add(directionToCenter.multiplyScalar(distance * 0.8)); // Move 80% toward center
           
-          bestMatch = {
-            distance: projectionLength,
-            point: improvedPoint,
-            object: mesh,
-            face: null,
-            faceIndex: undefined,
-            uv: undefined,
-            uv1: undefined,
-            normal: undefined,
-            instanceId: undefined
-          };
-          
-          console.log('🎯 BRUSH IMPROVED MATCH:', mesh.userData.bodyPart || 'whiteboard', 'distance:', distance.toFixed(3));
+          console.log('🎯 NEW CLOSEST MESH:', mesh.userData.bodyPart || 'whiteboard', 'distance:', distance.toFixed(3));
         }
       }
     }
     
-    console.log('🎉 RETURNING BEST MATCH:', bestMatch.object.userData.bodyPart || 'whiteboard');
-    return bestMatch;
+    if (closestMesh) {
+      console.log('🎉 BRUSH EDGE HIT! Closest mesh:', closestMesh.userData.bodyPart || 'whiteboard');
+      const fakeIntersect: THREE.Intersection = {
+        distance: closestDistance,
+        point: closestPoint,
+        object: closestMesh,
+        face: null,
+        faceIndex: undefined,
+        uv: undefined,
+        uv1: undefined,
+        normal: undefined,
+        instanceId: undefined
+      };
+      return fakeIntersect;
+    }
+    
+    console.log('❌ NO MESH WITHIN BRUSH RADIUS');
+    return null;
   }, [brushSize, raycaster]);
 
   const handlePointerDown = useCallback((event: PointerEvent) => {
