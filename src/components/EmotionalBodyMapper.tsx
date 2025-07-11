@@ -80,7 +80,9 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     handleDeleteTextMark,
     handleStartTextEditing,
     handleStopTextEditing,
-    setTextSettings
+    setTextSettings,
+    // Stroke manager for state snapshots
+    strokeManager
   } = useEnhancedBodyMapperState({
     currentUserId,
     isMultiplayer: multiplayer.isConnected,
@@ -128,9 +130,25 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     const { data } = snapshot;
     if (!data) return;
 
-    // Restore drawing marks by converting to strokes
-    if (data.drawingMarks && Array.isArray(data.drawingMarks)) {
-      console.log('🔄 Restoring drawing marks from state snapshot:', data.drawingMarks.length);
+    // Clear existing state first
+    strokeManager.getAllStrokes().forEach(stroke => {
+      strokeManager.removeStroke(stroke.id);
+    });
+
+    // Restore drawing strokes - new stroke-based approach
+    if (data.drawingStrokes && Array.isArray(data.drawingStrokes)) {
+      console.log('🔄 Restoring drawing strokes from state snapshot:', data.drawingStrokes.length);
+      
+      data.drawingStrokes.forEach((stroke: any) => {
+        console.log('🔄 Restoring stroke from snapshot:', stroke.id);
+        strokeManager.restoreStroke(stroke);
+      });
+      
+      console.log('✅ Restored', data.drawingStrokes.length, 'strokes from snapshot');
+    }
+    // Legacy support for old mark-based snapshots
+    else if (data.drawingMarks && Array.isArray(data.drawingMarks)) {
+      console.log('🔄 Restoring legacy drawing marks from state snapshot:', data.drawingMarks.length);
       
       // Group marks by stroke ID to reconstruct strokes
       const strokeGroups: { [strokeId: string]: any[] } = {};
@@ -144,10 +162,10 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
 
       // Restore each stroke
       Object.entries(strokeGroups).forEach(([strokeId, marks]) => {
-        console.log('🔄 Restoring stroke from snapshot:', strokeId, 'with marks:', marks.length);
+        console.log('🔄 Restoring legacy stroke from snapshot:', strokeId, 'with marks:', marks.length);
         if (marks.length > 0) {
           const firstMark = marks[0];
-          restoreStroke({
+          strokeManager.restoreStroke({
             id: strokeId,
             marks,
             userId: data.playerId || 'unknown',
@@ -173,11 +191,11 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     if (data.emotions) setEmotions(data.emotions);
 
     console.log('✅ Successfully restored state from snapshot');
-  }, [setSensationMarks, baseHandleBodyPartClick, handleWhiteboardFill, setRotation, setEmotions, restoreStroke]);
+  }, [setSensationMarks, baseHandleBodyPartClick, handleWhiteboardFill, setRotation, setEmotions, strokeManager]);
 
   const { broadcastStateSnapshot, requestStateSnapshot } = useStateSnapshot({
     currentUserId,
-    drawingMarks,
+    drawingStrokes: strokeManager.getAllStrokes(),
     sensationMarks,
     bodyPartColors,
     textMarks,
@@ -193,14 +211,14 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     console.log('📞 Received state request from:', requestData.playerId);
     if (requestData.playerId !== currentUserId) {
       // Only broadcast state if we have some content to share
-      const hasContent = drawingMarks.length > 0 || sensationMarks.length > 0 || 
+      const hasContent = strokeManager.getAllStrokes().length > 0 || sensationMarks.length > 0 || 
                         Object.keys(bodyPartColors).length > 0 || textMarks.length > 0;
       if (hasContent) {
         console.log('📸 Broadcasting state in response to request');
         broadcastStateSnapshot();
       }
     }
-  }, [currentUserId, drawingMarks, sensationMarks, bodyPartColors, textMarks, broadcastStateSnapshot]);
+  }, [currentUserId, strokeManager, sensationMarks, bodyPartColors, textMarks, broadcastStateSnapshot]);
 
   const handleStateSnapshot = useCallback((snapshot: any) => {
     console.log('📸 Received state snapshot:', snapshot);

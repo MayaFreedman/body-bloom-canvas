@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { useMultiplayerBroadcast } from './useMultiplayerBroadcast';
 
 interface StateSnapshotData {
-  drawingMarks: any[];
+  drawingStrokes: any[];
   sensationMarks: any[];
   bodyPartColors: Record<string, string>;
   textMarks: any[];
@@ -21,7 +21,7 @@ interface StateSnapshot {
 
 interface UseStateSnapshotProps {
   currentUserId: string | null;
-  drawingMarks: any[];
+  drawingStrokes: any[];
   sensationMarks: any[];
   bodyPartColors: Record<string, string>;
   textMarks: any[];
@@ -34,7 +34,7 @@ interface UseStateSnapshotProps {
 
 export const useStateSnapshot = ({
   currentUserId,
-  drawingMarks,
+  drawingStrokes,
   sensationMarks,
   bodyPartColors,
   textMarks,
@@ -51,7 +51,7 @@ export const useStateSnapshot = ({
     const snapshot: StateSnapshot = {
       type: 'stateSnapshot',
       data: {
-        drawingMarks: [...drawingMarks],
+        drawingStrokes: [...drawingStrokes],
         sensationMarks: [...sensationMarks],
         bodyPartColors: { ...bodyPartColors },
         textMarks: [...textMarks],
@@ -66,7 +66,7 @@ export const useStateSnapshot = ({
 
     console.log('📸 Broadcasting state snapshot:', snapshot);
     multiplayer.room?.send('broadcast', snapshot);
-  }, [currentUserId, drawingMarks, sensationMarks, bodyPartColors, textMarks, whiteboardBackground, rotation, emotions, multiplayer]);
+  }, [currentUserId, drawingStrokes, sensationMarks, bodyPartColors, textMarks, whiteboardBackground, rotation, emotions, multiplayer]);
 
   const requestStateSnapshot = useCallback(() => {
     if (!multiplayer.isConnected || !currentUserId) return;
