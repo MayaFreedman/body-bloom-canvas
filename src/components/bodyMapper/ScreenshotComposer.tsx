@@ -81,19 +81,21 @@ export const ScreenshotComposer = ({
 
   // Helper function to get image path for sensation
   const getImagePath = (iconName: string): string => {
+    // Use import.meta.url to get correct paths that work in both dev and production
+    const baseUrl = new URL('../../../src/Assets/particleEffects/', import.meta.url).href;
     const imageMap: Record<string, string> = {
-      'butterfly': '/src/Assets/particleEffects/butterfly.png',
-      'Zap': '/src/Assets/particleEffects/lightning-bolt.png',
-      'Wind': '/src/Assets/particleEffects/wind.png',
-      'Droplet': '/src/Assets/particleEffects/water.png',
-      'Snowflake': '/src/Assets/particleEffects/snowflakes.png',
-      'Thermometer': '/src/Assets/particleEffects/fire.png',
-      'Heart': '/src/Assets/particleEffects/heart.png',
-      'Activity': '/src/Assets/particleEffects/shake.png',
-      'Star': '/src/Assets/particleEffects/star.png',
-      'Sparkles': '/src/Assets/particleEffects/sparkle.png'
+      'butterfly': `${baseUrl}butterfly.png`,
+      'Zap': `${baseUrl}lightning-bolt.png`,
+      'Wind': `${baseUrl}wind.png`,
+      'Droplet': `${baseUrl}water.png`,
+      'Snowflake': `${baseUrl}snowflakes.png`,
+      'Thermometer': `${baseUrl}fire.png`,
+      'Heart': `${baseUrl}heart.png`,
+      'Activity': `${baseUrl}shake.png`,
+      'Star': `${baseUrl}star.png`,
+      'Sparkles': `${baseUrl}sparkle.png`
     };
-    return imageMap[iconName] || '/src/Assets/particleEffects/plus.png';
+    return imageMap[iconName] || `${baseUrl}plus.png`;
   };
 
   // Helper function to load an image
