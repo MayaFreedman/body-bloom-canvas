@@ -78,22 +78,18 @@ export const PaintingModeSelector = ({
       
       {/* Clear Fill sub-option for Fill mode */}
       {mode === 'fill' && (
-        <div className="mt-3 p-3 bg-gray-50 rounded-lg border">
-          <div className="flex items-center gap-2">
-            <button
-              className={`px-3 py-1.5 text-sm rounded transition-colors ${
-                clearFillMode 
-                  ? 'bg-orange-500 text-white' 
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-              }`}
-              onClick={() => handleClearFillModeChange(!clearFillMode)}
-            >
-              Clear Fill Mode
-            </button>
-            {clearFillMode && (
-              <span className="text-sm text-gray-600">Click on body parts or whiteboard to remove color</span>
-            )}
-          </div>
+        <div className="mt-4 flex flex-col items-start">
+          <button
+            className={`control-button-with-text-red ${
+              clearFillMode ? 'bg-soft-coral text-white' : ''
+            }`}
+            onClick={() => handleClearFillModeChange(!clearFillMode)}
+          >
+            Clear Fill
+          </button>
+          <p className="text-sm text-gray-500 mt-2">
+            Click on body parts or whiteboard to remove color
+          </p>
         </div>
       )}
     </div>

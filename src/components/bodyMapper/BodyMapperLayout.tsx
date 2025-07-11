@@ -1,5 +1,5 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { BodyMapperCanvas } from './BodyMapperCanvas';
 import { BodyMapperControls } from './BodyMapperControls';
 import { ControlButtons } from './ControlButtons';
@@ -120,7 +120,15 @@ export const BodyMapperLayout = ({
 }: BodyMapperLayoutProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isHoveringControlButtons, setIsHoveringControlButtons] = useState(false);
+  const [clearFillMode, setClearFillMode] = useState(false);
   const screenshotRef = useRef<ScreenshotCaptureHandle>(null);
+
+  // Reset clearFillMode when switching away from fill mode
+  useEffect(() => {
+    if (mode !== 'fill') {
+      setClearFillMode(false);
+    }
+  }, [mode]);
 
   return (
     <div className="game-container">
@@ -146,6 +154,7 @@ export const BodyMapperLayout = ({
             editingTextId={editingTextId}
             modelRef={modelRef}
             screenshotRef={screenshotRef}
+            clearFillMode={clearFillMode}
             onAddDrawingMark={onAddDrawingMark}
             onDrawingStrokeStart={onDrawingStrokeStart}
             onDrawingStrokeComplete={onDrawingStrokeComplete}
@@ -212,6 +221,7 @@ export const BodyMapperLayout = ({
             onCustomEffectCreated={onCustomEffectCreated}
             onCustomEffectDeleted={onCustomEffectDeleted}
             onIncomingCustomEffect={onIncomingCustomEffect}
+            onClearFillModeChange={setClearFillMode}
           />
         </div>
       </div>

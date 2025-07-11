@@ -39,6 +39,7 @@ interface BodyMapperControlsProps {
   onCustomEffectCreated?: (customEffect: any) => void;
   onCustomEffectDeleted?: (effectId: string) => void;
   onIncomingCustomEffect?: (customEffect: any) => void;
+  onClearFillModeChange?: (clearFillMode: boolean) => void;
 }
 
 const defaultEmotions: CustomEmotion[] = [
@@ -71,7 +72,8 @@ export const BodyMapperControls = React.forwardRef<
   onEmotionsUpdate,
   onCustomEffectCreated,
   onCustomEffectDeleted,
-  onIncomingCustomEffect
+  onIncomingCustomEffect,
+  onClearFillModeChange
 }, ref) => {
   const [activeTab, setActiveTab] = useState('feelings');
   const sensationSelectorRef = React.useRef<any>(null);
@@ -226,6 +228,7 @@ export const BodyMapperControls = React.forwardRef<
           onTextSettingsChange={onTextSettingsChange}
           onTextToPlaceChange={onTextToPlaceChange}
           onDrawingTargetChange={onDrawingTargetChange}
+          onClearFillModeChange={onClearFillModeChange}
         />
       </div>
 
