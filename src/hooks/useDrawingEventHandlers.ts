@@ -36,9 +36,9 @@ export const useDrawingEventHandlers = ({
   const lastBodyPart = useRef<string | null>(null);
   const strokeStarted = useRef(false);
 
-  // Helper function to check if ray passes near a mesh (for brush-based intersection)
+  // Find the closest mesh within brush radius - prioritize direct hits
   const findBrushIntersection = useCallback((meshes: THREE.Mesh[]) => {
-    const brushRadius = brushSize * 10.0; // Increased intensity 1000x for testing
+    const brushRadius = brushSize * 0.1; // Much more reasonable brush expansion
     console.log('🖌️ BRUSH DEBUG: brushSize:', brushSize, 'brushRadius:', brushRadius);
     
     const rayOrigin = new THREE.Vector3();
@@ -47,18 +47,22 @@ export const useDrawingEventHandlers = ({
     raycaster.ray.at(0, rayOrigin);
     rayDirection.copy(raycaster.ray.direction);
     
-    // First try normal intersection
+    // Try normal intersection first - if hit, that's always best
     const normalIntersects = raycaster.intersectObjects(meshes, false);
     console.log('🎯 NORMAL INTERSECTS:', normalIntersects.length);
     
     if (normalIntersects.length > 0) {
-      console.log('✅ NORMAL HIT - returning early, brush logic not needed');
+      console.log('✅ DIRECT HIT - using normal intersection');
       return normalIntersects[0];
     }
     
-    console.log('🔍 NO NORMAL HIT - trying brush-based detection with radius:', brushRadius);
+    console.log('🔍 NO DIRECT HIT - checking brush radius:', brushRadius);
     
-    // If no direct hit, check if ray passes within brush radius of any mesh
+    // Find closest mesh within brush radius
+    let closestMesh: THREE.Mesh | null = null;
+    let closestDistance = Infinity;
+    let closestPoint = new THREE.Vector3();
+    
     for (let i = 0; i < meshes.length; i++) {
       const mesh = meshes[i];
       console.log(`  Checking mesh ${i}:`, mesh.userData.bodyPart || 'whiteboard');
@@ -69,45 +73,43 @@ export const useDrawingEventHandlers = ({
         mesh.geometry.boundingBox.getCenter(meshCenter);
         mesh.localToWorld(meshCenter);
         
-        console.log('    Mesh center:', meshCenter.toArray());
-        
-        // Calculate distance from ray to mesh center
-        const closestPoint = new THREE.Vector3();
-        const ray = raycaster.ray;
+        // Calculate closest point on ray to mesh center
         const toMesh = meshCenter.clone().sub(rayOrigin);
         const projectionLength = toMesh.dot(rayDirection);
         
-        console.log('    Ray origin:', rayOrigin.toArray());
-        console.log('    Ray direction:', rayDirection.toArray());
-        console.log('    Projection length:', projectionLength);
-        
         if (projectionLength > 0) {
-          closestPoint.copy(rayDirection).multiplyScalar(projectionLength).add(rayOrigin);
-          const distance = closestPoint.distanceTo(meshCenter);
+          const rayPoint = new THREE.Vector3().copy(rayDirection).multiplyScalar(projectionLength).add(rayOrigin);
+          const distance = rayPoint.distanceTo(meshCenter);
           
-          console.log('    Distance to ray:', distance, 'vs brushRadius:', brushRadius);
+          console.log(`    Distance to ray: ${distance.toFixed(3)}, brushRadius: ${brushRadius.toFixed(3)}`);
           
-          if (distance <= brushRadius) {
-            console.log('🎉 BRUSH HIT! Creating fake intersection');
-            // Create a fake intersection at the closest point on the mesh surface
-            const fakeIntersect: THREE.Intersection = {
-              distance: projectionLength,
-              point: meshCenter.clone(),
-              object: mesh,
-              face: null,
-              faceIndex: undefined,
-              uv: undefined,
-              uv1: undefined,
-              normal: undefined,
-              instanceId: undefined
-            };
-            return fakeIntersect;
+          if (distance <= brushRadius && distance < closestDistance) {
+            closestDistance = distance;
+            closestMesh = mesh;
+            closestPoint.copy(meshCenter); // Use mesh center as intersection point
+            console.log('🎯 NEW CLOSEST MESH:', mesh.userData.bodyPart || 'whiteboard', 'distance:', distance.toFixed(3));
           }
         }
       }
     }
     
-    console.log('❌ NO BRUSH HIT FOUND');
+    if (closestMesh) {
+      console.log('🎉 BRUSH HIT! Closest mesh:', closestMesh.userData.bodyPart || 'whiteboard');
+      const fakeIntersect: THREE.Intersection = {
+        distance: closestDistance,
+        point: closestPoint,
+        object: closestMesh,
+        face: null,
+        faceIndex: undefined,
+        uv: undefined,
+        uv1: undefined,
+        normal: undefined,
+        instanceId: undefined
+      };
+      return fakeIntersect;
+    }
+    
+    console.log('❌ NO MESH WITHIN BRUSH RADIUS');
     return null;
   }, [brushSize, raycaster]);
 
