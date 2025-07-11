@@ -39,6 +39,27 @@ import goosebumpImg from '@/Assets/particleEffects/goosebump.png';
 import relaxImg from '@/Assets/particleEffects/relax.png';
 import sweatImg from '@/Assets/particleEffects/sweat.png';
 
+// Import custom effect images
+import flowerImg from '@/Assets/particleEffects/flower.png';
+import tornadoImg from '@/Assets/particleEffects/tornado.png';
+import chickenImg from '@/Assets/particleEffects/chicken.png';
+import stormImg from '@/Assets/particleEffects/storm.png';
+import explosionImg from '@/Assets/particleEffects/explosion.png';
+import supportheartImg from '@/Assets/particleEffects/supportheart.png';
+import baloonImg from '@/Assets/particleEffects/baloon.png';
+import musicalNoteImg from '@/Assets/particleEffects/musical-note.png';
+import catImg from '@/Assets/particleEffects/cat.png';
+import dogImg from '@/Assets/particleEffects/dog.png';
+import racecarImg from '@/Assets/particleEffects/racecar.png';
+import rollerCoasterImg from '@/Assets/particleEffects/roller-coaster.png';
+import brokenHeartImg from '@/Assets/particleEffects/broken-heart.png';
+import robotImg from '@/Assets/particleEffects/robot.png';
+import bicepsImg from '@/Assets/particleEffects/biceps.png';
+import wingsImg from '@/Assets/particleEffects/wings.png';
+import alarmImg from '@/Assets/particleEffects/alarm.png';
+import spaceshipImg from '@/Assets/particleEffects/spaceship.png';
+import shieldImg from '@/Assets/particleEffects/shield.png';
+
 interface SensationSelectorProps {
   mode: BodyMapperMode;
   selectedSensation: SelectedSensation | null;
@@ -51,7 +72,38 @@ const iconComponents = {
 };
 
 // Map sensation names to their corresponding images
-export const getSensationImage = (sensationName: string) => {
+export const getSensationImage = (sensationName: string, customIcon?: string) => {
+  // If it's a custom effect with an icon, try to get the custom icon image first
+  if (customIcon) {
+    const customIconMapping: { [key: string]: string } = {
+      'flower': flowerImg,
+      'tornado': tornadoImg,
+      'chicken': chickenImg,
+      'storm': stormImg,
+      'explosion': explosionImg,
+      'supportheart': supportheartImg,
+      'baloon': baloonImg,
+      'musical-note': musicalNoteImg,
+      'cat': catImg,
+      'dog': dogImg,
+      'racecar': racecarImg,
+      'roller-coaster': rollerCoasterImg,
+      'broken-heart': brokenHeartImg,
+      'robot': robotImg,
+      'biceps': bicepsImg,
+      'wings': wingsImg,
+      'alarm': alarmImg,
+      'lightbulb': lightbulbImg,
+      'spaceship': spaceshipImg,
+      'shield': shieldImg
+    };
+    
+    if (customIconMapping[customIcon]) {
+      return customIconMapping[customIcon];
+    }
+  }
+
+  // Fallback to built-in sensation mapping
   const imageMapping: { [key: string]: string } = {
     'Nerves': butterflyImg,
     'Pain': lightningBoltImg,
@@ -181,11 +233,24 @@ export const SensationSelector = ({ mode, selectedSensation, onModeChange, onSen
                   // Equip the new sensation and reset to draw mode (neutral state)
                   console.log('🎯 SensationSelector - Equipping sensation:', sensation.name, 'and switching to draw mode');
                   onModeChange('draw'); // Switch to draw mode to unequip other tools
-                  onSensationChange({
-                    icon: sensation.icon,
-                    color: sensation.color,
-                    name: sensation.name
-                  });
+                  
+                  // Handle custom vs built-in sensations
+                  if ('isCustom' in sensation && sensation.isCustom) {
+                    const customSensation = sensation as CustomSensation;
+                    onSensationChange({
+                      icon: customSensation.icon,
+                      color: customSensation.color,
+                      name: customSensation.name,
+                      movementBehavior: customSensation.movementBehavior,
+                      isCustom: customSensation.isCustom
+                    });
+                  } else {
+                    onSensationChange({
+                      icon: sensation.icon,
+                      color: sensation.color,
+                      name: sensation.name
+                    });
+                  }
                 }
               }}
             >

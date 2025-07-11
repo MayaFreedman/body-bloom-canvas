@@ -118,7 +118,9 @@ export const CustomCursor: React.FC<CustomCursorProps> = ({
 
   // For sensations, show the sensation icon
   if (selectedSensation) {
-    const sensationImage = getSensationImage(selectedSensation.name);
+    // For custom effects, pass the icon to get the correct image
+    const customIcon = selectedSensation.isCustom ? selectedSensation.icon : undefined;
+    const sensationImage = getSensationImage(selectedSensation.name, customIcon);
 
     return (
       <div
