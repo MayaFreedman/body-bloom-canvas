@@ -244,44 +244,29 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
       const randomDelay = Math.random() * 500 + 100; // 100-600ms random delay
       
       setTimeout(() => {
-        // THE REAL PROBLEM: The state snapshot is using the SAME stale closure!
-        console.log('🔍 CLOSURE ISSUE CONFIRMED:');
-        console.log('  - Captured drawingMarks in callback:', drawingMarks?.length || 0);
-        console.log('  - Captured completedStrokes in callback:', completedStrokes?.length || 0);
+        // Use the state snapshot but with better debugging
+        console.log('🔍 TESTING SNAPSHOT CAPTURE:');
         
-        // Let's try a different approach - bypass the state snapshot entirely
-        // and manually create a snapshot using FRESH data we can access
-        console.log('🔄 MANUAL SNAPSHOT ATTEMPT:');
-        
-        // For now, let's at least try to send SOMETHING based on what we know exists
-        // We know from the logs that drawing marks DO exist, so let's fake a minimal snapshot
-        const hasAnyContent = true; // We KNOW there's content from the logs
-        
-        if (hasAnyContent) {
-          console.log(`📸 FORCING state snapshot send (we know content exists, been in room ${timeSinceJoin}ms)`);
+        try {
+          const currentSnapshot = stateSnapshot.captureCurrentState();
+          console.log('✅ Snapshot captured successfully');
           
-          // Create a minimal snapshot that we KNOW has content
-          const manualSnapshot = {
-            timestamp: Date.now(),
-            version: '1.0.0',
-            data: {
-              drawingMarks: [], // This will be empty but we're testing the sending mechanism
-              sensationMarks: [],
-              bodyPartColors: {},
-              textMarks: [],
-              whiteboardBackground: 'white',
-              modelRotation: 0
-            },
-            playerId: currentUserId || 'unknown'
-          };
-          
-          multiplayer.broadcastStateSnapshot(manualSnapshot);
-        } else {
-          console.log(`📸 No content to share, skipping state snapshot (been in room ${timeSinceJoin}ms)`);
+          // Check if the snapshot actually has content or if we should send anyway
+          if (currentSnapshot.data.drawingMarks.length > 0 || 
+              currentSnapshot.data.sensationMarks.length > 0 ||
+              Object.keys(currentSnapshot.data.bodyPartColors).length > 0 ||
+              currentSnapshot.data.textMarks.length > 0) {
+            console.log(`📸 Sending state snapshot to new player (been in room ${timeSinceJoin}ms)`);
+            multiplayer.broadcastStateSnapshot(currentSnapshot);
+          } else {
+            console.log(`📸 No content to share, skipping state snapshot (been in room ${timeSinceJoin}ms)`);
+          }
+        } catch (error) {
+          console.error('❌ Error with snapshot:', error);
         }
       }, randomDelay);
     }
-  }, [multiplayer, isRestoringState]); // Removed stateSnapshot dependency too!
+  }, [multiplayer, stateSnapshot, isRestoringState]);
 
   // Handle incoming state snapshots
   const handleStateSnapshot = useCallback((snapshot: any) => {
