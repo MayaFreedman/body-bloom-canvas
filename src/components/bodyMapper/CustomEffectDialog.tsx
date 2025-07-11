@@ -176,34 +176,31 @@ export const CustomEffectDialog: React.FC<CustomEffectDialogProps> = ({
 
           {/* Color Selection */}
           <div className="space-y-1">
-            <Label className="text-sm">Color (double-click any color to customize)</Label>
+            <Label className="text-sm">Color</Label>
             <div className="flex items-center gap-1">
               {PRESET_COLORS.map((color) => (
                 <button
                   key={color}
                   type="button"
                   onClick={() => updateForm({ color })}
-                  onDoubleClick={() => document.getElementById('color-picker')?.click()}
-                  className={`w-5 h-5 rounded border transition-transform hover:scale-110 ${
+                  className={`w-5 h-5 rounded border ${
                     form.color === color ? 'border-foreground' : 'border-border'
                   }`}
                   style={{ backgroundColor: color }}
                 />
               ))}
-              {!PRESET_COLORS.includes(form.color) && (
-                <div
-                  className="w-5 h-5 rounded border border-foreground cursor-pointer transition-transform hover:scale-110"
-                  onDoubleClick={() => document.getElementById('color-picker')?.click()}
+              <div className="relative ml-1">
+                <div 
+                  className="w-5 h-5 rounded border border-border cursor-pointer hover:border-foreground/60 transition-colors"
                   style={{ backgroundColor: form.color }}
                 />
-              )}
-              <input
-                id="color-picker"
-                type="color"
-                value={form.color}
-                onChange={(e) => updateForm({ color: e.target.value })}
-                className="hidden"
-              />
+                <input
+                  type="color"
+                  value={form.color}
+                  onChange={(e) => updateForm({ color: e.target.value })}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                />
+              </div>
             </div>
           </div>
 
