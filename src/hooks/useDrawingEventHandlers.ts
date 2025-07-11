@@ -39,6 +39,8 @@ export const useDrawingEventHandlers = ({
   // Helper function to check if ray passes near a mesh (for brush-based intersection)
   const findBrushIntersection = useCallback((meshes: THREE.Mesh[]) => {
     const brushRadius = brushSize * 10.0; // Increased intensity 1000x for testing
+    console.log('🖌️ BRUSH DEBUG: brushSize:', brushSize, 'brushRadius:', brushRadius);
+    
     const rayOrigin = new THREE.Vector3();
     const rayDirection = new THREE.Vector3();
     
@@ -47,17 +49,27 @@ export const useDrawingEventHandlers = ({
     
     // First try normal intersection
     const normalIntersects = raycaster.intersectObjects(meshes, false);
+    console.log('🎯 NORMAL INTERSECTS:', normalIntersects.length);
+    
     if (normalIntersects.length > 0) {
+      console.log('✅ NORMAL HIT - returning early, brush logic not needed');
       return normalIntersects[0];
     }
     
+    console.log('🔍 NO NORMAL HIT - trying brush-based detection with radius:', brushRadius);
+    
     // If no direct hit, check if ray passes within brush radius of any mesh
-    for (const mesh of meshes) {
+    for (let i = 0; i < meshes.length; i++) {
+      const mesh = meshes[i];
+      console.log(`  Checking mesh ${i}:`, mesh.userData.bodyPart || 'whiteboard');
+      
       const meshCenter = new THREE.Vector3();
       mesh.geometry.computeBoundingBox();
       if (mesh.geometry.boundingBox) {
         mesh.geometry.boundingBox.getCenter(meshCenter);
         mesh.localToWorld(meshCenter);
+        
+        console.log('    Mesh center:', meshCenter.toArray());
         
         // Calculate distance from ray to mesh center
         const closestPoint = new THREE.Vector3();
@@ -65,11 +77,18 @@ export const useDrawingEventHandlers = ({
         const toMesh = meshCenter.clone().sub(rayOrigin);
         const projectionLength = toMesh.dot(rayDirection);
         
+        console.log('    Ray origin:', rayOrigin.toArray());
+        console.log('    Ray direction:', rayDirection.toArray());
+        console.log('    Projection length:', projectionLength);
+        
         if (projectionLength > 0) {
           closestPoint.copy(rayDirection).multiplyScalar(projectionLength).add(rayOrigin);
           const distance = closestPoint.distanceTo(meshCenter);
           
+          console.log('    Distance to ray:', distance, 'vs brushRadius:', brushRadius);
+          
           if (distance <= brushRadius) {
+            console.log('🎉 BRUSH HIT! Creating fake intersection');
             // Create a fake intersection at the closest point on the mesh surface
             const fakeIntersect: THREE.Intersection = {
               distance: projectionLength,
@@ -88,6 +107,7 @@ export const useDrawingEventHandlers = ({
       }
     }
     
+    console.log('❌ NO BRUSH HIT FOUND');
     return null;
   }, [brushSize, raycaster]);
 
