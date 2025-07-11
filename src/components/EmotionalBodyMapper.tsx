@@ -132,10 +132,10 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     rotation,
     setDrawingMarks: (marks) => {
       // For state restoration, we need to directly set the marks via the stroke manager
-      // Clear existing strokes first
-      clearAll();
-      
+      // DON'T call clearAll() as it may cause component remounting
       if (marks.length === 0) return;
+      
+      console.log('🔄 Restoring drawing marks without clearAll, count:', marks.length);
       
       // Sort marks by timestamp to reconstruct stroke order
       const sortedMarks = [...marks].sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
