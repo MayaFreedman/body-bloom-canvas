@@ -11,7 +11,8 @@ export const useMultiplayerConnection = () => {
     room: null,
     players: new Map(),
     currentPlayerId: null,
-    playerColor: '#ff6b6b'
+    playerColor: '#ff6b6b',
+    joinedAt: null
   });
 
   const connectToRoom = useCallback(async (id: string) => {
@@ -26,13 +27,15 @@ export const useMultiplayerConnection = () => {
       const playerColors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#ffeaa7', '#dda0dd'];
       const playerColor = playerColors[Math.floor(Math.random() * playerColors.length)];
 
+      const joinedAt = Date.now();
       setState(prev => ({
         ...prev,
         isConnected: true,
         isConnecting: false,
         room,
         currentPlayerId: room.sessionId,
-        playerColor
+        playerColor,
+        joinedAt
       }));
 
       // Setup player management handlers

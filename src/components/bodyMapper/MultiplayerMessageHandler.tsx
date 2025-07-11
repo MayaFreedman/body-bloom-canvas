@@ -220,7 +220,15 @@ export const MultiplayerMessageHandler = ({
             break;
           }
           case 'stateRequest': {
-            console.log('📸 Processing state request from new player');
+            const requestData = messageData;
+            console.log('📸 Processing state request from player:', requestData?.playerId);
+            
+            // Don't respond to our own state request
+            if (requestData?.playerId && room?.sessionId === requestData.playerId) {
+              console.log('📸 Ignoring own state request');
+              return;
+            }
+            
             if (onStateRequest) {
               onStateRequest();
             }

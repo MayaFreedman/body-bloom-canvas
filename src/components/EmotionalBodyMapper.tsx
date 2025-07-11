@@ -222,7 +222,7 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     currentPlayerId: currentUserId
   });
 
-  // Handle state requests from new players - only respond if we have content
+  // Handle state requests from new players - only respond if we have content AND have been in room long enough
   const handleStateRequest = useCallback(() => {
     // Don't respond to state requests if we're currently restoring state
     if (isRestoringState) {
@@ -230,8 +230,19 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
       return;
     }
     
-    if (multiplayer.isConnected) {
-      // Add a small delay to ensure all reactive updates have completed
+    if (multiplayer.isConnected && multiplayer.joinedAt) {
+      const timeSinceJoin = Date.now() - multiplayer.joinedAt;
+      const minTimeInRoom = 2000; // 2 seconds minimum
+      
+      // Only established players should respond to state requests
+      if (timeSinceJoin < minTimeInRoom) {
+        console.log(`📤 Ignoring state request - only been in room for ${timeSinceJoin}ms (need ${minTimeInRoom}ms)`);
+        return;
+      }
+      
+      // Add a random delay to prevent multiple players responding simultaneously
+      const randomDelay = Math.random() * 500 + 100; // 100-600ms random delay
+      
       setTimeout(() => {
         // Only respond if we have meaningful content to share
         const hasContent = drawingMarks.length > 0 || 
@@ -239,14 +250,16 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
                           Object.keys(bodyPartColors).length > 0 || 
                           textMarks.length > 0;
         
+        console.log(`📊 State check - Drawing: ${drawingMarks.length}, Sensations: ${sensationMarks.length}, Body colors: ${Object.keys(bodyPartColors).length}, Text: ${textMarks.length}`);
+        
         if (hasContent) {
-          console.log('📸 Sending state snapshot to new player (has content)');
+          console.log(`📸 Sending state snapshot to new player (has content, been in room ${timeSinceJoin}ms)`);
           const snapshot = stateSnapshot.captureCurrentState();
           multiplayer.broadcastStateSnapshot(snapshot);
         } else {
-          console.log('📸 No content to share, skipping state snapshot');
+          console.log(`📸 No content to share, skipping state snapshot (been in room ${timeSinceJoin}ms)`);
         }
-      }, 100); // Small delay to ensure reactive updates complete
+      }, randomDelay);
     }
   }, [multiplayer, stateSnapshot, drawingMarks.length, sensationMarks.length, Object.keys(bodyPartColors).length, textMarks.length, isRestoringState]);
 
