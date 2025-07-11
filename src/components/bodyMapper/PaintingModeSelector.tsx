@@ -84,7 +84,7 @@ export const PaintingModeSelector = ({
       
       {/* Clear Fill sub-option for Fill mode */}
       {mode === 'fill' && (
-        <div className="max-h-[300px] overflow-y-auto space-y-4">
+        <div className="max-h-[300px] overflow-y-auto space-y-4 mt-4 mb-2">
           <h5 className="font-medium text-gray-800 text-[16px] mb-3">Fill Eraser</h5>
           <div className="flex items-center">
             <p className="text-sm text-gray-500 text-left w-1/2">
@@ -92,7 +92,7 @@ export const PaintingModeSelector = ({
             </p>
             <div className="w-1/2 flex justify-start">
               <button
-                className={`control-button-with-text-red w-10 h-10 flex items-center justify-center ${
+                className={`control-button-with-text-red w-1/2 h-10 flex items-center justify-center ${
                   clearFillMode ? 'bg-red-500 text-white border-red-500' : ''
                 }`}
                 onClick={() => handleClearFillModeChange(!clearFillMode)}
