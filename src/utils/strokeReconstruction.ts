@@ -97,7 +97,7 @@ export const reconstructStroke = (stroke: OptimizedDrawingStroke): THREE.Vector3
         const distance = current.distanceTo(next);
         const steps = getInterpolationStepCount(strokeSize, distance);
         
-        
+        console.log(`🎨 Interpolating ${steps} steps between key points (distance: ${distance.toFixed(3)}, size: ${strokeSize})`);
         
         if (steps > 1) {
           for (let j = 1; j < steps; j++) {

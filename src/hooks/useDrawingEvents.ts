@@ -45,7 +45,6 @@ export const useDrawingEvents = ({
     isDrawing,
     drawingTarget,
     mode,
-    brushSize,
     onStrokeStart,
     onStrokeComplete,
     onAddToStroke,

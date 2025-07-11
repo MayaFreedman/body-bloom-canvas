@@ -8,7 +8,6 @@ interface UseDrawingEventHandlersProps {
   isDrawing: boolean;
   drawingTarget: 'body' | 'whiteboard';
   mode: string;
-  brushSize: number;
   onStrokeStart?: () => void;
   onStrokeComplete?: () => void;
   onAddToStroke?: (worldPoint: WorldDrawingPoint) => void;
@@ -21,7 +20,6 @@ export const useDrawingEventHandlers = ({
   isDrawing,
   drawingTarget,
   mode,
-  brushSize,
   onStrokeStart,
   onStrokeComplete,
   onAddToStroke,
@@ -36,127 +34,6 @@ export const useDrawingEventHandlers = ({
   const lastBodyPart = useRef<string | null>(null);
   const strokeStarted = useRef(false);
 
-  // Check if direct hit is too close to edge based on brush size and mesh characteristics
-  const findBrushIntersection = useCallback((meshes: THREE.Mesh[]) => {
-    const baseThreshold = 0.19125; // Toned back by 8x from 1.53
-    const referenceBrushSize = 20; // Reference brush size for scaling
-    const referenceMeshSize = 1.0; // Reference mesh size for normalization
-    
-    // First, try normal intersections
-    const normalIntersects = raycaster.intersectObjects(meshes, false);
-    console.log('🎯 NORMAL INTERSECTS:', normalIntersects.length);
-    
-    if (normalIntersects.length > 0) {
-      const hit = normalIntersects[0];
-      console.log('✅ DIRECT HIT found - checking if too close to edge');
-      
-      // Check if hit point is too close to mesh edge
-      const mesh = hit.object as THREE.Mesh;
-      const geometry = mesh.geometry;
-      
-      console.log('🎯 MESH INFO:', {
-        bodyPart: mesh.userData.bodyPart,
-        position: { x: mesh.position.x.toFixed(3), y: mesh.position.y.toFixed(3), z: mesh.position.z.toFixed(3) },
-        scale: { x: mesh.scale.x.toFixed(3), y: mesh.scale.y.toFixed(3), z: mesh.scale.z.toFixed(3) },
-        rotation: { x: mesh.rotation.x.toFixed(3), y: mesh.rotation.y.toFixed(3), z: mesh.rotation.z.toFixed(3) },
-        matrixAutoUpdate: mesh.matrixAutoUpdate,
-        matrixWorldNeedsUpdate: mesh.matrixWorldNeedsUpdate
-      });
-      
-      // Update matrices to ensure accurate transformations
-      mesh.updateMatrix();
-      mesh.updateMatrixWorld();
-      
-      if (geometry && geometry.boundingBox) {
-        geometry.computeBoundingBox();
-        const box = geometry.boundingBox!;
-        
-        console.log('📦 GEOMETRY BOUNDING BOX (local space):', {
-          min: { x: box.min.x.toFixed(3), y: box.min.y.toFixed(3), z: box.min.z.toFixed(3) },
-          max: { x: box.max.x.toFixed(3), y: box.max.y.toFixed(3), z: box.max.z.toFixed(3) },
-          size: { 
-            x: (box.max.x - box.min.x).toFixed(3), 
-            y: (box.max.y - box.min.y).toFixed(3), 
-            z: (box.max.z - box.min.z).toFixed(3) 
-          }
-        });
-        
-        // Get world bounding box too for comparison
-        const worldBox = new THREE.Box3().setFromObject(mesh);
-        console.log('🌍 WORLD BOUNDING BOX:', {
-          min: { x: worldBox.min.x.toFixed(3), y: worldBox.min.y.toFixed(3), z: worldBox.min.z.toFixed(3) },
-          max: { x: worldBox.max.x.toFixed(3), y: worldBox.max.y.toFixed(3), z: worldBox.max.z.toFixed(3) }
-        });
-        
-        // Transform hit point to local mesh coordinates
-        const localPoint = hit.point.clone();
-        const worldPoint = hit.point.clone();
-        mesh.worldToLocal(localPoint);
-        
-        console.log('🌍 WORLD HIT POINT:', { x: worldPoint.x.toFixed(3), y: worldPoint.y.toFixed(3), z: worldPoint.z.toFixed(3) });
-        console.log('🏠 LOCAL HIT POINT:', { x: localPoint.x.toFixed(3), y: localPoint.y.toFixed(3), z: localPoint.z.toFixed(3) });
-        
-        // Calculate mesh size for normalization
-        const meshSizeX = box.max.x - box.min.x;
-        const meshSizeY = box.max.y - box.min.y;
-        const meshSizeZ = box.max.z - box.min.z;
-        const averageMeshSize = (meshSizeX + meshSizeY + meshSizeZ) / 3;
-        
-        // Calculate adaptive threshold based on brush size and mesh size
-        const brushSizeMultiplier = brushSize / referenceBrushSize;
-        const meshSizeMultiplier = averageMeshSize / referenceMeshSize;
-        const adaptiveThreshold = baseThreshold * brushSizeMultiplier * meshSizeMultiplier;
-        
-        // Calculate distance to nearest edge using local coordinates
-        const distToEdgeX = Math.min(
-          Math.abs(localPoint.x - box.min.x),
-          Math.abs(localPoint.x - box.max.x)
-        );
-        const distToEdgeY = Math.min(
-          Math.abs(localPoint.y - box.min.y),
-          Math.abs(localPoint.y - box.max.y)
-        );
-        const distToEdgeZ = Math.min(
-          Math.abs(localPoint.z - box.min.z),
-          Math.abs(localPoint.z - box.max.z)
-        );
-        
-        console.log('📏 RAW EDGE DISTANCES:', {
-          X: distToEdgeX.toFixed(3),
-          Y: distToEdgeY.toFixed(3), 
-          Z: distToEdgeZ.toFixed(3)
-        });
-        
-        console.log('🔧 ADAPTIVE THRESHOLD CALCULATION:', {
-          baseThreshold: baseThreshold.toFixed(3),
-          brushSize,
-          referenceBrushSize,
-          brushSizeMultiplier: brushSizeMultiplier.toFixed(3),
-          meshSize: averageMeshSize.toFixed(3),
-          referenceMeshSize,
-          meshSizeMultiplier: meshSizeMultiplier.toFixed(3),
-          adaptiveThreshold: adaptiveThreshold.toFixed(3)
-        });
-        
-        const minDistToEdge = Math.min(distToEdgeY, distToEdgeZ); // Only consider Y and Z, ignore X
-        
-        console.log(`🏃 Edge distances: X=${distToEdgeX.toFixed(3)}, Y=${distToEdgeY.toFixed(3)}, Z=${distToEdgeZ.toFixed(3)}`);
-        console.log(`📏 Min edge distance: ${minDistToEdge.toFixed(3)}, adaptive threshold: ${adaptiveThreshold.toFixed(3)}`);
-        
-        if (minDistToEdge < adaptiveThreshold) {
-          console.log('❌ TOO CLOSE TO EDGE - treating as miss');
-          return null; // Treat as miss if too close to edge
-        }
-      }
-      
-      console.log('✅ GOOD HIT - not too close to edge');
-      return hit; // Good hit, not too close to edge
-    }
-    
-    console.log('❌ NO DIRECT HIT');
-    return null;
-  }, [brushSize, raycaster]);
-
   const handlePointerDown = useCallback((event: PointerEvent) => {
     if (!isDrawing || mode === 'sensation') return;
     isMouseDown.current = true;
@@ -170,11 +47,16 @@ export const useDrawingEventHandlers = ({
     
     // Include whiteboard in intersection detection based on drawing target
     const meshes = getIntersectedObjects(drawingTarget === 'whiteboard');
+    console.log('🎯 Found meshes for intersection:', meshes.length, 'includeWhiteboard:', drawingTarget === 'whiteboard');
+    meshes.forEach((mesh, i) => {
+      console.log(`  Mesh ${i}:`, mesh.userData.bodyPart || 'whiteboard', mesh.userData);
+    });
     
-    const intersect = findBrushIntersection(meshes);
-    
+    const intersects = raycaster.intersectObjects(meshes, false);
+    console.log('🎯 Raycaster intersections:', intersects.length);
 
-    if (intersect) {
+    if (intersects.length > 0) {
+      const intersect = intersects[0];
       
       // Handle body part intersection
       if (intersect.object.userData.bodyPart && drawingTarget === 'body') {
@@ -207,6 +89,11 @@ export const useDrawingEventHandlers = ({
       }
       // Handle whiteboard intersection
       else if (intersect.object.userData.isWhiteboard && drawingTarget === 'whiteboard') {
+        console.log('✅ Hit whiteboard at world coords:', {
+          x: intersect.point.x.toFixed(3),
+          y: intersect.point.y.toFixed(3),
+          z: intersect.point.z.toFixed(3)
+        }, 'object userData:', intersect.object.userData);
         if (onStrokeStart && !strokeStarted.current) {
           onStrokeStart();
           strokeStarted.current = true;
@@ -235,9 +122,12 @@ export const useDrawingEventHandlers = ({
         lastMarkTime.current = Date.now();
       }
     } else {
-      
+      console.log('❌ No valid intersection found for', drawingTarget);
+      if (intersects.length > 0) {
+        console.log('  First intersect object userData:', intersects[0].object.userData);
+      }
     }
-  }, [isDrawing, addMarkAtPosition, onStrokeStart, onAddToStroke, camera, gl, raycaster, mouse, getIntersectedObjects, drawingTarget, findBrushIntersection]);
+  }, [isDrawing, addMarkAtPosition, onStrokeStart, onAddToStroke, camera, gl, raycaster, mouse, getIntersectedObjects, drawingTarget]);
 
   const handlePointerMove = useCallback((event: PointerEvent) => {
     if (!isDrawing || !isMouseDown.current || mode === 'sensation') return;
@@ -255,9 +145,10 @@ export const useDrawingEventHandlers = ({
     raycaster.setFromCamera(mouse, camera);
     
     const meshes = getIntersectedObjects(drawingTarget === 'whiteboard');
-    const intersect = findBrushIntersection(meshes);
+    const intersects = raycaster.intersectObjects(meshes, false);
 
-    if (intersect) {
+    if (intersects.length > 0) {
+      const intersect = intersects[0];
       
       // Handle body drawing
       if (intersect.object.userData.bodyPart && drawingTarget === 'body') {
@@ -293,6 +184,11 @@ export const useDrawingEventHandlers = ({
       // Handle whiteboard drawing
       else if (intersect.object.userData.isWhiteboard && drawingTarget === 'whiteboard') {
         const currentPosition = intersect.point;
+        console.log('🖼️ Whiteboard move - world coords:', {
+          x: currentPosition.x.toFixed(3),
+          y: currentPosition.y.toFixed(3),
+          z: currentPosition.z.toFixed(3)
+        });
         
         addMarkAtPosition(currentPosition, intersect, 'whiteboard');
         
@@ -321,18 +217,18 @@ export const useDrawingEventHandlers = ({
         lastMarkTime.current = now;
       }
     }
-  }, [isDrawing, addMarkAtPosition, onAddToStroke, interpolateMarks, camera, gl, raycaster, mouse, getIntersectedObjects, findBrushIntersection]);
+  }, [isDrawing, addMarkAtPosition, onAddToStroke, interpolateMarks, camera, gl, raycaster, mouse, getIntersectedObjects]);
 
   const handlePointerUp = useCallback(() => {
-    
+    console.log('🖱️ Pointer up - ending drawing, mode:', mode, 'strokeStarted:', strokeStarted.current, 'mouseDown:', isMouseDown.current);
     // Only complete strokes when actually in drawing mode
     if (isMouseDown.current && strokeStarted.current && mode === 'draw') {
-      
+      console.log('🏁 STROKE COMPLETE: Completing stroke in draw mode');
       if (onStrokeComplete) {
         onStrokeComplete();
       }
     } else {
-      
+      console.log('🚫 STROKE SKIP: Not completing stroke - mode:', mode, 'strokeStarted:', strokeStarted.current, 'mouseDown:', isMouseDown.current);
     }
     
     isMouseDown.current = false;

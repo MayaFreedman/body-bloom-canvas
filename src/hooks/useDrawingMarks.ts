@@ -27,9 +27,27 @@ export const useDrawingMarks = ({
       if (surface === 'whiteboard') {
         // For whiteboard, use world coordinates directly (don't transform to model space)
         localPosition.copy(worldPosition);
+        console.log('🖼️ Whiteboard mark - world position:', {
+          x: worldPosition.x.toFixed(3),
+          y: worldPosition.y.toFixed(3),
+          z: worldPosition.z.toFixed(3)
+        }, 'final position:', {
+          x: localPosition.x.toFixed(3),
+          y: localPosition.y.toFixed(3),
+          z: localPosition.z.toFixed(3)
+        });
       } else {
         // For body, transform to model local space
         modelGroup.worldToLocal(localPosition.copy(worldPosition));
+        console.log('🧍 Body mark - world position:', {
+          x: worldPosition.x.toFixed(3),
+          y: worldPosition.y.toFixed(3),
+          z: worldPosition.z.toFixed(3)
+        }, 'local position:', {
+          x: localPosition.x.toFixed(3),
+          y: localPosition.y.toFixed(3),
+          z: localPosition.z.toFixed(3)
+        });
       }
       
       const mark: DrawingMark = {
@@ -41,11 +59,20 @@ export const useDrawingMarks = ({
       };
       onAddMark(mark);
       
+      console.log('✅ Added mark with SURFACE:', surface, 'mark object:', { 
+        id: mark.id, 
+        surface: mark.surface, 
+        position: {
+          x: mark.position.x.toFixed(3),
+          y: mark.position.y.toFixed(3),
+          z: mark.position.z.toFixed(3)
+        }
+      });
     }
   }, [selectedColor, brushSize, onAddMark, modelRef]);
 
   const interpolateMarks = useCallback((start: THREE.Vector3, end: THREE.Vector3, startBodyPart: string, endBodyPart: string, endIntersect?: THREE.Intersection, surface: 'body' | 'whiteboard' = 'body') => {
-    
+    console.log('🎨 Interpolating between points, distance:', start.distanceTo(end), 'brush size:', brushSize, 'surface:', surface);
     
     // For whiteboard, always allow interpolation; for body, check same body part
     if (surface === 'body' && startBodyPart !== endBodyPart) {
@@ -88,7 +115,7 @@ export const useDrawingMarks = ({
     };
     
     const steps = getStepCount(brushSize, distance);
-    
+    console.log('🎨 Will create', steps, 'interpolated steps for distance', distance.toFixed(3));
     
     for (let i = 1; i <= steps; i++) {
       const t = i / steps;
