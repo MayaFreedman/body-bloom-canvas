@@ -471,6 +471,7 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
         onIncomingCustomEffect={handleIncomingCustomEffect}
         onStateRequest={handleStateRequest}
         onStateSnapshot={handleStateSnapshot}
+        isRestoringState={isRestoringState}
       />
     </div>
   );

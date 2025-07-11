@@ -21,6 +21,7 @@ interface MultiplayerMessageHandlerProps {
   onIncomingCustomEffect?: (customEffect: any) => void;
   onStateRequest?: () => void;
   onStateSnapshot?: (snapshot: any) => void;
+  isRestoringState?: boolean;
 }
 
 export const MultiplayerMessageHandler = ({
@@ -39,7 +40,8 @@ export const MultiplayerMessageHandler = ({
   onIncomingSensation,
   onIncomingCustomEffect,
   onStateRequest,
-  onStateSnapshot
+  onStateSnapshot,
+  isRestoringState = false
 }: MultiplayerMessageHandlerProps) => {
   // Store the unsubscribe function returned by onMessage
   const unsubscribeRef = useRef<(() => void) | null>(null);
@@ -210,7 +212,11 @@ export const MultiplayerMessageHandler = ({
           }
           case 'resetAll': {
             console.log('🔄 Processing reset all from another user');
-            clearAll();
+            if (!isRestoringState) {
+              clearAll();
+            } else {
+              console.log('🔄 Skipping reset during state restoration');
+            }
             break;
           }
           case 'stateRequest': {
@@ -255,7 +261,7 @@ export const MultiplayerMessageHandler = ({
       // Clear the unsubscribe reference
       unsubscribeRef.current = null;
     };
-  }, [room, setDrawingMarks, setSensationMarks, setBodyPartColors, setRotation, clearAll, modelRef, controlsRef, onIncomingOptimizedStroke, onIncomingUndo, onIncomingRedo, onIncomingErase, onIncomingSensation, onStateRequest, onStateSnapshot]);
+  }, [room]);
 
   return null;
 };
