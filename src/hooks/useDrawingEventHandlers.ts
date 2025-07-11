@@ -8,6 +8,7 @@ interface UseDrawingEventHandlersProps {
   isDrawing: boolean;
   drawingTarget: 'body' | 'whiteboard';
   mode: string;
+  brushSize: number;
   onStrokeStart?: () => void;
   onStrokeComplete?: () => void;
   onAddToStroke?: (worldPoint: WorldDrawingPoint) => void;
@@ -20,6 +21,7 @@ export const useDrawingEventHandlers = ({
   isDrawing,
   drawingTarget,
   mode,
+  brushSize,
   onStrokeStart,
   onStrokeComplete,
   onAddToStroke,
@@ -33,6 +35,61 @@ export const useDrawingEventHandlers = ({
   const lastPosition = useRef<THREE.Vector3 | null>(null);
   const lastBodyPart = useRef<string | null>(null);
   const strokeStarted = useRef(false);
+
+  // Helper function to check if ray passes near a mesh (for brush-based intersection)
+  const findBrushIntersection = useCallback((meshes: THREE.Mesh[]) => {
+    const brushRadius = brushSize * 0.01; // Convert brush size to world units
+    const rayOrigin = new THREE.Vector3();
+    const rayDirection = new THREE.Vector3();
+    
+    raycaster.ray.at(0, rayOrigin);
+    rayDirection.copy(raycaster.ray.direction);
+    
+    // First try normal intersection
+    const normalIntersects = raycaster.intersectObjects(meshes, false);
+    if (normalIntersects.length > 0) {
+      return normalIntersects[0];
+    }
+    
+    // If no direct hit, check if ray passes within brush radius of any mesh
+    for (const mesh of meshes) {
+      const meshCenter = new THREE.Vector3();
+      mesh.geometry.computeBoundingBox();
+      if (mesh.geometry.boundingBox) {
+        mesh.geometry.boundingBox.getCenter(meshCenter);
+        mesh.localToWorld(meshCenter);
+        
+        // Calculate distance from ray to mesh center
+        const closestPoint = new THREE.Vector3();
+        const ray = raycaster.ray;
+        const toMesh = meshCenter.clone().sub(rayOrigin);
+        const projectionLength = toMesh.dot(rayDirection);
+        
+        if (projectionLength > 0) {
+          closestPoint.copy(rayDirection).multiplyScalar(projectionLength).add(rayOrigin);
+          const distance = closestPoint.distanceTo(meshCenter);
+          
+          if (distance <= brushRadius) {
+            // Create a fake intersection at the closest point on the mesh surface
+            const fakeIntersect: THREE.Intersection = {
+              distance: projectionLength,
+              point: meshCenter.clone(),
+              object: mesh,
+              face: null,
+              faceIndex: undefined,
+              uv: undefined,
+              uv1: undefined,
+              normal: undefined,
+              instanceId: undefined
+            };
+            return fakeIntersect;
+          }
+        }
+      }
+    }
+    
+    return null;
+  }, [brushSize, raycaster]);
 
   const handlePointerDown = useCallback((event: PointerEvent) => {
     if (!isDrawing || mode === 'sensation') return;
@@ -52,11 +109,10 @@ export const useDrawingEventHandlers = ({
       console.log(`  Mesh ${i}:`, mesh.userData.bodyPart || 'whiteboard', mesh.userData);
     });
     
-    const intersects = raycaster.intersectObjects(meshes, false);
-    console.log('🎯 Raycaster intersections:', intersects.length);
+    const intersect = findBrushIntersection(meshes);
+    console.log('🎯 Brush intersection result:', intersect ? 'HIT' : 'MISS');
 
-    if (intersects.length > 0) {
-      const intersect = intersects[0];
+    if (intersect) {
       
       // Handle body part intersection
       if (intersect.object.userData.bodyPart && drawingTarget === 'body') {
@@ -122,12 +178,9 @@ export const useDrawingEventHandlers = ({
         lastMarkTime.current = Date.now();
       }
     } else {
-      console.log('❌ No valid intersection found for', drawingTarget);
-      if (intersects.length > 0) {
-        console.log('  First intersect object userData:', intersects[0].object.userData);
-      }
+      console.log('❌ No brush intersection found for', drawingTarget);
     }
-  }, [isDrawing, addMarkAtPosition, onStrokeStart, onAddToStroke, camera, gl, raycaster, mouse, getIntersectedObjects, drawingTarget]);
+  }, [isDrawing, addMarkAtPosition, onStrokeStart, onAddToStroke, camera, gl, raycaster, mouse, getIntersectedObjects, drawingTarget, findBrushIntersection]);
 
   const handlePointerMove = useCallback((event: PointerEvent) => {
     if (!isDrawing || !isMouseDown.current || mode === 'sensation') return;
@@ -145,10 +198,9 @@ export const useDrawingEventHandlers = ({
     raycaster.setFromCamera(mouse, camera);
     
     const meshes = getIntersectedObjects(drawingTarget === 'whiteboard');
-    const intersects = raycaster.intersectObjects(meshes, false);
+    const intersect = findBrushIntersection(meshes);
 
-    if (intersects.length > 0) {
-      const intersect = intersects[0];
+    if (intersect) {
       
       // Handle body drawing
       if (intersect.object.userData.bodyPart && drawingTarget === 'body') {
@@ -217,7 +269,7 @@ export const useDrawingEventHandlers = ({
         lastMarkTime.current = now;
       }
     }
-  }, [isDrawing, addMarkAtPosition, onAddToStroke, interpolateMarks, camera, gl, raycaster, mouse, getIntersectedObjects]);
+  }, [isDrawing, addMarkAtPosition, onAddToStroke, interpolateMarks, camera, gl, raycaster, mouse, getIntersectedObjects, findBrushIntersection]);
 
   const handlePointerUp = useCallback(() => {
     console.log('🖱️ Pointer up - ending drawing, mode:', mode, 'strokeStarted:', strokeStarted.current, 'mouseDown:', isMouseDown.current);
