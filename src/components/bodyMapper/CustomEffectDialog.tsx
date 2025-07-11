@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, Palette } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -189,11 +189,18 @@ export const CustomEffectDialog: React.FC<CustomEffectDialogProps> = ({
                   style={{ backgroundColor: color }}
                 />
               ))}
-              <div className="relative ml-1">
-                <div 
-                  className="w-5 h-5 rounded border border-border cursor-pointer hover:border-foreground/60 transition-colors"
-                  style={{ backgroundColor: form.color }}
-                />
+              <div className="relative">
+                <button
+                  type="button"
+                  className={`w-5 h-5 rounded border flex items-center justify-center cursor-pointer hover:border-foreground/60 transition-colors ${
+                    !PRESET_COLORS.includes(form.color) ? 'border-foreground' : 'border-border'
+                  }`}
+                  style={{ backgroundColor: !PRESET_COLORS.includes(form.color) ? form.color : 'transparent' }}
+                >
+                  {!PRESET_COLORS.includes(form.color) ? null : (
+                    <Palette className="w-3 h-3 text-muted-foreground" />
+                  )}
+                </button>
                 <input
                   type="color"
                   value={form.color}
