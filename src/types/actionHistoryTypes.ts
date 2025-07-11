@@ -35,7 +35,7 @@ export interface SensationMark {
 
 export interface ActionHistoryItem {
   id: string;
-  type: 'draw' | 'erase' | 'fill' | 'clear' | 'sensation' | 'textPlace' | 'textEdit' | 'textDelete' | 'resetAll' | 'whiteboardFill';
+  type: 'draw' | 'erase' | 'fill' | 'clear' | 'sensation' | 'textPlace' | 'textEdit' | 'textDelete' | 'resetAll' | 'whiteboardFill' | 'clearFill';
   timestamp: number;
   data: {
     strokes?: DrawingStroke[];
@@ -65,6 +65,7 @@ export interface ActionHistoryItem {
     text?: string;
     itemCount?: number;
     fillColor?: string;
+    action?: string;
   };
 }
 

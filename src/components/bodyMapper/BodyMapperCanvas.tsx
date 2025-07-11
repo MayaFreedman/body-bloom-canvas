@@ -250,7 +250,7 @@ export const BodyMapperCanvas = ({
         <OrbitControls 
           enableRotate={false}
           enablePan={false}
-          enableZoom={mode !== 'draw' && mode !== 'erase' && mode !== 'text'}
+          enableZoom={mode !== 'draw' && mode !== 'erase' && mode !== 'text' && mode !== 'clearFill'}
           minDistance={2.5}
           maxDistance={6}
           maxPolarAngle={Math.PI}

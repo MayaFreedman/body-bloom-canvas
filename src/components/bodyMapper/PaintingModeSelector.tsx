@@ -62,6 +62,13 @@ export const PaintingModeSelector = ({
         >
           Text
         </button>
+        <button
+          className={`game-button-primary flex-1 flex items-center justify-center px-3 py-2 text-sm ${mode === 'clearFill' ? 'opacity-100' : 'opacity-70'}`}
+          onClick={() => onModeChange('clearFill')}
+          style={{ backgroundColor: mode === 'clearFill' ? '#f97316' : undefined }}
+        >
+          Clear Fill
+        </button>
       </div>
     </div>
   );

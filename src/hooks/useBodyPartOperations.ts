@@ -21,22 +21,42 @@ export const useBodyPartOperations = ({
   const handleBodyPartClick = useCallback((partName: string, color: string) => {
     const previousColors = { ...bodyPartColors };
     
-    setBodyPartColors(prev => ({
-      ...prev,
-      [partName]: color
-    }));
+    if (color === 'CLEAR_FILL') {
+      // Remove the body part color (clear fill)
+      const newColors = { ...previousColors };
+      delete newColors[partName];
+      setBodyPartColors(newColors);
 
-    actionHistory.addAction({
-      type: 'fill',
-      data: {
-        bodyPartColors: { [partName]: color },
-        previousBodyPartColors: previousColors
-      },
-      metadata: {
-        bodyPart: partName,
-        color: color
-      }
-    });
+      actionHistory.addAction({
+        type: 'clearFill',
+        data: {
+          bodyPartColors: newColors,
+          previousBodyPartColors: previousColors
+        },
+        metadata: {
+          bodyPart: partName,
+          action: 'clear'
+        }
+      });
+    } else {
+      // Normal fill operation
+      setBodyPartColors(prev => ({
+        ...prev,
+        [partName]: color
+      }));
+
+      actionHistory.addAction({
+        type: 'fill',
+        data: {
+          bodyPartColors: { [partName]: color },
+          previousBodyPartColors: previousColors
+        },
+        metadata: {
+          bodyPart: partName,
+          color: color
+        }
+      });
+    }
   }, [bodyPartColors, actionHistory, setBodyPartColors]);
 
   const clearAll = useCallback(() => {

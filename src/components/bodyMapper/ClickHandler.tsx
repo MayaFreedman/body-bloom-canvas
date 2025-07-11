@@ -82,6 +82,12 @@ export const ClickHandler = ({
             onWhiteboardFill(selectedColor);
             return;
           }
+          
+          // PRIORITY 4: If mode is clearFill, clear whiteboard background
+          if (mode === 'clearFill' && onWhiteboardFill) {
+            onWhiteboardFill('#ffffff'); // Reset to white
+            return;
+          }
         }
       }
     }
@@ -124,13 +130,19 @@ export const ClickHandler = ({
           onBodyPartClick(intersectedObject.userData.bodyPart, selectedColor);
           return;
         }
+        
+        // PRIORITY 4: If mode is clearFill, clear body part fill
+        if (mode === 'clearFill') {
+          onBodyPartClick(intersectedObject.userData.bodyPart, 'CLEAR_FILL');
+          return;
+        }
       }
     }
   }, [mode, selectedColor, selectedSensation, onBodyPartClick, onSensationClick, camera, gl, raycaster, mouse, getBodyMeshes, scene]);
 
   React.useEffect(() => {
-    // Listen for clicks if in sensation mode, fill mode, text mode, or other non-drawing modes
-    if (mode === 'sensation' || mode === 'fill' || mode === 'text' || (mode !== 'draw')) {
+    // Listen for clicks if in sensation mode, fill mode, clearFill mode, text mode, or other non-drawing modes
+    if (mode === 'sensation' || mode === 'fill' || mode === 'clearFill' || mode === 'text' || (mode !== 'draw')) {
       gl.domElement.addEventListener('click', handleClick);
       return () => gl.domElement.removeEventListener('click', handleClick);
     }
