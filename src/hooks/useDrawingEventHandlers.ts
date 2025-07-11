@@ -49,19 +49,33 @@ export const useDrawingEventHandlers = ({
 
     raycaster.setFromCamera(mouse, camera);
     
-    // Expand raycaster detection radius based on brush size
-    const brushRadius = brushSize * 0.1; // Dramatically increased for testing
-    raycaster.params.Points = { threshold: brushRadius };
-    raycaster.params.Line = { threshold: brushRadius };
-    
-    console.log('🎯 Using brush radius for intersection:', brushRadius, 'for brush size:', brushSize);
-    
-    // Get meshes and check intersections with expanded radius
     const meshes = getIntersectedObjects(drawingTarget === 'whiteboard');
-    console.log('🎯 Found meshes for intersection:', meshes.length);
-    
-    const intersects = raycaster.intersectObjects(meshes, false);
-    console.log('🎯 Raycaster intersections with brush radius:', intersects.length);
+    let intersects = raycaster.intersectObjects(meshes, false);
+
+    // If no direct hit, try multiple rays in a circle pattern based on brush size
+    if (intersects.length === 0 && brushSize > 1) {
+      const rayCount = 8; // Number of rays to cast in circle
+      const brushRadius = (brushSize / gl.domElement.clientWidth) * 2; // Convert to NDC units
+      
+      for (let i = 0; i < rayCount; i++) {
+        const angle = (i / rayCount) * Math.PI * 2;
+        const offsetX = Math.cos(angle) * brushRadius;
+        const offsetY = Math.sin(angle) * brushRadius;
+        
+        const testMouse = new THREE.Vector2(
+          mouse.x + offsetX,
+          mouse.y + offsetY
+        );
+        
+        raycaster.setFromCamera(testMouse, camera);
+        const testIntersects = raycaster.intersectObjects(meshes, false);
+        
+        if (testIntersects.length > 0) {
+          intersects = testIntersects;
+          break;
+        }
+      }
+    }
 
     if (intersects.length > 0) {
       const intersect = intersects[0];
@@ -150,13 +164,33 @@ export const useDrawingEventHandlers = ({
 
     raycaster.setFromCamera(mouse, camera);
     
-    // Expand raycaster detection radius based on brush size (same as pointer down)
-    const brushRadius = brushSize * 0.1; // Dramatically increased for testing
-    raycaster.params.Points = { threshold: brushRadius };
-    raycaster.params.Line = { threshold: brushRadius };
-    
     const meshes = getIntersectedObjects(drawingTarget === 'whiteboard');
-    const intersects = raycaster.intersectObjects(meshes, false);
+    let intersects = raycaster.intersectObjects(meshes, false);
+
+    // If no direct hit, try multiple rays in a circle pattern based on brush size
+    if (intersects.length === 0 && brushSize > 1) {
+      const rayCount = 8; // Number of rays to cast in circle
+      const brushRadius = (brushSize / gl.domElement.clientWidth) * 2; // Convert to NDC units
+      
+      for (let i = 0; i < rayCount; i++) {
+        const angle = (i / rayCount) * Math.PI * 2;
+        const offsetX = Math.cos(angle) * brushRadius;
+        const offsetY = Math.sin(angle) * brushRadius;
+        
+        const testMouse = new THREE.Vector2(
+          mouse.x + offsetX,
+          mouse.y + offsetY
+        );
+        
+        raycaster.setFromCamera(testMouse, camera);
+        const testIntersects = raycaster.intersectObjects(meshes, false);
+        
+        if (testIntersects.length > 0) {
+          intersects = testIntersects;
+          break;
+        }
+      }
+    }
     
     if (intersects.length > 0) {
       const moveIntersect = intersects[0];
