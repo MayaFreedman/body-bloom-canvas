@@ -523,6 +523,13 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
               (Math.random() - 0.5) * 0.0008,
               (Math.random() - 0.5) * 0.001
             );
+          } else if (mark.name === 'Stomping') {
+            // Stomping particles start with strong pulse-like burst
+            initialVelocity = new THREE.Vector3(
+              (Math.random() - 0.5) * 0.003,  // Strong initial burst
+              (Math.random() - 0.5) * 0.004,  // Extra strong vertical pulse
+              (Math.random() - 0.5) * 0.003
+            );
           } else if (mark.isCustom && mark.movementBehavior) {
             // Custom effect initial velocity based on movement behavior
             const customParams = getCustomEffectParams(mark.movementBehavior);
@@ -567,7 +574,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
               (Math.random() - 0.5) * dispersion
             ),
             velocity: initialVelocity,
-            life: Math.random() * 100,
+            life: mark.name === 'Stomping' ? i * (180 / particleCount) : Math.random() * 100, // Stagger stomping particles to prevent clumping
             maxLife,
             size,
             rotation: Math.random() * Math.PI * 2,
@@ -723,6 +730,13 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
               -0.0003 - Math.random() * (isSnow ? 0.0002 : 0.0004), // Snow falls more gently
               (Math.random() - 0.5) * (isSnow ? 0.0004 : 0.0002)  // Snow has more depth movement
             );
+          } else if (mark.name === 'Stomping') {
+            // Reset stomping velocity with strong pulse burst
+            particle.velocity.set(
+              (Math.random() - 0.5) * 0.003,  // Strong regeneration burst
+              (Math.random() - 0.5) * 0.004,  // Extra strong vertical pulse
+              (Math.random() - 0.5) * 0.003
+            );
           } else if (mark.isCustom && mark.movementBehavior) {
             // Custom effect initial velocity based on movement behavior - REGENERATION FIX!
             const customParams = getCustomEffectParams(mark.movementBehavior);
@@ -769,7 +783,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             'Shaky': { speed: 0.8, intensity: 0.6, pattern: 'flow', gravity: 0.0002, drift: new THREE.Vector3(0, 0.2, 0) },
             'Fidgety': { speed: 0.8, intensity: 0.6, pattern: 'flow', gravity: 0.0002, drift: new THREE.Vector3(0, 0.2, 0) },
             'Pacing': { speed: 0.05, intensity: 0.1, pattern: 'gentle' }, // Keep minimal movement
-            'Stomping': { speed: 3.8, intensity: 3.5, pattern: 'custom', gravity: 0.0002, drift: new THREE.Vector3(0, 0.1, 0) }, // Energetic stomping like custom effect
+            'Stomping': { speed: 5.2, intensity: 4.5, pattern: 'custom', gravity: 0.0002, drift: new THREE.Vector3(0, 0.1, 0) }, // Even faster stomping
             
             // FLOW effects - dripping with strong downward movement (negative Y = down)
             'Tears': { speed: 0.2, intensity: 0.4, pattern: 'drip', gravity: 0.0002, drift: new THREE.Vector3(0, -0.15, 0) },
