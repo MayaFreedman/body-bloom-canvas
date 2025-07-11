@@ -161,17 +161,14 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
 
   // Map sensation names to textures
   const getSensationTexture = (sensationName: string, isCustom?: boolean, customIcon?: string) => {
-    console.log('🎨 getSensationTexture called with:', { sensationName, isCustom, customIcon });
     
     // Handle custom effects with their selected PNG icons
     // Detect custom effect by checking if the icon is in our custom list
     const isActuallyCustom = isCustom === true || customIconNames.includes(customIcon || '');
-    console.log('🎨 isActuallyCustom:', isActuallyCustom, 'customIconNames includes:', customIconNames.includes(customIcon || ''));
     
     if (isActuallyCustom && customIcon) {
       // Use the custom icon texture if available, fallback to star
       const texture = textureMap[customIcon as keyof typeof textureMap];
-      console.log('🎨 Custom texture found for', customIcon, ':', !!texture);
       return texture || textureMap.star;
     }
     
