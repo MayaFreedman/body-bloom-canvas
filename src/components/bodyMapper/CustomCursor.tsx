@@ -106,9 +106,7 @@ export const CustomCursor: React.FC<CustomCursorProps> = ({
           opacity: isHoveringBody ? 0.8 : 1
         }}
       >
-        <div className="bg-red-500 text-white p-1.5 rounded-md shadow-lg">
-          <Trash2 size={16} />
-        </div>
+        <Trash2 size={20} className="text-red-500 drop-shadow-lg" />
       </div>
     );
   }
