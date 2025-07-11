@@ -523,13 +523,6 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
               (Math.random() - 0.5) * 0.0008,
               (Math.random() - 0.5) * 0.001
             );
-          } else if (mark.name === 'Shaky' || mark.name === 'Fidgety') {
-            // Shaky particles start with trembling movement
-            initialVelocity = new THREE.Vector3(
-              (Math.random() - 0.5) * 0.0015,
-              (Math.random() - 0.5) * 0.001,
-              (Math.random() - 0.5) * 0.0015
-            );
           } else if (mark.isCustom && mark.movementBehavior) {
             // Custom effect initial velocity based on movement behavior
             const customParams = getCustomEffectParams(mark.movementBehavior);
@@ -1054,15 +1047,6 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             const material = (mesh as any).material;
             if (material) {
               material.opacity = opacity * (0.7 + Math.sin(particle.oscillationPhase * 3) * 0.2);
-            }
-          } else if (mark.name === 'Stomping') {
-            // Remove special impact pulse - use same pattern as pacing
-            mesh.scale.setScalar(particle.size * normalizedScale);
-            
-            // Update sprite material opacity
-            const material = (mesh as any).material;
-            if (material) {
-              material.opacity = opacity;
             }
           } else {
             // Apply normalized scale to all other sensations
