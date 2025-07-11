@@ -57,9 +57,18 @@ export const useDrawingEventHandlers = ({
         geometry.computeBoundingBox();
         const box = geometry.boundingBox!;
         
+        console.log('📦 BOUNDING BOX:', {
+          min: { x: box.min.x.toFixed(3), y: box.min.y.toFixed(3), z: box.min.z.toFixed(3) },
+          max: { x: box.max.x.toFixed(3), y: box.max.y.toFixed(3), z: box.max.z.toFixed(3) }
+        });
+        
         // Transform hit point to local mesh coordinates
         const localPoint = hit.point.clone();
+        const worldPoint = hit.point.clone();
         mesh.worldToLocal(localPoint);
+        
+        console.log('🌍 WORLD POINT:', { x: worldPoint.x.toFixed(3), y: worldPoint.y.toFixed(3), z: worldPoint.z.toFixed(3) });
+        console.log('🏠 LOCAL POINT:', { x: localPoint.x.toFixed(3), y: localPoint.y.toFixed(3), z: localPoint.z.toFixed(3) });
         
         // Calculate distance to nearest edge
         const distToEdgeX = Math.min(
