@@ -367,7 +367,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       'Nerves': { min: 80, max: 140 }, // Match Increased Temperature
       'Change in Breathing': { min: 80, max: 140 }, // Match Increased Temperature
       'Shaky': { min: 80, max: 140 }, // Match Increased Temperature
-      'Stomping': { min: 180, max: 280 }, // Longer lasting stomping particles
+      'Stomping': { min: 135, max: 210 }, // Reduced by 25% - now 3/4 as long
       'Change in Appetite': { min: 80, max: 140 }, // Match Increased Temperature
       'Fidgety': { min: 80, max: 140 }, // Match Increased Temperature
       'Clenched': { min: 80, max: 140 }, // Match Increased Temperature
