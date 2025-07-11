@@ -944,14 +944,14 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
           const gentleSway = Math.sin(particle.oscillationPhase * animProfile.speed * 0.5) * 0.0001 * animProfile.intensity;
           particle.velocity.x += gentleSway * clampedDelta;
           
-          // Apply movement with bounding
+          // Apply movement with gentle bounding
           particle.position.add(particle.velocity);
           
-          // Add bounding to keep particles within reasonable range
-          const boundingRadius = 0.08;
+          // Add gentle bounding to keep particles within reasonable range
+          const boundingRadius = 0.15; // Increased from 0.08 for more freedom
           if (particle.position.length() > boundingRadius) {
             particle.position.normalize().multiplyScalar(boundingRadius);
-            particle.velocity.multiplyScalar(0.5); // Slow down when hitting bounds
+            particle.velocity.multiplyScalar(0.8); // Gentler slowdown from 0.5 to 0.8
           }
           
           
