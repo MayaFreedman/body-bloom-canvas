@@ -54,10 +54,16 @@ export const MultiplayerMessageHandler = ({
           return;
         }
 
-        const messageData = message.data || message.action;
-        if (!messageData) {
-          console.warn('⚠️ No data/action in message:', message);
-          return;
+        // Handle messages with different structures
+        let messageData;
+        if (message.type === 'requestState' || message.type === 'stateSnapshot') {
+          messageData = message; // These messages have data directly on the message object
+        } else {
+          messageData = message.data || message.action;
+          if (!messageData) {
+            console.warn('⚠️ No data/action in message:', message);
+            return;
+          }
         }
 
         switch (message.type) {
