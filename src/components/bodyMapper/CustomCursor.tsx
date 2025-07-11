@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { X, Trash2 } from 'lucide-react';
+import { X, Trash2, Paintbrush, PaintBucket, Eraser } from 'lucide-react';
 import { SelectedSensation } from '@/types/bodyMapperTypes';
 import { getSensationImage } from './SensationSelector';
 
@@ -70,6 +70,14 @@ export const CustomCursor: React.FC<CustomCursorProps> = ({
         // Hide default cursor when in text mode (we show custom cursor)
         document.body.style.setProperty('cursor', 'none', 'important');
       }
+    } else if (mode === 'draw' || mode === 'erase' || (mode === 'fill' && !clearFillMode)) {
+      if (isHoveringSidebar || isHoveringControlButtons) {
+        // Show default cursor when hovering sidebar or control buttons
+        document.body.style.setProperty('cursor', 'default', 'important');
+      } else {
+        // Hide default cursor when in drawing modes (we show custom cursor)
+        document.body.style.setProperty('cursor', 'none', 'important');
+      }
     } else if (mode === 'fill' && clearFillMode) {
       if (isHoveringSidebar || isHoveringControlButtons) {
         // Show default cursor when hovering sidebar or control buttons in clear fill mode
@@ -89,8 +97,8 @@ export const CustomCursor: React.FC<CustomCursorProps> = ({
     };
   }, [selectedSensation, isHoveringBody, showNotAllowed, mode, isHoveringSidebar, isHoveringControlButtons, clearFillMode]);
 
-  // Show custom cursor for sensations OR text mode OR clear fill mode, but not when hovering sidebar or control buttons
-  if ((!selectedSensation && mode !== 'text' && !(mode === 'fill' && clearFillMode)) || isHoveringSidebar || isHoveringControlButtons) {
+  // Show custom cursor for sensations OR text mode OR drawing modes, but not when hovering sidebar or control buttons
+  if ((!selectedSensation && mode !== 'text' && mode !== 'draw' && mode !== 'erase' && mode !== 'fill') || isHoveringSidebar || isHoveringControlButtons) {
     return null;
   }
 
@@ -107,6 +115,57 @@ export const CustomCursor: React.FC<CustomCursorProps> = ({
         }}
       >
         <Trash2 size={20} className="text-red-500 drop-shadow-lg" />
+      </div>
+    );
+  }
+
+  // For draw mode, show paintbrush icon
+  if (mode === 'draw') {
+    return (
+      <div
+        className="fixed pointer-events-none z-[9999] transition-opacity duration-150"
+        style={{
+          left: cursorPosition.x,
+          top: cursorPosition.y,
+          transform: 'translate(-12px, -12px)',
+          opacity: isHoveringBody ? 0.8 : 1
+        }}
+      >
+        <Paintbrush size={20} style={{ color: selectedColor }} className="drop-shadow-lg" />
+      </div>
+    );
+  }
+
+  // For erase mode, show eraser icon
+  if (mode === 'erase') {
+    return (
+      <div
+        className="fixed pointer-events-none z-[9999] transition-opacity duration-150"
+        style={{
+          left: cursorPosition.x,
+          top: cursorPosition.y,
+          transform: 'translate(-12px, -12px)',
+          opacity: isHoveringBody ? 0.8 : 1
+        }}
+      >
+        <Eraser size={20} className="text-gray-700 drop-shadow-lg" />
+      </div>
+    );
+  }
+
+  // For fill mode (regular), show paint bucket icon
+  if (mode === 'fill' && !clearFillMode) {
+    return (
+      <div
+        className="fixed pointer-events-none z-[9999] transition-opacity duration-150"
+        style={{
+          left: cursorPosition.x,
+          top: cursorPosition.y,
+          transform: 'translate(-12px, -12px)',
+          opacity: isHoveringBody ? 0.8 : 1
+        }}
+      >
+        <PaintBucket size={20} style={{ color: selectedColor }} className="drop-shadow-lg" />
       </div>
     );
   }
