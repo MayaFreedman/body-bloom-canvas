@@ -406,7 +406,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       moderate: {
         particleCount: 15, // Standard amount  
         dispersion: 0.08, // Increased spawn area from 0.06
-        size: { base: 0.04, variance: 0.02, multiplier: 1.5 }, // Same as Increased Temperature default
+        size: { base: 0.045, variance: 0.025, multiplier: 1.6 }, // Slightly larger particles
         lifespan: { min: 70, max: 120 }, // Slightly faster respawn
         speed: 0.9, // Slightly increased from 0.8
         intensity: 0.7, // Slightly increased from 0.6
