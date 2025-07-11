@@ -133,23 +133,49 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
       // For state restoration, we need to directly set the marks via the stroke manager
       // Clear existing strokes first
       clearAll();
-      // Group marks by strokeId and restore them as complete strokes
-      const strokeGroups = new Map<string, typeof marks>();
-      marks.forEach(mark => {
-        const strokeId = mark.strokeId || `restored-${mark.id}`;
-        if (!strokeGroups.has(strokeId)) {
-          strokeGroups.set(strokeId, []);
+      
+      if (marks.length === 0) return;
+      
+      // Sort marks by timestamp to reconstruct stroke order
+      const sortedMarks = [...marks].sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+      
+      // Group marks into strokes based on temporal proximity and spatial continuity
+      const strokeGroups: Array<typeof marks> = [];
+      let currentStroke: typeof marks = [];
+      let lastTimestamp = 0;
+      const STROKE_BREAK_THRESHOLD = 100; // ms between strokes
+      
+      sortedMarks.forEach(mark => {
+        const markTimestamp = mark.timestamp || Date.now();
+        
+        // Start a new stroke if there's a significant time gap or if this is the first mark
+        if (currentStroke.length === 0 || (markTimestamp - lastTimestamp) > STROKE_BREAK_THRESHOLD) {
+          if (currentStroke.length > 0) {
+            strokeGroups.push([...currentStroke]);
+          }
+          currentStroke = [mark];
+        } else {
+          currentStroke.push(mark);
         }
-        strokeGroups.get(strokeId)!.push(mark);
+        
+        lastTimestamp = markTimestamp;
       });
       
+      // Don't forget the last stroke
+      if (currentStroke.length > 0) {
+        strokeGroups.push(currentStroke);
+      }
+      
       // Restore each stroke group
-      strokeGroups.forEach((strokeMarks, strokeId) => {
+      strokeGroups.forEach((strokeMarks, index) => {
+        const strokeId = `restored-stroke-${index}-${Date.now()}`;
         const enhancedMarks = strokeMarks.map(mark => ({
           ...mark,
           timestamp: mark.timestamp || Date.now(),
           strokeId: strokeId
         }));
+        
+        console.log(`🔄 Restoring stroke ${strokeId} with ${enhancedMarks.length} marks`);
         
         restoreStroke({
           id: strokeId,
