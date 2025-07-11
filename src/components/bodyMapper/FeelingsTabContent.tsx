@@ -31,6 +31,7 @@ interface FeelingsTabContentProps {
   onTextSettingsChange?: (settings: Partial<TextSettings>) => void;
   onTextToPlaceChange?: (text: string) => void;
   onDrawingTargetChange?: (target: 'body' | 'whiteboard') => void;
+  onClearFillModeChange?: (clearFillMode: boolean) => void;
 }
 
 export const FeelingsTabContent = ({
@@ -50,7 +51,8 @@ export const FeelingsTabContent = ({
   onBrushSizeChange,
   onTextSettingsChange,
   onTextToPlaceChange,
-  onDrawingTargetChange
+  onDrawingTargetChange,
+  onClearFillModeChange
 }: FeelingsTabContentProps) => {
   
   return (
@@ -80,6 +82,7 @@ export const FeelingsTabContent = ({
         title="Tools"
         drawingTarget={drawingTarget}
         onDrawingTargetChange={onDrawingTargetChange}
+        onClearFillModeChange={onClearFillModeChange}
       />
       {/* Brush Size Control - Only visible in Draw mode */}
       {mode === 'draw' && (

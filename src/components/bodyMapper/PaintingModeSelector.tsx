@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Brush, Palette, Eraser, Type } from 'lucide-react';
 import { BodyMapperMode } from '@/types/bodyMapperTypes';
 import { DrawingTargetSelector } from './DrawingTargetSelector';
@@ -10,6 +10,9 @@ interface PaintingModeSelectorProps {
   title?: string;
   drawingTarget?: 'body' | 'whiteboard';
   onDrawingTargetChange?: (target: 'body' | 'whiteboard') => void;
+  onBodyPartClick?: (partName: string, color: string) => void;
+  selectedColor?: string;
+  onClearFillModeChange?: (clearFillMode: boolean) => void;
 }
 
 export const PaintingModeSelector = ({ 
@@ -17,8 +20,17 @@ export const PaintingModeSelector = ({
   onModeChange, 
   title = "Painting Mode",
   drawingTarget,
-  onDrawingTargetChange 
+  onDrawingTargetChange,
+  onBodyPartClick,
+  selectedColor = '#ff6b6b',
+  onClearFillModeChange
 }: PaintingModeSelectorProps) => {
+  const [clearFillMode, setClearFillMode] = useState(false);
+  
+  const handleClearFillModeChange = (newClearFillMode: boolean) => {
+    setClearFillMode(newClearFillMode);
+    onClearFillModeChange?.(newClearFillMode);
+  };
   return (
     <div className="mb-6">
       {/* Drawing target toggle above tools header */}
@@ -62,14 +74,28 @@ export const PaintingModeSelector = ({
         >
           Text
         </button>
-        <button
-          className={`game-button-primary flex-1 flex items-center justify-center px-3 py-2 text-sm ${mode === 'clearFill' ? 'opacity-100' : 'opacity-70'}`}
-          onClick={() => onModeChange('clearFill')}
-          style={{ backgroundColor: mode === 'clearFill' ? '#f97316' : undefined }}
-        >
-          Clear Fill
-        </button>
       </div>
+      
+      {/* Clear Fill sub-option for Fill mode */}
+      {mode === 'fill' && (
+        <div className="mt-3 p-3 bg-gray-50 rounded-lg border">
+          <div className="flex items-center gap-2">
+            <button
+              className={`px-3 py-1.5 text-sm rounded transition-colors ${
+                clearFillMode 
+                  ? 'bg-orange-500 text-white' 
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+              onClick={() => handleClearFillModeChange(!clearFillMode)}
+            >
+              Clear Fill Mode
+            </button>
+            {clearFillMode && (
+              <span className="text-sm text-gray-600">Click on body parts or whiteboard to remove color</span>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

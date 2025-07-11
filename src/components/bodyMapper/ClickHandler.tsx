@@ -13,6 +13,7 @@ interface ClickHandlerProps {
   onSensationClick: (position: THREE.Vector3, sensation: SelectedSensation) => void;
   onWhiteboardFill?: (color: string) => void;
   onTextPlace?: (position: THREE.Vector3, surface: 'body' | 'whiteboard') => void;
+  clearFillMode?: boolean;
 }
 
 export const ClickHandler = ({ 
@@ -23,7 +24,8 @@ export const ClickHandler = ({
   onBodyPartClick, 
   onSensationClick,
   onWhiteboardFill,
-  onTextPlace
+  onTextPlace,
+  clearFillMode = false
 }: ClickHandlerProps) => {
   const { camera, gl, raycaster, mouse, scene } = useThree();
 
@@ -77,15 +79,13 @@ export const ClickHandler = ({
             return;
           }
           
-          // PRIORITY 3: If mode is fill, fill whiteboard background
+          // PRIORITY 3: If mode is fill, fill whiteboard background or clear if in clearFillMode
           if (mode === 'fill' && onWhiteboardFill) {
-            onWhiteboardFill(selectedColor);
-            return;
-          }
-          
-          // PRIORITY 4: If mode is clearFill, clear whiteboard background
-          if (mode === 'clearFill' && onWhiteboardFill) {
-            onWhiteboardFill('#ffffff'); // Reset to white
+            if (clearFillMode) {
+              onWhiteboardFill('#ffffff'); // Reset to white
+            } else {
+              onWhiteboardFill(selectedColor);
+            }
             return;
           }
         }
@@ -125,15 +125,13 @@ export const ClickHandler = ({
           return; // Exit early after placing sensation
         }
         
-        // PRIORITY 3: If mode is fill, do body part filling
+        // PRIORITY 3: If mode is fill, do body part filling or clearing
         if (mode === 'fill') {
-          onBodyPartClick(intersectedObject.userData.bodyPart, selectedColor);
-          return;
-        }
-        
-        // PRIORITY 4: If mode is clearFill, clear body part fill
-        if (mode === 'clearFill') {
-          onBodyPartClick(intersectedObject.userData.bodyPart, 'CLEAR_FILL');
+          if (clearFillMode) {
+            onBodyPartClick(intersectedObject.userData.bodyPart, 'CLEAR_FILL');
+          } else {
+            onBodyPartClick(intersectedObject.userData.bodyPart, selectedColor);
+          }
           return;
         }
       }
@@ -141,8 +139,8 @@ export const ClickHandler = ({
   }, [mode, selectedColor, selectedSensation, onBodyPartClick, onSensationClick, camera, gl, raycaster, mouse, getBodyMeshes, scene]);
 
   React.useEffect(() => {
-    // Listen for clicks if in sensation mode, fill mode, clearFill mode, text mode, or other non-drawing modes
-    if (mode === 'sensation' || mode === 'fill' || mode === 'clearFill' || mode === 'text' || (mode !== 'draw')) {
+    // Listen for clicks if in sensation mode, fill mode, text mode, or other non-drawing modes
+    if (mode === 'sensation' || mode === 'fill' || mode === 'text' || (mode !== 'draw')) {
       gl.domElement.addEventListener('click', handleClick);
       return () => gl.domElement.removeEventListener('click', handleClick);
     }

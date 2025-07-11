@@ -43,6 +43,7 @@ interface BodyMapperCanvasProps {
   textSettings?: any;
   modelRef: React.RefObject<THREE.Group>;
   screenshotRef?: React.RefObject<ScreenshotCaptureHandle>;
+  clearFillMode?: boolean;
   onAddDrawingMark: (mark: DrawingMark) => void;
   onDrawingStrokeStart: () => void;
   onDrawingStrokeComplete: () => void;
@@ -81,6 +82,7 @@ export const BodyMapperCanvas = ({
   textSettings,
   modelRef,
   screenshotRef,
+  clearFillMode = false,
   onAddDrawingMark,
   onDrawingStrokeStart,
   onDrawingStrokeComplete,
@@ -239,6 +241,7 @@ export const BodyMapperCanvas = ({
           selectedColor={selectedColor}
           selectedSensation={selectedSensation}
           drawingTarget={drawingTarget}
+          clearFillMode={clearFillMode}
           onBodyPartClick={onBodyPartClick}
           onSensationClick={handleSensationClick}
           onWhiteboardFill={onWhiteboardFill}
@@ -250,7 +253,7 @@ export const BodyMapperCanvas = ({
         <OrbitControls 
           enableRotate={false}
           enablePan={false}
-          enableZoom={mode !== 'draw' && mode !== 'erase' && mode !== 'text' && mode !== 'clearFill'}
+          enableZoom={mode !== 'draw' && mode !== 'erase' && mode !== 'text'}
           minDistance={2.5}
           maxDistance={6}
           maxPolarAngle={Math.PI}
