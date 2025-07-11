@@ -251,18 +251,18 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
   // Get dispersion level based on sensation type (much larger areas for natural spread)
   const getDispersionLevel = (sensationName: string) => {
     const dispersionMap: { [key: string]: number } = {
-      'Nerves': 0.7, // Match Increased Temperature
-      'Change in Breathing': 0.7, // Match Increased Temperature
-      'Shaky': 0.7, // Match Increased Temperature
-      'Stomping': 0.7, // Match Increased Temperature
-      'Change in Appetite': 0.7, // Match Increased Temperature
-      'Fidgety': 0.7, // Match Increased Temperature
-      'Clenched': 0.7, // Match Increased Temperature
-      'Avoiding Eye Contact': 0.7, // Match Increased Temperature
-      'Tense': 0.7, // Match Increased Temperature
+      'Nerves': 0.06, // Reset to reasonable default
+      'Change in Breathing': 0.06, // Reset to reasonable default
+      'Shaky': 0.06, // Reset to reasonable default
+      'Stomping': 0.06, // Reset to reasonable default
+      'Change in Appetite': 0.06, // Reset to reasonable default
+      'Fidgety': 0.06, // Reset to reasonable default
+      'Clenched': 0.06, // Reset to reasonable default
+      'Avoiding Eye Contact': 0.06, // Reset to reasonable default
+      'Tense': 0.06, // Reset to reasonable default
       'Tingling': 0.10,          // Wide sparkle coverage
       'Goosebumps': 0.08,        // Goosebumps spread naturally
-      'Increased Temperature': 0.7, // Original setting
+      'Increased Temperature': 0.07, // Original setting
       
       // MEDIUM SPEED = good spread across body parts
       'Nausea': 0.08,            // Stomach/torso area
@@ -763,26 +763,26 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
         // Get animation intensity and speed for this sensation
         const getAnimationProfile = (sensationName: string) => {
           const profiles: { [key: string]: { speed: number; intensity: number; pattern: string; gravity?: number; drift?: THREE.Vector3 } } = {
-            // ELECTRICAL/ACTIVE effects
-            'Nerves': { speed: 0.3, intensity: 0.3, pattern: 'electrical', gravity: 0.0002 },
-            'Tingling': { speed: 1.8, intensity: 1.2, pattern: 'electrical', gravity: 0.0001 }, // Use electrical pattern for sparkly movement
+            // ELECTRICAL/ACTIVE effects - reset to reasonable defaults
+            'Nerves': { speed: 0.8, intensity: 0.6, pattern: 'flow', gravity: 0.0002, drift: new THREE.Vector3(0, 0.2, 0) },
+            'Tingling': { speed: 1.8, intensity: 1.2, pattern: 'electrical', gravity: 0.0001 }, // Keep original sparkly movement
             'Change in Energy': { speed: 1.5, intensity: 1.0, pattern: 'burst', gravity: 0.0001, drift: new THREE.Vector3(0, 0.3, 0) },
             
             // HEART RATE effects  
             'Increased Heart Rate': { speed: 2.5, intensity: 1.2, pattern: 'pulse' }, // Fast pulsing
             'Decreased Heart Rate': { speed: 0.8, intensity: 0.6, pattern: 'pulse' }, // Slow pulsing
             
-            // MOVEMENT effects
-            'Shaky': { speed: 3.0, intensity: 1.8, pattern: 'shake' }, // Fast trembling
-            'Fidgety': { speed: 2.2, intensity: 1.4, pattern: 'shake' }, // Restless movement
-            'Pacing': { speed: 0.05, intensity: 0.1, pattern: 'gentle' }, // Barely moving
-            'Stomping': { speed: 0.03, intensity: 0.15, pattern: 'gentle' }, // Almost static
+            // MOVEMENT effects - reset to reasonable defaults
+            'Shaky': { speed: 0.8, intensity: 0.6, pattern: 'flow', gravity: 0.0002, drift: new THREE.Vector3(0, 0.2, 0) },
+            'Fidgety': { speed: 0.8, intensity: 0.6, pattern: 'flow', gravity: 0.0002, drift: new THREE.Vector3(0, 0.2, 0) },
+            'Pacing': { speed: 0.05, intensity: 0.1, pattern: 'gentle' }, // Keep minimal movement
+            'Stomping': { speed: 0.8, intensity: 0.6, pattern: 'flow', gravity: 0.0002, drift: new THREE.Vector3(0, 0.2, 0) },
             
             // FLOW effects - dripping with strong downward movement (negative Y = down)
             'Tears': { speed: 0.2, intensity: 0.4, pattern: 'drip', gravity: 0.0002, drift: new THREE.Vector3(0, -0.15, 0) },
             'Sweat': { speed: 0.3, intensity: 0.5, pattern: 'drip', gravity: 0.00015, drift: new THREE.Vector3(0, -0.12, 0) },
             'Decreased Temperature': { speed: 0.8, intensity: 0.7, pattern: 'drip', gravity: 0.0004, drift: new THREE.Vector3(0, -0.25, 0) },
-            'Change in Breathing': { speed: 0.2, intensity: 0.2, pattern: 'gentle', gravity: 0.00005, drift: new THREE.Vector3(0.02, 0.08, 0) },
+            'Change in Breathing': { speed: 0.8, intensity: 0.6, pattern: 'flow', gravity: 0.0002, drift: new THREE.Vector3(0, 0.2, 0) },
             'Nausea': { speed: 1.2, intensity: 1.0, pattern: 'swirl', gravity: 0.0002 },
             
             // PAIN effects
@@ -794,10 +794,13 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             'Heaviness': { speed: 0.2, intensity: 0.4, pattern: 'sink', gravity: 0.0006, drift: new THREE.Vector3(0, -0.8, 0) },
             'Relaxed': { speed: 0.4, intensity: 0.5, pattern: 'gentle', gravity: 0.0001 },
             
-            // TENSION effects
+            // TENSION effects - reset to reasonable defaults
             'Tight': { speed: 0.8, intensity: 0.9, pattern: 'constrain', gravity: 0.0001 },
-            'Clenched': { speed: 1.0, intensity: 1.1, pattern: 'tense', gravity: 0.0001 },
-            'Lump in Throat': { speed: 0.6, intensity: 0.8, pattern: 'stuck', gravity: 0.0001 }
+            'Clenched': { speed: 0.8, intensity: 0.6, pattern: 'flow', gravity: 0.0002, drift: new THREE.Vector3(0, 0.2, 0) },
+            'Lump in Throat': { speed: 0.6, intensity: 0.8, pattern: 'stuck', gravity: 0.0001 },
+            'Avoiding Eye Contact': { speed: 0.8, intensity: 0.6, pattern: 'flow', gravity: 0.0002, drift: new THREE.Vector3(0, 0.2, 0) },
+            'Tense': { speed: 0.8, intensity: 0.6, pattern: 'flow', gravity: 0.0002, drift: new THREE.Vector3(0, 0.2, 0) },
+            'Change in Appetite': { speed: 0.8, intensity: 0.6, pattern: 'flow', gravity: 0.0002, drift: new THREE.Vector3(0, 0.2, 0) }
           };
           return profiles[sensationName] || { speed: 0.8, intensity: 0.6, pattern: 'flow', gravity: 0.0002, drift: new THREE.Vector3(0, 0.2, 0) };
         };
