@@ -55,10 +55,16 @@ export const useDrawingEventHandlers = ({
       
       console.log('🎯 MESH INFO:', {
         bodyPart: mesh.userData.bodyPart,
-        position: { x: mesh.position.x, y: mesh.position.y, z: mesh.position.z },
-        scale: { x: mesh.scale.x, y: mesh.scale.y, z: mesh.scale.z },
-        rotation: { x: mesh.rotation.x, y: mesh.rotation.y, z: mesh.rotation.z }
+        position: { x: mesh.position.x.toFixed(3), y: mesh.position.y.toFixed(3), z: mesh.position.z.toFixed(3) },
+        scale: { x: mesh.scale.x.toFixed(3), y: mesh.scale.y.toFixed(3), z: mesh.scale.z.toFixed(3) },
+        rotation: { x: mesh.rotation.x.toFixed(3), y: mesh.rotation.y.toFixed(3), z: mesh.rotation.z.toFixed(3) },
+        matrixAutoUpdate: mesh.matrixAutoUpdate,
+        matrixWorldNeedsUpdate: mesh.matrixWorldNeedsUpdate
       });
+      
+      // Update matrices to ensure accurate transformations
+      mesh.updateMatrix();
+      mesh.updateMatrixWorld();
       
       if (geometry && geometry.boundingBox) {
         geometry.computeBoundingBox();
