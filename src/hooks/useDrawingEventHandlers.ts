@@ -38,7 +38,7 @@ export const useDrawingEventHandlers = ({
 
   // Check if direct hit is too close to edge based on brush size and mesh characteristics
   const findBrushIntersection = useCallback((meshes: THREE.Mesh[]) => {
-    const baseThreshold = 0.05;
+    const baseThreshold = 0.02; // Much more aggressive threshold
     const referenceBrushSize = 20; // Reference brush size for scaling
     const referenceMeshSize = 1.0; // Reference mesh size for normalization
     
