@@ -218,6 +218,14 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       'Tears': 0.6,
       'Decreased Temperature': 0.6, // Smaller snowflakes
       'Increased Temperature': 0.9,
+      'Nerves': 0.9, // Match Increased Temperature
+      'Change in Breathing': 0.9, // Match Increased Temperature
+      'Shaky': 0.9, // Match Increased Temperature
+      'Stomping': 0.9, // Match Increased Temperature
+      'Change in Appetite': 0.9, // Match Increased Temperature
+      'Fidgety': 0.9, // Match Increased Temperature
+      'Clenched': 0.9, // Match Increased Temperature
+      'Avoiding Eye Contact': 0.9, // Match Increased Temperature
       'Increased Heart Rate': 0.8,
       'Decreased Heart Rate': 0.8,
       'Tired': 1.1,
@@ -231,7 +239,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       'Feeling Small': 0.9,
       'Dry Mouth': 1.0,
       'Change in Energy': 0.9,
-      'Tense': 1.0, // Renamed from Scrunched Face and reset to default
+      'Tense': 0.9, // Match Increased Temperature
       'Goosebumps': 1.0,
       'Relaxed': 1.0,
       'Sweat': 0.8
@@ -243,8 +251,18 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
   // Get dispersion level based on sensation type (much larger areas for natural spread)
   const getDispersionLevel = (sensationName: string) => {
     const dispersionMap: { [key: string]: number } = {
+      'Nerves': 0.7, // Match Increased Temperature
+      'Change in Breathing': 0.7, // Match Increased Temperature
+      'Shaky': 0.7, // Match Increased Temperature
+      'Stomping': 0.7, // Match Increased Temperature
+      'Change in Appetite': 0.7, // Match Increased Temperature
+      'Fidgety': 0.7, // Match Increased Temperature
+      'Clenched': 0.7, // Match Increased Temperature
+      'Avoiding Eye Contact': 0.7, // Match Increased Temperature
+      'Tense': 0.7, // Match Increased Temperature
       'Tingling': 0.10,          // Wide sparkle coverage
       'Goosebumps': 0.08,        // Goosebumps spread naturally
+      'Increased Temperature': 0.7, // Original setting
       
       // MEDIUM SPEED = good spread across body parts
       'Nausea': 0.08,            // Stomach/torso area
@@ -295,6 +313,16 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       // MEDIUM = medium particles, moderate regeneration
       'Nausea': { base: 0.045, variance: 0.025, multiplier: 1.7 }, // Visible swirling
       'Increased Heart Rate': { base: 0.045, variance: 0.02, multiplier: 1.7 }, // Fast but visible beats
+      'Increased Temperature': { base: 0.045, variance: 0.02, multiplier: 1.7 }, // Original setting
+      'Nerves': { base: 0.045, variance: 0.02, multiplier: 1.7 }, // Match Increased Temperature
+      'Change in Breathing': { base: 0.045, variance: 0.02, multiplier: 1.7 }, // Match Increased Temperature
+      'Shaky': { base: 0.045, variance: 0.02, multiplier: 1.7 }, // Match Increased Temperature
+      'Stomping': { base: 0.045, variance: 0.02, multiplier: 1.7 }, // Match Increased Temperature
+      'Change in Appetite': { base: 0.045, variance: 0.02, multiplier: 1.7 }, // Match Increased Temperature
+      'Fidgety': { base: 0.045, variance: 0.02, multiplier: 1.7 }, // Match Increased Temperature
+      'Clenched': { base: 0.045, variance: 0.02, multiplier: 1.7 }, // Match Increased Temperature
+      'Avoiding Eye Contact': { base: 0.045, variance: 0.02, multiplier: 1.7 }, // Match Increased Temperature
+      'Tense': { base: 0.045, variance: 0.02, multiplier: 1.7 }, // Match Increased Temperature
       'Pacing': { base: 0.04, variance: 0.02, multiplier: 1.5 }, // Movement patterns
       'Change in Energy': { base: 0.04, variance: 0.02, multiplier: 1.5 }, // Energy bursts
       
@@ -335,6 +363,16 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       // MEDIUM = normal lifespan
       'Nausea': { min: 80, max: 140 }, // Swirling motion
       'Increased Heart Rate': { min: 60, max: 120 }, // Faster rhythm
+      'Increased Temperature': { min: 80, max: 140 }, // Default behavior
+      'Nerves': { min: 80, max: 140 }, // Match Increased Temperature
+      'Change in Breathing': { min: 80, max: 140 }, // Match Increased Temperature
+      'Shaky': { min: 80, max: 140 }, // Match Increased Temperature
+      'Stomping': { min: 80, max: 140 }, // Match Increased Temperature
+      'Change in Appetite': { min: 80, max: 140 }, // Match Increased Temperature
+      'Fidgety': { min: 80, max: 140 }, // Match Increased Temperature
+      'Clenched': { min: 80, max: 140 }, // Match Increased Temperature
+      'Avoiding Eye Contact': { min: 80, max: 140 }, // Match Increased Temperature
+      'Tense': { min: 80, max: 140 }, // Match Increased Temperature
       'Change in Energy': { min: 50, max: 100 }, // Energy bursts
       'Pacing': { min: 400, max: 600 }, // Very long lifespan, minimal respawning
       
