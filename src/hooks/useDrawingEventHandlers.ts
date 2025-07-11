@@ -35,6 +35,7 @@ export const useDrawingEventHandlers = ({
   const strokeStarted = useRef(false);
 
   const handlePointerDown = useCallback((event: PointerEvent) => {
+    console.log('🖱️ Pointer down - mode:', mode, 'isDrawing:', isDrawing, 'drawingTarget:', drawingTarget);
     if (!isDrawing || mode === 'sensation') return;
     isMouseDown.current = true;
     strokeStarted.current = false;
@@ -123,8 +124,14 @@ export const useDrawingEventHandlers = ({
       }
     } else {
       console.log('❌ No valid intersection found for', drawingTarget);
+      console.log('   Total intersects found:', intersects.length);
+      console.log('   Available meshes for intersection:', meshes.length);
+      meshes.forEach((mesh, i) => {
+        console.log(`     Mesh ${i}: userData =`, mesh.userData, 'visible =', mesh.visible);
+      });
       if (intersects.length > 0) {
         console.log('  First intersect object userData:', intersects[0].object.userData);
+        console.log('  Drawing target:', drawingTarget, 'vs object type:', intersects[0].object.userData.bodyPart ? 'body' : intersects[0].object.userData.isWhiteboard ? 'whiteboard' : 'unknown');
       }
     }
   }, [isDrawing, addMarkAtPosition, onStrokeStart, onAddToStroke, camera, gl, raycaster, mouse, getIntersectedObjects, drawingTarget]);
