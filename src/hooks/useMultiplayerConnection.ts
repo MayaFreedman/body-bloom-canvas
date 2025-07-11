@@ -66,13 +66,24 @@ export const useMultiplayerConnection = () => {
       // Request state snapshot after successful connection
       setTimeout(() => {
         console.log('📸 Requesting state snapshot after room join');
-        room.send('broadcast', {
-          type: 'stateRequest',
-          data: {
-            playerId: room.sessionId,
-            timestamp: Date.now()
-          }
+        console.log('📡 Room connection status:', {
+          isConnected: room.connection?.isOpen,
+          sessionId: room.sessionId,
+          roomId: room.id
         });
+        
+        try {
+          room.send('broadcast', {
+            type: 'stateRequest',
+            data: {
+              playerId: room.sessionId,
+              timestamp: Date.now()
+            }
+          });
+          console.log('✅ State request sent successfully');
+        } catch (error) {
+          console.error('❌ Failed to send state request:', error);
+        }
       }, 1000); // Small delay to ensure other players are ready
 
       return room;
