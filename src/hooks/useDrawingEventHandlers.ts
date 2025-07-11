@@ -36,10 +36,11 @@ export const useDrawingEventHandlers = ({
   const lastBodyPart = useRef<string | null>(null);
   const strokeStarted = useRef(false);
 
-  // Check if direct hit is too close to edge based on brush size
+  // Check if direct hit is too close to edge based on brush size and mesh characteristics
   const findBrushIntersection = useCallback((meshes: THREE.Mesh[]) => {
-    const edgeThreshold = 0.05; // Much smaller threshold - only reject very close edge hits
-    console.log('🖌️ BRUSH DEBUG: brushSize:', brushSize, 'edgeThreshold:', edgeThreshold);
+    const baseThreshold = 0.05;
+    const referenceBrushSize = 20; // Reference brush size for scaling
+    const referenceMeshSize = 1.0; // Reference mesh size for normalization
     
     // First, try normal intersections
     const normalIntersects = raycaster.intersectObjects(meshes, false);
@@ -95,6 +96,17 @@ export const useDrawingEventHandlers = ({
         console.log('🌍 WORLD HIT POINT:', { x: worldPoint.x.toFixed(3), y: worldPoint.y.toFixed(3), z: worldPoint.z.toFixed(3) });
         console.log('🏠 LOCAL HIT POINT:', { x: localPoint.x.toFixed(3), y: localPoint.y.toFixed(3), z: localPoint.z.toFixed(3) });
         
+        // Calculate mesh size for normalization
+        const meshSizeX = box.max.x - box.min.x;
+        const meshSizeY = box.max.y - box.min.y;
+        const meshSizeZ = box.max.z - box.min.z;
+        const averageMeshSize = (meshSizeX + meshSizeY + meshSizeZ) / 3;
+        
+        // Calculate adaptive threshold based on brush size and mesh size
+        const brushSizeMultiplier = brushSize / referenceBrushSize;
+        const meshSizeMultiplier = averageMeshSize / referenceMeshSize;
+        const adaptiveThreshold = baseThreshold * brushSizeMultiplier * meshSizeMultiplier;
+        
         // Calculate distance to nearest edge using local coordinates
         const distToEdgeX = Math.min(
           Math.abs(localPoint.x - box.min.x),
@@ -115,27 +127,23 @@ export const useDrawingEventHandlers = ({
           Z: distToEdgeZ.toFixed(3)
         });
         
-        // Also try world space calculation for comparison
-        const worldDistY = Math.min(
-          Math.abs(worldPoint.y - worldBox.min.y),
-          Math.abs(worldPoint.y - worldBox.max.y)
-        );
-        const worldDistZ = Math.min(
-          Math.abs(worldPoint.z - worldBox.min.z),
-          Math.abs(worldPoint.z - worldBox.max.z)
-        );
-        
-        console.log('🌍 WORLD EDGE DISTANCES:', {
-          Y: worldDistY.toFixed(3),
-          Z: worldDistZ.toFixed(3)
+        console.log('🔧 ADAPTIVE THRESHOLD CALCULATION:', {
+          baseThreshold: baseThreshold.toFixed(3),
+          brushSize,
+          referenceBrushSize,
+          brushSizeMultiplier: brushSizeMultiplier.toFixed(3),
+          meshSize: averageMeshSize.toFixed(3),
+          referenceMeshSize,
+          meshSizeMultiplier: meshSizeMultiplier.toFixed(3),
+          adaptiveThreshold: adaptiveThreshold.toFixed(3)
         });
         
         const minDistToEdge = Math.min(distToEdgeY, distToEdgeZ); // Only consider Y and Z, ignore X
         
         console.log(`🏃 Edge distances: X=${distToEdgeX.toFixed(3)}, Y=${distToEdgeY.toFixed(3)}, Z=${distToEdgeZ.toFixed(3)}`);
-        console.log(`📏 Min edge distance: ${minDistToEdge.toFixed(3)}, threshold: ${edgeThreshold.toFixed(3)}`);
+        console.log(`📏 Min edge distance: ${minDistToEdge.toFixed(3)}, adaptive threshold: ${adaptiveThreshold.toFixed(3)}`);
         
-        if (minDistToEdge < edgeThreshold) {
+        if (minDistToEdge < adaptiveThreshold) {
           console.log('❌ TOO CLOSE TO EDGE - treating as miss');
           return null; // Treat as miss if too close to edge
         }
