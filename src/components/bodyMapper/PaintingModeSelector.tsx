@@ -31,6 +31,14 @@ export const PaintingModeSelector = ({
     setClearFillMode(newClearFillMode);
     onClearFillModeChange?.(newClearFillMode);
   };
+
+  // Reset clearFillMode when switching away from fill mode
+  React.useEffect(() => {
+    if (mode !== 'fill') {
+      setClearFillMode(false);
+      onClearFillModeChange?.(false);
+    }
+  }, [mode, onClearFillModeChange]);
   return (
     <div className="mb-6">
       {/* Drawing target toggle above tools header */}

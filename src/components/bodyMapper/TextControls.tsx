@@ -60,7 +60,7 @@ export const TextControls = ({
                 value={currentText}
                 onChange={(e) => handleTextChange(e.target.value)}
                 placeholder="Enter your text here..."
-                className={`flex-1 ${hasError ? 'border-red-500 focus:border-red-500' : ''}`}
+                className={`flex-1 border border-foreground/20 rounded-lg px-4 py-2 text-base text-foreground placeholder:text-muted-foreground hover:border-foreground/40 focus:border-foreground focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 ${hasError ? 'border-red-500 focus:border-red-500' : ''}`}
                 onBlur={validateText}
               />
             </div>
