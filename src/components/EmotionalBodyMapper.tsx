@@ -244,13 +244,25 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
       const randomDelay = Math.random() * 500 + 100; // 100-600ms random delay
       
       setTimeout(() => {
-        // Only respond if we have meaningful content to share
-        const hasContent = drawingMarks.length > 0 || 
-                          sensationMarks.length > 0 || 
-                          Object.keys(bodyPartColors).length > 0 || 
-                          textMarks.length > 0;
+        // Check multiple sources of content to ensure we catch everything
+        const hasDrawingMarks = drawingMarks.length > 0;
+        const hasSensationMarks = sensationMarks.length > 0;
+        const hasBodyPartColors = Object.keys(bodyPartColors).length > 0;
+        const hasTextMarks = textMarks.length > 0;
         
-        console.log(`📊 State check - Drawing: ${drawingMarks.length}, Sensations: ${sensationMarks.length}, Body colors: ${Object.keys(bodyPartColors).length}, Text: ${textMarks.length}`);
+        // Also check completed strokes directly for more accurate drawing content detection
+        const hasStrokeManagerContent = completedStrokes.length > 0;
+        
+        const hasContent = hasDrawingMarks || hasSensationMarks || hasBodyPartColors || hasTextMarks || hasStrokeManagerContent;
+        
+        console.log(`📊 Detailed state check:`, {
+          drawingMarks: drawingMarks.length,
+          sensations: sensationMarks.length,
+          bodyColors: Object.keys(bodyPartColors).length,
+          textMarks: textMarks.length,
+          completedStrokes: completedStrokes.length,
+          hasContent
+        });
         
         if (hasContent) {
           console.log(`📸 Sending state snapshot to new player (has content, been in room ${timeSinceJoin}ms)`);
