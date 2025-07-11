@@ -61,6 +61,8 @@ interface BodyMapperLayoutProps {
   onUndo: () => void;
   onRedo: () => void;
   onEmotionsUpdate: (updateData: any) => void;
+  onCustomEffectCreated?: (customEffect: any) => void;
+  onIncomingCustomEffect?: (customEffect: any) => void;
 }
 
 export const BodyMapperLayout = ({
@@ -110,7 +112,9 @@ export const BodyMapperLayout = ({
   onResetAll,
   onUndo,
   onRedo,
-  onEmotionsUpdate
+  onEmotionsUpdate,
+  onCustomEffectCreated,
+  onIncomingCustomEffect
 }: BodyMapperLayoutProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isHoveringControlButtons, setIsHoveringControlButtons] = useState(false);
@@ -203,6 +207,8 @@ export const BodyMapperLayout = ({
             onTextSettingsChange={setTextSettings}
             onTextToPlaceChange={setTextToPlace}
             onEmotionsUpdate={onEmotionsUpdate}
+            onCustomEffectCreated={onCustomEffectCreated}
+            onIncomingCustomEffect={onIncomingCustomEffect}
           />
         </div>
       </div>

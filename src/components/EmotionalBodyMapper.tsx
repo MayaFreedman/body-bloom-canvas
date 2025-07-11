@@ -190,6 +190,23 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     setSensationMarks(prev => [...prev, sensationMark]);
   };
 
+  // Handle incoming custom effects from multiplayer
+  const handleIncomingCustomEffect = useCallback((customEffect: any) => {
+    console.log('🔥 EmotionalBodyMapper - Handling incoming custom effect:', customEffect);
+    // Forward to the controls component to handle
+    if (controlsRef.current?.handleIncomingCustomEffect) {
+      controlsRef.current.handleIncomingCustomEffect(customEffect);
+    }
+  }, []);
+
+  // Handle custom effect creation and broadcast
+  const handleCustomEffectCreated = useCallback((customEffect: any) => {
+    console.log('🔥 EmotionalBodyMapper - Broadcasting custom effect:', customEffect);
+    if (multiplayer.isConnected) {
+      multiplayer.broadcastCustomEffect(customEffect);
+    }
+  }, [multiplayer]);
+
   // Combine local and multiplayer sensation handling (no auto-deselect)
   const combinedSensationClick = (position: THREE.Vector3, sensation: any) => {
     // Only call local handler once - it handles both state update and action history
@@ -259,6 +276,8 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
         onUndo={handleUndo}
         onRedo={handleRedo}
         onEmotionsUpdate={handleLocalEmotionsUpdate}
+        onCustomEffectCreated={handleCustomEffectCreated}
+        onIncomingCustomEffect={handleIncomingCustomEffect}
       />
 
       <BottomBrand
@@ -280,6 +299,7 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
         onIncomingRedo={handleIncomingRedo}
         onIncomingErase={handleIncomingErase}
         onIncomingSensation={handleIncomingSensation}
+        onIncomingCustomEffect={handleIncomingCustomEffect}
       />
     </div>
   );

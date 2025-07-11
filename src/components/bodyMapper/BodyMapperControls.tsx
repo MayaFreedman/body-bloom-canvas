@@ -36,6 +36,8 @@ interface BodyMapperControlsProps {
   onTextToPlaceChange?: (text: string) => void;
   onDrawingTargetChange?: (target: 'body' | 'whiteboard') => void;
   onEmotionsUpdate?: (update: EmotionUpdate) => void;
+  onCustomEffectCreated?: (customEffect: any) => void;
+  onIncomingCustomEffect?: (customEffect: any) => void;
 }
 
 const defaultEmotions: CustomEmotion[] = [
@@ -65,9 +67,12 @@ export const BodyMapperControls = React.forwardRef<
   onTextSettingsChange,
   onTextToPlaceChange,
   onDrawingTargetChange,
-  onEmotionsUpdate
+  onEmotionsUpdate,
+  onCustomEffectCreated,
+  onIncomingCustomEffect
 }, ref) => {
   const [activeTab, setActiveTab] = useState('feelings');
+  const sensationSelectorRef = React.useRef<any>(null);
   
   const handleTabChange = (tab: string) => {
     
@@ -160,7 +165,12 @@ export const BodyMapperControls = React.forwardRef<
   };
 
   React.useImperativeHandle(ref, () => ({
-    handleIncomingEmotionUpdate
+    handleIncomingEmotionUpdate,
+    handleIncomingCustomEffect: (customEffect: any) => {
+      if (sensationSelectorRef.current?.handleIncomingCustomEffect) {
+        sensationSelectorRef.current.handleIncomingCustomEffect(customEffect);
+      }
+    }
   }));
 
   useEffect(() => {
@@ -215,10 +225,12 @@ export const BodyMapperControls = React.forwardRef<
       {/* Body Sensations and Signals Tab Content */}
       <div className={`tab-content ${activeTab === 'sensations' ? 'active' : ''}`}>
         <SensationSelector
+          ref={sensationSelectorRef}
           mode={mode}
           selectedSensation={selectedSensation}
           onModeChange={onModeChange}
           onSensationChange={onSensationChange}
+          onCustomEffectCreated={onCustomEffectCreated}
         />
       </div>
 

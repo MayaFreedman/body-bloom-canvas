@@ -148,6 +148,37 @@ export const useMultiplayerBroadcast = (
     }
   }, []);
 
+  // Broadcast custom effect creation
+  const broadcastCustomEffect = useCallback((customEffect: {
+    id: string;
+    name: string;
+    selectedIcon: string;
+    color: string;
+    movementBehavior: 'gentle' | 'moderate' | 'energetic';
+    isCustom: true;
+    createdAt: number;
+  }) => {
+    if (!isConnected || !room) {
+      console.log('🔥 CUSTOM EFFECT BROADCAST: Not connected, skipping broadcast');
+      return;
+    }
+
+    console.log('🔥 CUSTOM EFFECT BROADCAST: Broadcasting custom effect creation:', customEffect);
+    
+    try {
+      room.send('broadcast', {
+        type: 'customEffectCreate',
+        data: {
+          ...customEffect,
+          playerId: currentPlayerId
+        }
+      });
+      console.log('🔥 CUSTOM EFFECT BROADCAST: Successfully sent custom effect broadcast');
+    } catch (error) {
+      console.error('🔥 CUSTOM EFFECT BROADCAST: Failed to broadcast custom effect:', error);
+    }
+  }, [isConnected, room, currentPlayerId]);
+
   return {
     broadcastSensation,
     broadcastBodyPartFill,
@@ -159,6 +190,7 @@ export const useMultiplayerBroadcast = (
     broadcastTextPlace,
     broadcastTextUpdate,
     broadcastTextDelete,
+    broadcastCustomEffect,
     cleanup
   };
 };

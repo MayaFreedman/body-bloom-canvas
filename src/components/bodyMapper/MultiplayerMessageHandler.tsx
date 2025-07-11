@@ -18,6 +18,7 @@ interface MultiplayerMessageHandlerProps {
   onIncomingRedo?: () => void;
   onIncomingErase?: (center: THREE.Vector3, radius: number, surface?: 'body' | 'whiteboard') => void;
   onIncomingSensation?: (sensationMark: SensationMark) => void;
+  onIncomingCustomEffect?: (customEffect: any) => void;
 }
 
 export const MultiplayerMessageHandler = ({
@@ -33,7 +34,8 @@ export const MultiplayerMessageHandler = ({
   onIncomingUndo,
   onIncomingRedo,
   onIncomingErase,
-  onIncomingSensation
+  onIncomingSensation,
+  onIncomingCustomEffect
 }: MultiplayerMessageHandlerProps) => {
   // Store the unsubscribe function returned by onMessage
   const unsubscribeRef = useRef<(() => void) | null>(null);
@@ -163,7 +165,25 @@ export const MultiplayerMessageHandler = ({
                 setSensationMarks(prev => [...prev, newSensationMark]);
               }
             } catch (sensationError) {
-              console.error('❌ Error processing sensation:', sensationError, sensation);
+            console.error('❌ Error processing sensation:', sensationError, sensation);
+            }
+            break;
+          }
+          case 'customEffectCreate': {
+            const customEffect = messageData;
+            console.log('🎨 Processing custom effect creation:', customEffect);
+            
+            if (!customEffect || !customEffect.id || !customEffect.name) {
+              console.warn('⚠️ Invalid custom effect data:', customEffect);
+              return;
+            }
+            
+            try {
+              if (onIncomingCustomEffect) {
+                onIncomingCustomEffect(customEffect);
+              }
+            } catch (customEffectError) {
+              console.error('❌ Error processing custom effect:', customEffectError, customEffect);
             }
             break;
           }

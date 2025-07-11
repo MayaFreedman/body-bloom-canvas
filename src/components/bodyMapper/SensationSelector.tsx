@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useImperativeHandle, forwardRef } from 'react';
 import { Sparkles, Activity, Zap, Wind, Droplet, Snowflake, Thermometer, Heart, Star } from 'lucide-react';
 import { bodySensations } from '@/constants/bodyMapperConstants';
 import { BodyMapperMode, SelectedSensation } from '@/types/bodyMapperTypes';
@@ -140,7 +140,17 @@ export const getSensationImage = (sensationName: string, customIcon?: string) =>
   return imageMapping[sensationName] || starImg;
 };
 
-export const SensationSelector = ({ mode, selectedSensation, onModeChange, onSensationChange }: SensationSelectorProps) => {
+interface SensationSelectorPropsWithMultiplayer extends SensationSelectorProps {
+  onCustomEffectCreated?: (customEffect: any) => void;
+}
+
+export const SensationSelector = forwardRef<any, SensationSelectorPropsWithMultiplayer>(({ 
+  mode, 
+  selectedSensation, 
+  onModeChange, 
+  onSensationChange, 
+  onCustomEffectCreated 
+}, ref) => {
   const [customEffects, setCustomEffects] = useState<CustomSensation[]>([]);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [customImages, setCustomImages] = useState<Map<string, string>>(new Map());
@@ -187,10 +197,50 @@ export const SensationSelector = ({ mode, selectedSensation, onModeChange, onSen
       
       console.log('🎯 SensationSelector - Updated custom effects list:', updatedEffects);
       console.log('✨ Created custom effect:', customSensation);
+      
+      // Broadcast the custom effect creation to other players
+      if (onCustomEffectCreated) {
+        console.log('🔥 SensationSelector - Broadcasting custom effect creation:', customSensation);
+        onCustomEffectCreated(customSensation);
+      }
     } catch (error) {
       console.error('🎯 SensationSelector - Failed to create custom effect:', error);
     }
   };
+
+  // Handle incoming custom effect from multiplayer
+  const handleIncomingCustomEffect = async (customEffect: any) => {
+    console.log('🎯 SensationSelector - Handling incoming custom effect:', customEffect);
+    
+    try {
+      // Check if the effect already exists
+      const existingEffect = customEffects.find(effect => effect.id === customEffect.id);
+      if (existingEffect) {
+        console.log('🎯 SensationSelector - Custom effect already exists:', existingEffect);
+        return;
+      }
+
+      // Generate image for the custom effect
+      const imageUrl = await generateCustomEffectImage(customEffect.selectedIcon as any, customEffect.color);
+      
+      // Add to local state
+      const updatedEffects = [...customEffects, customEffect];
+      setCustomEffects(updatedEffects);
+      setCustomImages(prev => new Map(prev).set(customEffect.id, imageUrl));
+      
+      // Save to localStorage
+      saveCustomEffects(updatedEffects);
+      
+      console.log('🎯 SensationSelector - Added incoming custom effect:', customEffect);
+    } catch (error) {
+      console.error('🎯 SensationSelector - Failed to handle incoming custom effect:', error);
+    }
+  };
+
+  // Expose methods via ref
+  useImperativeHandle(ref, () => ({
+    handleIncomingCustomEffect
+  }), [customEffects]);
 
   // Get image for sensation (including custom ones)
   const getSensationImageForDisplay = (sensation: SelectedSensation | CustomSensation) => {
@@ -303,4 +353,4 @@ export const SensationSelector = ({ mode, selectedSensation, onModeChange, onSen
       />
     </div>
   );
-};
+});
