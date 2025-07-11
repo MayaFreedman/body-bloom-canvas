@@ -460,14 +460,14 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             
             // ACTIVE = higher count for movement
             'Change in Energy': 20,     // Energy bursts
-            'Fidgety': 25,              // Restless movement
+            'Fidgety': 12,              // Match Increased Temperature
       'Pacing': 18,               // Movement patterns
-      'Stomping': 18,             // Same count as pacing
+      'Stomping': 12,             // Match Increased Temperature
             'Avoiding Eye Contact': 12, // Nervous behavior
             'Scrunched Face': 10,       // Facial tension
             
             // FAST/JERKY = high count, short-lived
-            'Nerves': 20,               // Reduced from 30 - fewer particles
+            'Nerves': 12,               // Match Increased Temperature
             'Tingling': 25,             // Sparkles
             'Shaky': 35,                // Rapid trembling
             'Goosebumps': 20,           // Small bumps
