@@ -78,16 +78,16 @@ export const PaintingModeSelector = ({
       
       {/* Clear Fill sub-option for Fill mode */}
       {mode === 'fill' && (
-        <div className="mt-4 flex flex-col items-start">
+        <div className="mt-4 flex items-center gap-3">
           <button
-            className={`control-button-with-text-red ${
+            className={`control-button-with-text-red w-64 ${
               clearFillMode ? 'bg-red-500 text-white border-red-500' : ''
             }`}
             onClick={() => handleClearFillModeChange(!clearFillMode)}
           >
             Clear Fill
           </button>
-          <p className="text-sm text-gray-500 mt-2">
+          <p className="text-sm text-gray-500">
             Click on body parts or whiteboard to remove color
           </p>
         </div>
