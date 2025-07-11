@@ -144,6 +144,11 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
         strokeManager.restoreStroke(stroke);
       });
       
+      // CRITICAL: Verify marks are available after restoration
+      console.log('🎨 Triggering UI update with restored marks');
+      const allMarks = strokeManager.getAllMarks();
+      console.log('🎨 Total marks after restoration:', allMarks.length, 'strokes:', strokeManager.getAllStrokes().length);
+      
       console.log('✅ Restored', data.drawingStrokes.length, 'strokes from snapshot');
     }
     // Legacy support for old mark-based snapshots
