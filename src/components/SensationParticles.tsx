@@ -317,7 +317,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       'Nerves': { base: 0.045, variance: 0.02, multiplier: 1.7 }, // Match Increased Temperature
       'Change in Breathing': { base: 0.045, variance: 0.02, multiplier: 1.7 }, // Match Increased Temperature
       'Shaky': { base: 0.045, variance: 0.02, multiplier: 1.7 }, // Match Increased Temperature
-      'Stomping': { base: 0.045, variance: 0.02, multiplier: 1.7 }, // Match Increased Temperature
+      'Stomping': { base: 0.065, variance: 0.035, multiplier: 2.2 }, // Larger stomping particles
       'Change in Appetite': { base: 0.045, variance: 0.02, multiplier: 1.7 }, // Match Increased Temperature
       'Fidgety': { base: 0.045, variance: 0.02, multiplier: 1.7 }, // Match Increased Temperature
       'Clenched': { base: 0.045, variance: 0.02, multiplier: 1.7 }, // Match Increased Temperature
@@ -367,7 +367,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       'Nerves': { min: 80, max: 140 }, // Match Increased Temperature
       'Change in Breathing': { min: 80, max: 140 }, // Match Increased Temperature
       'Shaky': { min: 80, max: 140 }, // Match Increased Temperature
-      'Stomping': { min: 80, max: 140 }, // Match Increased Temperature
+      'Stomping': { min: 180, max: 280 }, // Longer lasting stomping particles
       'Change in Appetite': { min: 80, max: 140 }, // Match Increased Temperature
       'Fidgety': { min: 80, max: 140 }, // Match Increased Temperature
       'Clenched': { min: 80, max: 140 }, // Match Increased Temperature
@@ -769,7 +769,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             'Shaky': { speed: 0.8, intensity: 0.6, pattern: 'flow', gravity: 0.0002, drift: new THREE.Vector3(0, 0.2, 0) },
             'Fidgety': { speed: 0.8, intensity: 0.6, pattern: 'flow', gravity: 0.0002, drift: new THREE.Vector3(0, 0.2, 0) },
             'Pacing': { speed: 0.05, intensity: 0.1, pattern: 'gentle' }, // Keep minimal movement
-            'Stomping': { speed: 0.8, intensity: 0.6, pattern: 'flow', gravity: 0.0002, drift: new THREE.Vector3(0, 0.2, 0) },
+            'Stomping': { speed: 3.8, intensity: 3.5, pattern: 'custom', gravity: 0.0002, drift: new THREE.Vector3(0, 0.1, 0) }, // Energetic stomping like custom effect
             
             // FLOW effects - dripping with strong downward movement (negative Y = down)
             'Tears': { speed: 0.2, intensity: 0.4, pattern: 'drip', gravity: 0.0002, drift: new THREE.Vector3(0, -0.15, 0) },
@@ -925,7 +925,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
           
         } else if (animProfile.pattern === 'custom') {
           // Custom effect movement based on movement behavior
-          const customBehavior = mark.movementBehavior || 'moderate';
+          const customBehavior = mark.name === 'Stomping' ? 'energetic' : (mark.movementBehavior || 'moderate');
           
           if (customBehavior === 'gentle') {
             // Gentle floating movement
