@@ -8,7 +8,7 @@ interface UseDrawingMarksProps {
   brushSize: number;
   onAddMark: (mark: DrawingMark) => void;
   modelRef?: React.RefObject<THREE.Group>;
-  getBodyPartAtPosition: (worldPosition: THREE.Vector3, brushRadius?: number) => string | null;
+  getBodyPartAtPosition: (worldPosition: THREE.Vector3) => string | null;
 }
 
 export const useDrawingMarks = ({
@@ -127,9 +127,7 @@ export const useDrawingMarks = ({
         addMarkAtPosition(interpolatedPosition, endIntersect, surface);
       } else {
         // For body, validate that the interpolated position is still on the same body part
-        // Convert brush size to world units (roughly brushSize / 200 * some scaling factor)
-        const brushRadius = (brushSize / 200) * 0.1; // Adjust this scaling as needed
-        const bodyPartAtInterpolated = getBodyPartAtPosition(interpolatedPosition, brushRadius);
+        const bodyPartAtInterpolated = getBodyPartAtPosition(interpolatedPosition);
         if (bodyPartAtInterpolated === startBodyPart) {
           addMarkAtPosition(interpolatedPosition, endIntersect, surface);
         } else {
