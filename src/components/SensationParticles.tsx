@@ -342,8 +342,8 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
   const getParticleLifespan = (sensationName: string) => {
     const lifespanMap: { [key: string]: { min: number; max: number } } = {
       // VERY SLOW = very long lifespan (slow stamping effect)
-      'Frozen/Stiff': { min: 300, max: 500 }, // Almost never regenerates
-      'Heaviness': { min: 250, max: 400 }, // Very slow regeneration
+      'Frozen/Stiff': { min: 2000, max: 3000 }, // Extremely long lifespan, basically permanent
+      'Heaviness': { min: 2000, max: 3000 }, // Extremely long lifespan, basically permanent
       'Lump in Throat': { min: 220, max: 350 }, // Persistent feeling
       
       // SLOW = long lifespan
