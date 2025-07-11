@@ -21,7 +21,6 @@ interface MultiplayerMessageHandlerProps {
   onIncomingCustomEffect?: (customEffect: any) => void;
   onStateRequest?: () => void;
   onStateSnapshot?: (snapshot: any) => void;
-  isRestoringState?: boolean;
 }
 
 export const MultiplayerMessageHandler = ({
@@ -40,8 +39,7 @@ export const MultiplayerMessageHandler = ({
   onIncomingSensation,
   onIncomingCustomEffect,
   onStateRequest,
-  onStateSnapshot,
-  isRestoringState = false
+  onStateSnapshot
 }: MultiplayerMessageHandlerProps) => {
   // Store the unsubscribe function returned by onMessage
   const unsubscribeRef = useRef<(() => void) | null>(null);
@@ -212,23 +210,11 @@ export const MultiplayerMessageHandler = ({
           }
           case 'resetAll': {
             console.log('🔄 Processing reset all from another user');
-            if (!isRestoringState) {
-              clearAll();
-            } else {
-              console.log('🔄 Skipping reset during state restoration');
-            }
+            clearAll();
             break;
           }
           case 'stateRequest': {
-            const requestData = messageData;
-            console.log('📸 Processing state request from player:', requestData?.playerId);
-            
-            // Don't respond to our own state request
-            if (requestData?.playerId && room?.sessionId === requestData.playerId) {
-              console.log('📸 Ignoring own state request');
-              return;
-            }
-            
+            console.log('📸 Processing state request from new player');
             if (onStateRequest) {
               onStateRequest();
             }
@@ -269,7 +255,7 @@ export const MultiplayerMessageHandler = ({
       // Clear the unsubscribe reference
       unsubscribeRef.current = null;
     };
-  }, [room]);
+  }, [room, setDrawingMarks, setSensationMarks, setBodyPartColors, setRotation, clearAll, modelRef, controlsRef, onIncomingOptimizedStroke, onIncomingUndo, onIncomingRedo, onIncomingErase, onIncomingSensation, onStateRequest, onStateSnapshot]);
 
   return null;
 };

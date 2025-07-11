@@ -1,5 +1,5 @@
 
-import React, { useRef, useState, useCallback, useEffect } from 'react';
+import React, { useRef, useState, useCallback } from 'react';
 import { BottomBrand } from './bodyMapper/BottomBrand';
 import { MultiplayerMessageHandler } from './bodyMapper/MultiplayerMessageHandler';
 import { BodyMapperLayout } from './bodyMapper/BodyMapperLayout';
@@ -20,7 +20,6 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
   const controlsRef = useRef<any>(null);
 
   const currentUserId = React.useMemo(() => `user-${Date.now()}-${Math.random()}`, []);
-  const [isRestoringState, setIsRestoringState] = useState(false);
 
   const multiplayer = useMultiplayer(roomId);
 
@@ -70,7 +69,6 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     restoreStroke,
     addAction,
     queryMarksInRadius,
-    completedStrokes,
     // Text functionality
     textMarks,
     textSettings,
@@ -132,77 +130,8 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     whiteboardBackground,
     rotation,
     setDrawingMarks: (marks) => {
-      // For state restoration, we need to directly set the marks via the stroke manager
-      // DON'T call clearAll() as it may cause component remounting
-      if (marks.length === 0) return;
-      
-      console.log('🔄 Restoring drawing marks without clearAll, count:', marks.length);
-      console.log('🔄 Setting isRestoringState to true during mark restoration');
-      
-      // Sort marks by timestamp to reconstruct stroke order
-      const sortedMarks = [...marks].sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-      
-      // Group marks into strokes based on temporal proximity and spatial continuity
-      const strokeGroups: Array<typeof marks> = [];
-      let currentStroke: typeof marks = [];
-      let lastTimestamp = 0;
-      const STROKE_BREAK_THRESHOLD = 100; // ms between strokes
-      
-      sortedMarks.forEach(mark => {
-        const markTimestamp = mark.timestamp || Date.now();
-        
-        // Start a new stroke if there's a significant time gap or if this is the first mark
-        if (currentStroke.length === 0 || (markTimestamp - lastTimestamp) > STROKE_BREAK_THRESHOLD) {
-          if (currentStroke.length > 0) {
-            strokeGroups.push([...currentStroke]);
-          }
-          currentStroke = [mark];
-        } else {
-          currentStroke.push(mark);
-        }
-        
-        lastTimestamp = markTimestamp;
-      });
-      
-      // Don't forget the last stroke
-      if (currentStroke.length > 0) {
-        strokeGroups.push(currentStroke);
-      }
-      
-      // Restore each stroke group
-      strokeGroups.forEach((strokeMarks, index) => {
-        const strokeId = `restored-stroke-${index}-${Date.now()}`;
-        const enhancedMarks = strokeMarks.map(mark => ({
-          ...mark,
-          timestamp: mark.timestamp || Date.now(),
-          strokeId: strokeId
-        }));
-        
-        console.log(`🔄 Restoring stroke ${strokeId} with ${enhancedMarks.length} marks`);
-        
-        restoreStroke({
-          id: strokeId,
-          marks: enhancedMarks,
-          surface: strokeMarks[0]?.surface || 'body',
-          startTime: Math.min(...enhancedMarks.map(m => m.timestamp)),
-          endTime: Math.max(...enhancedMarks.map(m => m.timestamp)),
-          brushSize: strokeMarks[0]?.size || 3,
-          color: strokeMarks[0]?.color || '#000000',
-          isComplete: true
-        });
-      });
-      
-      // Log final state for debugging
-      console.log('🔄 Restoration complete. Total strokes restored:', strokeGroups.length);
-      
-      // Debug: Check what's available in drawing marks after restoration
-      setTimeout(() => {
-        console.log('🔍 Drawing marks after restoration:', drawingMarks.length);
-        console.log('🔍 First 3 drawing marks:', drawingMarks.slice(0, 3));
-        console.log('🔍 Completed strokes count:', completedStrokes.length);
-        console.log('🔍 First stroke details:', completedStrokes[0]);
-        console.log('🔍 Total marks in first stroke:', completedStrokes[0]?.marks?.length);
-      }, 100);
+      // This needs to properly restore drawing marks through the stroke manager
+      marks.forEach(mark => handleAddDrawingMark(mark));
     },
     setSensationMarks,
     setBodyPartColors: (colors) => {
@@ -222,74 +151,22 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     currentPlayerId: currentUserId
   });
 
-  // Handle state requests from new players - only respond if we have content AND have been in room long enough
+  // Handle state requests from new players
   const handleStateRequest = useCallback(() => {
-    // Don't respond to state requests if we're currently restoring state
-    if (isRestoringState) {
-      console.log('📤 Ignoring state request - currently restoring state');
-      return;
+    if (multiplayer.isConnected) {
+      console.log('📸 Sending state snapshot to new player');
+      const snapshot = stateSnapshot.captureCurrentState();
+      multiplayer.broadcastStateSnapshot(snapshot);
     }
-    
-    if (multiplayer.isConnected && multiplayer.joinedAt) {
-      const timeSinceJoin = Date.now() - multiplayer.joinedAt;
-      const minTimeInRoom = 2000; // 2 seconds minimum
-      
-      // Only established players should respond to state requests
-      if (timeSinceJoin < minTimeInRoom) {
-        console.log(`📤 Ignoring state request - only been in room for ${timeSinceJoin}ms (need ${minTimeInRoom}ms)`);
-        return;
-      }
-      
-      // Add a random delay to prevent multiple players responding simultaneously
-      const randomDelay = Math.random() * 500 + 100; // 100-600ms random delay
-      
-      setTimeout(() => {
-        // Use the state snapshot but with better debugging
-        console.log('🔍 TESTING SNAPSHOT CAPTURE:');
-        
-        try {
-          const currentSnapshot = stateSnapshot.captureCurrentState();
-          console.log('✅ Snapshot captured successfully');
-          
-          // Check if the snapshot actually has content or if we should send anyway
-          if (currentSnapshot.data.drawingMarks.length > 0 || 
-              currentSnapshot.data.sensationMarks.length > 0 ||
-              Object.keys(currentSnapshot.data.bodyPartColors).length > 0 ||
-              currentSnapshot.data.textMarks.length > 0) {
-            console.log(`📸 Sending state snapshot to new player (been in room ${timeSinceJoin}ms)`);
-            multiplayer.broadcastStateSnapshot(currentSnapshot);
-          } else {
-            console.log(`📸 No content to share, skipping state snapshot (been in room ${timeSinceJoin}ms)`);
-          }
-        } catch (error) {
-          console.error('❌ Error with snapshot:', error);
-        }
-      }, randomDelay);
-    }
-  }, [multiplayer, stateSnapshot, isRestoringState]);
+  }, [multiplayer, stateSnapshot]);
 
   // Handle incoming state snapshots
   const handleStateSnapshot = useCallback((snapshot: any) => {
     try {
       console.log('📸 Received state snapshot:', snapshot);
       
-      // Don't restore our own snapshot
-      if (snapshot.playerId === currentUserId) {
-        console.log('📸 Ignoring own snapshot');
-        return;
-      }
-      
       if (stateSnapshot.validateSnapshot(snapshot)) {
-        setIsRestoringState(true);
-        console.log('🔄 Starting state restoration...');
         stateSnapshot.restoreFromSnapshot(snapshot);
-        
-        // Clear the restoration flag after a delay to ensure all reactive updates complete
-        setTimeout(() => {
-          setIsRestoringState(false);
-          console.log('✅ State restoration complete');
-        }, 200);
-        
         console.log('✅ Successfully restored state from snapshot');
       } else {
         console.warn('⚠️ Invalid snapshot received, ignoring');
@@ -297,7 +174,7 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     } catch (error) {
       console.error('❌ Error handling state snapshot:', error);
     }
-  }, [stateSnapshot, currentUserId]);
+  }, [stateSnapshot]);
 
   // Handle emotions updates from controls - now that handleEmotionsUpdate is available
   const handleLocalEmotionsUpdate = useCallback((updateData: any) => {
@@ -395,14 +272,6 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     // Sensation remains equipped after placement for multiple uses
   };
 
-  // Monitor when drawingMarks actually updates after restoration
-  useEffect(() => {
-    console.log('📊 DrawingMarks updated in EmotionalBodyMapper - count:', drawingMarks.length);
-    if (drawingMarks.length > 0) {
-      console.log('📊 First mark in updated drawingMarks:', drawingMarks[0]);
-    }
-  }, [drawingMarks.length]);
-
   const legacyDrawingMarks = drawingMarks.map(mark => ({
     id: mark.id,
     position: mark.position,
@@ -489,7 +358,6 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
         onIncomingCustomEffect={handleIncomingCustomEffect}
         onStateRequest={handleStateRequest}
         onStateSnapshot={handleStateSnapshot}
-        isRestoringState={isRestoringState}
       />
     </div>
   );

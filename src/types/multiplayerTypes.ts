@@ -73,5 +73,4 @@ export interface MultiplayerState {
   players: Map<string, PlayerCursor>;
   currentPlayerId: string | null;
   playerColor: string;
-  joinedAt: number | null;
 }

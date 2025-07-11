@@ -53,12 +53,6 @@ export const useStateSnapshot = ({
   const captureCurrentState = useCallback((): StateSnapshot => {
     const customEffects = localStorage.getItem('customSensations');
     
-    console.log('📸 SNAPSHOT CAPTURE - checking current data sources:');
-    console.log('  - drawingMarks from closure:', drawingMarks?.length || 0);
-    console.log('  - sensationMarks from closure:', sensationMarks?.length || 0);
-    console.log('  - bodyPartColors from closure:', Object.keys(bodyPartColors || {}).length);
-    console.log('  - textMarks from closure:', textMarks?.length || 0);
-    
     return {
       timestamp: Date.now(),
       version: '1.0.0',
@@ -73,7 +67,7 @@ export const useStateSnapshot = ({
       },
       playerId: currentPlayerId || 'unknown'
     };
-  }, []); // REMOVE ALL DEPENDENCIES to force fresh access each time
+  }, [drawingMarks, sensationMarks, bodyPartColors, textMarks, whiteboardBackground, rotation, currentPlayerId]);
 
   const restoreFromSnapshot = useCallback((snapshot: StateSnapshot) => {
     try {

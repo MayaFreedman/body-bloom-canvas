@@ -11,8 +11,7 @@ export const useMultiplayerConnection = () => {
     room: null,
     players: new Map(),
     currentPlayerId: null,
-    playerColor: '#ff6b6b',
-    joinedAt: null
+    playerColor: '#ff6b6b'
   });
 
   const connectToRoom = useCallback(async (id: string) => {
@@ -27,15 +26,13 @@ export const useMultiplayerConnection = () => {
       const playerColors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#ffeaa7', '#dda0dd'];
       const playerColor = playerColors[Math.floor(Math.random() * playerColors.length)];
 
-      const joinedAt = Date.now();
       setState(prev => ({
         ...prev,
         isConnected: true,
         isConnecting: false,
         room,
         currentPlayerId: room.sessionId,
-        playerColor,
-        joinedAt
+        playerColor
       }));
 
       // Setup player management handlers
@@ -66,24 +63,13 @@ export const useMultiplayerConnection = () => {
       // Request state snapshot after successful connection
       setTimeout(() => {
         console.log('📸 Requesting state snapshot after room join');
-        console.log('📡 Room connection status:', {
-          isConnected: room.connection?.isOpen,
-          sessionId: room.sessionId,
-          roomId: room.id
+        room.send('broadcast', {
+          type: 'stateRequest',
+          data: {
+            playerId: room.sessionId,
+            timestamp: Date.now()
+          }
         });
-        
-        try {
-          room.send('broadcast', {
-            type: 'stateRequest',
-            data: {
-              playerId: room.sessionId,
-              timestamp: Date.now()
-            }
-          });
-          console.log('✅ State request sent successfully');
-        } catch (error) {
-          console.error('❌ Failed to send state request:', error);
-        }
       }, 1000); // Small delay to ensure other players are ready
 
       return room;
