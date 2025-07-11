@@ -58,7 +58,13 @@ export const PaintingModeSelector = ({
         </button>
         <button
           className={`game-button-primary flex-1 flex items-center justify-center px-3 py-2 text-sm ${mode === 'fill' ? 'opacity-100' : 'opacity-70'}`}
-          onClick={() => onModeChange('fill')}
+          onClick={() => {
+            if (mode === 'fill' && clearFillMode) {
+              handleClearFillModeChange(false);
+            } else {
+              onModeChange('fill');
+            }
+          }}
         >
           Fill
         </button>
@@ -87,7 +93,7 @@ export const PaintingModeSelector = ({
           >
             Clear Fill
           </button>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 text-center">
             Click on body parts or whiteboard to remove color
           </p>
         </div>
