@@ -784,7 +784,6 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
         // Handle custom effect animation profiles
         let animProfile;
         if (mark.isCustom && mark.movementBehavior) {
-          console.log('🎨 ANIMATION: Custom effect detected - movementBehavior:', mark.movementBehavior);
           const customParams = getCustomEffectParams(mark.movementBehavior);
           animProfile = {
             speed: customParams.speed,
@@ -793,7 +792,6 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             gravity: 0.0002,
             drift: new THREE.Vector3(0, 0.1, 0)
           };
-          console.log('🎨 ANIMATION: animProfile set to custom with intensity:', animProfile.intensity, 'speed:', animProfile.speed);
         } else if (customIconNames.includes(mark.icon || '')) {
           // Fallback for detected custom effects
           
@@ -935,7 +933,6 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
         } else if (animProfile.pattern === 'custom') {
           // Custom effect movement based on movement behavior
           const customBehavior = mark.movementBehavior || 'moderate';
-          console.log('🎨 ANIMATION: In custom pattern block, customBehavior:', customBehavior);
           
           if (customBehavior === 'gentle') {
             // Gentle floating movement
