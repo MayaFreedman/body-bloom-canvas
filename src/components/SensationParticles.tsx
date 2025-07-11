@@ -656,7 +656,22 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
           
           // Find a spawn position that avoids clustering with other particles
           const findAvailableSpawnPosition = () => {
-            const baseDispersion = getDispersionLevel(mark.name || mark.icon);
+            // Use custom dispersion for custom effects, built-in dispersion otherwise
+            let baseDispersion;
+            if (mark.isCustom && mark.movementBehavior) {
+              const customParams = getCustomEffectParams(mark.movementBehavior);
+              baseDispersion = customParams.dispersion;
+              // Throttled logging every 2 seconds
+              if (Date.now() % 2000 < 50) {
+                console.log('🎨 REGENERATION: Using custom dispersion for', mark.movementBehavior, ':', baseDispersion);
+              }
+            } else if (customIconNames.includes(mark.icon || '')) {
+              const customParams = getCustomEffectParams('moderate');
+              baseDispersion = customParams.dispersion;
+            } else {
+              baseDispersion = getDispersionLevel(mark.name || mark.icon);
+            }
+            
             const minDistance = baseDispersion * 0.3; // Minimum distance between particles
             let attempts = 0;
             const maxAttempts = 10;
@@ -719,6 +734,19 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
               -0.0003 - Math.random() * (isSnow ? 0.0002 : 0.0004), // Snow falls more gently
               (Math.random() - 0.5) * (isSnow ? 0.0004 : 0.0002)  // Snow has more depth movement
             );
+          } else if (mark.isCustom && mark.movementBehavior) {
+            // Custom effect initial velocity based on movement behavior - REGENERATION FIX!
+            const customParams = getCustomEffectParams(mark.movementBehavior);
+            const speedMultiplier = customParams.speed;
+            particle.velocity.set(
+              (Math.random() - 0.5) * 0.0006 * speedMultiplier,
+              Math.random() * 0.0008 * speedMultiplier,
+              (Math.random() - 0.5) * 0.0006 * speedMultiplier
+            );
+            // Throttled logging every 2 seconds
+            if (Date.now() % 2000 < 50) {
+              console.log('🎨 REGENERATION: Using custom velocity for', mark.movementBehavior, 'speedMultiplier:', speedMultiplier);
+            }
           } else if (mark.icon === 'butterfly') {
             // Reset butterfly velocity with more natural variation
             particle.velocity.set(
