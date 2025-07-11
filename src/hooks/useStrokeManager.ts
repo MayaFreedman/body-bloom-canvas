@@ -73,29 +73,15 @@ export const useStrokeManager = ({ currentUserId }: UseStrokeManagerProps) => {
   }, []);
 
   const restoreStroke = useCallback((stroke: DrawingStroke) => {
-    console.log('🔄 useStrokeManager.restoreStroke:', stroke.id, 'marks:', stroke.marks?.length);
-    console.log('🔄 Stroke structure:', {
-      hasId: !!stroke.id,
-      hasMarks: !!stroke.marks,
-      marksCount: stroke.marks?.length || 0,
-      firstMark: stroke.marks?.[0] ? {
-        hasId: !!stroke.marks[0].id,
-        hasPosition: !!stroke.marks[0].position,
-        hasColor: !!stroke.marks[0].color,
-        hasSize: !!stroke.marks[0].size
-      } : 'no marks'
-    });
-    
+    console.log('Restoring stroke:', stroke.id);
     setCompletedStrokes(prev => {
       // Check if stroke already exists to avoid duplicates
       const exists = prev.some(s => s.id === stroke.id);
       if (exists) {
-        console.log('⚠️ Stroke already exists, skipping restore');
+        console.log('Stroke already exists, skipping restore');
         return prev;
       }
-      const newStrokes = [...prev, stroke];
-      console.log('✅ Added stroke to completedStrokes, total strokes:', newStrokes.length);
-      return newStrokes;
+      return [...prev, stroke];
     });
   }, []);
 

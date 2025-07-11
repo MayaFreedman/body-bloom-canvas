@@ -54,16 +54,10 @@ export const MultiplayerMessageHandler = ({
           return;
         }
 
-        // Handle messages with different structures
-        let messageData;
-        if (message.type === 'requestState' || message.type === 'stateSnapshot') {
-          messageData = message; // These messages have data directly on the message object
-        } else {
-          messageData = message.data || message.action;
-          if (!messageData) {
-            console.warn('⚠️ No data/action in message:', message);
-            return;
-          }
+        const messageData = message.data || message.action;
+        if (!messageData) {
+          console.warn('⚠️ No data/action in message:', message);
+          return;
         }
 
         switch (message.type) {
@@ -213,22 +207,6 @@ export const MultiplayerMessageHandler = ({
           case 'resetAll': {
             console.log('🔄 Processing reset all from another user');
             clearAll();
-            break;
-          }
-          case 'requestState': {
-            console.log('📞 Processing state request from:', messageData.playerId);
-            // Forward to parent component to handle
-            if (room && typeof window !== 'undefined' && (window as any).handleStateRequest) {
-              (window as any).handleStateRequest(messageData);
-            }
-            break;
-          }
-          case 'stateSnapshot': {
-            console.log('📸 Processing state snapshot:', messageData);
-            // Forward to parent component to handle
-            if (room && typeof window !== 'undefined' && (window as any).handleStateSnapshot) {
-              (window as any).handleStateSnapshot(message);
-            }
             break;
           }
           default:

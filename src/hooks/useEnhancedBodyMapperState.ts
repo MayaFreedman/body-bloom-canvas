@@ -324,9 +324,6 @@ export const useEnhancedBodyMapperState = ({
     restoreStroke: strokeManager.restoreStroke,
     
     // Add the missing addAction function
-    addAction: actionHistory.addAction,
-    
-    // Expose strokeManager for state snapshots
-    strokeManager
+    addAction: actionHistory.addAction
   };
 };

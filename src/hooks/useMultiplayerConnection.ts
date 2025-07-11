@@ -60,16 +60,6 @@ export const useMultiplayerConnection = () => {
         }));
       });
 
-      // Request state snapshot after joining
-      setTimeout(() => {
-        console.log('📸 Requesting state snapshot after room join');
-        room.send('broadcast', {
-          type: 'requestState',
-          playerId: room.sessionId,
-          timestamp: Date.now()
-        });
-      }, 1000); // Small delay to ensure connection is fully established
-
       return room;
     } catch (error) {
       console.error('Failed to connect to room:', error);

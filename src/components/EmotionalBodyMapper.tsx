@@ -7,7 +7,6 @@ import { useEnhancedBodyMapperState } from '@/hooks/useEnhancedBodyMapperState';
 import { useMultiplayer } from '@/hooks/useMultiplayer';
 import { useMultiplayerDrawingHandlers } from '@/hooks/useMultiplayerDrawingHandlers';
 import { useRotationHandlers } from '@/hooks/useRotationHandlers';
-import { useStateSnapshot } from '@/hooks/useStateSnapshot';
 import * as THREE from 'three';
 
 interface EmotionalBodyMapperProps {
@@ -80,9 +79,7 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     handleDeleteTextMark,
     handleStartTextEditing,
     handleStopTextEditing,
-    setTextSettings,
-    // Stroke manager for state snapshots
-    strokeManager
+    setTextSettings
   } = useEnhancedBodyMapperState({
     currentUserId,
     isMultiplayer: multiplayer.isConnected,
@@ -122,134 +119,6 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     setRotation, 
     multiplayer 
   });
-
-  // State snapshot functionality
-  const handleRestoreState = useCallback((snapshot: any) => {
-    console.log('🔄 Restoring state from snapshot:', snapshot);
-    
-    const { data } = snapshot;
-    if (!data) return;
-
-    // Clear existing state first
-    console.log('🧹 Clearing existing strokes before restoration');
-    const existingStrokes = strokeManager.getAllStrokes();
-    existingStrokes.forEach(stroke => {
-      strokeManager.removeStroke(stroke.id);
-    });
-
-    // Restore drawing strokes - new stroke-based approach
-    if (data.drawingStrokes && Array.isArray(data.drawingStrokes)) {
-      console.log('🔄 Restoring drawing strokes from state snapshot:', data.drawingStrokes.length);
-      
-      data.drawingStrokes.forEach((stroke: any, index: number) => {
-        console.log(`🔄 Restoring stroke ${index + 1}/${data.drawingStrokes.length}: ${stroke.id}`);
-        strokeManager.restoreStroke(stroke);
-      });
-      
-      // CRITICAL: Use longer delay and force re-render to ensure state updates complete
-      setTimeout(() => {
-        const restoredStrokes = strokeManager.getAllStrokes();
-        const restoredMarks = strokeManager.getAllMarks();
-        console.log('🎨 Final verification - Total strokes:', restoredStrokes.length, 'marks:', restoredMarks.length);
-        console.log('🎨 Restored stroke details:', restoredStrokes.map(s => ({ id: s.id, markCount: s.marks.length })));
-        
-        // Force a re-render by updating state
-        setRotation(prev => prev);
-      }, 200);
-      
-      console.log('✅ Restored', data.drawingStrokes.length, 'strokes from snapshot');
-    }
-    // Legacy support for old mark-based snapshots
-    else if (data.drawingMarks && Array.isArray(data.drawingMarks)) {
-      console.log('🔄 Restoring legacy drawing marks from state snapshot:', data.drawingMarks.length);
-      
-      // Group marks by stroke ID to reconstruct strokes
-      const strokeGroups: { [strokeId: string]: any[] } = {};
-      data.drawingMarks.forEach((mark: any) => {
-        const strokeId = mark.strokeId || `stroke-${Date.now()}-${Math.random()}`;
-        if (!strokeGroups[strokeId]) {
-          strokeGroups[strokeId] = [];
-        }
-        strokeGroups[strokeId].push(mark);
-      });
-
-      // Restore each stroke
-      Object.entries(strokeGroups).forEach(([strokeId, marks]) => {
-        console.log('🔄 Restoring legacy stroke from snapshot:', strokeId, 'with marks:', marks.length);
-        if (marks.length > 0) {
-          const firstMark = marks[0];
-          strokeManager.restoreStroke({
-            id: strokeId,
-            marks,
-            userId: data.playerId || 'unknown',
-            startTime: Date.now(),
-            endTime: Date.now(),
-            brushSize: firstMark.size || 0.015,
-            color: firstMark.color || '#ffeb3b',
-            isComplete: true
-          });
-        }
-      });
-    }
-
-    // Restore other state
-    if (data.sensationMarks) setSensationMarks(data.sensationMarks);
-    if (data.bodyPartColors) {
-      Object.entries(data.bodyPartColors).forEach(([partName, color]) => {
-        baseHandleBodyPartClick(partName, color as string);
-      });
-    }
-    if (data.whiteboardBackground) handleWhiteboardFill(data.whiteboardBackground);
-    if (data.modelRotation !== undefined) setRotation(data.modelRotation);
-    if (data.emotions) setEmotions(data.emotions);
-
-    console.log('✅ Successfully restored state from snapshot');
-  }, [setSensationMarks, baseHandleBodyPartClick, handleWhiteboardFill, setRotation, setEmotions, strokeManager]);
-
-  const { broadcastStateSnapshot, requestStateSnapshot } = useStateSnapshot({
-    currentUserId,
-    drawingStrokes: strokeManager.getAllStrokes(),
-    sensationMarks,
-    bodyPartColors,
-    textMarks,
-    whiteboardBackground,
-    rotation,
-    emotions,
-    multiplayer,
-    onRestoreState: handleRestoreState
-  });
-
-  // Handle state requests from other users
-  const handleStateRequest = useCallback((requestData: any) => {
-    console.log('📞 Received state request from:', requestData.playerId);
-    if (requestData.playerId !== currentUserId) {
-      // Only broadcast state if we have some content to share
-      const hasContent = strokeManager.getAllStrokes().length > 0 || sensationMarks.length > 0 || 
-                        Object.keys(bodyPartColors).length > 0 || textMarks.length > 0;
-      if (hasContent) {
-        console.log('📸 Broadcasting state in response to request');
-        broadcastStateSnapshot();
-      }
-    }
-  }, [currentUserId, strokeManager, sensationMarks, bodyPartColors, textMarks, broadcastStateSnapshot]);
-
-  const handleStateSnapshot = useCallback((snapshot: any) => {
-    console.log('📸 Received state snapshot:', snapshot);
-    if (snapshot.playerId !== currentUserId) {
-      handleRestoreState(snapshot);
-    }
-  }, [currentUserId, handleRestoreState]);
-
-  // Set up global handlers for message handler
-  React.useEffect(() => {
-    (window as any).handleStateRequest = handleStateRequest;
-    (window as any).handleStateSnapshot = handleStateSnapshot;
-    
-    return () => {
-      delete (window as any).handleStateRequest;
-      delete (window as any).handleStateSnapshot;
-    };
-  }, [handleStateRequest, handleStateSnapshot]);
 
   // Handle emotions updates from controls - now that handleEmotionsUpdate is available
   const handleLocalEmotionsUpdate = useCallback((updateData: any) => {
