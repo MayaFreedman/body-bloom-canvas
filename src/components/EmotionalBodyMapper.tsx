@@ -130,8 +130,38 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     whiteboardBackground,
     rotation,
     setDrawingMarks: (marks) => {
-      // This needs to properly restore drawing marks through the stroke manager
-      marks.forEach(mark => handleAddDrawingMark(mark));
+      // For state restoration, we need to directly set the marks via the stroke manager
+      // Clear existing strokes first
+      clearAll();
+      // Group marks by strokeId and restore them as complete strokes
+      const strokeGroups = new Map<string, typeof marks>();
+      marks.forEach(mark => {
+        const strokeId = mark.strokeId || `restored-${mark.id}`;
+        if (!strokeGroups.has(strokeId)) {
+          strokeGroups.set(strokeId, []);
+        }
+        strokeGroups.get(strokeId)!.push(mark);
+      });
+      
+      // Restore each stroke group
+      strokeGroups.forEach((strokeMarks, strokeId) => {
+        const enhancedMarks = strokeMarks.map(mark => ({
+          ...mark,
+          timestamp: mark.timestamp || Date.now(),
+          strokeId: strokeId
+        }));
+        
+        restoreStroke({
+          id: strokeId,
+          marks: enhancedMarks,
+          surface: strokeMarks[0]?.surface || 'body',
+          startTime: Math.min(...enhancedMarks.map(m => m.timestamp)),
+          endTime: Math.max(...enhancedMarks.map(m => m.timestamp)),
+          brushSize: strokeMarks[0]?.size || 3,
+          color: strokeMarks[0]?.color || '#000000',
+          isComplete: true
+        });
+      });
     },
     setSensationMarks,
     setBodyPartColors: (colors) => {
@@ -151,19 +181,35 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     currentPlayerId: currentUserId
   });
 
-  // Handle state requests from new players
+  // Handle state requests from new players - only respond if we have content
   const handleStateRequest = useCallback(() => {
     if (multiplayer.isConnected) {
-      console.log('📸 Sending state snapshot to new player');
-      const snapshot = stateSnapshot.captureCurrentState();
-      multiplayer.broadcastStateSnapshot(snapshot);
+      // Only respond if we have meaningful content to share
+      const hasContent = drawingMarks.length > 0 || 
+                        sensationMarks.length > 0 || 
+                        Object.keys(bodyPartColors).length > 0 || 
+                        textMarks.length > 0;
+      
+      if (hasContent) {
+        console.log('📸 Sending state snapshot to new player (has content)');
+        const snapshot = stateSnapshot.captureCurrentState();
+        multiplayer.broadcastStateSnapshot(snapshot);
+      } else {
+        console.log('📸 No content to share, skipping state snapshot');
+      }
     }
-  }, [multiplayer, stateSnapshot]);
+  }, [multiplayer, stateSnapshot, drawingMarks.length, sensationMarks.length, Object.keys(bodyPartColors).length, textMarks.length]);
 
   // Handle incoming state snapshots
   const handleStateSnapshot = useCallback((snapshot: any) => {
     try {
       console.log('📸 Received state snapshot:', snapshot);
+      
+      // Don't restore our own snapshot
+      if (snapshot.playerId === currentUserId) {
+        console.log('📸 Ignoring own snapshot');
+        return;
+      }
       
       if (stateSnapshot.validateSnapshot(snapshot)) {
         stateSnapshot.restoreFromSnapshot(snapshot);
@@ -174,7 +220,7 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     } catch (error) {
       console.error('❌ Error handling state snapshot:', error);
     }
-  }, [stateSnapshot]);
+  }, [stateSnapshot, currentUserId]);
 
   // Handle emotions updates from controls - now that handleEmotionsUpdate is available
   const handleLocalEmotionsUpdate = useCallback((updateData: any) => {
