@@ -46,8 +46,8 @@ export const useDrawingEventHandlers = ({
     const centerY = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
     // Test multiple positions around the cursor based on brush size
-    const brushRadius = brushSize * 2; // Convert brush size to screen pixels
-    const offsetPixels = brushRadius / 2; // Half the brush size
+    const brushRadius = brushSize * 8; // Much larger multiplier to make it noticeable
+    const offsetPixels = brushRadius; // Use full brush radius for offset
     const positions = [
       { x: centerX, y: centerY }, // Center
       { x: centerX + (offsetPixels / rect.width) * 2, y: centerY }, // Right
@@ -159,8 +159,8 @@ export const useDrawingEventHandlers = ({
     const centerY = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
     // Test multiple positions around the cursor based on brush size
-    const brushRadius = brushSize * 2; // Convert brush size to screen pixels
-    const offsetPixels = brushRadius / 2; // Half the brush size
+    const brushRadius = brushSize * 8; // Much larger multiplier to make it noticeable
+    const offsetPixels = brushRadius; // Use full brush radius for offset
     const positions = [
       { x: centerX, y: centerY }, // Center
       { x: centerX + (offsetPixels / rect.width) * 2, y: centerY }, // Right
