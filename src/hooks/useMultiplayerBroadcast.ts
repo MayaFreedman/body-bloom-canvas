@@ -179,51 +179,6 @@ export const useMultiplayerBroadcast = (
     }
   }, [isConnected, room, currentPlayerId]);
 
-  // State synchronization broadcasts
-  const broadcastStateSnapshot = useCallback((snapshot: any) => {
-    if (!isConnected || !room) {
-      console.log('📸 STATE SNAPSHOT: Not connected, skipping broadcast');
-      return;
-    }
-
-    console.log('📸 STATE SNAPSHOT: Broadcasting state snapshot:', snapshot);
-    
-    try {
-      room.send('broadcast', {
-        type: 'stateSnapshot',
-        data: {
-          ...snapshot,
-          playerId: currentPlayerId
-        }
-      });
-      console.log('📸 STATE SNAPSHOT: Successfully sent state snapshot');
-    } catch (error) {
-      console.error('📸 STATE SNAPSHOT: Failed to broadcast state snapshot:', error);
-    }
-  }, [isConnected, room, currentPlayerId]);
-
-  const requestStateSnapshot = useCallback(() => {
-    if (!isConnected || !room) {
-      console.log('📸 STATE REQUEST: Not connected, skipping request');
-      return;
-    }
-
-    console.log('📸 STATE REQUEST: Requesting state snapshot');
-    
-    try {
-      room.send('broadcast', {
-        type: 'stateRequest',
-        data: {
-          playerId: currentPlayerId,
-          timestamp: Date.now()
-        }
-      });
-      console.log('📸 STATE REQUEST: Successfully sent state request');
-    } catch (error) {
-      console.error('📸 STATE REQUEST: Failed to request state snapshot:', error);
-    }
-  }, [isConnected, room, currentPlayerId]);
-
   return {
     broadcastSensation,
     broadcastBodyPartFill,
@@ -236,8 +191,6 @@ export const useMultiplayerBroadcast = (
     broadcastTextUpdate,
     broadcastTextDelete,
     broadcastCustomEffect,
-    broadcastStateSnapshot,
-    requestStateSnapshot,
     cleanup
   };
 };

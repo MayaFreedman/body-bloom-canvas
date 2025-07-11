@@ -73,7 +73,7 @@ export const useStrokeManager = ({ currentUserId }: UseStrokeManagerProps) => {
   }, []);
 
   const restoreStroke = useCallback((stroke: DrawingStroke) => {
-    console.log('Restoring stroke:', stroke.id, 'with marks:', stroke.marks.length);
+    console.log('Restoring stroke:', stroke.id);
     setCompletedStrokes(prev => {
       // Check if stroke already exists to avoid duplicates
       const exists = prev.some(s => s.id === stroke.id);
@@ -81,9 +81,7 @@ export const useStrokeManager = ({ currentUserId }: UseStrokeManagerProps) => {
         console.log('Stroke already exists, skipping restore');
         return prev;
       }
-      const newStrokes = [...prev, stroke];
-      console.log('✅ Stroke restored, total completed strokes:', newStrokes.length);
-      return newStrokes;
+      return [...prev, stroke];
     });
   }, []);
 

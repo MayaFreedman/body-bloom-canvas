@@ -7,7 +7,6 @@ import { useEnhancedBodyMapperState } from '@/hooks/useEnhancedBodyMapperState';
 import { useMultiplayer } from '@/hooks/useMultiplayer';
 import { useMultiplayerDrawingHandlers } from '@/hooks/useMultiplayerDrawingHandlers';
 import { useRotationHandlers } from '@/hooks/useRotationHandlers';
-import { useStateSnapshot } from '@/hooks/useStateSnapshot';
 import * as THREE from 'three';
 
 interface EmotionalBodyMapperProps {
@@ -121,109 +120,6 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     multiplayer 
   });
 
-  // State synchronization functionality
-  const stateSnapshot = useStateSnapshot({
-    drawingMarks,
-    sensationMarks,
-    bodyPartColors,
-    textMarks,
-    whiteboardBackground,
-    rotation,
-    setDrawingMarks: (marks) => {
-      console.log('🔄 Restoring drawing marks from state snapshot:', marks.length);
-      
-      // Group marks by strokeId to reconstruct strokes
-      const strokesMap = new Map();
-      const orphanedMarks = []; // Marks without strokeId
-      
-      marks.forEach(mark => {
-        if (!mark.strokeId) {
-          console.warn('⚠️ Mark without strokeId, will create artificial stroke:', mark.id);
-          orphanedMarks.push(mark);
-          return;
-        }
-        
-        if (!strokesMap.has(mark.strokeId)) {
-          strokesMap.set(mark.strokeId, {
-            id: mark.strokeId,
-            marks: [],
-            userId: mark.userId || 'unknown',
-            startTime: mark.timestamp || Date.now(),
-            endTime: mark.timestamp || Date.now(),
-            brushSize: mark.size || 3,
-            color: mark.color || '#ffeb3b',
-            isComplete: true
-          });
-        }
-        
-        strokesMap.get(mark.strokeId).marks.push(mark);
-      });
-      
-      // Handle orphaned marks by creating artificial strokes
-      if (orphanedMarks.length > 0) {
-        console.log('🔄 Creating artificial stroke for', orphanedMarks.length, 'orphaned marks');
-        const artificialStroke = {
-          id: `artificial-stroke-${Date.now()}`,
-          marks: orphanedMarks,
-          userId: 'restored',
-          startTime: Date.now(),
-          endTime: Date.now(),
-          brushSize: orphanedMarks[0]?.size || 3,
-          color: orphanedMarks[0]?.color || '#ffeb3b',
-          isComplete: true
-        };
-        strokesMap.set(artificialStroke.id, artificialStroke);
-      }
-      
-      // Restore each stroke
-      strokesMap.forEach(stroke => {
-        console.log('🔄 Restoring stroke from snapshot:', stroke.id, 'with', stroke.marks.length, 'marks');
-        restoreStroke(stroke);
-      });
-    },
-    setSensationMarks,
-    setBodyPartColors: (colors) => {
-      Object.entries(colors).forEach(([partName, color]) => {
-        baseHandleBodyPartClick(partName, color);
-      });
-    },
-    setTextMarks: (marks) => {
-      // Clear existing text marks and add new ones
-      textMarks.forEach(mark => handleDeleteTextMark(mark.id));
-      marks.forEach(mark => {
-        handleAddTextMark(mark.position, mark.text, mark.surface, mark.color);
-      });
-    },
-    setWhiteboardBackground: handleWhiteboardFill,
-    setRotation,
-    currentPlayerId: currentUserId
-  });
-
-  // Handle state requests from new players
-  const handleStateRequest = useCallback(() => {
-    if (multiplayer.isConnected) {
-      console.log('📸 Sending state snapshot to new player');
-      const snapshot = stateSnapshot.captureCurrentState();
-      multiplayer.broadcastStateSnapshot(snapshot);
-    }
-  }, [multiplayer, stateSnapshot]);
-
-  // Handle incoming state snapshots
-  const handleStateSnapshot = useCallback((snapshot: any) => {
-    try {
-      console.log('📸 Received state snapshot:', snapshot);
-      
-      if (stateSnapshot.validateSnapshot(snapshot)) {
-        stateSnapshot.restoreFromSnapshot(snapshot);
-        console.log('✅ Successfully restored state from snapshot');
-      } else {
-        console.warn('⚠️ Invalid snapshot received, ignoring');
-      }
-    } catch (error) {
-      console.error('❌ Error handling state snapshot:', error);
-    }
-  }, [stateSnapshot]);
-
   // Handle emotions updates from controls - now that handleEmotionsUpdate is available
   const handleLocalEmotionsUpdate = useCallback((updateData: any) => {
     switch (updateData.type) {
@@ -328,8 +224,6 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
     surface: mark.surface  // ✅ FIXED: Include surface property
   }));
 
-  console.log('🎨 EmotionalBodyMapper - rendering with drawing marks:', legacyDrawingMarks.length);
-
   
 
   return (
@@ -406,8 +300,6 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
         onIncomingErase={handleIncomingErase}
         onIncomingSensation={handleIncomingSensation}
         onIncomingCustomEffect={handleIncomingCustomEffect}
-        onStateRequest={handleStateRequest}
-        onStateSnapshot={handleStateSnapshot}
       />
     </div>
   );

@@ -248,14 +248,9 @@ export const useEnhancedBodyMapperState = ({
       position: mark.position,
       color: mark.color,
       size: mark.size,
-      surface: mark.surface,
-      strokeId: mark.strokeId, // ✅ PRESERVE strokeId for state sync
-      userId: mark.userId,
-      timestamp: mark.timestamp
+      surface: mark.surface
     };
   });
-
-  console.log('🔄 Enhanced state - total drawing marks:', drawingMarks.length, 'from', strokeManager.completedStrokes.length, 'completed strokes');
 
   return {
     mode,
