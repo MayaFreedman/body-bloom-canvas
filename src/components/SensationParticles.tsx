@@ -293,9 +293,9 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
   const getParticleSize = (sensationName: string) => {
     const sizeMap: { [key: string]: { base: number; variance: number; multiplier: number } } = {
       // VERY SLOW/STATIC = largest, regenerate least frequently
-      'Frozen/Stiff': { base: 0.1, variance: 0.05, multiplier: 5.0 }, // 5x larger, static
-      'Heaviness': { base: 0.1, variance: 0.05, multiplier: 5.0 }, // 5x larger, static
-      'Lump in Throat': { base: 0.1, variance: 0.05, multiplier: 5.0 }, // 5x larger
+      'Frozen/Stiff': { base: 0.04, variance: 0.02, multiplier: 2.5 }, // More reasonable size, static
+      'Heaviness': { base: 0.04, variance: 0.02, multiplier: 2.5 }, // More reasonable size, static
+      'Lump in Throat': { base: 0.04, variance: 0.02, multiplier: 2.5 }, // More reasonable size
       
       // SLOW/CALM = large, infrequent regeneration  
       'Relaxed': { base: 0.07, variance: 0.035, multiplier: 2.3 }, // Calm, visible
