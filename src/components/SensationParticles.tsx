@@ -416,7 +416,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
         dispersion: 0.15, // Perfect spawn area - keep it!
         size: { base: 0.04, variance: 0.02, multiplier: 1.4 }, // Same as moderate size
         lifespan: { min: 50, max: 120 }, // Same lifespan
-        speed: 5.5, // MAXIMUM CHAOS SPEED!
+        speed: 4.2, // Toned down from 5.5
         intensity: 4.0, // EXTREME RANDOMNESS AND INTENSITY!
       },
     };
@@ -989,7 +989,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             // Apply gravity and movement
             particle.velocity.y += (animProfile.gravity || 0.0002) * clampedDelta;
             particle.position.add(particle.velocity);
-            particle.velocity.multiplyScalar(0.98); // Reduced damping for more flowing movement
+            particle.velocity.multiplyScalar(0.995); // Even less damping for maximum flow
             
           } else {
             // Moderate movement (default)
