@@ -132,9 +132,7 @@ export const useEnhancedBodyMapperState = ({
     } = {
       id: `sensation-${Date.now()}-${Math.random()}`,
       position,
-      icon: ('isCustom' in sensation && sensation.isCustom) 
-        ? (sensation as CustomSensation).selectedIcon  // Use selectedIcon for custom effects
-        : sensation.icon,                              // Use icon for built-in sensations
+      icon: sensation.icon, // Use icon directly - it's already set correctly in SensationSelector
       color: sensation.color,
       size: 0.1,
       name: sensation.name,
