@@ -41,7 +41,7 @@ export const bodySensations = [
   { icon: 'Activity', name: 'Clenched', color: '#B22222' },
   { icon: 'Zap', name: 'Change in Energy', color: '#FFD700' },
   { icon: 'Activity', name: 'Avoiding Eye Contact', color: '#9370DB' },
-  { icon: 'Activity', name: 'Scrunched Face', color: '#CD853F' },
+  { icon: 'Activity', name: 'Tense', color: '#CD853F' },
   { icon: 'Snowflake', name: 'Goosebumps', color: '#E6E6FA' },
   { icon: 'Wind', name: 'Relaxed', color: '#98FB98' },
   { icon: 'Droplet', name: 'Sweat', color: '#4682B4' }

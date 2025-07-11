@@ -199,7 +199,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       'Clenched': 'clenchedFist',
       'Change in Energy': 'lightbulb',
       'Avoiding Eye Contact': 'monkey',
-      'Scrunched Face': 'wavy',
+      'Tense': 'wavy',
       'Goosebumps': 'goosebump',
       'Relaxed': 'relax',
       'Sweat': 'sweat'
@@ -213,7 +213,6 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
   // Get normalized scale for different textures
   const getNormalizedScale = (sensationName: string) => {
     const scaleMapping: { [key: string]: number } = {
-      'Nerves': 1.2,
       'Pain': 0.8,
       'Nausea': 1.0,
       'Tears': 0.6,
@@ -222,24 +221,17 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       'Increased Heart Rate': 0.8,
       'Decreased Heart Rate': 0.8,
       'Tired': 1.1,
-      'Change in Breathing': 0.4, // Reduced from 1.0 - wind image is small
       'Tingling': 0.7,
-      'Shaky': 0.3, // Reduced from 1.0 - shake image is small  
       'Pacing': 1.2,
-      'Stomping': 1.6, // Bigger than pacing for more exaggerated look
       'Tight': 1.0,
       'Lump in Throat': 1.0,
-      'Change in Appetite': 0.3, // Reduced from 1.0 - plate image is small
       'Heaviness': 0.9,
-      'Fidgety': 0.3, // Reduced from 1.0 - fidget spinner image is small
       'Frozen/Stiff': 1.1,
       'Ache': 0.8,
       'Feeling Small': 0.9,
       'Dry Mouth': 1.0,
-      'Clenched': 0.3, // Reduced from 0.9 - clenched fist image is small
       'Change in Energy': 0.9,
-      'Avoiding Eye Contact': 0.4, // Reduced from 1.0 - monkey image is small
-      'Scrunched Face': 0.4, // Reduced from 1.0 - wavy image is small
+      'Tense': 1.0, // Renamed from Scrunched Face and reset to default
       'Goosebumps': 1.0,
       'Relaxed': 1.0,
       'Sweat': 0.8
@@ -251,28 +243,15 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
   // Get dispersion level based on sensation type (much larger areas for natural spread)
   const getDispersionLevel = (sensationName: string) => {
     const dispersionMap: { [key: string]: number } = {
-      // FAST/JERKY = very large spread across body areas
-      'Nerves': 0.15,            // Spread across entire body region
-      'Shaky': 0.12,             // Large area for trembling
       'Tingling': 0.10,          // Wide sparkle coverage
       'Goosebumps': 0.08,        // Goosebumps spread naturally
-      'Fidgety': 0.11,           // Restless across area
-      
-      // ACTIVE = large spread for movement visibility
-      'Change in Energy': 0.09,  // Energy across body part
-      'Pacing': 0.07,            // Movement patterns
-      'Stomping': 0.07,          // Same as pacing for identical base behavior
-      'Avoiding Eye Contact': 0.08, // Face/head area
-      'Scrunched Face': 0.06,    // Facial area
       
       // MEDIUM SPEED = good spread across body parts
       'Nausea': 0.08,            // Stomach/torso area
       'Increased Heart Rate': 0.07, // Chest area coverage
       'Pain': 0.08,              // Increased dispersion for less overlapping
-      'Change in Breathing': 0.08, // Chest/torso breathing
       'Ache': 0.05,              // Localized but spread
-      'Clenched': 0.05,          // Muscle area
-      'Change in Appetite': 0.06, // Stomach area
+      'Pacing': 0.07,            // Movement patterns
       
       // MEDIUM-SLOW = moderate spread
       'Tears': 0.04,             // Face area for tears
@@ -280,6 +259,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       'Decreased Temperature': 0.15, // Even wider spread for more dispersed snow
       'Tight': 0.04,             // Tension area
       'Dry Mouth': 0.03,         // Mouth/throat area
+      'Change in Energy': 0.09,  // Energy across body part
       
       // VERY SLOW = still spread but smaller
       'Frozen/Stiff': 0.03,      // Small but visible area
@@ -315,22 +295,11 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       // MEDIUM = medium particles, moderate regeneration
       'Nausea': { base: 0.045, variance: 0.025, multiplier: 1.7 }, // Visible swirling
       'Increased Heart Rate': { base: 0.045, variance: 0.02, multiplier: 1.7 }, // Fast but visible beats
-      'Change in Breathing': { base: 0.06, variance: 0.03, multiplier: 2.0 }, // Increased size for better visibility
-      'Change in Appetite': { base: 0.08, variance: 0.04, multiplier: 2.5 }, // Drastically increased size
-      'Clenched': { base: 0.045, variance: 0.02, multiplier: 1.7 }, // Muscle tension
-      
-      // ACTIVE = medium particles for visibility
-      'Change in Energy': { base: 0.04, variance: 0.02, multiplier: 1.5 }, // Energy bursts
-      'Fidgety': { base: 0.08, variance: 0.04, multiplier: 2.5 }, // Drastically increased size for restless movement
       'Pacing': { base: 0.04, variance: 0.02, multiplier: 1.5 }, // Movement patterns
-      'Stomping': { base: 0.045, variance: 0.025, multiplier: 1.7 }, // Bigger particles than pacing
-      'Avoiding Eye Contact': { base: 0.035, variance: 0.015, multiplier: 1.4 }, // Nervous behavior
-      'Scrunched Face': { base: 0.06, variance: 0.03, multiplier: 2.0 }, // Increased size for facial tension visibility
+      'Change in Energy': { base: 0.04, variance: 0.02, multiplier: 1.5 }, // Energy bursts
       
       // FAST/JERKY = smaller but still visible, frequent regeneration
       'Tingling': { base: 0.03, variance: 0.015, multiplier: 1.3 }, // Sparkle effect
-      'Shaky': { base: 0.05, variance: 0.025, multiplier: 1.8 }, // Increased size for trembling visibility
-      'Nerves': { base: 0.025, variance: 0.012, multiplier: 1.2 }, // Electrical, dispersed
       'Goosebumps': { base: 0.025, variance: 0.012, multiplier: 1.2 }, // Small bumps
       
       // SMALLEST = appropriately tiny
@@ -366,22 +335,11 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       // MEDIUM = normal lifespan
       'Nausea': { min: 80, max: 140 }, // Swirling motion
       'Increased Heart Rate': { min: 60, max: 120 }, // Faster rhythm
-      'Change in Breathing': { min: 350, max: 500 }, // Very long lifespan for extremely calm breathing
-      'Change in Appetite': { min: 90, max: 150 }, // Moderate change
-      'Clenched': { min: 80, max: 140 }, // Tension comes and goes
-      
-      // ACTIVE = shorter lifespan, more dynamic
       'Change in Energy': { min: 50, max: 100 }, // Energy bursts
-      'Fidgety': { min: 40, max: 80 }, // Restless, changing
       'Pacing': { min: 400, max: 600 }, // Very long lifespan, minimal respawning
-      'Stomping': { min: 500, max: 700 }, // Extremely long lifespan for very slow feeling
-      'Avoiding Eye Contact': { min: 45, max: 85 }, // Nervous behavior
-      'Scrunched Face': { min: 40, max: 80 }, // Facial expressions
       
       // FAST/JERKY = short lifespan, frequent regeneration
       'Tingling': { min: 30, max: 60 }, // Quick sparkles
-      'Shaky': { min: 150, max: 250 }, // Longer lifespan for less overwhelming trembling
-      'Nerves': { min: 20, max: 45 }, // Electrical, quick
       'Goosebumps': { min: 35, max: 70 }, // Brief bumps
       
       // SMALLEST = quick regeneration
