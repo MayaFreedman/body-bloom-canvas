@@ -36,83 +36,61 @@ export const useDrawingEventHandlers = ({
   const lastBodyPart = useRef<string | null>(null);
   const strokeStarted = useRef(false);
 
-  // Always find the closest mesh within brush radius for better edge detection
+  // Check if direct hit is too close to edge based on brush size
   const findBrushIntersection = useCallback((meshes: THREE.Mesh[]) => {
-    const brushRadius = brushSize * 0.05; // Reasonable brush expansion for edge detection
-    console.log('🖌️ BRUSH DEBUG: brushSize:', brushSize, 'brushRadius:', brushRadius);
+    const edgeThreshold = brushSize * 0.05; // Distance from edge to consider a "miss"
+    console.log('🖌️ BRUSH DEBUG: brushSize:', brushSize, 'edgeThreshold:', edgeThreshold);
     
-    const rayOrigin = new THREE.Vector3();
-    const rayDirection = new THREE.Vector3();
-    
-    raycaster.ray.at(0, rayOrigin);
-    rayDirection.copy(raycaster.ray.direction);
-    
-    // Always check for closest mesh within brush radius (helps with edges)
-    let closestMesh: THREE.Mesh | null = null;
-    let closestDistance = Infinity;
-    let closestPoint = new THREE.Vector3();
-    let bestIntersection: THREE.Intersection | null = null;
-    
-    // First, try normal intersections and see if any are close
+    // First, try normal intersections
     const normalIntersects = raycaster.intersectObjects(meshes, false);
     console.log('🎯 NORMAL INTERSECTS:', normalIntersects.length);
     
     if (normalIntersects.length > 0) {
-      console.log('✅ DIRECT HIT found, using closest one');
-      return normalIntersects[0]; // Direct hit is always best
-    }
-    
-    console.log('🔍 NO DIRECT HIT - checking brush radius for edge detection:', brushRadius);
-    
-    // Find closest mesh within brush radius for edge detection
-    for (let i = 0; i < meshes.length; i++) {
-      const mesh = meshes[i];
-      console.log(`  Checking mesh ${i}:`, mesh.userData.bodyPart || 'whiteboard');
+      const hit = normalIntersects[0];
+      console.log('✅ DIRECT HIT found - checking if too close to edge');
       
-      // Get mesh bounding box for better proximity detection
-      const box = new THREE.Box3().setFromObject(mesh);
-      const center = box.getCenter(new THREE.Vector3());
+      // Check if hit point is too close to mesh edge
+      const mesh = hit.object as THREE.Mesh;
+      const geometry = mesh.geometry;
       
-      // Calculate closest point on ray to mesh center
-      const toMesh = center.clone().sub(rayOrigin);
-      const projectionLength = toMesh.dot(rayDirection);
-      
-      if (projectionLength > 0) {
-        const rayPoint = new THREE.Vector3().copy(rayDirection).multiplyScalar(projectionLength).add(rayOrigin);
-        const distance = rayPoint.distanceTo(center);
+      if (geometry && geometry.boundingBox) {
+        geometry.computeBoundingBox();
+        const box = geometry.boundingBox!;
         
-        console.log(`    Distance to mesh center: ${distance.toFixed(3)}, brushRadius: ${brushRadius.toFixed(3)}`);
+        // Transform hit point to local mesh coordinates
+        const localPoint = hit.point.clone();
+        mesh.worldToLocal(localPoint);
         
-        if (distance <= brushRadius && distance < closestDistance) {
-          closestDistance = distance;
-          closestMesh = mesh;
-          
-          // Project the ray point onto the mesh surface for better positioning
-          const directionToCenter = center.clone().sub(rayPoint).normalize();
-          closestPoint.copy(rayPoint).add(directionToCenter.multiplyScalar(distance * 0.8)); // Move 80% toward center
-          
-          console.log('🎯 NEW CLOSEST MESH:', mesh.userData.bodyPart || 'whiteboard', 'distance:', distance.toFixed(3));
+        // Calculate distance to nearest edge
+        const distToEdgeX = Math.min(
+          Math.abs(localPoint.x - box.min.x),
+          Math.abs(localPoint.x - box.max.x)
+        );
+        const distToEdgeY = Math.min(
+          Math.abs(localPoint.y - box.min.y),
+          Math.abs(localPoint.y - box.max.y)
+        );
+        const distToEdgeZ = Math.min(
+          Math.abs(localPoint.z - box.min.z),
+          Math.abs(localPoint.z - box.max.z)
+        );
+        
+        const minDistToEdge = Math.min(distToEdgeX, distToEdgeY, distToEdgeZ);
+        
+        console.log(`🏃 Edge distances: X=${distToEdgeX.toFixed(3)}, Y=${distToEdgeY.toFixed(3)}, Z=${distToEdgeZ.toFixed(3)}`);
+        console.log(`📏 Min edge distance: ${minDistToEdge.toFixed(3)}, threshold: ${edgeThreshold.toFixed(3)}`);
+        
+        if (minDistToEdge < edgeThreshold) {
+          console.log('❌ TOO CLOSE TO EDGE - treating as miss');
+          return null; // Treat as miss if too close to edge
         }
       }
+      
+      console.log('✅ GOOD HIT - not too close to edge');
+      return hit; // Good hit, not too close to edge
     }
     
-    if (closestMesh) {
-      console.log('🎉 BRUSH EDGE HIT! Closest mesh:', closestMesh.userData.bodyPart || 'whiteboard');
-      const fakeIntersect: THREE.Intersection = {
-        distance: closestDistance,
-        point: closestPoint,
-        object: closestMesh,
-        face: null,
-        faceIndex: undefined,
-        uv: undefined,
-        uv1: undefined,
-        normal: undefined,
-        instanceId: undefined
-      };
-      return fakeIntersect;
-    }
-    
-    console.log('❌ NO MESH WITHIN BRUSH RADIUS');
+    console.log('❌ NO DIRECT HIT');
     return null;
   }, [brushSize, raycaster]);
 
