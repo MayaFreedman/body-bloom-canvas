@@ -369,9 +369,9 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
       'Shaky': { min: 80, max: 140 }, // Match Increased Temperature
       'Stomping': { min: 30, max: 60 }, // Match energetic lifespan
       'Change in Appetite': { min: 80, max: 140 }, // Match Increased Temperature
-      'Fidgety': { min: 30, max: 60 }, // Match energetic lifespan
+      'Fidgety': { min: 120, max: 180 }, // More chill respawn rate
       'Clenched': { min: 80, max: 140 }, // Match Increased Temperature
-      'Avoiding Eye Contact': { min: 80, max: 140 }, // Match Increased Temperature
+      'Avoiding Eye Contact': { min: 160, max: 240 }, // Slower respawn rate
       'Tense': { min: 80, max: 140 }, // Match Increased Temperature
       'Change in Energy': { min: 50, max: 100 }, // Energy bursts
       'Pacing': { min: 400, max: 600 }, // Very long lifespan, minimal respawning
@@ -736,7 +736,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             if (Date.now() % 2000 < 50) {
               console.log('🎨 REGENERATION: Using custom velocity for', mark.movementBehavior, 'speedMultiplier:', speedMultiplier);
             }
-          } else if (mark.name === 'Nerves' || mark.name === 'Stomping' || mark.name === 'Fidgety' || mark.icon === 'butterfly') {
+          } else if (mark.name === 'Nerves' || mark.name === 'Stomping' || mark.icon === 'butterfly') {
             // Reset energetic particles (nerves, stomping, fidgety) with energetic behavior
             const speedMultiplier = 4.2; // Match energetic speed
             particle.velocity.set(
@@ -768,7 +768,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             
             // MOVEMENT effects - reset to reasonable defaults
             'Shaky': { speed: 0.8, intensity: 0.6, pattern: 'flow', gravity: 0.0002, drift: new THREE.Vector3(0, 0.2, 0) },
-            'Fidgety': { speed: 4.2, intensity: 4.0, pattern: 'custom', gravity: 0.0002, drift: new THREE.Vector3(0, 0.1, 0) },
+            'Fidgety': { speed: 1.2, intensity: 0.8, pattern: 'flow', gravity: 0.0002, drift: new THREE.Vector3(0, 0.15, 0) },
             'Pacing': { speed: 0.05, intensity: 0.1, pattern: 'gentle' }, // Keep minimal movement
             'Stomping': { speed: 4.2, intensity: 4.0, pattern: 'custom', gravity: 0.0002, drift: new THREE.Vector3(0, 0.1, 0) },
             
