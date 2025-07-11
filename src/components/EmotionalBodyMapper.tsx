@@ -134,9 +134,12 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
       
       // Group marks by strokeId to reconstruct strokes
       const strokesMap = new Map();
+      const orphanedMarks = []; // Marks without strokeId
+      
       marks.forEach(mark => {
         if (!mark.strokeId) {
-          console.warn('⚠️ Mark without strokeId, skipping:', mark);
+          console.warn('⚠️ Mark without strokeId, will create artificial stroke:', mark.id);
+          orphanedMarks.push(mark);
           return;
         }
         
@@ -155,6 +158,22 @@ const EmotionalBodyMapper = ({ roomId }: EmotionalBodyMapperProps) => {
         
         strokesMap.get(mark.strokeId).marks.push(mark);
       });
+      
+      // Handle orphaned marks by creating artificial strokes
+      if (orphanedMarks.length > 0) {
+        console.log('🔄 Creating artificial stroke for', orphanedMarks.length, 'orphaned marks');
+        const artificialStroke = {
+          id: `artificial-stroke-${Date.now()}`,
+          marks: orphanedMarks,
+          userId: 'restored',
+          startTime: Date.now(),
+          endTime: Date.now(),
+          brushSize: orphanedMarks[0]?.size || 3,
+          color: orphanedMarks[0]?.color || '#ffeb3b',
+          isComplete: true
+        };
+        strokesMap.set(artificialStroke.id, artificialStroke);
+      }
       
       // Restore each stroke
       strokesMap.forEach(stroke => {

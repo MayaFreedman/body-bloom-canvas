@@ -248,7 +248,10 @@ export const useEnhancedBodyMapperState = ({
       position: mark.position,
       color: mark.color,
       size: mark.size,
-      surface: mark.surface
+      surface: mark.surface,
+      strokeId: mark.strokeId, // ✅ PRESERVE strokeId for state sync
+      userId: mark.userId,
+      timestamp: mark.timestamp
     };
   });
 
