@@ -237,8 +237,10 @@ export const SensationSelector = ({ mode, selectedSensation, onModeChange, onSen
                   // Handle custom vs built-in sensations
                   if ('isCustom' in sensation && sensation.isCustom) {
                     const customSensation = sensation as CustomSensation;
+                    console.log('🎯 SensationSelector - Selecting custom sensation:', customSensation);
+                    console.log('🎯 SensationSelector - Custom sensation icon:', customSensation.icon, 'selectedIcon:', customSensation.selectedIcon);
                     onSensationChange({
-                      icon: customSensation.icon,
+                      icon: customSensation.selectedIcon, // Use selectedIcon instead of icon for custom effects
                       color: customSensation.color,
                       name: customSensation.name,
                       movementBehavior: customSensation.movementBehavior,

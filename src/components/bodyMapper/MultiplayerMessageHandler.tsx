@@ -138,6 +138,7 @@ export const MultiplayerMessageHandler = ({
             }
             
             try {
+              console.log('🔥 MULTIPLAYER: Received sensation data:', sensation);
               const newSensationMark: SensationMark = {
                 id: sensation.id,
                 position: new THREE.Vector3(
@@ -152,6 +153,7 @@ export const MultiplayerMessageHandler = ({
                 movementBehavior: sensation.movementBehavior || 'moderate', // Include movement behavior
                 isCustom: sensation.isCustom || false // Include custom flag
               };
+              console.log('🔥 MULTIPLAYER: Created sensation mark with icon:', newSensationMark.icon, 'full mark:', newSensationMark);
               console.log('✨ Adding sensation mark:', newSensationMark);
               
               // Use the new handler if available, otherwise fall back to direct state update

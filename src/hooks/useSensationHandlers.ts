@@ -29,6 +29,8 @@ export const useSensationHandlers = ({ multiplayer }: UseSensationHandlersProps)
         movementBehavior: sensation.movementBehavior,
         isCustom: sensation.isCustom
       };
+      console.log('🔥 SENSATION HANDLER: Creating sensation mark with icon:', sensation.icon, 'full sensation:', sensation);
+      console.log('🔥 SENSATION HANDLER: Final sensation mark:', sensationMark);
       multiplayer.broadcastSensation(sensationMark);
     }
   }, [multiplayer]);
