@@ -122,7 +122,8 @@ export const useEnhancedBodyMapperState = ({
 
   // Enhanced sensation handling with action history tracking
   const handleSensationClick = (position: any, sensation: SelectedSensation | CustomSensation) => {
-    
+    console.log('🎯 ENHANCED STATE: handleSensationClick called with sensation:', sensation);
+    console.log('🎯 ENHANCED STATE: isCustom check:', 'isCustom' in sensation && sensation.isCustom);
     
     // Create enhanced sensation mark with custom properties
     const newSensationMark: SensationMark & { 
@@ -142,6 +143,9 @@ export const useEnhancedBodyMapperState = ({
         isCustom: true
       } : {})
     };
+    
+    console.log('🎯 ENHANCED STATE: Created sensation mark:', newSensationMark);
+    console.log('🎯 ENHANCED STATE: Icon used:', newSensationMark.icon);
     
     // Update state
     setSensationMarks(prev => {
