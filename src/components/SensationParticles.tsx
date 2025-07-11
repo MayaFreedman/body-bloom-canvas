@@ -951,18 +951,21 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
             
           } else if (customBehavior === 'energetic') {
             
-            // Energetic movement - exactly like moderate but faster
-            const energeticFloat = Math.sin(time * 5 + particle.life * 0.5) * 0.0015 * animProfile.intensity; // Faster time multiplier and stronger force
-            const energeticDrift = Math.cos(time * 4 + particle.life * 0.4) * 0.0012 * animProfile.intensity; // Faster and stronger
+            // Energetic movement - faster and more random than moderate
+            const energeticFloat = Math.sin(time * 8 + particle.life * 0.7) * 0.0025 * animProfile.intensity; // Much faster and stronger
+            const energeticDrift = Math.cos(time * 6.5 + particle.life * 0.6) * 0.002 * animProfile.intensity; // Faster and stronger
             
-            particle.velocity.x += energeticFloat * clampedDelta;
-            particle.velocity.y += energeticDrift * clampedDelta;
-            particle.velocity.z += (energeticFloat * 0.6) * clampedDelta;
+            // Add some randomness to make it more chaotic
+            const randomBoost = (Math.random() - 0.5) * 0.001 * animProfile.intensity;
+            
+            particle.velocity.x += (energeticFloat + randomBoost) * clampedDelta;
+            particle.velocity.y += (energeticDrift + randomBoost * 0.8) * clampedDelta;
+            particle.velocity.z += (energeticFloat * 0.6 + randomBoost) * clampedDelta;
             
             // Apply gravity and movement
             particle.velocity.y += (animProfile.gravity || 0.0002) * clampedDelta;
             particle.position.add(particle.velocity);
-            particle.velocity.multiplyScalar(0.93); // Slightly less damping for more movement
+            particle.velocity.multiplyScalar(0.88); // Less damping for more chaotic movement
             
           } else {
             // Moderate movement (default)
