@@ -516,7 +516,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
               (Math.random() - 0.5) * 0.0008, // Gentle vertical for pulsing
               (Math.random() - 0.5) * 0.0002  // Minimal depth
             );
-          } else if (mark.name === 'Nerves' || mark.name === 'Tingling') {
+          } else if (mark.name === 'Tingling') {
             // Electrical particles start with quick, small movements
             initialVelocity = new THREE.Vector3(
               (Math.random() - 0.5) * 0.001,
@@ -584,7 +584,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
           };
 
           // Add special properties for nerves/electrical particles  
-          if (mark.icon === 'Activity' || mark.name === 'Nerves' || mark.name === 'Tingling') {
+          if (mark.icon === 'Activity' || mark.name === 'Tingling') {
             particles.push({
               ...baseParticle,
               sparkIntensity: Math.random(),
@@ -641,7 +641,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
         particle.oscillationPhase += particle.oscillationSpeed * clampedDelta;
         
         // Update electrical properties for nerves and tingling
-        if ((mark.icon === 'Activity' || mark.name === 'Nerves' || mark.name === 'Tingling') && particle.electricalPulse !== undefined) {
+        if ((mark.icon === 'Activity' || mark.name === 'Tingling') && particle.electricalPulse !== undefined) {
           particle.electricalPulse += clampedDelta * 12;
           particle.flickerPhase! += clampedDelta * 20;
         }
@@ -1047,7 +1047,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
           const opacity = 1 - (particle.life / particle.maxLife);
           const normalizedScale = getNormalizedScale(mark.name || mark.icon);
           
-          if (mark.icon === 'Activity' || mark.name === 'Nerves') {
+          if (mark.icon === 'Activity') {
             const flickerIntensity = particle.flickerPhase !== undefined ? 0.4 + Math.sin(particle.flickerPhase) * 0.5 : 1;
             const pulseScale = particle.electricalPulse !== undefined ? 1 + Math.sin(particle.electricalPulse) * 0.8 : 1;
             mesh.scale.setScalar(particle.size * normalizedScale * pulseScale);
