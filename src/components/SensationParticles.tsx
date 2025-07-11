@@ -711,7 +711,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
           particle.rotation = Math.random() * Math.PI * 2;
           particle.oscillationPhase = Math.random() * Math.PI * 2;
           
-          if (mark.icon === 'Activity' || mark.name === 'Nerves' || mark.name === 'Tingling') {
+          if (mark.icon === 'Activity' || mark.name === 'Tingling') {
             particle.flickerPhase = Math.random() * Math.PI * 2;
             particle.electricalPulse = Math.random() * Math.PI * 2;
             particle.sparkIntensity = Math.random();
@@ -832,7 +832,7 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
         }
 
         // Update position based on animation profile with natural physics
-        if (animProfile.pattern === 'electrical' || mark.icon === 'Activity' || mark.name === 'Nerves' || mark.name === 'Tingling') {
+        if (animProfile.pattern === 'electrical' || mark.icon === 'Activity' || mark.name === 'Tingling') {
           // Electrical effects: gentler sparking with fluid movement
           const electricalJitter = Math.sin(particle.electricalPulse! * animProfile.speed) * 0.0005 * animProfile.intensity;
           const sparkDirection = Math.cos(time * 4 * animProfile.speed + particle.life * 0.1) * 0.0004 * animProfile.intensity;
@@ -929,8 +929,8 @@ const SensationParticles: React.FC<SensationParticlesProps> = ({ sensationMarks 
           // Minimal damping - let gravity do the work
           particle.velocity.multiplyScalar(0.998);
           
-        } else if (mark.icon === 'butterfly' || mark.name === 'Nerves') {
-          // Butterfly/Nerves: more realistic gentle movement
+        } else if (mark.icon === 'butterfly') {
+          // Butterfly: more realistic gentle movement
           const gentleFloat = Math.sin(time * 2 + particle.life * 0.3) * 0.0008 * (animProfile.intensity || 0.6);
           const naturalDrift = Math.cos(time * 1.5 + particle.life * 0.2) * 0.0006 * (animProfile.intensity || 0.6);
           const softVertical = Math.sin(particle.oscillationPhase * 1.2) * 0.0004 * (animProfile.intensity || 0.6);
